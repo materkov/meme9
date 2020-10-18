@@ -1,0 +1,4 @@
+.idea
+front/node_modules
+front/dist/*.js
+front/dist/*.LICENSE.txt

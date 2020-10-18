@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+message AnyRenderer {
+  oneof renderer {
+    LoginPageRenderer login_page_renderer = 1;
+    PostPageRenderer post_page_renderer = 2;
+    UserPageRenderer user_page_renderer = 3;
+    ErrorRenderer error_renderer = 4;
+  }
+}
+
+message AnyRequest {
+  oneof request {
+    UserPageRequest user_page_request = 1;
+    PostPageRequest post_page_request = 2;
+  }
+}
+
+message ErrorRenderer {
+  string display_text = 1;
+}
+
+message LoginPageRenderer {
+  string submit_url = 1;
+  string welcome_text = 2;
+}
+
+message PostPageRenderer {
+  string id = 1;
+  string text = 2;
+  string userId = 3;
+  string currentUserId = 4;
+}
+
+message UserPageRenderer {
+  string id = 1;
+  string lastPostId = 2;
+  string currentUserId = 3;
+  string name = 4;
+}
+
+message LoginRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+}
+
+message ResolveRouteRequest {
+  string url = 1;
+}
+
+message ResolveRouteResponse {
+  repeated string js = 1;
+  AnyRequest request = 2;
+}
+
+message PostPageRequest {
+  string post_id = 1;
+}
+
+message UserPageRequest {
+  string user_id = 1;
+}
+
+message Error {
+  string message = 1;
+}
