@@ -1,5 +1,6 @@
 import React from "react";
 import * as schema from "../../schema/login";
+import {Link} from "../Link/Link";
 
 export class PostPage extends React.Component<schema.PostPageRenderer> {
     render() {
@@ -9,7 +10,7 @@ export class PostPage extends React.Component<schema.PostPageRenderer> {
                 {this.props.text}
                 <br/>
                 <img src="/static/cat.jpg" style={{width: "100px"}}/><br/>
-                <a href={"/users/" + this.props.userId}>User {this.props.userId}</a>
+                <Link href={"/users/" + this.props.userId} onClick={() => {}}>User {this.props.userId}</Link>
                 <br/><br/>
                 You are user: {this.props.currentUserId}
             </div>
