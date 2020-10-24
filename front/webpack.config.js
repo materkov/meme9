@@ -24,6 +24,18 @@ module.exports = {
             import: './src/entrypoints/UserPage.tsx',
             dependOn: ['React', 'Global'],
         },
+        Composer: {
+            import: './src/entrypoints/Composer.tsx',
+            dependOn: ['React', 'Global'],
+        },
+        Feed: {
+            import: './src/entrypoints/Feed.tsx',
+            dependOn: ['React', 'Global'],
+        },
+        Index: {
+            import: './src/entrypoints/Index.tsx',
+            dependOn: ['React', 'Global'],
+        },
     },
     module: {
         rules: [

@@ -4,13 +4,13 @@ import {fetchJs} from "../../JsFetcher";
 
 interface Props {
     href: string;
-    onClick: () => void;
+    onClick?: () => void;
 }
 
 export class Link extends React.Component<Props, any> {
     onClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        this.props.onClick();
+        this.props.onClick && this.props.onClick();
     };
 
     onMouseEnter = () => {

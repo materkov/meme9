@@ -29,6 +29,10 @@ type AnyRenderer struct {
 	//	*AnyRenderer_UserPageRenderer
 	//	*AnyRenderer_ErrorRenderer
 	//	*AnyRenderer_LoginRenderer
+	//	*AnyRenderer_AddPostRenderer
+	//	*AnyRenderer_GetFeedRenderer
+	//	*AnyRenderer_ComposerRenderer
+	//	*AnyRenderer_IndexRenderer
 	Renderer isAnyRenderer_Renderer `protobuf_oneof:"renderer"`
 }
 
@@ -86,12 +90,28 @@ type AnyRenderer_ErrorRenderer struct {
 type AnyRenderer_LoginRenderer struct {
 	LoginRenderer *LoginRenderer `protobuf:"bytes,5,opt,name=login_renderer,json=loginRenderer,proto3,oneof" json:"login_renderer,omitempty"`
 }
+type AnyRenderer_AddPostRenderer struct {
+	AddPostRenderer *AddPostRenderer `protobuf:"bytes,6,opt,name=add_post_renderer,json=addPostRenderer,proto3,oneof" json:"add_post_renderer,omitempty"`
+}
+type AnyRenderer_GetFeedRenderer struct {
+	GetFeedRenderer *GetFeedRenderer `protobuf:"bytes,7,opt,name=get_feed_renderer,json=getFeedRenderer,proto3,oneof" json:"get_feed_renderer,omitempty"`
+}
+type AnyRenderer_ComposerRenderer struct {
+	ComposerRenderer *ComposerRenderer `protobuf:"bytes,8,opt,name=composer_renderer,json=composerRenderer,proto3,oneof" json:"composer_renderer,omitempty"`
+}
+type AnyRenderer_IndexRenderer struct {
+	IndexRenderer *IndexRenderer `protobuf:"bytes,9,opt,name=index_renderer,json=indexRenderer,proto3,oneof" json:"index_renderer,omitempty"`
+}
 
 func (*AnyRenderer_LoginPageRenderer) isAnyRenderer_Renderer() {}
 func (*AnyRenderer_PostPageRenderer) isAnyRenderer_Renderer()  {}
 func (*AnyRenderer_UserPageRenderer) isAnyRenderer_Renderer()  {}
 func (*AnyRenderer_ErrorRenderer) isAnyRenderer_Renderer()     {}
 func (*AnyRenderer_LoginRenderer) isAnyRenderer_Renderer()     {}
+func (*AnyRenderer_AddPostRenderer) isAnyRenderer_Renderer()   {}
+func (*AnyRenderer_GetFeedRenderer) isAnyRenderer_Renderer()   {}
+func (*AnyRenderer_ComposerRenderer) isAnyRenderer_Renderer()  {}
+func (*AnyRenderer_IndexRenderer) isAnyRenderer_Renderer()     {}
 
 func (m *AnyRenderer) GetRenderer() isAnyRenderer_Renderer {
 	if m != nil {
@@ -135,6 +155,34 @@ func (m *AnyRenderer) GetLoginRenderer() *LoginRenderer {
 	return nil
 }
 
+func (m *AnyRenderer) GetAddPostRenderer() *AddPostRenderer {
+	if x, ok := m.GetRenderer().(*AnyRenderer_AddPostRenderer); ok {
+		return x.AddPostRenderer
+	}
+	return nil
+}
+
+func (m *AnyRenderer) GetGetFeedRenderer() *GetFeedRenderer {
+	if x, ok := m.GetRenderer().(*AnyRenderer_GetFeedRenderer); ok {
+		return x.GetFeedRenderer
+	}
+	return nil
+}
+
+func (m *AnyRenderer) GetComposerRenderer() *ComposerRenderer {
+	if x, ok := m.GetRenderer().(*AnyRenderer_ComposerRenderer); ok {
+		return x.ComposerRenderer
+	}
+	return nil
+}
+
+func (m *AnyRenderer) GetIndexRenderer() *IndexRenderer {
+	if x, ok := m.GetRenderer().(*AnyRenderer_IndexRenderer); ok {
+		return x.IndexRenderer
+	}
+	return nil
+}
+
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*AnyRenderer) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
@@ -143,6 +191,10 @@ func (*AnyRenderer) XXX_OneofWrappers() []interface{} {
 		(*AnyRenderer_UserPageRenderer)(nil),
 		(*AnyRenderer_ErrorRenderer)(nil),
 		(*AnyRenderer_LoginRenderer)(nil),
+		(*AnyRenderer_AddPostRenderer)(nil),
+		(*AnyRenderer_GetFeedRenderer)(nil),
+		(*AnyRenderer_ComposerRenderer)(nil),
+		(*AnyRenderer_IndexRenderer)(nil),
 	}
 }
 
@@ -152,6 +204,10 @@ type AnyRequest struct {
 	//	*AnyRequest_PostPageRequest
 	//	*AnyRequest_UserPageRequest
 	//	*AnyRequest_LoginRequest
+	//	*AnyRequest_AddPostRequest
+	//	*AnyRequest_GetFeedRequest
+	//	*AnyRequest_ComposerRequest
+	//	*AnyRequest_IndexRequest
 	Request isAnyRequest_Request `protobuf_oneof:"request"`
 }
 
@@ -206,11 +262,27 @@ type AnyRequest_UserPageRequest struct {
 type AnyRequest_LoginRequest struct {
 	LoginRequest *LoginRequest `protobuf:"bytes,4,opt,name=login_request,json=loginRequest,proto3,oneof" json:"login_request,omitempty"`
 }
+type AnyRequest_AddPostRequest struct {
+	AddPostRequest *AddPostRequest `protobuf:"bytes,5,opt,name=add_post_request,json=addPostRequest,proto3,oneof" json:"add_post_request,omitempty"`
+}
+type AnyRequest_GetFeedRequest struct {
+	GetFeedRequest *GetFeedRequest `protobuf:"bytes,6,opt,name=get_feed_request,json=getFeedRequest,proto3,oneof" json:"get_feed_request,omitempty"`
+}
+type AnyRequest_ComposerRequest struct {
+	ComposerRequest *ComposerRequest `protobuf:"bytes,7,opt,name=composer_request,json=composerRequest,proto3,oneof" json:"composer_request,omitempty"`
+}
+type AnyRequest_IndexRequest struct {
+	IndexRequest *IndexRequest `protobuf:"bytes,8,opt,name=index_request,json=indexRequest,proto3,oneof" json:"index_request,omitempty"`
+}
 
 func (*AnyRequest_LoginPageRequest) isAnyRequest_Request() {}
 func (*AnyRequest_PostPageRequest) isAnyRequest_Request()  {}
 func (*AnyRequest_UserPageRequest) isAnyRequest_Request()  {}
 func (*AnyRequest_LoginRequest) isAnyRequest_Request()     {}
+func (*AnyRequest_AddPostRequest) isAnyRequest_Request()   {}
+func (*AnyRequest_GetFeedRequest) isAnyRequest_Request()   {}
+func (*AnyRequest_ComposerRequest) isAnyRequest_Request()  {}
+func (*AnyRequest_IndexRequest) isAnyRequest_Request()     {}
 
 func (m *AnyRequest) GetRequest() isAnyRequest_Request {
 	if m != nil {
@@ -247,6 +319,34 @@ func (m *AnyRequest) GetLoginRequest() *LoginRequest {
 	return nil
 }
 
+func (m *AnyRequest) GetAddPostRequest() *AddPostRequest {
+	if x, ok := m.GetRequest().(*AnyRequest_AddPostRequest); ok {
+		return x.AddPostRequest
+	}
+	return nil
+}
+
+func (m *AnyRequest) GetGetFeedRequest() *GetFeedRequest {
+	if x, ok := m.GetRequest().(*AnyRequest_GetFeedRequest); ok {
+		return x.GetFeedRequest
+	}
+	return nil
+}
+
+func (m *AnyRequest) GetComposerRequest() *ComposerRequest {
+	if x, ok := m.GetRequest().(*AnyRequest_ComposerRequest); ok {
+		return x.ComposerRequest
+	}
+	return nil
+}
+
+func (m *AnyRequest) GetIndexRequest() *IndexRequest {
+	if x, ok := m.GetRequest().(*AnyRequest_IndexRequest); ok {
+		return x.IndexRequest
+	}
+	return nil
+}
+
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*AnyRequest) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
@@ -254,6 +354,10 @@ func (*AnyRequest) XXX_OneofWrappers() []interface{} {
 		(*AnyRequest_PostPageRequest)(nil),
 		(*AnyRequest_UserPageRequest)(nil),
 		(*AnyRequest_LoginRequest)(nil),
+		(*AnyRequest_AddPostRequest)(nil),
+		(*AnyRequest_GetFeedRequest)(nil),
+		(*AnyRequest_ComposerRequest)(nil),
+		(*AnyRequest_IndexRequest)(nil),
 	}
 }
 
@@ -841,6 +945,342 @@ func (m *Error) GetMessage() string {
 	return ""
 }
 
+type AddPostRequest struct {
+	Text string `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+}
+
+func (m *AddPostRequest) Reset()         { *m = AddPostRequest{} }
+func (m *AddPostRequest) String() string { return proto.CompactTextString(m) }
+func (*AddPostRequest) ProtoMessage()    {}
+func (*AddPostRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{14}
+}
+func (m *AddPostRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *AddPostRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_AddPostRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *AddPostRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddPostRequest.Merge(m, src)
+}
+func (m *AddPostRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *AddPostRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddPostRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddPostRequest proto.InternalMessageInfo
+
+func (m *AddPostRequest) GetText() string {
+	if m != nil {
+		return m.Text
+	}
+	return ""
+}
+
+type AddPostRenderer struct {
+	Id   string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Text string `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+}
+
+func (m *AddPostRenderer) Reset()         { *m = AddPostRenderer{} }
+func (m *AddPostRenderer) String() string { return proto.CompactTextString(m) }
+func (*AddPostRenderer) ProtoMessage()    {}
+func (*AddPostRenderer) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{15}
+}
+func (m *AddPostRenderer) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *AddPostRenderer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_AddPostRenderer.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *AddPostRenderer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddPostRenderer.Merge(m, src)
+}
+func (m *AddPostRenderer) XXX_Size() int {
+	return m.Size()
+}
+func (m *AddPostRenderer) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddPostRenderer.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddPostRenderer proto.InternalMessageInfo
+
+func (m *AddPostRenderer) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+func (m *AddPostRenderer) GetText() string {
+	if m != nil {
+		return m.Text
+	}
+	return ""
+}
+
+type GetFeedRequest struct {
+}
+
+func (m *GetFeedRequest) Reset()         { *m = GetFeedRequest{} }
+func (m *GetFeedRequest) String() string { return proto.CompactTextString(m) }
+func (*GetFeedRequest) ProtoMessage()    {}
+func (*GetFeedRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{16}
+}
+func (m *GetFeedRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetFeedRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetFeedRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetFeedRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetFeedRequest.Merge(m, src)
+}
+func (m *GetFeedRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetFeedRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetFeedRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetFeedRequest proto.InternalMessageInfo
+
+type GetFeedRenderer struct {
+	Posts []*PostPageRenderer `protobuf:"bytes,1,rep,name=posts,proto3" json:"posts,omitempty"`
+}
+
+func (m *GetFeedRenderer) Reset()         { *m = GetFeedRenderer{} }
+func (m *GetFeedRenderer) String() string { return proto.CompactTextString(m) }
+func (*GetFeedRenderer) ProtoMessage()    {}
+func (*GetFeedRenderer) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{17}
+}
+func (m *GetFeedRenderer) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetFeedRenderer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetFeedRenderer.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetFeedRenderer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetFeedRenderer.Merge(m, src)
+}
+func (m *GetFeedRenderer) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetFeedRenderer) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetFeedRenderer.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetFeedRenderer proto.InternalMessageInfo
+
+func (m *GetFeedRenderer) GetPosts() []*PostPageRenderer {
+	if m != nil {
+		return m.Posts
+	}
+	return nil
+}
+
+type ComposerRequest struct {
+}
+
+func (m *ComposerRequest) Reset()         { *m = ComposerRequest{} }
+func (m *ComposerRequest) String() string { return proto.CompactTextString(m) }
+func (*ComposerRequest) ProtoMessage()    {}
+func (*ComposerRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{18}
+}
+func (m *ComposerRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ComposerRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ComposerRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ComposerRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ComposerRequest.Merge(m, src)
+}
+func (m *ComposerRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *ComposerRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ComposerRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ComposerRequest proto.InternalMessageInfo
+
+type ComposerRenderer struct {
+	WelcomeText string `protobuf:"bytes,1,opt,name=welcome_text,json=welcomeText,proto3" json:"welcome_text,omitempty"`
+}
+
+func (m *ComposerRenderer) Reset()         { *m = ComposerRenderer{} }
+func (m *ComposerRenderer) String() string { return proto.CompactTextString(m) }
+func (*ComposerRenderer) ProtoMessage()    {}
+func (*ComposerRenderer) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{19}
+}
+func (m *ComposerRenderer) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ComposerRenderer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ComposerRenderer.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ComposerRenderer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ComposerRenderer.Merge(m, src)
+}
+func (m *ComposerRenderer) XXX_Size() int {
+	return m.Size()
+}
+func (m *ComposerRenderer) XXX_DiscardUnknown() {
+	xxx_messageInfo_ComposerRenderer.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ComposerRenderer proto.InternalMessageInfo
+
+func (m *ComposerRenderer) GetWelcomeText() string {
+	if m != nil {
+		return m.WelcomeText
+	}
+	return ""
+}
+
+type IndexRequest struct {
+}
+
+func (m *IndexRequest) Reset()         { *m = IndexRequest{} }
+func (m *IndexRequest) String() string { return proto.CompactTextString(m) }
+func (*IndexRequest) ProtoMessage()    {}
+func (*IndexRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{20}
+}
+func (m *IndexRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IndexRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IndexRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IndexRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IndexRequest.Merge(m, src)
+}
+func (m *IndexRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *IndexRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_IndexRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IndexRequest proto.InternalMessageInfo
+
+type IndexRenderer struct {
+	Text string `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+}
+
+func (m *IndexRenderer) Reset()         { *m = IndexRenderer{} }
+func (m *IndexRenderer) String() string { return proto.CompactTextString(m) }
+func (*IndexRenderer) ProtoMessage()    {}
+func (*IndexRenderer) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{21}
+}
+func (m *IndexRenderer) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IndexRenderer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IndexRenderer.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IndexRenderer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IndexRenderer.Merge(m, src)
+}
+func (m *IndexRenderer) XXX_Size() int {
+	return m.Size()
+}
+func (m *IndexRenderer) XXX_DiscardUnknown() {
+	xxx_messageInfo_IndexRenderer.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IndexRenderer proto.InternalMessageInfo
+
+func (m *IndexRenderer) GetText() string {
+	if m != nil {
+		return m.Text
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*AnyRenderer)(nil), "AnyRenderer")
 	proto.RegisterType((*AnyRequest)(nil), "AnyRequest")
@@ -856,50 +1296,72 @@ func init() {
 	proto.RegisterType((*PostPageRequest)(nil), "PostPageRequest")
 	proto.RegisterType((*UserPageRequest)(nil), "UserPageRequest")
 	proto.RegisterType((*Error)(nil), "Error")
+	proto.RegisterType((*AddPostRequest)(nil), "AddPostRequest")
+	proto.RegisterType((*AddPostRenderer)(nil), "AddPostRenderer")
+	proto.RegisterType((*GetFeedRequest)(nil), "GetFeedRequest")
+	proto.RegisterType((*GetFeedRenderer)(nil), "GetFeedRenderer")
+	proto.RegisterType((*ComposerRequest)(nil), "ComposerRequest")
+	proto.RegisterType((*ComposerRenderer)(nil), "ComposerRenderer")
+	proto.RegisterType((*IndexRequest)(nil), "IndexRequest")
+	proto.RegisterType((*IndexRenderer)(nil), "IndexRenderer")
 }
 
 func init() { proto.RegisterFile("login.proto", fileDescriptor_67c21677aa7f4e4f) }
 
 var fileDescriptor_67c21677aa7f4e4f = []byte{
-	// 598 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x94, 0x4f, 0x6f, 0xd3, 0x30,
-	0x18, 0xc6, 0x9b, 0xfe, 0x5d, 0xdf, 0x34, 0x6d, 0xea, 0x4d, 0x50, 0x21, 0x11, 0x6d, 0x11, 0x08,
-	0xc4, 0xa1, 0x87, 0x81, 0xc4, 0x0d, 0xb1, 0x0a, 0x24, 0x26, 0x81, 0x34, 0x45, 0xf4, 0x5c, 0x65,
-	0x8b, 0x55, 0x75, 0x4a, 0xe3, 0x60, 0x3b, 0x6c, 0x93, 0xf8, 0x10, 0xfb, 0x58, 0x1c, 0x77, 0x83,
-	0x23, 0x6a, 0xbf, 0x08, 0xf2, 0x9f, 0xa4, 0x8e, 0xbb, 0x5b, 0xfc, 0xf8, 0x7d, 0x1e, 0xbf, 0xfe,
-	0xf5, 0x75, 0xc1, 0x4d, 0xc9, 0x72, 0x95, 0x4d, 0x73, 0x4a, 0x38, 0x09, 0xff, 0x34, 0xc1, 0x3d,
-	0xcb, 0xee, 0x22, 0x9c, 0x25, 0x98, 0x62, 0x8a, 0x3e, 0xc1, 0xa1, 0xdc, 0x5e, 0xe4, 0xf1, 0x12,
-	0x2f, 0xa8, 0x96, 0x27, 0xce, 0xb1, 0xf3, 0xda, 0x3d, 0x45, 0xd3, 0xaf, 0x62, 0xef, 0x22, 0x5e,
-	0xe2, 0xd2, 0xf0, 0xa5, 0x11, 0x8d, 0x53, 0x5b, 0x44, 0x67, 0x80, 0x72, 0xc2, 0xb8, 0x15, 0xd2,
-	0x94, 0x21, 0xe3, 0xe9, 0x05, 0x61, 0xdc, 0xca, 0xf0, 0x73, 0x4b, 0x13, 0x11, 0x05, 0xc3, 0xd4,
-	0x8a, 0x68, 0xe9, 0x88, 0x39, 0xc3, 0xd4, 0x8e, 0x28, 0x2c, 0x0d, 0xbd, 0x87, 0x21, 0xa6, 0x94,
-	0xd0, 0x9d, 0xbd, 0x2d, 0xed, 0xc3, 0xe9, 0x67, 0x21, 0x1b, 0x5e, 0x0f, 0x9b, 0x82, 0x30, 0x2a,
-	0x08, 0x95, 0xb1, 0xa3, 0x8d, 0xf2, 0xfe, 0xa6, 0x31, 0x35, 0x85, 0x19, 0xc0, 0x41, 0x69, 0x09,
-	0xef, 0x9b, 0x00, 0x92, 0xec, 0x8f, 0x02, 0x33, 0x2e, 0xee, 0x53, 0x03, 0x2b, 0x55, 0xcd, 0x75,
-	0x6c, 0x72, 0x95, 0x1b, 0xe2, 0x3e, 0xa9, 0xa5, 0xa1, 0x0f, 0x30, 0x36, 0xa9, 0xaa, 0x04, 0x05,
-	0xd5, 0x37, 0xa0, 0x96, 0x01, 0xa3, 0xbc, 0x2e, 0x09, 0xbf, 0x89, 0x54, 0xf9, 0x5b, 0xda, 0xbf,
-	0x23, 0x5a, 0xf9, 0x8b, 0xba, 0x84, 0xde, 0x81, 0x57, 0x62, 0x51, 0x5e, 0x85, 0xd3, 0x2b, 0xa9,
-	0x94, 0xc6, 0x41, 0x6a, 0xac, 0x67, 0x7d, 0xe8, 0xe9, 0xfa, 0xf0, 0x14, 0xbc, 0x1a, 0x79, 0x74,
-	0x02, 0x83, 0x64, 0xc5, 0xf2, 0x34, 0xbe, 0x5b, 0x70, 0x7c, 0xab, 0x70, 0xf4, 0x23, 0x57, 0x6b,
-	0xdf, 0xf1, 0x2d, 0x0f, 0x3f, 0xc2, 0xc0, 0x8c, 0x47, 0x47, 0xd0, 0x91, 0xf1, 0xba, 0x56, 0x2d,
-	0xd0, 0x33, 0x38, 0xc8, 0x63, 0xc6, 0x6e, 0x08, 0x4d, 0x24, 0x91, 0x7e, 0x54, 0xad, 0xc3, 0x11,
-	0x78, 0xb5, 0x9f, 0x2d, 0x44, 0xe0, 0xdb, 0xbc, 0xc3, 0x39, 0x8c, 0xf7, 0x66, 0x1b, 0x3d, 0x07,
-	0x60, 0xc5, 0xe5, 0x7a, 0xc5, 0x17, 0x05, 0x4d, 0xf5, 0x81, 0x7d, 0xa5, 0xcc, 0x69, 0x2a, 0xba,
-	0xbf, 0xc1, 0xe9, 0x15, 0x59, 0x63, 0xd5, 0xbd, 0x3a, 0xd8, 0xd5, 0x9a, 0xec, 0x9e, 0x83, 0x6f,
-	0x4f, 0x3b, 0x1a, 0x42, 0x73, 0x95, 0xe8, 0xb4, 0xe6, 0x2a, 0x41, 0x08, 0xda, 0x86, 0x5d, 0x7e,
-	0xa3, 0x27, 0xd0, 0x15, 0xf4, 0xcf, 0x13, 0xf9, 0xfb, 0xf4, 0x23, 0xbd, 0x42, 0x2f, 0xc0, 0xbb,
-	0x2a, 0x28, 0xc5, 0x19, 0x9f, 0xab, 0xed, 0xb6, 0xdc, 0xae, 0x8b, 0xe1, 0x2f, 0xf0, 0xed, 0x07,
-	0xb2, 0x77, 0x6a, 0x00, 0x90, 0xc6, 0x8c, 0x8b, 0xee, 0xce, 0x4b, 0x66, 0x86, 0xb2, 0x7f, 0x52,
-	0xeb, 0x91, 0x93, 0x44, 0xef, 0x59, 0xbc, 0xc6, 0xba, 0x0d, 0xf9, 0x1d, 0xbe, 0x82, 0xc3, 0x08,
-	0x33, 0x92, 0xfe, 0xc4, 0x11, 0x29, 0x78, 0x35, 0x3d, 0x3e, 0xb4, 0x76, 0x14, 0xc5, 0x67, 0xf8,
-	0x0d, 0x8e, 0xea, 0x85, 0x2c, 0x27, 0x19, 0xc3, 0xa2, 0xd5, 0x6b, 0x36, 0x71, 0x8e, 0x5b, 0xa2,
-	0xd5, 0x6b, 0x86, 0x5e, 0x56, 0x13, 0xa4, 0xa7, 0xdd, 0x9d, 0xee, 0x1e, 0x56, 0x54, 0x4d, 0xd7,
-	0x1b, 0x18, 0x59, 0x8f, 0x00, 0x3d, 0x85, 0x9e, 0x7c, 0x31, 0xd5, 0xcd, 0xbb, 0xb9, 0xbc, 0x9d,
-	0xa8, 0xb5, 0x06, 0x5e, 0xd4, 0xca, 0xd7, 0xb1, 0xab, 0x55, 0xcc, 0xc3, 0x13, 0xe8, 0xc8, 0xa9,
-	0x45, 0x13, 0xe8, 0xad, 0x31, 0x63, 0xf1, 0x12, 0xeb, 0x8a, 0x72, 0x39, 0x9b, 0xfc, 0xde, 0x04,
-	0xce, 0xc3, 0x26, 0x70, 0xfe, 0x6d, 0x02, 0xe7, 0x7e, 0x1b, 0x34, 0x1e, 0xb6, 0x41, 0xe3, 0xef,
-	0x36, 0x68, 0x5c, 0x76, 0xe5, 0xdf, 0xec, 0xdb, 0xff, 0x01, 0x00, 0x00, 0xff, 0xff, 0x07, 0x74,
-	0xa5, 0x6b, 0x75, 0x05, 0x00, 0x00,
+	// 820 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x96, 0x4b, 0x6f, 0xd3, 0x40,
+	0x10, 0xc7, 0xe3, 0xbc, 0x33, 0x79, 0xd8, 0xd9, 0x56, 0x10, 0x21, 0x11, 0xb5, 0x4b, 0x51, 0x11,
+	0x87, 0x1c, 0x0a, 0x15, 0x12, 0x08, 0xd4, 0x96, 0x67, 0x25, 0x90, 0x2a, 0x8b, 0x9c, 0x23, 0x37,
+	0x5e, 0x22, 0x57, 0x4e, 0x6c, 0xbc, 0x36, 0x6d, 0x25, 0x3e, 0x04, 0x1f, 0x8b, 0x63, 0xc5, 0x89,
+	0x23, 0x6a, 0x3f, 0x08, 0x68, 0x1f, 0xb6, 0x77, 0x37, 0x3d, 0x70, 0xcb, 0xfe, 0x77, 0x7f, 0xe3,
+	0x99, 0xf1, 0x7f, 0xd6, 0x81, 0x6e, 0x18, 0x2d, 0x82, 0xd5, 0x24, 0x4e, 0xa2, 0x34, 0xc2, 0xbf,
+	0xea, 0xd0, 0x3d, 0x5c, 0x5d, 0xba, 0x64, 0xe5, 0x93, 0x84, 0x24, 0xe8, 0x0d, 0x6c, 0xf0, 0xed,
+	0x59, 0xec, 0x2d, 0xc8, 0x2c, 0x91, 0xf2, 0xc8, 0xda, 0xb2, 0x1e, 0x75, 0xf7, 0xd0, 0xe4, 0x23,
+	0xdb, 0x3b, 0xf1, 0x16, 0x24, 0x07, 0x3e, 0x54, 0xdc, 0x61, 0x68, 0x8a, 0xe8, 0x10, 0x50, 0x1c,
+	0xd1, 0xd4, 0x08, 0x52, 0xe5, 0x41, 0x86, 0x93, 0x93, 0x88, 0xa6, 0x46, 0x0c, 0x27, 0x36, 0x34,
+	0x16, 0x22, 0xa3, 0x24, 0x31, 0x42, 0xd4, 0x64, 0x88, 0x29, 0x25, 0x89, 0x19, 0x22, 0x33, 0x34,
+	0xf4, 0x0c, 0x06, 0x24, 0x49, 0xa2, 0xa4, 0xc4, 0xeb, 0x1c, 0x1f, 0x4c, 0xde, 0x32, 0x59, 0x61,
+	0xfb, 0x44, 0x15, 0x18, 0x28, 0x9a, 0x50, 0x80, 0x0d, 0x09, 0xf2, 0xfa, 0x55, 0x30, 0x54, 0x05,
+	0xf4, 0x0a, 0x86, 0x9e, 0xef, 0xcf, 0x78, 0xed, 0x05, 0xdb, 0xe4, 0xac, 0x33, 0x39, 0xf4, 0x7d,
+	0x56, 0xb9, 0x42, 0xdb, 0x9e, 0x2e, 0x31, 0x7e, 0x41, 0xd2, 0xd9, 0x17, 0x42, 0xfc, 0x92, 0x6f,
+	0x49, 0xfe, 0x3d, 0x49, 0xdf, 0x11, 0xe2, 0xab, 0xfc, 0x42, 0x97, 0xd0, 0x01, 0x0c, 0xe7, 0xd1,
+	0x32, 0x8e, 0x58, 0xe3, 0x0a, 0xbe, 0x2d, 0x7b, 0xf6, 0x5a, 0xee, 0xa8, 0x3d, 0x9b, 0x1b, 0x1a,
+	0x2b, 0x3d, 0x58, 0xf9, 0xe4, 0xa2, 0xc4, 0x3b, 0xb2, 0xf4, 0x63, 0x26, 0xab, 0xa5, 0x07, 0xaa,
+	0x70, 0x04, 0xd0, 0xce, 0x11, 0xfc, 0xb7, 0x06, 0xc0, 0x4d, 0xf5, 0x35, 0x23, 0x34, 0x65, 0xaf,
+	0x52, 0xf3, 0x14, 0x57, 0xa5, 0xa5, 0x86, 0xaa, 0xa5, 0xf8, 0x06, 0x4b, 0x2b, 0x34, 0x34, 0xd6,
+	0x18, 0xd5, 0x50, 0x22, 0x42, 0x55, 0x36, 0xa6, 0xf4, 0x53, 0x1e, 0xc0, 0x8e, 0x75, 0x89, 0xf1,
+	0xaa, 0x9b, 0x04, 0x5f, 0x93, 0x7c, 0x69, 0xa6, 0x82, 0xcf, 0x74, 0x09, 0x3d, 0x85, 0x7e, 0xee,
+	0x08, 0xc1, 0x0a, 0x27, 0xf5, 0x73, 0x43, 0xe4, 0x60, 0x2f, 0x54, 0xd6, 0xe8, 0x05, 0x38, 0x8a,
+	0x1d, 0x04, 0x28, 0x9c, 0x64, 0x97, 0x6e, 0xc8, 0xd1, 0x81, 0xa7, 0x29, 0x0c, 0x56, 0xbc, 0x20,
+	0xe0, 0xa6, 0x84, 0x0b, 0x2b, 0x14, 0xf0, 0x42, 0x53, 0xd0, 0x4b, 0x70, 0x14, 0x23, 0x08, 0x38,
+	0xf7, 0x51, 0xe9, 0x83, 0xa2, 0xdc, 0xb9, 0x2e, 0xb1, 0x72, 0x73, 0x17, 0x08, 0xb6, 0x2d, 0xcb,
+	0x95, 0x26, 0x28, 0xca, 0x0d, 0x94, 0xf5, 0x51, 0x07, 0x5a, 0xf2, 0x3c, 0xde, 0x83, 0xbe, 0x36,
+	0x63, 0x68, 0x1b, 0x7a, 0x7e, 0x40, 0xe3, 0xd0, 0xbb, 0x9c, 0xa5, 0xe4, 0x42, 0xbc, 0xfd, 0x8e,
+	0xdb, 0x95, 0xda, 0x67, 0x72, 0x91, 0xe2, 0x03, 0xe8, 0xa9, 0xdd, 0x44, 0x9b, 0xd0, 0xe0, 0xdd,
+	0x94, 0x67, 0xc5, 0x02, 0xdd, 0x83, 0x76, 0xec, 0x51, 0x7a, 0x1e, 0x25, 0x3e, 0x37, 0x40, 0xc7,
+	0x2d, 0xd6, 0xd8, 0x86, 0xbe, 0x36, 0xa0, 0x18, 0x81, 0x63, 0xda, 0x0b, 0x4f, 0x61, 0xb8, 0x76,
+	0x8b, 0xa1, 0xfb, 0x00, 0x34, 0x3b, 0x5d, 0x06, 0xe9, 0x2c, 0x4b, 0x42, 0xf9, 0xc0, 0x8e, 0x50,
+	0xa6, 0x49, 0xc8, 0xb2, 0x3f, 0x27, 0xe1, 0x3c, 0x5a, 0x12, 0x91, 0xbd, 0x78, 0x70, 0x57, 0x6a,
+	0x3c, 0xfb, 0x14, 0x1c, 0xf3, 0x5e, 0x43, 0x03, 0xa8, 0x06, 0xbe, 0x8c, 0x56, 0x0d, 0x7c, 0x84,
+	0xa0, 0xae, 0xe0, 0xfc, 0x37, 0xba, 0x03, 0x4d, 0x66, 0xb6, 0x63, 0x9f, 0xdb, 0xb1, 0xe3, 0xca,
+	0x15, 0xda, 0x81, 0xfe, 0x3c, 0x4b, 0x12, 0xb2, 0x4a, 0xa7, 0x62, 0xbb, 0xce, 0xb7, 0x75, 0x11,
+	0x7f, 0x07, 0xc7, 0xbc, 0x0a, 0xd7, 0x9e, 0x3a, 0x06, 0x08, 0x3d, 0x9a, 0xb2, 0xec, 0x8e, 0xf3,
+	0x9e, 0x29, 0xca, 0xfa, 0x93, 0x6a, 0xb7, 0x3c, 0x89, 0xe5, 0xbe, 0xf2, 0x96, 0x44, 0xa6, 0xc1,
+	0x7f, 0xe3, 0x5d, 0xd8, 0x70, 0x09, 0x8d, 0xc2, 0x6f, 0xc4, 0x8d, 0xb2, 0xb4, 0x18, 0x16, 0x07,
+	0x6a, 0x65, 0x17, 0xd9, 0x4f, 0xfc, 0x09, 0x36, 0xf5, 0x83, 0x34, 0x8e, 0x56, 0x94, 0xb0, 0x54,
+	0xcf, 0xe8, 0xc8, 0xda, 0xaa, 0xb1, 0x54, 0xcf, 0x28, 0x7a, 0x58, 0x38, 0x48, 0x0e, 0x77, 0x77,
+	0x52, 0xde, 0x23, 0x6e, 0xe1, 0xae, 0xc7, 0x60, 0x1b, 0x33, 0x8f, 0xee, 0x42, 0x8b, 0x8f, 0x59,
+	0x51, 0x79, 0x33, 0xe6, 0xd5, 0xb1, 0xb3, 0xc6, 0x7c, 0xb3, 0xb3, 0xfc, 0x32, 0x28, 0xcf, 0x8a,
+	0x9e, 0xe3, 0x6d, 0x68, 0x70, 0xd7, 0xa2, 0x11, 0xb4, 0x96, 0x84, 0x52, 0x6f, 0x41, 0xe4, 0x89,
+	0x7c, 0x89, 0x77, 0x60, 0xa0, 0x4f, 0x6e, 0xf1, 0x52, 0xad, 0xf2, 0xa5, 0xe2, 0x7d, 0xb0, 0x8d,
+	0xdb, 0xfe, 0x7f, 0xbc, 0x80, 0x1d, 0x18, 0xe8, 0x93, 0x8d, 0x9f, 0x83, 0x6d, 0x5c, 0xfb, 0x68,
+	0x17, 0x1a, 0xac, 0x34, 0xd1, 0xb6, 0xdb, 0x3e, 0xa7, 0xae, 0xd8, 0xc7, 0x43, 0xb0, 0x8d, 0x51,
+	0xc7, 0xfb, 0xe0, 0x98, 0x5f, 0x81, 0x35, 0x6f, 0x5b, 0xeb, 0xde, 0x1e, 0x40, 0x4f, 0x1d, 0x7c,
+	0xfc, 0x00, 0xfa, 0xda, 0xd7, 0xe0, 0xb6, 0x1e, 0x1c, 0x8d, 0x7e, 0x5e, 0x8f, 0xad, 0xab, 0xeb,
+	0xb1, 0xf5, 0xe7, 0x7a, 0x6c, 0xfd, 0xb8, 0x19, 0x57, 0xae, 0x6e, 0xc6, 0x95, 0xdf, 0x37, 0xe3,
+	0xca, 0x69, 0x93, 0xff, 0xf5, 0x78, 0xf2, 0x2f, 0x00, 0x00, 0xff, 0xff, 0x64, 0xfb, 0x0c, 0x52,
+	0x89, 0x08, 0x00, 0x00,
 }
 
 func (m *AnyRenderer) Marshal() (dAtA []byte, err error) {
@@ -1039,6 +1501,90 @@ func (m *AnyRenderer_LoginRenderer) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	}
 	return len(dAtA) - i, nil
 }
+func (m *AnyRenderer_AddPostRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRenderer_AddPostRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.AddPostRenderer != nil {
+		{
+			size, err := m.AddPostRenderer.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	return len(dAtA) - i, nil
+}
+func (m *AnyRenderer_GetFeedRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRenderer_GetFeedRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.GetFeedRenderer != nil {
+		{
+			size, err := m.GetFeedRenderer.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x3a
+	}
+	return len(dAtA) - i, nil
+}
+func (m *AnyRenderer_ComposerRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRenderer_ComposerRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.ComposerRenderer != nil {
+		{
+			size, err := m.ComposerRenderer.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x42
+	}
+	return len(dAtA) - i, nil
+}
+func (m *AnyRenderer_IndexRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRenderer_IndexRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.IndexRenderer != nil {
+		{
+			size, err := m.IndexRenderer.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x4a
+	}
+	return len(dAtA) - i, nil
+}
 func (m *AnyRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1152,6 +1698,90 @@ func (m *AnyRequest_LoginRequest) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		}
 		i--
 		dAtA[i] = 0x22
+	}
+	return len(dAtA) - i, nil
+}
+func (m *AnyRequest_AddPostRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRequest_AddPostRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.AddPostRequest != nil {
+		{
+			size, err := m.AddPostRequest.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x2a
+	}
+	return len(dAtA) - i, nil
+}
+func (m *AnyRequest_GetFeedRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRequest_GetFeedRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.GetFeedRequest != nil {
+		{
+			size, err := m.GetFeedRequest.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	return len(dAtA) - i, nil
+}
+func (m *AnyRequest_ComposerRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRequest_ComposerRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.ComposerRequest != nil {
+		{
+			size, err := m.ComposerRequest.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x3a
+	}
+	return len(dAtA) - i, nil
+}
+func (m *AnyRequest_IndexRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRequest_IndexRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.IndexRequest != nil {
+		{
+			size, err := m.IndexRequest.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x42
 	}
 	return len(dAtA) - i, nil
 }
@@ -1571,6 +2201,239 @@ func (m *Error) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *AddPostRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AddPostRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AddPostRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Text) > 0 {
+		i -= len(m.Text)
+		copy(dAtA[i:], m.Text)
+		i = encodeVarintLogin(dAtA, i, uint64(len(m.Text)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *AddPostRenderer) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AddPostRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AddPostRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Text) > 0 {
+		i -= len(m.Text)
+		copy(dAtA[i:], m.Text)
+		i = encodeVarintLogin(dAtA, i, uint64(len(m.Text)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Id) > 0 {
+		i -= len(m.Id)
+		copy(dAtA[i:], m.Id)
+		i = encodeVarintLogin(dAtA, i, uint64(len(m.Id)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *GetFeedRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetFeedRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetFeedRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *GetFeedRenderer) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetFeedRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetFeedRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Posts) > 0 {
+		for iNdEx := len(m.Posts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Posts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintLogin(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ComposerRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ComposerRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ComposerRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *ComposerRenderer) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ComposerRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ComposerRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.WelcomeText) > 0 {
+		i -= len(m.WelcomeText)
+		copy(dAtA[i:], m.WelcomeText)
+		i = encodeVarintLogin(dAtA, i, uint64(len(m.WelcomeText)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *IndexRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IndexRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IndexRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *IndexRenderer) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IndexRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IndexRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Text) > 0 {
+		i -= len(m.Text)
+		copy(dAtA[i:], m.Text)
+		i = encodeVarintLogin(dAtA, i, uint64(len(m.Text)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintLogin(dAtA []byte, offset int, v uint64) int {
 	offset -= sovLogin(v)
 	base := offset
@@ -1654,6 +2517,54 @@ func (m *AnyRenderer_LoginRenderer) Size() (n int) {
 	}
 	return n
 }
+func (m *AnyRenderer_AddPostRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.AddPostRenderer != nil {
+		l = m.AddPostRenderer.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+func (m *AnyRenderer_GetFeedRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.GetFeedRenderer != nil {
+		l = m.GetFeedRenderer.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+func (m *AnyRenderer_ComposerRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.ComposerRenderer != nil {
+		l = m.ComposerRenderer.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+func (m *AnyRenderer_IndexRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.IndexRenderer != nil {
+		l = m.IndexRenderer.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
 func (m *AnyRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1710,6 +2621,54 @@ func (m *AnyRequest_LoginRequest) Size() (n int) {
 	_ = l
 	if m.LoginRequest != nil {
 		l = m.LoginRequest.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+func (m *AnyRequest_AddPostRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.AddPostRequest != nil {
+		l = m.AddPostRequest.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+func (m *AnyRequest_GetFeedRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.GetFeedRequest != nil {
+		l = m.GetFeedRequest.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+func (m *AnyRequest_ComposerRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.ComposerRequest != nil {
+		l = m.ComposerRequest.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+func (m *AnyRequest_IndexRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.IndexRequest != nil {
+		l = m.IndexRequest.Size()
 		n += 1 + l + sovLogin(uint64(l))
 	}
 	return n
@@ -1894,6 +2853,104 @@ func (m *Error) Size() (n int) {
 	var l int
 	_ = l
 	l = len(m.Message)
+	if l > 0 {
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+
+func (m *AddPostRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Text)
+	if l > 0 {
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+
+func (m *AddPostRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Id)
+	if l > 0 {
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	l = len(m.Text)
+	if l > 0 {
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+
+func (m *GetFeedRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *GetFeedRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Posts) > 0 {
+		for _, e := range m.Posts {
+			l = e.Size()
+			n += 1 + l + sovLogin(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *ComposerRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *ComposerRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.WelcomeText)
+	if l > 0 {
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+
+func (m *IndexRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *IndexRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Text)
 	if l > 0 {
 		n += 1 + l + sovLogin(uint64(l))
 	}
@@ -2110,6 +3167,146 @@ func (m *AnyRenderer) Unmarshal(dAtA []byte) error {
 			}
 			m.Renderer = &AnyRenderer_LoginRenderer{v}
 			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AddPostRenderer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &AddPostRenderer{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Renderer = &AnyRenderer_AddPostRenderer{v}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GetFeedRenderer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &GetFeedRenderer{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Renderer = &AnyRenderer_GetFeedRenderer{v}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ComposerRenderer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ComposerRenderer{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Renderer = &AnyRenderer_ComposerRenderer{v}
+			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IndexRenderer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &IndexRenderer{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Renderer = &AnyRenderer_IndexRenderer{v}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipLogin(dAtA[iNdEx:])
@@ -2302,6 +3499,146 @@ func (m *AnyRequest) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			m.Request = &AnyRequest_LoginRequest{v}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AddPostRequest", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &AddPostRequest{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &AnyRequest_AddPostRequest{v}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GetFeedRequest", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &GetFeedRequest{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &AnyRequest_GetFeedRequest{v}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ComposerRequest", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ComposerRequest{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &AnyRequest_ComposerRequest{v}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IndexRequest", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &IndexRequest{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &AnyRequest_IndexRequest{v}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -3550,6 +4887,624 @@ func (m *Error) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Message = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AddPostRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AddPostRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AddPostRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Text", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Text = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AddPostRenderer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AddPostRenderer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AddPostRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Id = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Text", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Text = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetFeedRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetFeedRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetFeedRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetFeedRenderer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetFeedRenderer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetFeedRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Posts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Posts = append(m.Posts, &PostPageRenderer{})
+			if err := m.Posts[len(m.Posts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ComposerRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ComposerRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ComposerRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ComposerRenderer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ComposerRenderer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ComposerRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field WelcomeText", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.WelcomeText = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IndexRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IndexRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IndexRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IndexRenderer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IndexRenderer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IndexRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Text", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Text = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

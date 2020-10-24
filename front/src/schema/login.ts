@@ -7,15 +7,37 @@ export interface AnyRenderer {
   postPageRenderer: PostPageRenderer | undefined;
   userPageRenderer: UserPageRenderer | undefined;
   errorRenderer: ErrorRenderer | undefined;
+  loginRenderer: LoginRenderer | undefined;
+  addPostRenderer: AddPostRenderer | undefined;
+  getFeedRenderer: GetFeedRenderer | undefined;
+  composerRenderer: ComposerRenderer | undefined;
+  indexRenderer: IndexRenderer | undefined;
 }
 
 export interface AnyRequest {
-  userPageRequest: UserPageRequest | undefined;
+  loginPageRequest: LoginPageRequest | undefined;
   postPageRequest: PostPageRequest | undefined;
+  userPageRequest: UserPageRequest | undefined;
+  loginRequest: LoginRequest | undefined;
+  addPostRequest: AddPostRequest | undefined;
+  getFeedRequest: GetFeedRequest | undefined;
+  composerRequest: ComposerRequest | undefined;
+  indexRequest: IndexRequest | undefined;
 }
 
 export interface ErrorRenderer {
   displayText: string;
+}
+
+export interface LoginRequest {
+  login: string;
+  password: string;
+}
+
+export interface LoginRenderer {
+}
+
+export interface LoginPageRequest {
 }
 
 export interface LoginPageRenderer {
@@ -35,14 +57,6 @@ export interface UserPageRenderer {
   lastPostId: string;
   currentUserId: string;
   name: string;
-}
-
-export interface LoginRequest {
-  login: string;
-  password: string;
-}
-
-export interface LoginResponse {
 }
 
 export interface ResolveRouteRequest {
@@ -66,6 +80,36 @@ export interface Error {
   message: string;
 }
 
+export interface AddPostRequest {
+  text: string;
+}
+
+export interface AddPostRenderer {
+  id: string;
+  text: string;
+}
+
+export interface GetFeedRequest {
+}
+
+export interface GetFeedRenderer {
+  posts: PostPageRenderer[];
+}
+
+export interface ComposerRequest {
+}
+
+export interface ComposerRenderer {
+  welcomeText: string;
+}
+
+export interface IndexRequest {
+}
+
+export interface IndexRenderer {
+  text: string;
+}
+
 const baseAnyRenderer: object = {
 };
 
@@ -74,6 +118,17 @@ const baseAnyRequest: object = {
 
 const baseErrorRenderer: object = {
   displayText: "",
+};
+
+const baseLoginRequest: object = {
+  login: "",
+  password: "",
+};
+
+const baseLoginRenderer: object = {
+};
+
+const baseLoginPageRequest: object = {
 };
 
 const baseLoginPageRenderer: object = {
@@ -93,14 +148,6 @@ const baseUserPageRenderer: object = {
   lastPostId: "",
   currentUserId: "",
   name: "",
-};
-
-const baseLoginRequest: object = {
-  login: "",
-  password: "",
-};
-
-const baseLoginResponse: object = {
 };
 
 const baseResolveRouteRequest: object = {
@@ -123,6 +170,35 @@ const baseError: object = {
   message: "",
 };
 
+const baseAddPostRequest: object = {
+  text: "",
+};
+
+const baseAddPostRenderer: object = {
+  id: "",
+  text: "",
+};
+
+const baseGetFeedRequest: object = {
+};
+
+const baseGetFeedRenderer: object = {
+};
+
+const baseComposerRequest: object = {
+};
+
+const baseComposerRenderer: object = {
+  welcomeText: "",
+};
+
+const baseIndexRequest: object = {
+};
+
+const baseIndexRenderer: object = {
+  text: "",
+};
+
 export const protobufPackage = ''
 
 export const AnyRenderer = {
@@ -138,6 +214,21 @@ export const AnyRenderer = {
     }
     if (message.errorRenderer !== undefined) {
       ErrorRenderer.encode(message.errorRenderer, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.loginRenderer !== undefined) {
+      LoginRenderer.encode(message.loginRenderer, writer.uint32(42).fork()).ldelim();
+    }
+    if (message.addPostRenderer !== undefined) {
+      AddPostRenderer.encode(message.addPostRenderer, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.getFeedRenderer !== undefined) {
+      GetFeedRenderer.encode(message.getFeedRenderer, writer.uint32(58).fork()).ldelim();
+    }
+    if (message.composerRenderer !== undefined) {
+      ComposerRenderer.encode(message.composerRenderer, writer.uint32(66).fork()).ldelim();
+    }
+    if (message.indexRenderer !== undefined) {
+      IndexRenderer.encode(message.indexRenderer, writer.uint32(74).fork()).ldelim();
     }
     return writer;
   },
@@ -159,6 +250,21 @@ export const AnyRenderer = {
           break;
         case 4:
           message.errorRenderer = ErrorRenderer.decode(reader, reader.uint32());
+          break;
+        case 5:
+          message.loginRenderer = LoginRenderer.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.addPostRenderer = AddPostRenderer.decode(reader, reader.uint32());
+          break;
+        case 7:
+          message.getFeedRenderer = GetFeedRenderer.decode(reader, reader.uint32());
+          break;
+        case 8:
+          message.composerRenderer = ComposerRenderer.decode(reader, reader.uint32());
+          break;
+        case 9:
+          message.indexRenderer = IndexRenderer.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -189,6 +295,31 @@ export const AnyRenderer = {
     } else {
       message.errorRenderer = undefined;
     }
+    if (object.loginRenderer !== undefined && object.loginRenderer !== null) {
+      message.loginRenderer = LoginRenderer.fromJSON(object.loginRenderer);
+    } else {
+      message.loginRenderer = undefined;
+    }
+    if (object.addPostRenderer !== undefined && object.addPostRenderer !== null) {
+      message.addPostRenderer = AddPostRenderer.fromJSON(object.addPostRenderer);
+    } else {
+      message.addPostRenderer = undefined;
+    }
+    if (object.getFeedRenderer !== undefined && object.getFeedRenderer !== null) {
+      message.getFeedRenderer = GetFeedRenderer.fromJSON(object.getFeedRenderer);
+    } else {
+      message.getFeedRenderer = undefined;
+    }
+    if (object.composerRenderer !== undefined && object.composerRenderer !== null) {
+      message.composerRenderer = ComposerRenderer.fromJSON(object.composerRenderer);
+    } else {
+      message.composerRenderer = undefined;
+    }
+    if (object.indexRenderer !== undefined && object.indexRenderer !== null) {
+      message.indexRenderer = IndexRenderer.fromJSON(object.indexRenderer);
+    } else {
+      message.indexRenderer = undefined;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<AnyRenderer>): AnyRenderer {
@@ -213,6 +344,31 @@ export const AnyRenderer = {
     } else {
       message.errorRenderer = undefined;
     }
+    if (object.loginRenderer !== undefined && object.loginRenderer !== null) {
+      message.loginRenderer = LoginRenderer.fromPartial(object.loginRenderer);
+    } else {
+      message.loginRenderer = undefined;
+    }
+    if (object.addPostRenderer !== undefined && object.addPostRenderer !== null) {
+      message.addPostRenderer = AddPostRenderer.fromPartial(object.addPostRenderer);
+    } else {
+      message.addPostRenderer = undefined;
+    }
+    if (object.getFeedRenderer !== undefined && object.getFeedRenderer !== null) {
+      message.getFeedRenderer = GetFeedRenderer.fromPartial(object.getFeedRenderer);
+    } else {
+      message.getFeedRenderer = undefined;
+    }
+    if (object.composerRenderer !== undefined && object.composerRenderer !== null) {
+      message.composerRenderer = ComposerRenderer.fromPartial(object.composerRenderer);
+    } else {
+      message.composerRenderer = undefined;
+    }
+    if (object.indexRenderer !== undefined && object.indexRenderer !== null) {
+      message.indexRenderer = IndexRenderer.fromPartial(object.indexRenderer);
+    } else {
+      message.indexRenderer = undefined;
+    }
     return message;
   },
   toJSON(message: AnyRenderer): unknown {
@@ -221,17 +377,40 @@ export const AnyRenderer = {
     message.postPageRenderer !== undefined && (obj.postPageRenderer = message.postPageRenderer ? PostPageRenderer.toJSON(message.postPageRenderer) : undefined);
     message.userPageRenderer !== undefined && (obj.userPageRenderer = message.userPageRenderer ? UserPageRenderer.toJSON(message.userPageRenderer) : undefined);
     message.errorRenderer !== undefined && (obj.errorRenderer = message.errorRenderer ? ErrorRenderer.toJSON(message.errorRenderer) : undefined);
+    message.loginRenderer !== undefined && (obj.loginRenderer = message.loginRenderer ? LoginRenderer.toJSON(message.loginRenderer) : undefined);
+    message.addPostRenderer !== undefined && (obj.addPostRenderer = message.addPostRenderer ? AddPostRenderer.toJSON(message.addPostRenderer) : undefined);
+    message.getFeedRenderer !== undefined && (obj.getFeedRenderer = message.getFeedRenderer ? GetFeedRenderer.toJSON(message.getFeedRenderer) : undefined);
+    message.composerRenderer !== undefined && (obj.composerRenderer = message.composerRenderer ? ComposerRenderer.toJSON(message.composerRenderer) : undefined);
+    message.indexRenderer !== undefined && (obj.indexRenderer = message.indexRenderer ? IndexRenderer.toJSON(message.indexRenderer) : undefined);
     return obj;
   },
 };
 
 export const AnyRequest = {
   encode(message: AnyRequest, writer: Writer = Writer.create()): Writer {
-    if (message.userPageRequest !== undefined) {
-      UserPageRequest.encode(message.userPageRequest, writer.uint32(10).fork()).ldelim();
+    if (message.loginPageRequest !== undefined) {
+      LoginPageRequest.encode(message.loginPageRequest, writer.uint32(10).fork()).ldelim();
     }
     if (message.postPageRequest !== undefined) {
       PostPageRequest.encode(message.postPageRequest, writer.uint32(18).fork()).ldelim();
+    }
+    if (message.userPageRequest !== undefined) {
+      UserPageRequest.encode(message.userPageRequest, writer.uint32(26).fork()).ldelim();
+    }
+    if (message.loginRequest !== undefined) {
+      LoginRequest.encode(message.loginRequest, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.addPostRequest !== undefined) {
+      AddPostRequest.encode(message.addPostRequest, writer.uint32(42).fork()).ldelim();
+    }
+    if (message.getFeedRequest !== undefined) {
+      GetFeedRequest.encode(message.getFeedRequest, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.composerRequest !== undefined) {
+      ComposerRequest.encode(message.composerRequest, writer.uint32(58).fork()).ldelim();
+    }
+    if (message.indexRequest !== undefined) {
+      IndexRequest.encode(message.indexRequest, writer.uint32(66).fork()).ldelim();
     }
     return writer;
   },
@@ -243,10 +422,28 @@ export const AnyRequest = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.userPageRequest = UserPageRequest.decode(reader, reader.uint32());
+          message.loginPageRequest = LoginPageRequest.decode(reader, reader.uint32());
           break;
         case 2:
           message.postPageRequest = PostPageRequest.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.userPageRequest = UserPageRequest.decode(reader, reader.uint32());
+          break;
+        case 4:
+          message.loginRequest = LoginRequest.decode(reader, reader.uint32());
+          break;
+        case 5:
+          message.addPostRequest = AddPostRequest.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.getFeedRequest = GetFeedRequest.decode(reader, reader.uint32());
+          break;
+        case 7:
+          message.composerRequest = ComposerRequest.decode(reader, reader.uint32());
+          break;
+        case 8:
+          message.indexRequest = IndexRequest.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -257,36 +454,102 @@ export const AnyRequest = {
   },
   fromJSON(object: any): AnyRequest {
     const message = { ...baseAnyRequest } as AnyRequest;
-    if (object.userPageRequest !== undefined && object.userPageRequest !== null) {
-      message.userPageRequest = UserPageRequest.fromJSON(object.userPageRequest);
+    if (object.loginPageRequest !== undefined && object.loginPageRequest !== null) {
+      message.loginPageRequest = LoginPageRequest.fromJSON(object.loginPageRequest);
     } else {
-      message.userPageRequest = undefined;
+      message.loginPageRequest = undefined;
     }
     if (object.postPageRequest !== undefined && object.postPageRequest !== null) {
       message.postPageRequest = PostPageRequest.fromJSON(object.postPageRequest);
     } else {
       message.postPageRequest = undefined;
     }
+    if (object.userPageRequest !== undefined && object.userPageRequest !== null) {
+      message.userPageRequest = UserPageRequest.fromJSON(object.userPageRequest);
+    } else {
+      message.userPageRequest = undefined;
+    }
+    if (object.loginRequest !== undefined && object.loginRequest !== null) {
+      message.loginRequest = LoginRequest.fromJSON(object.loginRequest);
+    } else {
+      message.loginRequest = undefined;
+    }
+    if (object.addPostRequest !== undefined && object.addPostRequest !== null) {
+      message.addPostRequest = AddPostRequest.fromJSON(object.addPostRequest);
+    } else {
+      message.addPostRequest = undefined;
+    }
+    if (object.getFeedRequest !== undefined && object.getFeedRequest !== null) {
+      message.getFeedRequest = GetFeedRequest.fromJSON(object.getFeedRequest);
+    } else {
+      message.getFeedRequest = undefined;
+    }
+    if (object.composerRequest !== undefined && object.composerRequest !== null) {
+      message.composerRequest = ComposerRequest.fromJSON(object.composerRequest);
+    } else {
+      message.composerRequest = undefined;
+    }
+    if (object.indexRequest !== undefined && object.indexRequest !== null) {
+      message.indexRequest = IndexRequest.fromJSON(object.indexRequest);
+    } else {
+      message.indexRequest = undefined;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<AnyRequest>): AnyRequest {
     const message = { ...baseAnyRequest } as AnyRequest;
-    if (object.userPageRequest !== undefined && object.userPageRequest !== null) {
-      message.userPageRequest = UserPageRequest.fromPartial(object.userPageRequest);
+    if (object.loginPageRequest !== undefined && object.loginPageRequest !== null) {
+      message.loginPageRequest = LoginPageRequest.fromPartial(object.loginPageRequest);
     } else {
-      message.userPageRequest = undefined;
+      message.loginPageRequest = undefined;
     }
     if (object.postPageRequest !== undefined && object.postPageRequest !== null) {
       message.postPageRequest = PostPageRequest.fromPartial(object.postPageRequest);
     } else {
       message.postPageRequest = undefined;
     }
+    if (object.userPageRequest !== undefined && object.userPageRequest !== null) {
+      message.userPageRequest = UserPageRequest.fromPartial(object.userPageRequest);
+    } else {
+      message.userPageRequest = undefined;
+    }
+    if (object.loginRequest !== undefined && object.loginRequest !== null) {
+      message.loginRequest = LoginRequest.fromPartial(object.loginRequest);
+    } else {
+      message.loginRequest = undefined;
+    }
+    if (object.addPostRequest !== undefined && object.addPostRequest !== null) {
+      message.addPostRequest = AddPostRequest.fromPartial(object.addPostRequest);
+    } else {
+      message.addPostRequest = undefined;
+    }
+    if (object.getFeedRequest !== undefined && object.getFeedRequest !== null) {
+      message.getFeedRequest = GetFeedRequest.fromPartial(object.getFeedRequest);
+    } else {
+      message.getFeedRequest = undefined;
+    }
+    if (object.composerRequest !== undefined && object.composerRequest !== null) {
+      message.composerRequest = ComposerRequest.fromPartial(object.composerRequest);
+    } else {
+      message.composerRequest = undefined;
+    }
+    if (object.indexRequest !== undefined && object.indexRequest !== null) {
+      message.indexRequest = IndexRequest.fromPartial(object.indexRequest);
+    } else {
+      message.indexRequest = undefined;
+    }
     return message;
   },
   toJSON(message: AnyRequest): unknown {
     const obj: any = {};
-    message.userPageRequest !== undefined && (obj.userPageRequest = message.userPageRequest ? UserPageRequest.toJSON(message.userPageRequest) : undefined);
+    message.loginPageRequest !== undefined && (obj.loginPageRequest = message.loginPageRequest ? LoginPageRequest.toJSON(message.loginPageRequest) : undefined);
     message.postPageRequest !== undefined && (obj.postPageRequest = message.postPageRequest ? PostPageRequest.toJSON(message.postPageRequest) : undefined);
+    message.userPageRequest !== undefined && (obj.userPageRequest = message.userPageRequest ? UserPageRequest.toJSON(message.userPageRequest) : undefined);
+    message.loginRequest !== undefined && (obj.loginRequest = message.loginRequest ? LoginRequest.toJSON(message.loginRequest) : undefined);
+    message.addPostRequest !== undefined && (obj.addPostRequest = message.addPostRequest ? AddPostRequest.toJSON(message.addPostRequest) : undefined);
+    message.getFeedRequest !== undefined && (obj.getFeedRequest = message.getFeedRequest ? GetFeedRequest.toJSON(message.getFeedRequest) : undefined);
+    message.composerRequest !== undefined && (obj.composerRequest = message.composerRequest ? ComposerRequest.toJSON(message.composerRequest) : undefined);
+    message.indexRequest !== undefined && (obj.indexRequest = message.indexRequest ? IndexRequest.toJSON(message.indexRequest) : undefined);
     return obj;
   },
 };
@@ -334,6 +597,132 @@ export const ErrorRenderer = {
   toJSON(message: ErrorRenderer): unknown {
     const obj: any = {};
     message.displayText !== undefined && (obj.displayText = message.displayText);
+    return obj;
+  },
+};
+
+export const LoginRequest = {
+  encode(message: LoginRequest, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.login);
+    writer.uint32(18).string(message.password);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): LoginRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseLoginRequest } as LoginRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.login = reader.string();
+          break;
+        case 2:
+          message.password = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): LoginRequest {
+    const message = { ...baseLoginRequest } as LoginRequest;
+    if (object.login !== undefined && object.login !== null) {
+      message.login = String(object.login);
+    } else {
+      message.login = "";
+    }
+    if (object.password !== undefined && object.password !== null) {
+      message.password = String(object.password);
+    } else {
+      message.password = "";
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<LoginRequest>): LoginRequest {
+    const message = { ...baseLoginRequest } as LoginRequest;
+    if (object.login !== undefined && object.login !== null) {
+      message.login = object.login;
+    } else {
+      message.login = "";
+    }
+    if (object.password !== undefined && object.password !== null) {
+      message.password = object.password;
+    } else {
+      message.password = "";
+    }
+    return message;
+  },
+  toJSON(message: LoginRequest): unknown {
+    const obj: any = {};
+    message.login !== undefined && (obj.login = message.login);
+    message.password !== undefined && (obj.password = message.password);
+    return obj;
+  },
+};
+
+export const LoginRenderer = {
+  encode(_: LoginRenderer, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): LoginRenderer {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseLoginRenderer } as LoginRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(_: any): LoginRenderer {
+    const message = { ...baseLoginRenderer } as LoginRenderer;
+    return message;
+  },
+  fromPartial(_: DeepPartial<LoginRenderer>): LoginRenderer {
+    const message = { ...baseLoginRenderer } as LoginRenderer;
+    return message;
+  },
+  toJSON(_: LoginRenderer): unknown {
+    const obj: any = {};
+    return obj;
+  },
+};
+
+export const LoginPageRequest = {
+  encode(_: LoginPageRequest, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): LoginPageRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseLoginPageRequest } as LoginPageRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(_: any): LoginPageRequest {
+    const message = { ...baseLoginPageRequest } as LoginPageRequest;
+    return message;
+  },
+  fromPartial(_: DeepPartial<LoginPageRequest>): LoginPageRequest {
+    const message = { ...baseLoginPageRequest } as LoginPageRequest;
+    return message;
+  },
+  toJSON(_: LoginPageRequest): unknown {
+    const obj: any = {};
     return obj;
   },
 };
@@ -580,100 +969,6 @@ export const UserPageRenderer = {
     message.lastPostId !== undefined && (obj.lastPostId = message.lastPostId);
     message.currentUserId !== undefined && (obj.currentUserId = message.currentUserId);
     message.name !== undefined && (obj.name = message.name);
-    return obj;
-  },
-};
-
-export const LoginRequest = {
-  encode(message: LoginRequest, writer: Writer = Writer.create()): Writer {
-    writer.uint32(10).string(message.login);
-    writer.uint32(18).string(message.password);
-    return writer;
-  },
-  decode(input: Uint8Array | Reader, length?: number): LoginRequest {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseLoginRequest } as LoginRequest;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.login = reader.string();
-          break;
-        case 2:
-          message.password = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromJSON(object: any): LoginRequest {
-    const message = { ...baseLoginRequest } as LoginRequest;
-    if (object.login !== undefined && object.login !== null) {
-      message.login = String(object.login);
-    } else {
-      message.login = "";
-    }
-    if (object.password !== undefined && object.password !== null) {
-      message.password = String(object.password);
-    } else {
-      message.password = "";
-    }
-    return message;
-  },
-  fromPartial(object: DeepPartial<LoginRequest>): LoginRequest {
-    const message = { ...baseLoginRequest } as LoginRequest;
-    if (object.login !== undefined && object.login !== null) {
-      message.login = object.login;
-    } else {
-      message.login = "";
-    }
-    if (object.password !== undefined && object.password !== null) {
-      message.password = object.password;
-    } else {
-      message.password = "";
-    }
-    return message;
-  },
-  toJSON(message: LoginRequest): unknown {
-    const obj: any = {};
-    message.login !== undefined && (obj.login = message.login);
-    message.password !== undefined && (obj.password = message.password);
-    return obj;
-  },
-};
-
-export const LoginResponse = {
-  encode(_: LoginResponse, writer: Writer = Writer.create()): Writer {
-    return writer;
-  },
-  decode(input: Uint8Array | Reader, length?: number): LoginResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseLoginResponse } as LoginResponse;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromJSON(_: any): LoginResponse {
-    const message = { ...baseLoginResponse } as LoginResponse;
-    return message;
-  },
-  fromPartial(_: DeepPartial<LoginResponse>): LoginResponse {
-    const message = { ...baseLoginResponse } as LoginResponse;
-    return message;
-  },
-  toJSON(_: LoginResponse): unknown {
-    const obj: any = {};
     return obj;
   },
 };
@@ -935,6 +1230,361 @@ export const Error = {
   toJSON(message: Error): unknown {
     const obj: any = {};
     message.message !== undefined && (obj.message = message.message);
+    return obj;
+  },
+};
+
+export const AddPostRequest = {
+  encode(message: AddPostRequest, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.text);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): AddPostRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseAddPostRequest } as AddPostRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.text = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): AddPostRequest {
+    const message = { ...baseAddPostRequest } as AddPostRequest;
+    if (object.text !== undefined && object.text !== null) {
+      message.text = String(object.text);
+    } else {
+      message.text = "";
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<AddPostRequest>): AddPostRequest {
+    const message = { ...baseAddPostRequest } as AddPostRequest;
+    if (object.text !== undefined && object.text !== null) {
+      message.text = object.text;
+    } else {
+      message.text = "";
+    }
+    return message;
+  },
+  toJSON(message: AddPostRequest): unknown {
+    const obj: any = {};
+    message.text !== undefined && (obj.text = message.text);
+    return obj;
+  },
+};
+
+export const AddPostRenderer = {
+  encode(message: AddPostRenderer, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.id);
+    writer.uint32(18).string(message.text);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): AddPostRenderer {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseAddPostRenderer } as AddPostRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.id = reader.string();
+          break;
+        case 2:
+          message.text = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): AddPostRenderer {
+    const message = { ...baseAddPostRenderer } as AddPostRenderer;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = String(object.id);
+    } else {
+      message.id = "";
+    }
+    if (object.text !== undefined && object.text !== null) {
+      message.text = String(object.text);
+    } else {
+      message.text = "";
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<AddPostRenderer>): AddPostRenderer {
+    const message = { ...baseAddPostRenderer } as AddPostRenderer;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = "";
+    }
+    if (object.text !== undefined && object.text !== null) {
+      message.text = object.text;
+    } else {
+      message.text = "";
+    }
+    return message;
+  },
+  toJSON(message: AddPostRenderer): unknown {
+    const obj: any = {};
+    message.id !== undefined && (obj.id = message.id);
+    message.text !== undefined && (obj.text = message.text);
+    return obj;
+  },
+};
+
+export const GetFeedRequest = {
+  encode(_: GetFeedRequest, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): GetFeedRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseGetFeedRequest } as GetFeedRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(_: any): GetFeedRequest {
+    const message = { ...baseGetFeedRequest } as GetFeedRequest;
+    return message;
+  },
+  fromPartial(_: DeepPartial<GetFeedRequest>): GetFeedRequest {
+    const message = { ...baseGetFeedRequest } as GetFeedRequest;
+    return message;
+  },
+  toJSON(_: GetFeedRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+};
+
+export const GetFeedRenderer = {
+  encode(message: GetFeedRenderer, writer: Writer = Writer.create()): Writer {
+    for (const v of message.posts) {
+      PostPageRenderer.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): GetFeedRenderer {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseGetFeedRenderer } as GetFeedRenderer;
+    message.posts = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.posts.push(PostPageRenderer.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): GetFeedRenderer {
+    const message = { ...baseGetFeedRenderer } as GetFeedRenderer;
+    message.posts = [];
+    if (object.posts !== undefined && object.posts !== null) {
+      for (const e of object.posts) {
+        message.posts.push(PostPageRenderer.fromJSON(e));
+      }
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<GetFeedRenderer>): GetFeedRenderer {
+    const message = { ...baseGetFeedRenderer } as GetFeedRenderer;
+    message.posts = [];
+    if (object.posts !== undefined && object.posts !== null) {
+      for (const e of object.posts) {
+        message.posts.push(PostPageRenderer.fromPartial(e));
+      }
+    }
+    return message;
+  },
+  toJSON(message: GetFeedRenderer): unknown {
+    const obj: any = {};
+    if (message.posts) {
+      obj.posts = message.posts.map(e => e ? PostPageRenderer.toJSON(e) : undefined);
+    } else {
+      obj.posts = [];
+    }
+    return obj;
+  },
+};
+
+export const ComposerRequest = {
+  encode(_: ComposerRequest, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): ComposerRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseComposerRequest } as ComposerRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(_: any): ComposerRequest {
+    const message = { ...baseComposerRequest } as ComposerRequest;
+    return message;
+  },
+  fromPartial(_: DeepPartial<ComposerRequest>): ComposerRequest {
+    const message = { ...baseComposerRequest } as ComposerRequest;
+    return message;
+  },
+  toJSON(_: ComposerRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+};
+
+export const ComposerRenderer = {
+  encode(message: ComposerRenderer, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.welcomeText);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): ComposerRenderer {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseComposerRenderer } as ComposerRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.welcomeText = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): ComposerRenderer {
+    const message = { ...baseComposerRenderer } as ComposerRenderer;
+    if (object.welcomeText !== undefined && object.welcomeText !== null) {
+      message.welcomeText = String(object.welcomeText);
+    } else {
+      message.welcomeText = "";
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<ComposerRenderer>): ComposerRenderer {
+    const message = { ...baseComposerRenderer } as ComposerRenderer;
+    if (object.welcomeText !== undefined && object.welcomeText !== null) {
+      message.welcomeText = object.welcomeText;
+    } else {
+      message.welcomeText = "";
+    }
+    return message;
+  },
+  toJSON(message: ComposerRenderer): unknown {
+    const obj: any = {};
+    message.welcomeText !== undefined && (obj.welcomeText = message.welcomeText);
+    return obj;
+  },
+};
+
+export const IndexRequest = {
+  encode(_: IndexRequest, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): IndexRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseIndexRequest } as IndexRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(_: any): IndexRequest {
+    const message = { ...baseIndexRequest } as IndexRequest;
+    return message;
+  },
+  fromPartial(_: DeepPartial<IndexRequest>): IndexRequest {
+    const message = { ...baseIndexRequest } as IndexRequest;
+    return message;
+  },
+  toJSON(_: IndexRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+};
+
+export const IndexRenderer = {
+  encode(message: IndexRenderer, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.text);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): IndexRenderer {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseIndexRenderer } as IndexRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.text = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): IndexRenderer {
+    const message = { ...baseIndexRenderer } as IndexRenderer;
+    if (object.text !== undefined && object.text !== null) {
+      message.text = String(object.text);
+    } else {
+      message.text = "";
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<IndexRenderer>): IndexRenderer {
+    const message = { ...baseIndexRenderer } as IndexRenderer;
+    if (object.text !== undefined && object.text !== null) {
+      message.text = object.text;
+    } else {
+      message.text = "";
+    }
+    return message;
+  },
+  toJSON(message: IndexRenderer): unknown {
+    const obj: any = {};
+    message.text !== undefined && (obj.text = message.text);
     return obj;
   },
 };

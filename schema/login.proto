@@ -7,6 +7,10 @@ message AnyRenderer {
     UserPageRenderer user_page_renderer = 3;
     ErrorRenderer error_renderer = 4;
     LoginRenderer login_renderer = 5;
+    AddPostRenderer add_post_renderer = 6;
+    GetFeedRenderer get_feed_renderer = 7;
+    ComposerRenderer composer_renderer = 8;
+    IndexRenderer index_renderer = 9;
   }
 }
 
@@ -16,6 +20,10 @@ message AnyRequest {
     PostPageRequest post_page_request = 2;
     UserPageRequest user_page_request = 3;
     LoginRequest login_request = 4;
+    AddPostRequest add_post_request = 5;
+    GetFeedRequest get_feed_request = 6;
+    ComposerRequest composer_request = 7;
+    IndexRequest index_request = 8;
   }
 }
 
@@ -72,4 +80,34 @@ message UserPageRequest {
 
 message Error {
   string message = 1;
+}
+
+message AddPostRequest {
+  string text = 1;
+}
+
+message AddPostRenderer {
+  string id = 1;
+  string text = 2;
+}
+
+message GetFeedRequest {
+}
+
+message GetFeedRenderer {
+  repeated PostPageRenderer posts = 1;
+}
+
+message ComposerRequest {
+}
+
+message ComposerRenderer {
+  string welcome_text = 1;
+}
+
+message IndexRequest {
+}
+
+message IndexRenderer {
+  string text = 1;
 }

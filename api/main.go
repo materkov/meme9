@@ -91,6 +91,39 @@ func resolveRoute(url string) resolvedRoute {
 		}
 	}
 
+	if match, _ := regexp.MatchString(`^/composer`, url); match {
+		return resolvedRoute{
+			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_ComposerRequest{}},
+			js: []string{
+				"/static/React.js",
+				"/static/Composer.js",
+				"/static/Global.js",
+			},
+		}
+	}
+
+	if match, _ := regexp.MatchString(`^/feed`, url); match {
+		return resolvedRoute{
+			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_GetFeedRequest{}},
+			js: []string{
+				"/static/React.js",
+				"/static/Feed.js",
+				"/static/Global.js",
+			},
+		}
+	}
+
+	if match, _ := regexp.MatchString(`^/$`, url); match {
+		return resolvedRoute{
+			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_IndexRequest{}},
+			js: []string{
+				"/static/React.js",
+				"/static/Index.js",
+				"/static/Global.js",
+			},
+		}
+	}
+
 	return resolvedRoute{}
 }
 
@@ -103,6 +136,10 @@ type Main struct {
 	store *store.Store
 
 	loginPage *handlers.LoginPage
+	addPost   *handlers.AddPost
+	getFeed   *handlers.GetFeed
+	composer  *handlers.Composer
+	index     *handlers.Index
 }
 
 func (m *Main) apiRequest(viewer *api.Viewer, req *login.AnyRequest) *login.AnyRenderer {
@@ -113,6 +150,14 @@ func (m *Main) apiRequest(viewer *api.Viewer, req *login.AnyRequest) *login.AnyR
 		return apiPostPage(viewer, req.PostPageRequest)
 	case *login.AnyRequest_LoginPageRequest:
 		return m.loginPage.Handle(viewer, req.LoginPageRequest)
+	case *login.AnyRequest_AddPostRequest:
+		return m.addPost.Handle(viewer, req.AddPostRequest)
+	case *login.AnyRequest_GetFeedRequest:
+		return m.getFeed.Handle(viewer, req.GetFeedRequest)
+	case *login.AnyRequest_ComposerRequest:
+		return m.composer.Handle(viewer, req.ComposerRequest)
+	case *login.AnyRequest_IndexRequest:
+		return m.index.Handle(viewer, req.IndexRequest)
 	default:
 		return nil
 	}
@@ -123,6 +168,10 @@ func (m *Main) Main() {
 	m.store = store.NewStore(redisClient)
 	authMiddleware := &AuthMiddleware{store: m.store}
 	m.loginPage = &handlers.LoginPage{Store: m.store}
+	m.addPost = &handlers.AddPost{Store: m.store}
+	m.getFeed = &handlers.GetFeed{Store: m.store}
+	m.composer = &handlers.Composer{Store: m.store}
+	m.index = &handlers.Index{Store: m.store}
 	loginApi := &handlers.LoginApi{Store: m.store}
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
