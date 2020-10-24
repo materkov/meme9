@@ -1,16 +1,16 @@
-let loaded: { [file: string]: boolean } = {};
+let globalLoaded: { [file: string]: boolean } = {};
 
 if (window.InitJsBundles) {
     for (let js of window.InitJsBundles) {
-        loaded[js] = true
+        globalLoaded[js] = true
     }
 }
 
-export function loadJs(js: string[]): Promise<null> {
+export function fetchJs(js: string[]): Promise<null> {
     return new Promise<null>((resolve, reject) => {
         let neededJs = [];
         for (let file of js) {
-            if (!loaded[file]) {
+            if (!globalLoaded[file]) {
                 neededJs.push(file);
             }
         }
@@ -25,7 +25,7 @@ export function loadJs(js: string[]): Promise<null> {
                 const script = document.createElement('script');
                 script.src = file;
                 script.onload = () => {
-                    loaded[file] = true;
+                    globalLoaded[file] = true;
                     resolve();
                 };
 

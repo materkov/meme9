@@ -2,7 +2,7 @@ import React from "react";
 import * as schema from "../../schema/login";
 import {resolveRoute} from "../../RouteResolver";
 import {fetchData} from "../../DataFetcher";
-import {loadJs} from "../../JsManager";
+import {fetchJs} from "../../JsFetcher";
 
 interface State {
     rootData: schema.AnyRenderer | undefined;
@@ -36,7 +36,7 @@ export class Root extends React.Component<{}, State> {
             }
 
             Promise.all([
-                loadJs(resolvedRoute.js),
+                fetchJs(resolvedRoute.js),
                 fetchData(resolvedRoute.request)
             ]).then(([_, renderer]) => {
                 this.setState({rootData: renderer})

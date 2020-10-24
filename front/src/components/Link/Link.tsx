@@ -1,6 +1,6 @@
 import React from "react";
 import {resolveRoute} from "../../RouteResolver";
-import {loadJs} from "../../JsManager";
+import {fetchJs} from "../../JsFetcher";
 
 interface Props {
     href: string;
@@ -16,7 +16,7 @@ export class Link extends React.Component<Props, any> {
     onMouseEnter = () => {
         // Preload route info and JS code
         resolveRoute(this.props.href).then(r => {
-            loadJs(r.js);
+            fetchJs(r.js);
         });
     };
 
