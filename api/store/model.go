@@ -1,4 +1,4 @@
-package api
+package store
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ func (t *Token) GenerateRandomToken() {
 	t.Token = fmt.Sprintf("%d-%d-%s", t.ID, t.UserID, b)
 }
 
-func GetTokenNodeID(token string) (int, error) {
+func GetNodeIDFromToken(token string) (int, error) {
 	parts := strings.Split(token, "-")
 	if len(parts) < 2 {
 		return 0, fmt.Errorf("incorrect token")

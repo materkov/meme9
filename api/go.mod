@@ -8,4 +8,5 @@ require (
 	github.com/philhofer/fwd v1.0.0 // indirect
 	github.com/tinylib/msgp v1.1.2
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31 // indirect
+	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
 )

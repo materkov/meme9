@@ -6,18 +6,32 @@ message AnyRenderer {
     PostPageRenderer post_page_renderer = 2;
     UserPageRenderer user_page_renderer = 3;
     ErrorRenderer error_renderer = 4;
+    LoginRenderer login_renderer = 5;
   }
 }
 
 message AnyRequest {
   oneof request {
-    UserPageRequest user_page_request = 1;
+    LoginPageRequest login_page_request = 1;
     PostPageRequest post_page_request = 2;
+    UserPageRequest user_page_request = 3;
+    LoginRequest login_request = 4;
   }
 }
 
 message ErrorRenderer {
   string display_text = 1;
+}
+
+message LoginRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message LoginRenderer {
+}
+
+message LoginPageRequest {
 }
 
 message LoginPageRenderer {
@@ -37,14 +51,6 @@ message UserPageRenderer {
   string lastPostId = 2;
   string currentUserId = 3;
   string name = 4;
-}
-
-message LoginRequest {
-  string login = 1;
-  string password = 2;
-}
-
-message LoginResponse {
 }
 
 message ResolveRouteRequest {

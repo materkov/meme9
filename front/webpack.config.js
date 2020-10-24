@@ -4,20 +4,25 @@ module.exports = {
     entry: {
         React: ['react', 'react-dom'],
         Global: {
-            import: './src/entrypoints/Global.tsx',
-            dependOn: 'React',
+            import: [
+                './src/entrypoints/Global.tsx',
+                './src/DataFetcher.ts',
+                './src/JsFetcher.ts',
+                './src/RouteResolver.ts',
+            ],
+            dependOn: ['React'],
         },
         LoginPage: {
             import: './src/entrypoints/LoginPage.tsx',
-            dependOn: 'React',
+            dependOn: ['React', 'Global'],
         },
         PostPage: {
             import: './src/entrypoints/PostPage.tsx',
-            dependOn: 'React',
+            dependOn: ['React', 'Global'],
         },
         UserPage: {
             import: './src/entrypoints/UserPage.tsx',
-            dependOn: 'React',
+            dependOn: ['React', 'Global'],
         },
     },
     module: {
@@ -40,7 +45,7 @@ module.exports = {
         proxy: {
             '/': {
                 target: 'http://localhost:8000',
-                bypass: function(req, res, proxyOptions) {
+                bypass: function (req, res, proxyOptions) {
                     if (req.originalUrl.startsWith('/static')) {
                         return req.originalUrl.substring(8);
                     }
