@@ -1,6 +1,7 @@
 import React from "react";
 import * as schema from "../../schema/login";
 import {Link} from "../Link/Link";
+import {Header} from "../Header/Header";
 
 export class Feed extends React.Component<schema.GetFeedRenderer, any> {
     render() {
@@ -8,6 +9,8 @@ export class Feed extends React.Component<schema.GetFeedRenderer, any> {
 
         return (
             <div>
+                {this.props.headerRenderer && <Header {...this.props.headerRenderer}/>}
+
                 {posts.map(item => (<FeedItem key={item.id} post={item}/>))}
             </div>
         );

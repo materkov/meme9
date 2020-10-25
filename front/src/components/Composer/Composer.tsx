@@ -1,5 +1,6 @@
 import React from "react";
 import * as schema from "../../schema/login";
+import {Header} from "../Header/Header";
 
 interface State {
     text: string;
@@ -33,6 +34,8 @@ export class Composer extends React.Component<schema.ComposerRenderer, State> {
     render() {
         return (
             <div>
+                {this.props.headerRenderer && <Header {...this.props.headerRenderer}/>}
+
                 Напишите свой пост здесь:<br/>
                 {this.props.welcomeText}<br/>
                 <textarea onChange={this.onChange}></textarea><br/>

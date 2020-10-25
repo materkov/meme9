@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/materkov/meme9/api/api"
 	login "github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
@@ -15,6 +17,9 @@ func (l *LoginPage) Handle(viewer *api.Viewer, req *login.LoginPageRequest) *log
 		LoginPageRenderer: &login.LoginPageRenderer{
 			SubmitUrl:   "/submit_url",
 			WelcomeText: "Login welcome текстик",
+			HeaderRenderer: &login.HeaderRenderer{
+				CurrentUserId: strconv.Itoa(viewer.UserID),
+			},
 		},
 	}}
 }

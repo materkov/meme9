@@ -1,17 +1,13 @@
 import React from 'react';
 import * as schema from '../../schema/login';
-
-interface Props {
-    welcomeText: string;
-    submitUrl: string;
-}
+import {Header} from "../Header/Header";
 
 interface State {
     login: string;
     password: string;
 }
 
-export class LoginPage extends React.Component<Props, State> {
+export class LoginPage extends React.Component<schema.LoginPageRenderer, State> {
     state: State = {
         login: '',
         password: '',
@@ -39,6 +35,8 @@ export class LoginPage extends React.Component<Props, State> {
     render() {
         return (
             <div>
+                {this.props.headerRenderer && <Header {...this.props.headerRenderer}/>}
+
                 {this.props.welcomeText}
                 <br/>
 

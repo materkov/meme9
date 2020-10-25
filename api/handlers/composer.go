@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/materkov/meme9/api/api"
 	login "github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
@@ -14,6 +16,9 @@ func (c *Composer) Handle(viewer *api.Viewer, req *login.ComposerRequest) *login
 	return &login.AnyRenderer{Renderer: &login.AnyRenderer_ComposerRenderer{
 		ComposerRenderer: &login.ComposerRenderer{
 			WelcomeText: "текст фром бакеэнд",
+			HeaderRenderer: &login.HeaderRenderer{
+				CurrentUserId: strconv.Itoa(viewer.UserID),
+			},
 		},
 	}}
 }

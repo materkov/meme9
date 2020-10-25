@@ -50,6 +50,9 @@ func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) *login.A
 	return &login.AnyRenderer{Renderer: &login.AnyRenderer_GetFeedRenderer{
 		GetFeedRenderer: &login.GetFeedRenderer{
 			Posts: postPageRenderers,
+			HeaderRenderer: &login.HeaderRenderer{
+				CurrentUserId: strconv.Itoa(viewer.UserID),
+			},
 		},
 	}}
 }

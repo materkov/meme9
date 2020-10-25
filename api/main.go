@@ -3,7 +3,6 @@ package api
 import (
 	"net/http"
 	"regexp"
-	"strconv"
 
 	"github.com/go-redis/redis"
 	"github.com/gogo/protobuf/jsonpb"
@@ -19,45 +18,13 @@ func writeResponse(w http.ResponseWriter, resp proto.Message) {
 	_ = m.Marshal(w, resp)
 }
 
-func apiUserPage(viewer *api.Viewer, req *login.UserPageRequest) *login.AnyRenderer {
-	return &login.AnyRenderer{Renderer: &login.AnyRenderer_UserPageRenderer{
-		UserPageRenderer: &login.UserPageRenderer{
-			Id:            req.UserId,
-			LastPostId:    "2",
-			CurrentUserId: strconv.Itoa(viewer.UserID),
-			Name:          req.UserId + " - name",
-		},
-	}}
-}
-
-func apiPostPage(viewer *api.Viewer, req *login.PostPageRequest) *login.AnyRenderer {
-	return &login.AnyRenderer{Renderer: &login.AnyRenderer_PostPageRenderer{
-		PostPageRenderer: &login.PostPageRenderer{
-			Id:            req.PostId,
-			Text:          "bla bla bla - " + req.PostId,
-			UserId:        "1",
-			CurrentUserId: strconv.Itoa(viewer.UserID),
-		},
-	}}
-}
-
-func apiUserConvertUrl(url string) *login.UserPageRequest {
-	return &login.UserPageRequest{
-		UserId: url[7:],
-	}
-}
-
-func apiPostConvertUrl(url string) *login.PostPageRequest {
-	return &login.PostPageRequest{
-		PostId: url[7:],
-	}
-}
-
 func resolveRoute(url string) resolvedRoute {
 	if match, _ := regexp.MatchString(`^/users/([0-9]+)`, url); match {
 		return resolvedRoute{
 			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_UserPageRequest{
-				UserPageRequest: apiUserConvertUrl(url),
+				UserPageRequest: &login.UserPageRequest{
+					UserId: url[7:],
+				},
 			}},
 			js: []string{
 				"/static/React.js",
@@ -70,7 +37,9 @@ func resolveRoute(url string) resolvedRoute {
 	if match, _ := regexp.MatchString(`^/posts/([0-9]+)`, url); match {
 		return resolvedRoute{
 			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_PostPageRequest{
-				PostPageRequest: apiPostConvertUrl(url),
+				PostPageRequest: &login.PostPageRequest{
+					PostId: url[7:],
+				},
 			}},
 			js: []string{
 				"/static/React.js",
@@ -140,14 +109,16 @@ type Main struct {
 	getFeed   *handlers.GetFeed
 	composer  *handlers.Composer
 	index     *handlers.Index
+	postPage  *handlers.PostPage
+	userPage  *handlers.UserPage
 }
 
 func (m *Main) apiRequest(viewer *api.Viewer, req *login.AnyRequest) *login.AnyRenderer {
 	switch req := req.GetRequest().(type) {
 	case *login.AnyRequest_UserPageRequest:
-		return apiUserPage(viewer, req.UserPageRequest)
+		return m.userPage.Handle(viewer, req.UserPageRequest)
 	case *login.AnyRequest_PostPageRequest:
-		return apiPostPage(viewer, req.PostPageRequest)
+		return m.postPage.Handle(viewer, req.PostPageRequest)
 	case *login.AnyRequest_LoginPageRequest:
 		return m.loginPage.Handle(viewer, req.LoginPageRequest)
 	case *login.AnyRequest_AddPostRequest:

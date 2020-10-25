@@ -45,6 +45,8 @@ message LoginPageRequest {
 message LoginPageRenderer {
   string submit_url = 1;
   string welcome_text = 2;
+
+  HeaderRenderer header_renderer = 3;
 }
 
 message PostPageRenderer {
@@ -52,6 +54,8 @@ message PostPageRenderer {
   string text = 2;
   string userId = 3;
   string currentUserId = 4;
+
+  HeaderRenderer header_renderer = 5;
 }
 
 message UserPageRenderer {
@@ -59,6 +63,8 @@ message UserPageRenderer {
   string lastPostId = 2;
   string currentUserId = 3;
   string name = 4;
+
+  HeaderRenderer header_renderer = 5;
 }
 
 message ResolveRouteRequest {
@@ -96,6 +102,7 @@ message GetFeedRequest {
 
 message GetFeedRenderer {
   repeated PostPageRenderer posts = 1;
+  HeaderRenderer header_renderer = 2;
 }
 
 message ComposerRequest {
@@ -103,6 +110,7 @@ message ComposerRequest {
 
 message ComposerRenderer {
   string welcome_text = 1;
+  HeaderRenderer header_renderer = 2;
 }
 
 message IndexRequest {
@@ -110,4 +118,9 @@ message IndexRequest {
 
 message IndexRenderer {
   string text = 1;
+  HeaderRenderer header_renderer = 2;
+}
+
+message HeaderRenderer {
+  string currentUserId = 1;
 }
