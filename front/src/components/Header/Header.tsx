@@ -8,7 +8,7 @@ export class Header extends React.Component<schema.HeaderRenderer> {
             <div>
                 <h1>meme</h1>
                 Your user ID: {this.props.currentUserId}<br/>
-                <Link href={"/"}>Index</Link> | <Link href={"/feed"}>Feed</Link> | <Link href={"/login"}>Login</Link>
+                <Link href={"/"}>Index</Link> | <Link href={"/feed"}>Feed</Link> | <Link href={"/login"}>Login</Link> | <Link href={"/composer"}>Composer</Link>
 
                 <hr/><hr/>
             </div>
