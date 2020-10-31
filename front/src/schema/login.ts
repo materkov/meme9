@@ -68,6 +68,7 @@ export interface PostPageRenderer {
 export interface UserPageRenderer {
   id: string;
   lastPostId: string;
+  lastPostUrl: string;
   currentUserId: string;
   name: string;
   headerRenderer: HeaderRenderer | undefined;
@@ -125,6 +126,7 @@ export interface IndexRequest {
 
 export interface IndexRenderer {
   text: string;
+  feedUrl: string;
   headerRenderer: HeaderRenderer | undefined;
 }
 
@@ -183,6 +185,7 @@ const basePostPageRenderer: object = {
 const baseUserPageRenderer: object = {
   id: "",
   lastPostId: "",
+  lastPostUrl: "",
   currentUserId: "",
   name: "",
 };
@@ -235,6 +238,7 @@ const baseIndexRequest: object = {
 
 const baseIndexRenderer: object = {
   text: "",
+  feedUrl: "",
 };
 
 const baseHeaderRenderer: object = {
@@ -1112,6 +1116,7 @@ export const UserPageRenderer = {
   encode(message: UserPageRenderer, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).string(message.id);
     writer.uint32(18).string(message.lastPostId);
+    writer.uint32(50).string(message.lastPostUrl);
     writer.uint32(26).string(message.currentUserId);
     writer.uint32(34).string(message.name);
     if (message.headerRenderer !== undefined && message.headerRenderer !== undefined) {
@@ -1131,6 +1136,9 @@ export const UserPageRenderer = {
           break;
         case 2:
           message.lastPostId = reader.string();
+          break;
+        case 6:
+          message.lastPostUrl = reader.string();
           break;
         case 3:
           message.currentUserId = reader.string();
@@ -1159,6 +1167,11 @@ export const UserPageRenderer = {
       message.lastPostId = String(object.lastPostId);
     } else {
       message.lastPostId = "";
+    }
+    if (object.lastPostUrl !== undefined && object.lastPostUrl !== null) {
+      message.lastPostUrl = String(object.lastPostUrl);
+    } else {
+      message.lastPostUrl = "";
     }
     if (object.currentUserId !== undefined && object.currentUserId !== null) {
       message.currentUserId = String(object.currentUserId);
@@ -1189,6 +1202,11 @@ export const UserPageRenderer = {
     } else {
       message.lastPostId = "";
     }
+    if (object.lastPostUrl !== undefined && object.lastPostUrl !== null) {
+      message.lastPostUrl = object.lastPostUrl;
+    } else {
+      message.lastPostUrl = "";
+    }
     if (object.currentUserId !== undefined && object.currentUserId !== null) {
       message.currentUserId = object.currentUserId;
     } else {
@@ -1210,6 +1228,7 @@ export const UserPageRenderer = {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
     message.lastPostId !== undefined && (obj.lastPostId = message.lastPostId);
+    message.lastPostUrl !== undefined && (obj.lastPostUrl = message.lastPostUrl);
     message.currentUserId !== undefined && (obj.currentUserId = message.currentUserId);
     message.name !== undefined && (obj.name = message.name);
     message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
@@ -1838,6 +1857,7 @@ export const IndexRequest = {
 export const IndexRenderer = {
   encode(message: IndexRenderer, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).string(message.text);
+    writer.uint32(26).string(message.feedUrl);
     if (message.headerRenderer !== undefined && message.headerRenderer !== undefined) {
       HeaderRenderer.encode(message.headerRenderer, writer.uint32(18).fork()).ldelim();
     }
@@ -1852,6 +1872,9 @@ export const IndexRenderer = {
       switch (tag >>> 3) {
         case 1:
           message.text = reader.string();
+          break;
+        case 3:
+          message.feedUrl = reader.string();
           break;
         case 2:
           message.headerRenderer = HeaderRenderer.decode(reader, reader.uint32());
@@ -1870,6 +1893,11 @@ export const IndexRenderer = {
     } else {
       message.text = "";
     }
+    if (object.feedUrl !== undefined && object.feedUrl !== null) {
+      message.feedUrl = String(object.feedUrl);
+    } else {
+      message.feedUrl = "";
+    }
     if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
       message.headerRenderer = HeaderRenderer.fromJSON(object.headerRenderer);
     } else {
@@ -1884,6 +1912,11 @@ export const IndexRenderer = {
     } else {
       message.text = "";
     }
+    if (object.feedUrl !== undefined && object.feedUrl !== null) {
+      message.feedUrl = object.feedUrl;
+    } else {
+      message.feedUrl = "";
+    }
     if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
       message.headerRenderer = HeaderRenderer.fromPartial(object.headerRenderer);
     } else {
@@ -1894,6 +1927,7 @@ export const IndexRenderer = {
   toJSON(message: IndexRenderer): unknown {
     const obj: any = {};
     message.text !== undefined && (obj.text = message.text);
+    message.feedUrl !== undefined && (obj.feedUrl = message.feedUrl);
     message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
     return obj;
   },

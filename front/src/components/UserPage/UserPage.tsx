@@ -11,7 +11,7 @@ export class UserPage extends React.Component<schema.UserPageRenderer> {
 
                 <h1>User {this.props.id}</h1>
                 <br/>
-                <Link href={"/posts/" + this.props.lastPostId} onClick={() => {
+                <Link href={this.props.lastPostUrl} onClick={() => {
                 }}>
                     Latest post {this.props.lastPostId}
                 </Link>

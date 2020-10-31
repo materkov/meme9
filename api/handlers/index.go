@@ -15,6 +15,7 @@ func (i *Index) Handle(viewer *api.Viewer, req *login.IndexRequest) *login.AnyRe
 	return &login.AnyRenderer{Renderer: &login.AnyRenderer_IndexRenderer{
 		IndexRenderer: &login.IndexRenderer{
 			Text:           "Текст главной странцы сайтика",
+			FeedUrl:        "/feed",
 			HeaderRenderer: common.GetHeaderRenderer(viewer),
 		},
 	}}

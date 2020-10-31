@@ -13,7 +13,7 @@ export class Index extends React.Component<schema.IndexRenderer, any> {
                 {this.props.text}
                 <br/>
 
-                Лента: <Link href={"/feed"}>/feed</Link>
+                Лента: <Link href={this.props.feedUrl}>/feed</Link>
             </div>
         );
     }

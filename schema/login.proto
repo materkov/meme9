@@ -74,7 +74,10 @@ message PostPageRenderer {
 
 message UserPageRenderer {
   string id = 1;
+
   string lastPostId = 2;
+  string lastPostUrl = 6;
+
   string currentUserId = 3;
   string name = 4;
 
@@ -133,6 +136,8 @@ message IndexRequest {
 
 message IndexRenderer {
   string text = 1;
+  string feedUrl = 3;
+
   HeaderRenderer header_renderer = 2;
 }
 
