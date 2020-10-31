@@ -15,5 +15,24 @@ func GetHeaderRenderer(viewer *api.Viewer) *login.HeaderRenderer {
 		renderer.CurrentUserName = viewer.User.Name
 	}
 
+	renderer.Links = []*login.HeaderRenderer_Link{
+		{
+			Url:   "/",
+			Label: "Главная страница",
+		},
+		{
+			Url:   "/feed",
+			Label: "Лента",
+		},
+		{
+			Url:   "/login",
+			Label: "Логин",
+		},
+		{
+			Url:   "/composer",
+			Label: "Написать пост",
+		},
+	}
+
 	return &renderer
 }

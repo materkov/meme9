@@ -129,6 +129,12 @@ export interface IndexRenderer {
 export interface HeaderRenderer {
   currentUserId: string;
   currentUserName: string;
+  links: HeaderRenderer_Link[];
+}
+
+export interface HeaderRenderer_Link {
+  url: string;
+  label: string;
 }
 
 const baseAnyRenderer: object = {
@@ -230,6 +236,11 @@ const baseIndexRenderer: object = {
 const baseHeaderRenderer: object = {
   currentUserId: "",
   currentUserName: "",
+};
+
+const baseHeaderRenderer_Link: object = {
+  url: "",
+  label: "",
 };
 
 export const protobufPackage = ''
@@ -1858,12 +1869,16 @@ export const HeaderRenderer = {
   encode(message: HeaderRenderer, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).string(message.currentUserId);
     writer.uint32(18).string(message.currentUserName);
+    for (const v of message.links) {
+      HeaderRenderer_Link.encode(v!, writer.uint32(26).fork()).ldelim();
+    }
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): HeaderRenderer {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseHeaderRenderer } as HeaderRenderer;
+    message.links = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1872,6 +1887,9 @@ export const HeaderRenderer = {
           break;
         case 2:
           message.currentUserName = reader.string();
+          break;
+        case 3:
+          message.links.push(HeaderRenderer_Link.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -1882,6 +1900,7 @@ export const HeaderRenderer = {
   },
   fromJSON(object: any): HeaderRenderer {
     const message = { ...baseHeaderRenderer } as HeaderRenderer;
+    message.links = [];
     if (object.currentUserId !== undefined && object.currentUserId !== null) {
       message.currentUserId = String(object.currentUserId);
     } else {
@@ -1892,10 +1911,16 @@ export const HeaderRenderer = {
     } else {
       message.currentUserName = "";
     }
+    if (object.links !== undefined && object.links !== null) {
+      for (const e of object.links) {
+        message.links.push(HeaderRenderer_Link.fromJSON(e));
+      }
+    }
     return message;
   },
   fromPartial(object: DeepPartial<HeaderRenderer>): HeaderRenderer {
     const message = { ...baseHeaderRenderer } as HeaderRenderer;
+    message.links = [];
     if (object.currentUserId !== undefined && object.currentUserId !== null) {
       message.currentUserId = object.currentUserId;
     } else {
@@ -1906,12 +1931,84 @@ export const HeaderRenderer = {
     } else {
       message.currentUserName = "";
     }
+    if (object.links !== undefined && object.links !== null) {
+      for (const e of object.links) {
+        message.links.push(HeaderRenderer_Link.fromPartial(e));
+      }
+    }
     return message;
   },
   toJSON(message: HeaderRenderer): unknown {
     const obj: any = {};
     message.currentUserId !== undefined && (obj.currentUserId = message.currentUserId);
     message.currentUserName !== undefined && (obj.currentUserName = message.currentUserName);
+    if (message.links) {
+      obj.links = message.links.map(e => e ? HeaderRenderer_Link.toJSON(e) : undefined);
+    } else {
+      obj.links = [];
+    }
+    return obj;
+  },
+};
+
+export const HeaderRenderer_Link = {
+  encode(message: HeaderRenderer_Link, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.url);
+    writer.uint32(18).string(message.label);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): HeaderRenderer_Link {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseHeaderRenderer_Link } as HeaderRenderer_Link;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.url = reader.string();
+          break;
+        case 2:
+          message.label = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): HeaderRenderer_Link {
+    const message = { ...baseHeaderRenderer_Link } as HeaderRenderer_Link;
+    if (object.url !== undefined && object.url !== null) {
+      message.url = String(object.url);
+    } else {
+      message.url = "";
+    }
+    if (object.label !== undefined && object.label !== null) {
+      message.label = String(object.label);
+    } else {
+      message.label = "";
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<HeaderRenderer_Link>): HeaderRenderer_Link {
+    const message = { ...baseHeaderRenderer_Link } as HeaderRenderer_Link;
+    if (object.url !== undefined && object.url !== null) {
+      message.url = object.url;
+    } else {
+      message.url = "";
+    }
+    if (object.label !== undefined && object.label !== null) {
+      message.label = object.label;
+    } else {
+      message.label = "";
+    }
+    return message;
+  },
+  toJSON(message: HeaderRenderer_Link): unknown {
+    const obj: any = {};
+    message.url !== undefined && (obj.url = message.url);
+    message.label !== undefined && (obj.label = message.label);
     return obj;
   },
 };

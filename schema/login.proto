@@ -134,4 +134,10 @@ message IndexRenderer {
 message HeaderRenderer {
   string currentUserId = 1;
   string currentUserName = 2;
+
+  message Link {
+    string url = 1;
+    string label = 2;
+  }
+  repeated Link links = 3;
 }

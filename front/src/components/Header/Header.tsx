@@ -13,9 +13,16 @@ export class Header extends React.Component<HeaderProps> {
             <div>
                 <h1>meme</h1>
                 Вы вошли как: <b>{data.currentUserName}</b><br/>
-                <Link href={"/"}>Index</Link> | <Link href={"/feed"}>Feed</Link> | <Link href={"/login"}>Login</Link> | <Link href={"/composer"}>Composer</Link>
 
-                <hr/><hr/>
+                {data.links.map((link) =>
+                    <span key={link.url}>
+                        <Link href={link.url}>{link.label}</Link>
+                        &nbsp;&nbsp;&nbsp;
+                    </span>
+                )}
+
+                <hr/>
+                <hr/>
             </div>
         );
     }
