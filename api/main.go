@@ -141,7 +141,7 @@ func (m *Main) Main() {
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
 		resolvedRoute := resolveRoute(r.URL.Path)
-		viewer, _ := r.Context().Value("viewer").(*api.Viewer)
+		viewer, _ := r.Context().Value(viewerCtxKey).(*api.Viewer)
 
 		resp := m.apiRequest(viewer, resolvedRoute.apiRequest)
 
@@ -157,7 +157,7 @@ func (m *Main) Main() {
 	}
 
 	apiHandler := func(w http.ResponseWriter, r *http.Request) {
-		viewer, _ := r.Context().Value("viewer").(*api.Viewer)
+		viewer, _ := r.Context().Value(viewerCtxKey).(*api.Viewer)
 
 		req := &login.AnyRequest{}
 		_ = jsonpb.Unmarshal(r.Body, req)

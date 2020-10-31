@@ -34,6 +34,10 @@ func (a *AuthMiddleware) getTokenFromCookie(r *http.Request) (*store.Token, erro
 	return token, nil
 }
 
+type contextKey string
+
+const viewerCtxKey = contextKey("viewer")
+
 func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, err := a.getTokenFromCookie(r)
@@ -54,7 +58,7 @@ func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 
-		newContext := context.WithValue(r.Context(), "viewer", &viewer)
+		newContext := context.WithValue(r.Context(), viewerCtxKey, &viewer)
 		next(w, r.WithContext(newContext))
 	}
 }

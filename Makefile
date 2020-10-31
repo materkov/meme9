@@ -9,3 +9,14 @@ run-proto:
 		--proto_path=schema \
 		--ts_proto_out=front/src/schema \
 		schema/login.proto
+
+build-all:
+	cd api && go build cmd/main.go
+	cd front && yarn build
+
+lint-all:
+	cd api && test -z $$(gofmt -l .| tee /dev/stderr)
+
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.23.1
+	bin/golangci-lint --version
+	cd api && bin/golangci-lint run
