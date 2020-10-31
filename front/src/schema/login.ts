@@ -115,6 +115,7 @@ export interface ComposerRequest {
 export interface ComposerRenderer {
   welcomeText: string;
   headerRenderer: HeaderRenderer | undefined;
+  unathorizedText: string;
 }
 
 export interface IndexRequest {
@@ -216,6 +217,7 @@ const baseComposerRequest: object = {
 
 const baseComposerRenderer: object = {
   welcomeText: "",
+  unathorizedText: "",
 };
 
 const baseIndexRequest: object = {
@@ -1683,6 +1685,7 @@ export const ComposerRenderer = {
     if (message.headerRenderer !== undefined && message.headerRenderer !== undefined) {
       HeaderRenderer.encode(message.headerRenderer, writer.uint32(18).fork()).ldelim();
     }
+    writer.uint32(26).string(message.unathorizedText);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): ComposerRenderer {
@@ -1697,6 +1700,9 @@ export const ComposerRenderer = {
           break;
         case 2:
           message.headerRenderer = HeaderRenderer.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.unathorizedText = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1717,6 +1723,11 @@ export const ComposerRenderer = {
     } else {
       message.headerRenderer = undefined;
     }
+    if (object.unathorizedText !== undefined && object.unathorizedText !== null) {
+      message.unathorizedText = String(object.unathorizedText);
+    } else {
+      message.unathorizedText = "";
+    }
     return message;
   },
   fromPartial(object: DeepPartial<ComposerRenderer>): ComposerRenderer {
@@ -1731,12 +1742,18 @@ export const ComposerRenderer = {
     } else {
       message.headerRenderer = undefined;
     }
+    if (object.unathorizedText !== undefined && object.unathorizedText !== null) {
+      message.unathorizedText = object.unathorizedText;
+    } else {
+      message.unathorizedText = "";
+    }
     return message;
   },
   toJSON(message: ComposerRenderer): unknown {
     const obj: any = {};
     message.welcomeText !== undefined && (obj.welcomeText = message.welcomeText);
     message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
+    message.unathorizedText !== undefined && (obj.unathorizedText = message.unathorizedText);
     return obj;
   },
 };

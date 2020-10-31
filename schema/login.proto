@@ -120,6 +120,7 @@ message ComposerRequest {
 message ComposerRenderer {
   string welcome_text = 1;
   HeaderRenderer header_renderer = 2;
+  string unathorized_text = 3;
 }
 
 message IndexRequest {

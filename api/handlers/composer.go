@@ -12,10 +12,17 @@ type Composer struct {
 }
 
 func (c *Composer) Handle(viewer *api.Viewer, req *login.ComposerRequest) *login.AnyRenderer {
+	renderer := &login.ComposerRenderer{
+		HeaderRenderer: common.GetHeaderRenderer(viewer),
+	}
+
+	if viewer.UserID == 0 {
+		renderer.UnathorizedText = "Нужно авторизоваться чтобы написать пост"
+	} else {
+		renderer.WelcomeText = "текст фром бакеэнд"
+	}
+
 	return &login.AnyRenderer{Renderer: &login.AnyRenderer_ComposerRenderer{
-		ComposerRenderer: &login.ComposerRenderer{
-			WelcomeText:    "текст фром бакеэнд",
-			HeaderRenderer: common.GetHeaderRenderer(viewer),
-		},
+		ComposerRenderer: renderer,
 	}}
 }
