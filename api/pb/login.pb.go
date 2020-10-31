@@ -33,6 +33,7 @@ type AnyRenderer struct {
 	//	*AnyRenderer_GetFeedRenderer
 	//	*AnyRenderer_ComposerRenderer
 	//	*AnyRenderer_IndexRenderer
+	//	*AnyRenderer_LogoutRenderer
 	Renderer isAnyRenderer_Renderer `protobuf_oneof:"renderer"`
 }
 
@@ -102,6 +103,9 @@ type AnyRenderer_ComposerRenderer struct {
 type AnyRenderer_IndexRenderer struct {
 	IndexRenderer *IndexRenderer `protobuf:"bytes,9,opt,name=index_renderer,json=indexRenderer,proto3,oneof" json:"index_renderer,omitempty"`
 }
+type AnyRenderer_LogoutRenderer struct {
+	LogoutRenderer *LogoutRenderer `protobuf:"bytes,10,opt,name=logout_renderer,json=logoutRenderer,proto3,oneof" json:"logout_renderer,omitempty"`
+}
 
 func (*AnyRenderer_LoginPageRenderer) isAnyRenderer_Renderer() {}
 func (*AnyRenderer_PostPageRenderer) isAnyRenderer_Renderer()  {}
@@ -112,6 +116,7 @@ func (*AnyRenderer_AddPostRenderer) isAnyRenderer_Renderer()   {}
 func (*AnyRenderer_GetFeedRenderer) isAnyRenderer_Renderer()   {}
 func (*AnyRenderer_ComposerRenderer) isAnyRenderer_Renderer()  {}
 func (*AnyRenderer_IndexRenderer) isAnyRenderer_Renderer()     {}
+func (*AnyRenderer_LogoutRenderer) isAnyRenderer_Renderer()    {}
 
 func (m *AnyRenderer) GetRenderer() isAnyRenderer_Renderer {
 	if m != nil {
@@ -183,6 +188,13 @@ func (m *AnyRenderer) GetIndexRenderer() *IndexRenderer {
 	return nil
 }
 
+func (m *AnyRenderer) GetLogoutRenderer() *LogoutRenderer {
+	if x, ok := m.GetRenderer().(*AnyRenderer_LogoutRenderer); ok {
+		return x.LogoutRenderer
+	}
+	return nil
+}
+
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*AnyRenderer) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
@@ -195,6 +207,7 @@ func (*AnyRenderer) XXX_OneofWrappers() []interface{} {
 		(*AnyRenderer_GetFeedRenderer)(nil),
 		(*AnyRenderer_ComposerRenderer)(nil),
 		(*AnyRenderer_IndexRenderer)(nil),
+		(*AnyRenderer_LogoutRenderer)(nil),
 	}
 }
 
@@ -208,6 +221,7 @@ type AnyRequest struct {
 	//	*AnyRequest_GetFeedRequest
 	//	*AnyRequest_ComposerRequest
 	//	*AnyRequest_IndexRequest
+	//	*AnyRequest_LogoutRequest
 	Request isAnyRequest_Request `protobuf_oneof:"request"`
 }
 
@@ -274,6 +288,9 @@ type AnyRequest_ComposerRequest struct {
 type AnyRequest_IndexRequest struct {
 	IndexRequest *IndexRequest `protobuf:"bytes,8,opt,name=index_request,json=indexRequest,proto3,oneof" json:"index_request,omitempty"`
 }
+type AnyRequest_LogoutRequest struct {
+	LogoutRequest *LogoutRequest `protobuf:"bytes,9,opt,name=logout_request,json=logoutRequest,proto3,oneof" json:"logout_request,omitempty"`
+}
 
 func (*AnyRequest_LoginPageRequest) isAnyRequest_Request() {}
 func (*AnyRequest_PostPageRequest) isAnyRequest_Request()  {}
@@ -283,6 +300,7 @@ func (*AnyRequest_AddPostRequest) isAnyRequest_Request()   {}
 func (*AnyRequest_GetFeedRequest) isAnyRequest_Request()   {}
 func (*AnyRequest_ComposerRequest) isAnyRequest_Request()  {}
 func (*AnyRequest_IndexRequest) isAnyRequest_Request()     {}
+func (*AnyRequest_LogoutRequest) isAnyRequest_Request()    {}
 
 func (m *AnyRequest) GetRequest() isAnyRequest_Request {
 	if m != nil {
@@ -347,6 +365,13 @@ func (m *AnyRequest) GetIndexRequest() *IndexRequest {
 	return nil
 }
 
+func (m *AnyRequest) GetLogoutRequest() *LogoutRequest {
+	if x, ok := m.GetRequest().(*AnyRequest_LogoutRequest); ok {
+		return x.LogoutRequest
+	}
+	return nil
+}
+
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*AnyRequest) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
@@ -358,6 +383,7 @@ func (*AnyRequest) XXX_OneofWrappers() []interface{} {
 		(*AnyRequest_GetFeedRequest)(nil),
 		(*AnyRequest_ComposerRequest)(nil),
 		(*AnyRequest_IndexRequest)(nil),
+		(*AnyRequest_LogoutRequest)(nil),
 	}
 }
 
@@ -458,6 +484,7 @@ func (m *LoginRequest) GetPassword() string {
 }
 
 type LoginRenderer struct {
+	HeaderRenderer *HeaderRenderer `protobuf:"bytes,1,opt,name=header_renderer,json=headerRenderer,proto3" json:"header_renderer,omitempty"`
 }
 
 func (m *LoginRenderer) Reset()         { *m = LoginRenderer{} }
@@ -493,6 +520,85 @@ func (m *LoginRenderer) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_LoginRenderer proto.InternalMessageInfo
 
+func (m *LoginRenderer) GetHeaderRenderer() *HeaderRenderer {
+	if m != nil {
+		return m.HeaderRenderer
+	}
+	return nil
+}
+
+type LogoutRequest struct {
+}
+
+func (m *LogoutRequest) Reset()         { *m = LogoutRequest{} }
+func (m *LogoutRequest) String() string { return proto.CompactTextString(m) }
+func (*LogoutRequest) ProtoMessage()    {}
+func (*LogoutRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{5}
+}
+func (m *LogoutRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *LogoutRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_LogoutRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *LogoutRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogoutRequest.Merge(m, src)
+}
+func (m *LogoutRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *LogoutRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogoutRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogoutRequest proto.InternalMessageInfo
+
+type LogoutRenderer struct {
+}
+
+func (m *LogoutRenderer) Reset()         { *m = LogoutRenderer{} }
+func (m *LogoutRenderer) String() string { return proto.CompactTextString(m) }
+func (*LogoutRenderer) ProtoMessage()    {}
+func (*LogoutRenderer) Descriptor() ([]byte, []int) {
+	return fileDescriptor_67c21677aa7f4e4f, []int{6}
+}
+func (m *LogoutRenderer) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *LogoutRenderer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_LogoutRenderer.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *LogoutRenderer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogoutRenderer.Merge(m, src)
+}
+func (m *LogoutRenderer) XXX_Size() int {
+	return m.Size()
+}
+func (m *LogoutRenderer) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogoutRenderer.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogoutRenderer proto.InternalMessageInfo
+
 type LoginPageRequest struct {
 }
 
@@ -500,7 +606,7 @@ func (m *LoginPageRequest) Reset()         { *m = LoginPageRequest{} }
 func (m *LoginPageRequest) String() string { return proto.CompactTextString(m) }
 func (*LoginPageRequest) ProtoMessage()    {}
 func (*LoginPageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{5}
+	return fileDescriptor_67c21677aa7f4e4f, []int{7}
 }
 func (m *LoginPageRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -539,7 +645,7 @@ func (m *LoginPageRenderer) Reset()         { *m = LoginPageRenderer{} }
 func (m *LoginPageRenderer) String() string { return proto.CompactTextString(m) }
 func (*LoginPageRenderer) ProtoMessage()    {}
 func (*LoginPageRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{6}
+	return fileDescriptor_67c21677aa7f4e4f, []int{8}
 }
 func (m *LoginPageRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -601,7 +707,7 @@ func (m *PostPageRenderer) Reset()         { *m = PostPageRenderer{} }
 func (m *PostPageRenderer) String() string { return proto.CompactTextString(m) }
 func (*PostPageRenderer) ProtoMessage()    {}
 func (*PostPageRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{7}
+	return fileDescriptor_67c21677aa7f4e4f, []int{9}
 }
 func (m *PostPageRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -677,7 +783,7 @@ func (m *UserPageRenderer) Reset()         { *m = UserPageRenderer{} }
 func (m *UserPageRenderer) String() string { return proto.CompactTextString(m) }
 func (*UserPageRenderer) ProtoMessage()    {}
 func (*UserPageRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{8}
+	return fileDescriptor_67c21677aa7f4e4f, []int{10}
 }
 func (m *UserPageRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -749,7 +855,7 @@ func (m *ResolveRouteRequest) Reset()         { *m = ResolveRouteRequest{} }
 func (m *ResolveRouteRequest) String() string { return proto.CompactTextString(m) }
 func (*ResolveRouteRequest) ProtoMessage()    {}
 func (*ResolveRouteRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{9}
+	return fileDescriptor_67c21677aa7f4e4f, []int{11}
 }
 func (m *ResolveRouteRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -794,7 +900,7 @@ func (m *ResolveRouteResponse) Reset()         { *m = ResolveRouteResponse{} }
 func (m *ResolveRouteResponse) String() string { return proto.CompactTextString(m) }
 func (*ResolveRouteResponse) ProtoMessage()    {}
 func (*ResolveRouteResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{10}
+	return fileDescriptor_67c21677aa7f4e4f, []int{12}
 }
 func (m *ResolveRouteResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -845,7 +951,7 @@ func (m *PostPageRequest) Reset()         { *m = PostPageRequest{} }
 func (m *PostPageRequest) String() string { return proto.CompactTextString(m) }
 func (*PostPageRequest) ProtoMessage()    {}
 func (*PostPageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{11}
+	return fileDescriptor_67c21677aa7f4e4f, []int{13}
 }
 func (m *PostPageRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -889,7 +995,7 @@ func (m *UserPageRequest) Reset()         { *m = UserPageRequest{} }
 func (m *UserPageRequest) String() string { return proto.CompactTextString(m) }
 func (*UserPageRequest) ProtoMessage()    {}
 func (*UserPageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{12}
+	return fileDescriptor_67c21677aa7f4e4f, []int{14}
 }
 func (m *UserPageRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -933,7 +1039,7 @@ func (m *Error) Reset()         { *m = Error{} }
 func (m *Error) String() string { return proto.CompactTextString(m) }
 func (*Error) ProtoMessage()    {}
 func (*Error) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{13}
+	return fileDescriptor_67c21677aa7f4e4f, []int{15}
 }
 func (m *Error) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -977,7 +1083,7 @@ func (m *AddPostRequest) Reset()         { *m = AddPostRequest{} }
 func (m *AddPostRequest) String() string { return proto.CompactTextString(m) }
 func (*AddPostRequest) ProtoMessage()    {}
 func (*AddPostRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{14}
+	return fileDescriptor_67c21677aa7f4e4f, []int{16}
 }
 func (m *AddPostRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1022,7 +1128,7 @@ func (m *AddPostRenderer) Reset()         { *m = AddPostRenderer{} }
 func (m *AddPostRenderer) String() string { return proto.CompactTextString(m) }
 func (*AddPostRenderer) ProtoMessage()    {}
 func (*AddPostRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{15}
+	return fileDescriptor_67c21677aa7f4e4f, []int{17}
 }
 func (m *AddPostRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1072,7 +1178,7 @@ func (m *GetFeedRequest) Reset()         { *m = GetFeedRequest{} }
 func (m *GetFeedRequest) String() string { return proto.CompactTextString(m) }
 func (*GetFeedRequest) ProtoMessage()    {}
 func (*GetFeedRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{16}
+	return fileDescriptor_67c21677aa7f4e4f, []int{18}
 }
 func (m *GetFeedRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1110,7 +1216,7 @@ func (m *GetFeedRenderer) Reset()         { *m = GetFeedRenderer{} }
 func (m *GetFeedRenderer) String() string { return proto.CompactTextString(m) }
 func (*GetFeedRenderer) ProtoMessage()    {}
 func (*GetFeedRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{17}
+	return fileDescriptor_67c21677aa7f4e4f, []int{19}
 }
 func (m *GetFeedRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1160,7 +1266,7 @@ func (m *ComposerRequest) Reset()         { *m = ComposerRequest{} }
 func (m *ComposerRequest) String() string { return proto.CompactTextString(m) }
 func (*ComposerRequest) ProtoMessage()    {}
 func (*ComposerRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{18}
+	return fileDescriptor_67c21677aa7f4e4f, []int{20}
 }
 func (m *ComposerRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1198,7 +1304,7 @@ func (m *ComposerRenderer) Reset()         { *m = ComposerRenderer{} }
 func (m *ComposerRenderer) String() string { return proto.CompactTextString(m) }
 func (*ComposerRenderer) ProtoMessage()    {}
 func (*ComposerRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{19}
+	return fileDescriptor_67c21677aa7f4e4f, []int{21}
 }
 func (m *ComposerRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1248,7 +1354,7 @@ func (m *IndexRequest) Reset()         { *m = IndexRequest{} }
 func (m *IndexRequest) String() string { return proto.CompactTextString(m) }
 func (*IndexRequest) ProtoMessage()    {}
 func (*IndexRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{20}
+	return fileDescriptor_67c21677aa7f4e4f, []int{22}
 }
 func (m *IndexRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1286,7 +1392,7 @@ func (m *IndexRenderer) Reset()         { *m = IndexRenderer{} }
 func (m *IndexRenderer) String() string { return proto.CompactTextString(m) }
 func (*IndexRenderer) ProtoMessage()    {}
 func (*IndexRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{21}
+	return fileDescriptor_67c21677aa7f4e4f, []int{23}
 }
 func (m *IndexRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1330,14 +1436,15 @@ func (m *IndexRenderer) GetHeaderRenderer() *HeaderRenderer {
 }
 
 type HeaderRenderer struct {
-	CurrentUserId string `protobuf:"bytes,1,opt,name=currentUserId,proto3" json:"currentUserId,omitempty"`
+	CurrentUserId   string `protobuf:"bytes,1,opt,name=currentUserId,proto3" json:"currentUserId,omitempty"`
+	CurrentUserName string `protobuf:"bytes,2,opt,name=currentUserName,proto3" json:"currentUserName,omitempty"`
 }
 
 func (m *HeaderRenderer) Reset()         { *m = HeaderRenderer{} }
 func (m *HeaderRenderer) String() string { return proto.CompactTextString(m) }
 func (*HeaderRenderer) ProtoMessage()    {}
 func (*HeaderRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{22}
+	return fileDescriptor_67c21677aa7f4e4f, []int{24}
 }
 func (m *HeaderRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1373,12 +1480,21 @@ func (m *HeaderRenderer) GetCurrentUserId() string {
 	return ""
 }
 
+func (m *HeaderRenderer) GetCurrentUserName() string {
+	if m != nil {
+		return m.CurrentUserName
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*AnyRenderer)(nil), "AnyRenderer")
 	proto.RegisterType((*AnyRequest)(nil), "AnyRequest")
 	proto.RegisterType((*ErrorRenderer)(nil), "ErrorRenderer")
 	proto.RegisterType((*LoginRequest)(nil), "LoginRequest")
 	proto.RegisterType((*LoginRenderer)(nil), "LoginRenderer")
+	proto.RegisterType((*LogoutRequest)(nil), "LogoutRequest")
+	proto.RegisterType((*LogoutRenderer)(nil), "LogoutRenderer")
 	proto.RegisterType((*LoginPageRequest)(nil), "LoginPageRequest")
 	proto.RegisterType((*LoginPageRenderer)(nil), "LoginPageRenderer")
 	proto.RegisterType((*PostPageRenderer)(nil), "PostPageRenderer")
@@ -1402,63 +1518,67 @@ func init() {
 func init() { proto.RegisterFile("login.proto", fileDescriptor_67c21677aa7f4e4f) }
 
 var fileDescriptor_67c21677aa7f4e4f = []byte{
-	// 883 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0xcb, 0x6e, 0xe3, 0x36,
-	0x14, 0xb5, 0xfc, 0xf6, 0xb5, 0x2d, 0xc9, 0x4c, 0xd0, 0x1a, 0x05, 0x6a, 0x24, 0x44, 0x8a, 0x14,
-	0x5d, 0x78, 0x91, 0x3e, 0x81, 0xa2, 0x45, 0x92, 0xbe, 0x12, 0xa0, 0x05, 0x02, 0xa1, 0x59, 0x16,
-	0x86, 0x62, 0xb1, 0x8e, 0x02, 0xd9, 0x52, 0x45, 0xa9, 0x49, 0xbe, 0x62, 0xe6, 0x4b, 0x66, 0x39,
-	0xdf, 0x30, 0xcb, 0x60, 0x56, 0xb3, 0x1c, 0x24, 0x1f, 0x32, 0x03, 0x3e, 0x24, 0x91, 0xb4, 0x17,
-	0x06, 0xb2, 0x13, 0x0f, 0x79, 0x2e, 0xef, 0xe3, 0xdc, 0x4b, 0x41, 0x3f, 0x8a, 0x17, 0xe1, 0x6a,
-	0x9a, 0xa4, 0x71, 0x16, 0xe3, 0xb7, 0x4d, 0xe8, 0x9f, 0xac, 0xee, 0x3d, 0xb2, 0x0a, 0x48, 0x4a,
-	0x52, 0xf4, 0x2b, 0xec, 0xf0, 0xed, 0x59, 0xe2, 0x2f, 0xc8, 0x2c, 0x95, 0xf0, 0xd8, 0xda, 0xb3,
-	0xbe, 0xec, 0x1f, 0xa1, 0xe9, 0x9f, 0x6c, 0xef, 0xc2, 0x5f, 0x90, 0x82, 0x70, 0x56, 0xf3, 0x46,
-	0x91, 0x09, 0xa2, 0x13, 0x40, 0x49, 0x4c, 0x33, 0xc3, 0x48, 0x9d, 0x1b, 0x19, 0x4d, 0x2f, 0x62,
-	0x9a, 0x19, 0x36, 0xdc, 0xc4, 0xc0, 0x98, 0x89, 0x9c, 0x92, 0xd4, 0x30, 0xd1, 0x90, 0x26, 0x2e,
-	0x29, 0x49, 0x4d, 0x13, 0xb9, 0x81, 0xa1, 0xef, 0xc1, 0x26, 0x69, 0x1a, 0xa7, 0x15, 0xbd, 0xc9,
-	0xe9, 0xf6, 0xf4, 0x37, 0x06, 0x2b, 0xdc, 0x21, 0x51, 0x01, 0x46, 0x14, 0x49, 0x28, 0x89, 0x2d,
-	0x49, 0xe4, 0xf1, 0xab, 0xc4, 0x48, 0x05, 0xd0, 0xcf, 0x30, 0xf2, 0x83, 0x60, 0xc6, 0x63, 0x2f,
-	0xb9, 0x6d, 0xce, 0x75, 0xa7, 0x27, 0x41, 0xc0, 0x22, 0x57, 0xd8, 0x8e, 0xaf, 0x43, 0x8c, 0xbf,
-	0x20, 0xd9, 0xec, 0x5f, 0x42, 0x82, 0x8a, 0xdf, 0x91, 0xfc, 0x3f, 0x48, 0xf6, 0x3b, 0x21, 0x81,
-	0xca, 0x5f, 0xe8, 0x10, 0x3a, 0x86, 0xd1, 0x3c, 0x5e, 0x26, 0x31, 0x4b, 0x5c, 0xc9, 0xef, 0xca,
-	0x9c, 0xfd, 0x22, 0x77, 0xd4, 0x9c, 0xcd, 0x0d, 0x8c, 0x85, 0x1e, 0xae, 0x02, 0x72, 0x57, 0xd1,
-	0x7b, 0x32, 0xf4, 0x73, 0x06, 0xab, 0xa1, 0x87, 0x2a, 0x70, 0x0a, 0xd0, 0x2d, 0x28, 0xf8, 0x43,
-	0x03, 0x80, 0x8b, 0xea, 0xbf, 0x9c, 0xd0, 0x8c, 0x95, 0x52, 0xd3, 0x14, 0x47, 0xa5, 0xa4, 0x46,
-	0xaa, 0xa4, 0xf8, 0x06, 0x73, 0x2b, 0x32, 0x30, 0x96, 0x18, 0x55, 0x50, 0xc2, 0x42, 0x5d, 0x26,
-	0xa6, 0xd2, 0x53, 0x61, 0xc0, 0x49, 0x74, 0x88, 0xf1, 0x55, 0x35, 0x09, 0x7e, 0x43, 0xf2, 0x2b,
-	0x31, 0x95, 0xfc, 0x5c, 0x87, 0xd0, 0x37, 0x30, 0x2c, 0x14, 0x21, 0xb8, 0x42, 0x49, 0xc3, 0x42,
-	0x10, 0x05, 0x71, 0x10, 0x29, 0x6b, 0xf4, 0x23, 0xb8, 0x8a, 0x1c, 0x04, 0x51, 0x28, 0xc9, 0xa9,
-	0xd4, 0x50, 0x50, 0x6d, 0x5f, 0x43, 0x18, 0x59, 0xd1, 0x82, 0x20, 0xb7, 0x25, 0xb9, 0x94, 0x42,
-	0x49, 0x5e, 0x68, 0x08, 0xfa, 0x09, 0x5c, 0x45, 0x08, 0x82, 0x5c, 0xe8, 0xa8, 0xd2, 0x41, 0x19,
-	0xee, 0x5c, 0x87, 0x58, 0xb8, 0x85, 0x0a, 0x04, 0xb7, 0x2b, 0xc3, 0x95, 0x22, 0x28, 0xc3, 0x0d,
-	0x95, 0xf5, 0x69, 0x0f, 0x3a, 0xf2, 0x3c, 0x3e, 0x82, 0xa1, 0xd6, 0x63, 0x68, 0x1f, 0x06, 0x41,
-	0x48, 0x93, 0xc8, 0xbf, 0x9f, 0x65, 0xe4, 0x4e, 0x54, 0xbf, 0xe7, 0xf5, 0x25, 0xf6, 0x37, 0xb9,
-	0xcb, 0xf0, 0x31, 0x0c, 0xd4, 0x6c, 0xa2, 0x5d, 0x68, 0xf1, 0x6c, 0xca, 0xb3, 0x62, 0x81, 0x3e,
-	0x83, 0x6e, 0xe2, 0x53, 0x7a, 0x1b, 0xa7, 0x01, 0x17, 0x40, 0xcf, 0x2b, 0xd7, 0xd8, 0x81, 0xa1,
-	0xd6, 0xa0, 0x18, 0x81, 0x6b, 0xca, 0x0b, 0xbf, 0xb0, 0x60, 0xb4, 0x36, 0xc6, 0xd0, 0xe7, 0x00,
-	0x34, 0xbf, 0x5a, 0x86, 0xd9, 0x2c, 0x4f, 0x23, 0x79, 0x63, 0x4f, 0x20, 0x97, 0x69, 0xc4, 0xdc,
-	0xbf, 0x25, 0xd1, 0x3c, 0x5e, 0x12, 0xe1, 0xbe, 0xb8, 0xb9, 0x2f, 0x31, 0xe6, 0x3e, 0xfa, 0x01,
-	0x9c, 0x6b, 0xe2, 0x07, 0x6a, 0xe7, 0x35, 0x64, 0xb9, 0xce, 0x38, 0x5e, 0xdc, 0xe5, 0xd9, 0xd7,
-	0xda, 0x1a, 0xbf, 0xb2, 0xc0, 0x35, 0x67, 0x22, 0xb2, 0xa1, 0x1e, 0x06, 0xd2, 0x91, 0x7a, 0x18,
-	0x20, 0x04, 0x4d, 0xe5, 0x66, 0xfe, 0x8d, 0x3e, 0x81, 0x36, 0x13, 0xea, 0x79, 0xc0, 0x6f, 0xea,
-	0x79, 0x72, 0x85, 0x0e, 0x60, 0x38, 0xcf, 0xd3, 0x94, 0xac, 0xb2, 0x4b, 0xb1, 0xdd, 0xe4, 0xdb,
-	0x3a, 0xb8, 0xc9, 0xe1, 0xd6, 0x76, 0x0e, 0xbf, 0xb6, 0xc0, 0x35, 0x27, 0xf0, 0x9a, 0xc3, 0x13,
-	0x80, 0xc8, 0xa7, 0x19, 0x0b, 0xec, 0xbc, 0x28, 0x95, 0x82, 0xac, 0x3b, 0xd9, 0xd8, 0xe4, 0x24,
-	0x82, 0xe6, 0xca, 0x5f, 0x12, 0x19, 0x01, 0xff, 0x7e, 0x86, 0xe3, 0x87, 0xb0, 0xe3, 0x11, 0x1a,
-	0x47, 0xff, 0x13, 0x2f, 0xce, 0xb3, 0xb2, 0xbb, 0x5d, 0x68, 0x54, 0x55, 0x67, 0x9f, 0xf8, 0x2f,
-	0xd8, 0xd5, 0x0f, 0xd2, 0x24, 0x5e, 0x51, 0xc2, 0x82, 0xbc, 0xa1, 0x63, 0x6b, 0xaf, 0xc1, 0x82,
-	0xbc, 0xa1, 0xe8, 0x8b, 0x52, 0xf2, 0x72, 0x1a, 0xf5, 0xa7, 0xd5, 0xe0, 0xf3, 0xca, 0x76, 0xf8,
-	0x0a, 0x1c, 0x63, 0x48, 0xa1, 0x4f, 0xa1, 0xc3, 0xe7, 0x42, 0x99, 0xb3, 0x76, 0xc2, 0xf3, 0xc2,
-	0xce, 0x1a, 0x03, 0x89, 0x9d, 0xe5, 0xd3, 0xab, 0x3a, 0x2b, 0x0a, 0x8d, 0xf7, 0xa1, 0xc5, 0xdb,
-	0x0c, 0x8d, 0xa1, 0xb3, 0x24, 0x94, 0xfa, 0x0b, 0x22, 0x4f, 0x14, 0x4b, 0x7c, 0x00, 0xb6, 0x3e,
-	0x6a, 0x4a, 0x25, 0x59, 0x95, 0x92, 0xf0, 0xb7, 0xe0, 0x18, 0xcf, 0xd3, 0x36, 0x02, 0xc4, 0x2e,
-	0xd8, 0xfa, 0x28, 0xc2, 0x19, 0x38, 0xc6, 0x3b, 0x85, 0x0e, 0xa1, 0xc5, 0x42, 0x13, 0x69, 0xdb,
-	0xf4, 0xfe, 0x7b, 0x62, 0x7f, 0x53, 0x5d, 0xeb, 0xdb, 0xd5, 0x75, 0x04, 0x8e, 0x31, 0xd5, 0x70,
-	0x0c, 0xae, 0xf9, 0xe0, 0xad, 0x75, 0xb1, 0xb5, 0x55, 0x17, 0x6f, 0xe9, 0x83, 0x0d, 0x03, 0x75,
-	0x3a, 0xe2, 0x7f, 0x60, 0xa8, 0x3d, 0x99, 0x9b, 0xf2, 0xfe, 0x8c, 0xeb, 0xbe, 0x03, 0x5b, 0x3f,
-	0xb1, 0xde, 0x50, 0xd6, 0x86, 0x86, 0x3a, 0x1d, 0xbf, 0x79, 0x9c, 0x58, 0x0f, 0x8f, 0x13, 0xeb,
-	0xfd, 0xe3, 0xc4, 0x7a, 0xf9, 0x34, 0xa9, 0x3d, 0x3c, 0x4d, 0x6a, 0xef, 0x9e, 0x26, 0xb5, 0xab,
-	0x36, 0xff, 0x23, 0xfc, 0xfa, 0x63, 0x00, 0x00, 0x00, 0xff, 0xff, 0x94, 0xd3, 0x1f, 0x0b, 0x20,
-	0x0a, 0x00, 0x00,
+	// 945 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0xcd, 0xae, 0xdb, 0x44,
+	0x14, 0x8e, 0xf3, 0x9f, 0x93, 0xf8, 0x27, 0xd3, 0x0a, 0x22, 0x24, 0xa2, 0x76, 0x54, 0xd4, 0x8a,
+	0x45, 0x16, 0x05, 0x04, 0x02, 0x81, 0x7a, 0x2f, 0x7f, 0x8d, 0x04, 0xa8, 0xb2, 0xb8, 0x4b, 0x14,
+	0xdc, 0x78, 0x70, 0x5d, 0x39, 0x19, 0xe3, 0xb1, 0xe9, 0xed, 0x4b, 0x00, 0x4f, 0xc2, 0x12, 0xf1,
+	0x08, 0x2c, 0xef, 0x92, 0x25, 0xba, 0xf7, 0x45, 0xaa, 0xf9, 0xb1, 0x3d, 0x33, 0xc9, 0x22, 0xd2,
+	0xdd, 0x79, 0xbe, 0x99, 0xef, 0xf8, 0x7c, 0x67, 0xbe, 0x73, 0x6c, 0x98, 0x66, 0x34, 0x49, 0xf7,
+	0xab, 0xbc, 0xa0, 0x25, 0xc5, 0xbf, 0x0f, 0x60, 0x7a, 0xb6, 0x7f, 0x1d, 0x92, 0x7d, 0x4c, 0x0a,
+	0x52, 0xa0, 0xaf, 0xe0, 0x8e, 0xd8, 0xde, 0xe4, 0x51, 0x42, 0x36, 0x85, 0x82, 0x17, 0xce, 0x3d,
+	0xe7, 0xd1, 0xf4, 0x31, 0x5a, 0x7d, 0xc7, 0xf7, 0x9e, 0x45, 0x09, 0xa9, 0x09, 0x4f, 0x3b, 0xe1,
+	0x3c, 0xb3, 0x41, 0x74, 0x06, 0x28, 0xa7, 0xac, 0xb4, 0x82, 0x74, 0x45, 0x90, 0xf9, 0xea, 0x19,
+	0x65, 0xa5, 0x15, 0x23, 0xc8, 0x2d, 0x8c, 0x87, 0xa8, 0x18, 0x29, 0xac, 0x10, 0x3d, 0x15, 0xe2,
+	0x82, 0x91, 0xc2, 0x0e, 0x51, 0x59, 0x18, 0xfa, 0x18, 0x3c, 0x52, 0x14, 0xb4, 0x68, 0xe9, 0x7d,
+	0x41, 0xf7, 0x56, 0x5f, 0x73, 0x58, 0xe3, 0xba, 0x44, 0x07, 0x38, 0x51, 0x16, 0xa1, 0x21, 0x0e,
+	0x14, 0x51, 0xe8, 0xd7, 0x89, 0x99, 0x0e, 0xa0, 0x2f, 0x60, 0x1e, 0xc5, 0xf1, 0x46, 0x68, 0x6f,
+	0xb8, 0x43, 0xc1, 0x0d, 0x56, 0x67, 0x71, 0xcc, 0x95, 0x6b, 0x6c, 0x3f, 0x32, 0x21, 0xce, 0x4f,
+	0x48, 0xb9, 0xf9, 0x85, 0x90, 0xb8, 0xe5, 0x8f, 0x14, 0xff, 0x5b, 0x52, 0x7e, 0x43, 0x48, 0xac,
+	0xf3, 0x13, 0x13, 0x42, 0x4f, 0x60, 0xbe, 0xa5, 0xbb, 0x9c, 0xf2, 0xc2, 0x35, 0xfc, 0xb1, 0xaa,
+	0xd9, 0x97, 0x6a, 0x47, 0xaf, 0xd9, 0xd6, 0xc2, 0xb8, 0xf4, 0x74, 0x1f, 0x93, 0xcb, 0x96, 0x3e,
+	0x51, 0xd2, 0xd7, 0x1c, 0xd6, 0xa5, 0xa7, 0x3a, 0x80, 0x3e, 0x05, 0x3f, 0xa3, 0x09, 0xad, 0x34,
+	0xe1, 0x20, 0x98, 0x3e, 0x2f, 0x1a, 0xad, 0x74, 0xdd, 0x5e, 0x66, 0x20, 0xe7, 0x00, 0xe3, 0x9a,
+	0x84, 0xff, 0xe9, 0x03, 0x08, 0x43, 0xfe, 0x5a, 0x11, 0x56, 0x72, 0x1b, 0x18, 0x7e, 0x14, 0xa8,
+	0xb2, 0xe3, 0x5c, 0xb7, 0xa3, 0xd8, 0xe0, 0x92, 0x32, 0x0b, 0xe3, 0x45, 0xd5, 0xcd, 0x28, 0x23,
+	0x74, 0x55, 0x51, 0x5b, 0x2f, 0xd6, 0x01, 0xfc, 0xdc, 0x84, 0x38, 0x5f, 0x77, 0xa2, 0xe4, 0xf7,
+	0x14, 0xbf, 0x35, 0x62, 0xc3, 0xaf, 0x4c, 0x08, 0x7d, 0x08, 0x6e, 0xed, 0x26, 0xc9, 0x95, 0x2e,
+	0x74, 0x6b, 0x33, 0xd5, 0xc4, 0x59, 0xa6, 0xad, 0xd1, 0x67, 0x10, 0x68, 0x56, 0x92, 0xc4, 0x81,
+	0x2a, 0x68, 0xe3, 0xa4, 0x9a, 0xea, 0x45, 0x06, 0xc2, 0xc9, 0x9a, 0x8f, 0x24, 0x79, 0xa8, 0xc8,
+	0x8d, 0x8d, 0x1a, 0x72, 0x62, 0x20, 0xe8, 0x73, 0x08, 0x34, 0x13, 0x49, 0x72, 0xed, 0xc1, 0xd6,
+	0x43, 0x8d, 0xdc, 0xad, 0x09, 0x71, 0xb9, 0xb5, 0x83, 0x24, 0x77, 0xac, 0xe4, 0x2a, 0x03, 0x35,
+	0x72, 0x53, 0x6d, 0xad, 0x5a, 0x4e, 0xda, 0x47, 0xd2, 0x26, 0x6d, 0xcb, 0x09, 0xaf, 0xd4, 0x3c,
+	0x37, 0xd3, 0x81, 0xf3, 0x09, 0x8c, 0x14, 0x03, 0x3f, 0x06, 0xd7, 0x68, 0x6c, 0x74, 0x1f, 0x66,
+	0x71, 0xca, 0xf2, 0x2c, 0x7a, 0xbd, 0x29, 0xc9, 0xa5, 0xb4, 0xcd, 0x24, 0x9c, 0x2a, 0xec, 0x47,
+	0x72, 0x59, 0xe2, 0x27, 0x30, 0xd3, 0xaf, 0x01, 0xdd, 0x85, 0x81, 0xb8, 0x06, 0x75, 0x56, 0x2e,
+	0xd0, 0x3b, 0x30, 0xce, 0x23, 0xc6, 0x5e, 0xd1, 0x22, 0x16, 0xce, 0x99, 0x84, 0xcd, 0x1a, 0xaf,
+	0xc1, 0x35, 0xa6, 0x02, 0xfa, 0x04, 0xfc, 0x17, 0x24, 0x8a, 0xf5, 0x16, 0x74, 0x54, 0xed, 0x9f,
+	0x0a, 0xbc, 0x3e, 0x19, 0x7a, 0x2f, 0x8c, 0x35, 0xf6, 0x45, 0xa8, 0x56, 0x1c, 0x0e, 0xc0, 0x33,
+	0x9b, 0x07, 0x23, 0x08, 0x6c, 0xd3, 0xe3, 0x3f, 0x1c, 0x98, 0x1f, 0x0c, 0x66, 0xf4, 0x2e, 0x00,
+	0xab, 0x9e, 0xef, 0xd2, 0x72, 0x53, 0x15, 0x99, 0x92, 0x33, 0x91, 0xc8, 0x45, 0x91, 0xf1, 0xda,
+	0xbc, 0x22, 0xd9, 0x96, 0xee, 0x88, 0xac, 0x8d, 0x94, 0x35, 0x55, 0x18, 0xaf, 0xcd, 0x31, 0x21,
+	0xbd, 0xd3, 0x84, 0xfc, 0xe5, 0x40, 0x60, 0x4f, 0x79, 0xe4, 0x41, 0x37, 0x8d, 0x55, 0x22, 0xdd,
+	0x34, 0x46, 0x08, 0xfa, 0xda, 0x9b, 0xc5, 0x33, 0x7a, 0x0b, 0x86, 0xbc, 0x7d, 0xd6, 0xb1, 0x78,
+	0xd3, 0x24, 0x54, 0x2b, 0xf4, 0x00, 0xdc, 0x6d, 0x55, 0x14, 0x64, 0x5f, 0x5e, 0xc8, 0xed, 0xbe,
+	0xd8, 0x36, 0xc1, 0x63, 0x09, 0x0f, 0x4e, 0x4b, 0xf8, 0x6f, 0x07, 0x02, 0xfb, 0x9b, 0x72, 0x90,
+	0xf0, 0x12, 0x20, 0x8b, 0x58, 0xc9, 0x85, 0xad, 0x6b, 0x1f, 0x68, 0xc8, 0x61, 0x92, 0xbd, 0x63,
+	0x49, 0x22, 0xe8, 0xef, 0xa3, 0x1d, 0x51, 0x0a, 0xc4, 0xf3, 0x2d, 0x12, 0x7f, 0x08, 0x77, 0x42,
+	0xc2, 0x68, 0xf6, 0x1b, 0x09, 0x69, 0x55, 0x36, 0x33, 0x27, 0x80, 0x5e, 0x7b, 0xeb, 0xfc, 0x11,
+	0x7f, 0x0f, 0x77, 0xcd, 0x83, 0x2c, 0xa7, 0x7b, 0x46, 0xb8, 0xc8, 0x97, 0x6c, 0xe1, 0xdc, 0xeb,
+	0x71, 0x91, 0x2f, 0x19, 0x7a, 0xaf, 0xe9, 0x27, 0x35, 0x23, 0xa7, 0xab, 0x76, 0x1c, 0x87, 0x4d,
+	0xaf, 0xbd, 0x0f, 0xbe, 0x35, 0x3a, 0xd1, 0xdb, 0x30, 0x12, 0xd3, 0xaa, 0xa9, 0xd9, 0x30, 0x17,
+	0x75, 0xe1, 0x67, 0xad, 0x31, 0xc9, 0xcf, 0x8a, 0x99, 0xda, 0x9e, 0x95, 0x17, 0x8d, 0xef, 0xc3,
+	0x40, 0xf4, 0x30, 0x5a, 0xc0, 0x68, 0x47, 0x18, 0x8b, 0x12, 0xa2, 0x4e, 0xd4, 0x4b, 0xfc, 0x00,
+	0x3c, 0x73, 0x00, 0x36, 0x4e, 0x72, 0x5a, 0x27, 0xe1, 0x8f, 0xc0, 0xb7, 0x3e, 0xb8, 0xa7, 0x18,
+	0x90, 0x77, 0x9c, 0x39, 0x20, 0x71, 0x09, 0xbe, 0xf5, 0xe5, 0x45, 0x0f, 0x61, 0xc0, 0xa5, 0xc9,
+	0xb2, 0x1d, 0xfb, 0xa3, 0x09, 0xe5, 0xfe, 0xb1, 0x7b, 0xed, 0x9e, 0x76, 0xaf, 0x73, 0xf0, 0xad,
+	0x59, 0x8b, 0x29, 0x04, 0xf6, 0x27, 0xfc, 0xa0, 0x8b, 0x9d, 0x93, 0xba, 0xf8, 0xc4, 0x1c, 0x3c,
+	0x98, 0xe9, 0x33, 0x1b, 0xff, 0x04, 0xae, 0xf1, 0x13, 0x70, 0xac, 0xee, 0xb7, 0x78, 0xdd, 0xcf,
+	0xe0, 0x99, 0x27, 0x0e, 0x1b, 0xca, 0x39, 0xd6, 0x50, 0x8f, 0xc0, 0xd7, 0x80, 0x1f, 0x78, 0x6f,
+	0xc9, 0x1b, 0xb5, 0xe1, 0xf3, 0xc5, 0xbf, 0xd7, 0x4b, 0xe7, 0xea, 0x7a, 0xe9, 0xfc, 0x7f, 0xbd,
+	0x74, 0xfe, 0xbc, 0x59, 0x76, 0xae, 0x6e, 0x96, 0x9d, 0xff, 0x6e, 0x96, 0x9d, 0xe7, 0x43, 0xf1,
+	0x37, 0xfc, 0xc1, 0x9b, 0x00, 0x00, 0x00, 0xff, 0xff, 0x77, 0x54, 0xa5, 0x33, 0x1c, 0x0b, 0x00,
+	0x00,
 }
 
 func (m *AnyRenderer) Marshal() (dAtA []byte, err error) {
@@ -1682,6 +1802,27 @@ func (m *AnyRenderer_IndexRenderer) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	}
 	return len(dAtA) - i, nil
 }
+func (m *AnyRenderer_LogoutRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRenderer_LogoutRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.LogoutRenderer != nil {
+		{
+			size, err := m.LogoutRenderer.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x52
+	}
+	return len(dAtA) - i, nil
+}
 func (m *AnyRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1882,6 +2023,27 @@ func (m *AnyRequest_IndexRequest) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	}
 	return len(dAtA) - i, nil
 }
+func (m *AnyRequest_LogoutRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AnyRequest_LogoutRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.LogoutRequest != nil {
+		{
+			size, err := m.LogoutRequest.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x4a
+	}
+	return len(dAtA) - i, nil
+}
 func (m *ErrorRenderer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1965,6 +2127,64 @@ func (m *LoginRenderer) MarshalTo(dAtA []byte) (int, error) {
 }
 
 func (m *LoginRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.HeaderRenderer != nil {
+		{
+			size, err := m.HeaderRenderer.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLogin(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *LogoutRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *LogoutRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *LogoutRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *LogoutRenderer) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *LogoutRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *LogoutRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -2623,6 +2843,13 @@ func (m *HeaderRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.CurrentUserName) > 0 {
+		i -= len(m.CurrentUserName)
+		copy(dAtA[i:], m.CurrentUserName)
+		i = encodeVarintLogin(dAtA, i, uint64(len(m.CurrentUserName)))
+		i--
+		dAtA[i] = 0x12
+	}
 	if len(m.CurrentUserId) > 0 {
 		i -= len(m.CurrentUserId)
 		copy(dAtA[i:], m.CurrentUserId)
@@ -2764,6 +2991,18 @@ func (m *AnyRenderer_IndexRenderer) Size() (n int) {
 	}
 	return n
 }
+func (m *AnyRenderer_LogoutRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.LogoutRenderer != nil {
+		l = m.LogoutRenderer.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
 func (m *AnyRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -2872,6 +3111,18 @@ func (m *AnyRequest_IndexRequest) Size() (n int) {
 	}
 	return n
 }
+func (m *AnyRequest_LogoutRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.LogoutRequest != nil {
+		l = m.LogoutRequest.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
 func (m *ErrorRenderer) Size() (n int) {
 	if m == nil {
 		return 0
@@ -2903,6 +3154,28 @@ func (m *LoginRequest) Size() (n int) {
 }
 
 func (m *LoginRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.HeaderRenderer != nil {
+		l = m.HeaderRenderer.Size()
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	return n
+}
+
+func (m *LogoutRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *LogoutRenderer) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -3187,6 +3460,10 @@ func (m *HeaderRenderer) Size() (n int) {
 	var l int
 	_ = l
 	l = len(m.CurrentUserId)
+	if l > 0 {
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	l = len(m.CurrentUserName)
 	if l > 0 {
 		n += 1 + l + sovLogin(uint64(l))
 	}
@@ -3543,6 +3820,41 @@ func (m *AnyRenderer) Unmarshal(dAtA []byte) error {
 			}
 			m.Renderer = &AnyRenderer_IndexRenderer{v}
 			iNdEx = postIndex
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LogoutRenderer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &LogoutRenderer{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Renderer = &AnyRenderer_LogoutRenderer{v}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipLogin(dAtA[iNdEx:])
@@ -3876,6 +4188,41 @@ func (m *AnyRequest) Unmarshal(dAtA []byte) error {
 			}
 			m.Request = &AnyRequest_IndexRequest{v}
 			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LogoutRequest", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &LogoutRequest{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &AnyRequest_LogoutRequest{v}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipLogin(dAtA[iNdEx:])
@@ -4129,6 +4476,148 @@ func (m *LoginRenderer) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: LoginRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field HeaderRenderer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.HeaderRenderer == nil {
+				m.HeaderRenderer = &HeaderRenderer{}
+			}
+			if err := m.HeaderRenderer.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *LogoutRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: LogoutRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: LogoutRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLogin(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *LogoutRenderer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLogin
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: LogoutRenderer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: LogoutRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -6042,6 +6531,38 @@ func (m *HeaderRenderer) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.CurrentUserId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrentUserName", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CurrentUserName = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

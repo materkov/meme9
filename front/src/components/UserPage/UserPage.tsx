@@ -7,7 +7,7 @@ export class UserPage extends React.Component<schema.UserPageRenderer> {
     render() {
         return (
             <div>
-                {this.props.headerRenderer && <Header {...this.props.headerRenderer}/>}
+                {this.props.headerRenderer && <Header data={this.props.headerRenderer}/>}
 
                 <h1>User {this.props.id}</h1>
                 <br/>

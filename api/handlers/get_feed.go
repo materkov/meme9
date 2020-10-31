@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/materkov/meme9/api/api"
+	"github.com/materkov/meme9/api/handlers/common"
 	login "github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
 )
@@ -49,10 +50,8 @@ func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) *login.A
 
 	return &login.AnyRenderer{Renderer: &login.AnyRenderer_GetFeedRenderer{
 		GetFeedRenderer: &login.GetFeedRenderer{
-			Posts: postPageRenderers,
-			HeaderRenderer: &login.HeaderRenderer{
-				CurrentUserId: strconv.Itoa(viewer.UserID),
-			},
+			Posts:          postPageRenderers,
+			HeaderRenderer: common.GetHeaderRenderer(viewer),
 		},
 	}}
 }

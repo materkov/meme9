@@ -25,17 +25,23 @@ func (l *LoginApi) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	nodeID, _ := strconv.Atoi(req.Login)
 
 	user, err := l.Store.GetUser(nodeID)
-	if err != nil {
+	if err == store.ErrNodeNotFound {
+		writeError(w, &login.ErrorRenderer{DisplayText: "Неправильный логин или пароль"})
+		return
+	} else if err != nil {
+		writeInternalError(w, err)
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
 	if err != nil {
+		writeError(w, &login.ErrorRenderer{DisplayText: "Неправильный логин или пароль"})
 		return
 	}
 
 	tokenID, err := l.Store.GenerateNodeID()
 	if err != nil {
+		writeInternalError(w, err)
 		return
 	}
 
@@ -58,4 +64,13 @@ func (l *LoginApi) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
+
+	writeResponse(w, &login.AnyRenderer{Renderer: &login.AnyRenderer_LoginRenderer{
+		LoginRenderer: &login.LoginRenderer{
+			HeaderRenderer: &login.HeaderRenderer{
+				CurrentUserId:   strconv.Itoa(user.ID),
+				CurrentUserName: user.Name,
+			},
+		},
+	}})
 }

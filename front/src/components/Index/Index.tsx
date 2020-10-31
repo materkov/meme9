@@ -7,7 +7,7 @@ export class Index extends React.Component<schema.IndexRenderer, any> {
     render() {
         return (
             <div>
-                {this.props.headerRenderer && <Header {...this.props.headerRenderer}/>}
+                {this.props.headerRenderer && <Header data={this.props.headerRenderer}/>}
 
                 <h1>Главная страница</h1>
                 {this.props.text}

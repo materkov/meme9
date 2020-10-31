@@ -21,4 +21,8 @@ Proof-of-concept приложение, показывающее как супе�
 
 * TODO: добавить авторизацию через токен/куки, CSRF protection
 
-https://meme.mmaks.me/posts/1
+https://meme.mmaks.me
+
+## TODO
+
+* AnyRequest и AnyRenderer -- костыль какой-то, подумать

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/materkov/meme9/api/api"
 	login "github.com/materkov/meme9/api/pb"
@@ -23,9 +24,11 @@ func (a *AddPost) Handle(viewer *api.Viewer, req *login.AddPostRequest) *login.A
 	}
 
 	post := store.Post{
-		ID:     postID,
-		Text:   req.Text,
-		UserID: viewer.UserID,
+		ID:        postID,
+		Text:      req.Text,
+		UserID:    viewer.UserID,
+		Date:      int(time.Now().Unix()),
+		UserAgent: viewer.UserAgent,
 	}
 
 	err = a.Store.AddPost(&post)

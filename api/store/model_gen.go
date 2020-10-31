@@ -42,6 +42,18 @@ func (z *Post) DecodeMsg(dc *msgp.Reader) (err error) {
 				err = msgp.WrapError(err, "UserID")
 				return
 			}
+		case "Date":
+			z.Date, err = dc.ReadInt()
+			if err != nil {
+				err = msgp.WrapError(err, "Date")
+				return
+			}
+		case "UserAgent":
+			z.UserAgent, err = dc.ReadString()
+			if err != nil {
+				err = msgp.WrapError(err, "UserAgent")
+				return
+			}
 		default:
 			err = dc.Skip()
 			if err != nil {
@@ -54,10 +66,10 @@ func (z *Post) DecodeMsg(dc *msgp.Reader) (err error) {
 }
 
 // EncodeMsg implements msgp.Encodable
-func (z Post) EncodeMsg(en *msgp.Writer) (err error) {
-	// map header, size 3
+func (z *Post) EncodeMsg(en *msgp.Writer) (err error) {
+	// map header, size 5
 	// write "ID"
-	err = en.Append(0x83, 0xa2, 0x49, 0x44)
+	err = en.Append(0x85, 0xa2, 0x49, 0x44)
 	if err != nil {
 		return
 	}
@@ -86,15 +98,35 @@ func (z Post) EncodeMsg(en *msgp.Writer) (err error) {
 		err = msgp.WrapError(err, "UserID")
 		return
 	}
+	// write "Date"
+	err = en.Append(0xa4, 0x44, 0x61, 0x74, 0x65)
+	if err != nil {
+		return
+	}
+	err = en.WriteInt(z.Date)
+	if err != nil {
+		err = msgp.WrapError(err, "Date")
+		return
+	}
+	// write "UserAgent"
+	err = en.Append(0xa9, 0x55, 0x73, 0x65, 0x72, 0x41, 0x67, 0x65, 0x6e, 0x74)
+	if err != nil {
+		return
+	}
+	err = en.WriteString(z.UserAgent)
+	if err != nil {
+		err = msgp.WrapError(err, "UserAgent")
+		return
+	}
 	return
 }
 
 // MarshalMsg implements msgp.Marshaler
-func (z Post) MarshalMsg(b []byte) (o []byte, err error) {
+func (z *Post) MarshalMsg(b []byte) (o []byte, err error) {
 	o = msgp.Require(b, z.Msgsize())
-	// map header, size 3
+	// map header, size 5
 	// string "ID"
-	o = append(o, 0x83, 0xa2, 0x49, 0x44)
+	o = append(o, 0x85, 0xa2, 0x49, 0x44)
 	o = msgp.AppendInt(o, z.ID)
 	// string "Text"
 	o = append(o, 0xa4, 0x54, 0x65, 0x78, 0x74)
@@ -102,6 +134,12 @@ func (z Post) MarshalMsg(b []byte) (o []byte, err error) {
 	// string "UserID"
 	o = append(o, 0xa6, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44)
 	o = msgp.AppendInt(o, z.UserID)
+	// string "Date"
+	o = append(o, 0xa4, 0x44, 0x61, 0x74, 0x65)
+	o = msgp.AppendInt(o, z.Date)
+	// string "UserAgent"
+	o = append(o, 0xa9, 0x55, 0x73, 0x65, 0x72, 0x41, 0x67, 0x65, 0x6e, 0x74)
+	o = msgp.AppendString(o, z.UserAgent)
 	return
 }
 
@@ -141,6 +179,18 @@ func (z *Post) UnmarshalMsg(bts []byte) (o []byte, err error) {
 				err = msgp.WrapError(err, "UserID")
 				return
 			}
+		case "Date":
+			z.Date, bts, err = msgp.ReadIntBytes(bts)
+			if err != nil {
+				err = msgp.WrapError(err, "Date")
+				return
+			}
+		case "UserAgent":
+			z.UserAgent, bts, err = msgp.ReadStringBytes(bts)
+			if err != nil {
+				err = msgp.WrapError(err, "UserAgent")
+				return
+			}
 		default:
 			bts, err = msgp.Skip(bts)
 			if err != nil {
@@ -154,8 +204,8 @@ func (z *Post) UnmarshalMsg(bts []byte) (o []byte, err error) {
 }
 
 // Msgsize returns an upper bound estimate of the number of bytes occupied by the serialized message
-func (z Post) Msgsize() (s int) {
-	s = 1 + 3 + msgp.IntSize + 5 + msgp.StringPrefixSize + len(z.Text) + 7 + msgp.IntSize
+func (z *Post) Msgsize() (s int) {
+	s = 1 + 3 + msgp.IntSize + 5 + msgp.StringPrefixSize + len(z.Text) + 7 + msgp.IntSize + 5 + msgp.IntSize + 10 + msgp.StringPrefixSize + len(z.UserAgent)
 	return
 }
 

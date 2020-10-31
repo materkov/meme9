@@ -12,6 +12,7 @@ export interface AnyRenderer {
   getFeedRenderer: GetFeedRenderer | undefined;
   composerRenderer: ComposerRenderer | undefined;
   indexRenderer: IndexRenderer | undefined;
+  logoutRenderer: LogoutRenderer | undefined;
 }
 
 export interface AnyRequest {
@@ -23,6 +24,7 @@ export interface AnyRequest {
   getFeedRequest: GetFeedRequest | undefined;
   composerRequest: ComposerRequest | undefined;
   indexRequest: IndexRequest | undefined;
+  logoutRequest: LogoutRequest | undefined;
 }
 
 export interface ErrorRenderer {
@@ -35,6 +37,13 @@ export interface LoginRequest {
 }
 
 export interface LoginRenderer {
+  headerRenderer: HeaderRenderer | undefined;
+}
+
+export interface LogoutRequest {
+}
+
+export interface LogoutRenderer {
 }
 
 export interface LoginPageRequest {
@@ -118,6 +127,7 @@ export interface IndexRenderer {
 
 export interface HeaderRenderer {
   currentUserId: string;
+  currentUserName: string;
 }
 
 const baseAnyRenderer: object = {
@@ -136,6 +146,12 @@ const baseLoginRequest: object = {
 };
 
 const baseLoginRenderer: object = {
+};
+
+const baseLogoutRequest: object = {
+};
+
+const baseLogoutRenderer: object = {
 };
 
 const baseLoginPageRequest: object = {
@@ -211,6 +227,7 @@ const baseIndexRenderer: object = {
 
 const baseHeaderRenderer: object = {
   currentUserId: "",
+  currentUserName: "",
 };
 
 export const protobufPackage = ''
@@ -243,6 +260,9 @@ export const AnyRenderer = {
     }
     if (message.indexRenderer !== undefined) {
       IndexRenderer.encode(message.indexRenderer, writer.uint32(74).fork()).ldelim();
+    }
+    if (message.logoutRenderer !== undefined) {
+      LogoutRenderer.encode(message.logoutRenderer, writer.uint32(82).fork()).ldelim();
     }
     return writer;
   },
@@ -279,6 +299,9 @@ export const AnyRenderer = {
           break;
         case 9:
           message.indexRenderer = IndexRenderer.decode(reader, reader.uint32());
+          break;
+        case 10:
+          message.logoutRenderer = LogoutRenderer.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -334,6 +357,11 @@ export const AnyRenderer = {
     } else {
       message.indexRenderer = undefined;
     }
+    if (object.logoutRenderer !== undefined && object.logoutRenderer !== null) {
+      message.logoutRenderer = LogoutRenderer.fromJSON(object.logoutRenderer);
+    } else {
+      message.logoutRenderer = undefined;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<AnyRenderer>): AnyRenderer {
@@ -383,6 +411,11 @@ export const AnyRenderer = {
     } else {
       message.indexRenderer = undefined;
     }
+    if (object.logoutRenderer !== undefined && object.logoutRenderer !== null) {
+      message.logoutRenderer = LogoutRenderer.fromPartial(object.logoutRenderer);
+    } else {
+      message.logoutRenderer = undefined;
+    }
     return message;
   },
   toJSON(message: AnyRenderer): unknown {
@@ -396,6 +429,7 @@ export const AnyRenderer = {
     message.getFeedRenderer !== undefined && (obj.getFeedRenderer = message.getFeedRenderer ? GetFeedRenderer.toJSON(message.getFeedRenderer) : undefined);
     message.composerRenderer !== undefined && (obj.composerRenderer = message.composerRenderer ? ComposerRenderer.toJSON(message.composerRenderer) : undefined);
     message.indexRenderer !== undefined && (obj.indexRenderer = message.indexRenderer ? IndexRenderer.toJSON(message.indexRenderer) : undefined);
+    message.logoutRenderer !== undefined && (obj.logoutRenderer = message.logoutRenderer ? LogoutRenderer.toJSON(message.logoutRenderer) : undefined);
     return obj;
   },
 };
@@ -425,6 +459,9 @@ export const AnyRequest = {
     }
     if (message.indexRequest !== undefined) {
       IndexRequest.encode(message.indexRequest, writer.uint32(66).fork()).ldelim();
+    }
+    if (message.logoutRequest !== undefined) {
+      LogoutRequest.encode(message.logoutRequest, writer.uint32(74).fork()).ldelim();
     }
     return writer;
   },
@@ -458,6 +495,9 @@ export const AnyRequest = {
           break;
         case 8:
           message.indexRequest = IndexRequest.decode(reader, reader.uint32());
+          break;
+        case 9:
+          message.logoutRequest = LogoutRequest.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -508,6 +548,11 @@ export const AnyRequest = {
     } else {
       message.indexRequest = undefined;
     }
+    if (object.logoutRequest !== undefined && object.logoutRequest !== null) {
+      message.logoutRequest = LogoutRequest.fromJSON(object.logoutRequest);
+    } else {
+      message.logoutRequest = undefined;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<AnyRequest>): AnyRequest {
@@ -552,6 +597,11 @@ export const AnyRequest = {
     } else {
       message.indexRequest = undefined;
     }
+    if (object.logoutRequest !== undefined && object.logoutRequest !== null) {
+      message.logoutRequest = LogoutRequest.fromPartial(object.logoutRequest);
+    } else {
+      message.logoutRequest = undefined;
+    }
     return message;
   },
   toJSON(message: AnyRequest): unknown {
@@ -564,6 +614,7 @@ export const AnyRequest = {
     message.getFeedRequest !== undefined && (obj.getFeedRequest = message.getFeedRequest ? GetFeedRequest.toJSON(message.getFeedRequest) : undefined);
     message.composerRequest !== undefined && (obj.composerRequest = message.composerRequest ? ComposerRequest.toJSON(message.composerRequest) : undefined);
     message.indexRequest !== undefined && (obj.indexRequest = message.indexRequest ? IndexRequest.toJSON(message.indexRequest) : undefined);
+    message.logoutRequest !== undefined && (obj.logoutRequest = message.logoutRequest ? LogoutRequest.toJSON(message.logoutRequest) : undefined);
     return obj;
   },
 };
@@ -678,13 +729,62 @@ export const LoginRequest = {
 };
 
 export const LoginRenderer = {
-  encode(_: LoginRenderer, writer: Writer = Writer.create()): Writer {
+  encode(message: LoginRenderer, writer: Writer = Writer.create()): Writer {
+    if (message.headerRenderer !== undefined && message.headerRenderer !== undefined) {
+      HeaderRenderer.encode(message.headerRenderer, writer.uint32(10).fork()).ldelim();
+    }
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): LoginRenderer {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseLoginRenderer } as LoginRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.headerRenderer = HeaderRenderer.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): LoginRenderer {
+    const message = { ...baseLoginRenderer } as LoginRenderer;
+    if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
+      message.headerRenderer = HeaderRenderer.fromJSON(object.headerRenderer);
+    } else {
+      message.headerRenderer = undefined;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<LoginRenderer>): LoginRenderer {
+    const message = { ...baseLoginRenderer } as LoginRenderer;
+    if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
+      message.headerRenderer = HeaderRenderer.fromPartial(object.headerRenderer);
+    } else {
+      message.headerRenderer = undefined;
+    }
+    return message;
+  },
+  toJSON(message: LoginRenderer): unknown {
+    const obj: any = {};
+    message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
+    return obj;
+  },
+};
+
+export const LogoutRequest = {
+  encode(_: LogoutRequest, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): LogoutRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseLogoutRequest } as LogoutRequest;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -695,15 +795,47 @@ export const LoginRenderer = {
     }
     return message;
   },
-  fromJSON(_: any): LoginRenderer {
-    const message = { ...baseLoginRenderer } as LoginRenderer;
+  fromJSON(_: any): LogoutRequest {
+    const message = { ...baseLogoutRequest } as LogoutRequest;
     return message;
   },
-  fromPartial(_: DeepPartial<LoginRenderer>): LoginRenderer {
-    const message = { ...baseLoginRenderer } as LoginRenderer;
+  fromPartial(_: DeepPartial<LogoutRequest>): LogoutRequest {
+    const message = { ...baseLogoutRequest } as LogoutRequest;
     return message;
   },
-  toJSON(_: LoginRenderer): unknown {
+  toJSON(_: LogoutRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+};
+
+export const LogoutRenderer = {
+  encode(_: LogoutRenderer, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): LogoutRenderer {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseLogoutRenderer } as LogoutRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(_: any): LogoutRenderer {
+    const message = { ...baseLogoutRenderer } as LogoutRenderer;
+    return message;
+  },
+  fromPartial(_: DeepPartial<LogoutRenderer>): LogoutRenderer {
+    const message = { ...baseLogoutRenderer } as LogoutRenderer;
+    return message;
+  },
+  toJSON(_: LogoutRenderer): unknown {
     const obj: any = {};
     return obj;
   },
@@ -1708,6 +1840,7 @@ export const IndexRenderer = {
 export const HeaderRenderer = {
   encode(message: HeaderRenderer, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).string(message.currentUserId);
+    writer.uint32(18).string(message.currentUserName);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): HeaderRenderer {
@@ -1719,6 +1852,9 @@ export const HeaderRenderer = {
       switch (tag >>> 3) {
         case 1:
           message.currentUserId = reader.string();
+          break;
+        case 2:
+          message.currentUserName = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1734,6 +1870,11 @@ export const HeaderRenderer = {
     } else {
       message.currentUserId = "";
     }
+    if (object.currentUserName !== undefined && object.currentUserName !== null) {
+      message.currentUserName = String(object.currentUserName);
+    } else {
+      message.currentUserName = "";
+    }
     return message;
   },
   fromPartial(object: DeepPartial<HeaderRenderer>): HeaderRenderer {
@@ -1743,11 +1884,17 @@ export const HeaderRenderer = {
     } else {
       message.currentUserId = "";
     }
+    if (object.currentUserName !== undefined && object.currentUserName !== null) {
+      message.currentUserName = object.currentUserName;
+    } else {
+      message.currentUserName = "";
+    }
     return message;
   },
   toJSON(message: HeaderRenderer): unknown {
     const obj: any = {};
     message.currentUserId !== undefined && (obj.currentUserId = message.currentUserId);
+    message.currentUserName !== undefined && (obj.currentUserName = message.currentUserName);
     return obj;
   },
 };

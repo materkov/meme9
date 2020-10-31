@@ -41,9 +41,17 @@ func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 			panic(1)
 		}
 
-		viewer := api.Viewer{}
+		viewer := api.Viewer{
+			UserAgent: r.Header.Get("user-agent"),
+		}
+
 		if token != nil {
 			viewer.UserID = token.UserID
+
+			viewer.User, err = a.store.GetUser(token.UserID)
+			if err != nil {
+				panic(1)
+			}
 		}
 
 		newContext := context.WithValue(r.Context(), "viewer", &viewer)

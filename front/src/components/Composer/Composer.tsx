@@ -34,7 +34,7 @@ export class Composer extends React.Component<schema.ComposerRenderer, State> {
     render() {
         return (
             <div>
-                {this.props.headerRenderer && <Header {...this.props.headerRenderer}/>}
+                {this.props.headerRenderer && <Header data={this.props.headerRenderer}/>}
 
                 Напишите свой пост здесь:<br/>
                 {this.props.welcomeText}<br/>

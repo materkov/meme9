@@ -9,7 +9,7 @@ export class Feed extends React.Component<schema.GetFeedRenderer, any> {
 
         return (
             <div>
-                {this.props.headerRenderer && <Header {...this.props.headerRenderer}/>}
+                {this.props.headerRenderer && <Header data={this.props.headerRenderer}/>}
 
                 {posts.map(item => (<FeedItem key={item.id} post={item}/>))}
             </div>

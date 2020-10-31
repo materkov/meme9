@@ -36,7 +36,7 @@ func GetNodeIDFromToken(token string) (int, error) {
 
 	nodeID, _ := strconv.Atoi(parts[0])
 	if nodeID <= 0 {
-	    return 0, fmt.Errorf("incorrect token")
+		return 0, fmt.Errorf("incorrect token")
 	}
 
 	return nodeID, nil
@@ -54,7 +54,9 @@ type User struct {
 }
 
 type Post struct {
-	ID     int
-	Text   string
-	UserID int
+	ID        int
+	Text      string
+	UserID    int
+	Date      int
+	UserAgent string
 }

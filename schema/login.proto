@@ -11,6 +11,7 @@ message AnyRenderer {
     GetFeedRenderer get_feed_renderer = 7;
     ComposerRenderer composer_renderer = 8;
     IndexRenderer index_renderer = 9;
+    LogoutRenderer logout_renderer = 10;
   }
 }
 
@@ -24,6 +25,7 @@ message AnyRequest {
     GetFeedRequest get_feed_request = 6;
     ComposerRequest composer_request = 7;
     IndexRequest index_request = 8;
+    LogoutRequest logout_request = 9;
   }
 }
 
@@ -37,6 +39,13 @@ message LoginRequest {
 }
 
 message LoginRenderer {
+  HeaderRenderer header_renderer = 1;
+}
+
+message LogoutRequest {
+}
+
+message LogoutRenderer {
 }
 
 message LoginPageRequest {
@@ -123,4 +132,5 @@ message IndexRenderer {
 
 message HeaderRenderer {
   string currentUserId = 1;
+  string currentUserName = 2;
 }

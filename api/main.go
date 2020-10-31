@@ -18,6 +18,11 @@ func writeResponse(w http.ResponseWriter, resp proto.Message) {
 	_ = m.Marshal(w, resp)
 }
 
+var globalJs = []string{
+	"/static/React.js",
+	"/static/Global.js",
+}
+
 func resolveRoute(url string) resolvedRoute {
 	if match, _ := regexp.MatchString(`^/users/([0-9]+)`, url); match {
 		return resolvedRoute{
@@ -27,9 +32,7 @@ func resolveRoute(url string) resolvedRoute {
 				},
 			}},
 			js: []string{
-				"/static/React.js",
 				"/static/UserPage.js",
-				"/static/Global.js",
 			},
 		}
 	}
@@ -42,9 +45,7 @@ func resolveRoute(url string) resolvedRoute {
 				},
 			}},
 			js: []string{
-				"/static/React.js",
 				"/static/PostPage.js",
-				"/static/Global.js",
 			},
 		}
 	}
@@ -53,9 +54,7 @@ func resolveRoute(url string) resolvedRoute {
 		return resolvedRoute{
 			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_LoginPageRequest{}},
 			js: []string{
-				"/static/React.js",
 				"/static/LoginPage.js",
-				"/static/Global.js",
 			},
 		}
 	}
@@ -64,9 +63,7 @@ func resolveRoute(url string) resolvedRoute {
 		return resolvedRoute{
 			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_ComposerRequest{}},
 			js: []string{
-				"/static/React.js",
 				"/static/Composer.js",
-				"/static/Global.js",
 			},
 		}
 	}
@@ -75,9 +72,7 @@ func resolveRoute(url string) resolvedRoute {
 		return resolvedRoute{
 			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_GetFeedRequest{}},
 			js: []string{
-				"/static/React.js",
 				"/static/Feed.js",
-				"/static/Global.js",
 			},
 		}
 	}
@@ -86,9 +81,7 @@ func resolveRoute(url string) resolvedRoute {
 		return resolvedRoute{
 			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_IndexRequest{}},
 			js: []string{
-				"/static/React.js",
 				"/static/Index.js",
-				"/static/Global.js",
 			},
 		}
 	}
@@ -144,6 +137,7 @@ func (m *Main) Main() {
 	m.composer = &handlers.Composer{Store: m.store}
 	m.index = &handlers.Index{Store: m.store}
 	loginApi := &handlers.LoginApi{Store: m.store}
+	logoutApi := &handlers.LogoutApi{}
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
 		resolvedRoute := resolveRoute(r.URL.Path)
@@ -151,10 +145,12 @@ func (m *Main) Main() {
 
 		resp := m.apiRequest(viewer, resolvedRoute.apiRequest)
 
+		js := append(resolvedRoute.js, globalJs...)
+
 		page := HTMLPage{
 			Request:   resolvedRoute.apiRequest,
 			Data:      resp,
-			JsBundles: resolvedRoute.js,
+			JsBundles: js,
 			ApiKey:    "access-key",
 		}
 		_, _ = w.Write([]byte(page.render()))
@@ -171,6 +167,7 @@ func (m *Main) Main() {
 	}
 
 	http.HandleFunc("/api/login", loginApi.ServeHTTP)
+	http.HandleFunc("/api/logout", logoutApi.ServeHTTP)
 	http.HandleFunc("/", authMiddleware.Do(mainHandler))
 	http.HandleFunc("/api", authMiddleware.Do(apiHandler))
 	http.HandleFunc("/resolve-route", func(w http.ResponseWriter, r *http.Request) {
@@ -178,9 +175,11 @@ func (m *Main) Main() {
 		_ = jsonpb.Unmarshal(r.Body, &req)
 
 		route := resolveRoute(req.Url)
+		js := append(route.js, globalJs...)
+
 		writeResponse(w, &login.ResolveRouteResponse{
 			Request: route.apiRequest,
-			Js:      route.js,
+			Js:      js,
 		})
 	})
 
