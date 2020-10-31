@@ -18,7 +18,7 @@ func (p *PostPage) Handle(viewer *api.Viewer, req *login.PostPageRequest) *login
 	return &login.AnyRenderer{Renderer: &login.AnyRenderer_PostPageRenderer{
 		PostPageRenderer: &login.PostPageRenderer{
 			Id:             req.PostId,
-			PostUrl:        fmt.Sprintf("/posts/%d", req.PostId),
+			PostUrl:        fmt.Sprintf("/posts/%s", req.PostId),
 			Text:           "bla bla bla - " + req.PostId,
 			UserId:         "1",
 			UserUrl:        fmt.Sprintf("/users/%d", 1),
