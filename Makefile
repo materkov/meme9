@@ -17,6 +17,6 @@ build-all:
 lint-all:
 	cd api && test -z $$(gofmt -l .| tee /dev/stderr)
 
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.23.1
-	bin/golangci-lint --version
+	cd api && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.23.1
+	cd api && bin/golangci-lint --version
 	cd api && bin/golangci-lint run
