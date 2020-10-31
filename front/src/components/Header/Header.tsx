@@ -15,10 +15,7 @@ export class Header extends React.Component<HeaderProps> {
                 Вы вошли как: <b>{data.currentUserName}</b><br/>
 
                 {data.links.map((link) =>
-                    <span key={link.url}>
-                        <Link href={link.url}>{link.label}</Link>
-                        &nbsp;&nbsp;&nbsp;
-                    </span>
+                    <Link key={link.url} href={link.url}>{link.label}</Link>
                 )}
 
                 <hr/>

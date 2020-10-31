@@ -61,8 +61,13 @@ message LoginPageRenderer {
 message PostPageRenderer {
   string id = 1;
   string text = 2;
+
   string userId = 3;
+  string userUrl = 6;
+
   string currentUserId = 4;
+
+  string postUrl = 7;
 
   HeaderRenderer header_renderer = 5;
 }

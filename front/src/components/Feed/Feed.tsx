@@ -11,20 +11,24 @@ export class Feed extends React.Component<schema.GetFeedRenderer, any> {
             <div>
                 {this.props.headerRenderer && <Header data={this.props.headerRenderer}/>}
 
-                {posts.map(item => (<FeedItem key={item.id} post={item}/>))}
+                {posts.map(item => (<FeedItem key={item.id} data={item}/>))}
             </div>
         );
     }
 }
 
-class FeedItem extends React.Component<{ post: schema.PostPageRenderer }, any> {
+interface FeedItemProps {
+    data: schema.PostPageRenderer;
+}
+
+class FeedItem extends React.Component<FeedItemProps, any> {
     render() {
-        const post = this.props.post;
+        const post = this.props.data;
 
         return (
             <div>
-                Post <Link href={"/posts/" + post.id}>#{post.id}</Link><br/>
-                From User <Link href={"/users/" + post.userId}>#{post.userId}</Link><br/>
+                Post <Link href={post.postUrl}>#{post.id}</Link><br/>
+                From User <Link href={post.userUrl}>#{post.userId}</Link><br/>
                 <br/>
                 {post.text}
                 <br/>

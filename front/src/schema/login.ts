@@ -59,7 +59,9 @@ export interface PostPageRenderer {
   id: string;
   text: string;
   userId: string;
+  userUrl: string;
   currentUserId: string;
+  postUrl: string;
   headerRenderer: HeaderRenderer | undefined;
 }
 
@@ -173,7 +175,9 @@ const basePostPageRenderer: object = {
   id: "",
   text: "",
   userId: "",
+  userUrl: "",
   currentUserId: "",
+  postUrl: "",
 };
 
 const baseUserPageRenderer: object = {
@@ -970,7 +974,9 @@ export const PostPageRenderer = {
     writer.uint32(10).string(message.id);
     writer.uint32(18).string(message.text);
     writer.uint32(26).string(message.userId);
+    writer.uint32(50).string(message.userUrl);
     writer.uint32(34).string(message.currentUserId);
+    writer.uint32(58).string(message.postUrl);
     if (message.headerRenderer !== undefined && message.headerRenderer !== undefined) {
       HeaderRenderer.encode(message.headerRenderer, writer.uint32(42).fork()).ldelim();
     }
@@ -992,8 +998,14 @@ export const PostPageRenderer = {
         case 3:
           message.userId = reader.string();
           break;
+        case 6:
+          message.userUrl = reader.string();
+          break;
         case 4:
           message.currentUserId = reader.string();
+          break;
+        case 7:
+          message.postUrl = reader.string();
           break;
         case 5:
           message.headerRenderer = HeaderRenderer.decode(reader, reader.uint32());
@@ -1022,10 +1034,20 @@ export const PostPageRenderer = {
     } else {
       message.userId = "";
     }
+    if (object.userUrl !== undefined && object.userUrl !== null) {
+      message.userUrl = String(object.userUrl);
+    } else {
+      message.userUrl = "";
+    }
     if (object.currentUserId !== undefined && object.currentUserId !== null) {
       message.currentUserId = String(object.currentUserId);
     } else {
       message.currentUserId = "";
+    }
+    if (object.postUrl !== undefined && object.postUrl !== null) {
+      message.postUrl = String(object.postUrl);
+    } else {
+      message.postUrl = "";
     }
     if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
       message.headerRenderer = HeaderRenderer.fromJSON(object.headerRenderer);
@@ -1051,10 +1073,20 @@ export const PostPageRenderer = {
     } else {
       message.userId = "";
     }
+    if (object.userUrl !== undefined && object.userUrl !== null) {
+      message.userUrl = object.userUrl;
+    } else {
+      message.userUrl = "";
+    }
     if (object.currentUserId !== undefined && object.currentUserId !== null) {
       message.currentUserId = object.currentUserId;
     } else {
       message.currentUserId = "";
+    }
+    if (object.postUrl !== undefined && object.postUrl !== null) {
+      message.postUrl = object.postUrl;
+    } else {
+      message.postUrl = "";
     }
     if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
       message.headerRenderer = HeaderRenderer.fromPartial(object.headerRenderer);
@@ -1068,7 +1100,9 @@ export const PostPageRenderer = {
     message.id !== undefined && (obj.id = message.id);
     message.text !== undefined && (obj.text = message.text);
     message.userId !== undefined && (obj.userId = message.userId);
+    message.userUrl !== undefined && (obj.userUrl = message.userUrl);
     message.currentUserId !== undefined && (obj.currentUserId = message.currentUserId);
+    message.postUrl !== undefined && (obj.postUrl = message.postUrl);
     message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
     return obj;
   },

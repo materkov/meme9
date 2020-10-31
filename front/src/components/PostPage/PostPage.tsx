@@ -13,7 +13,7 @@ export class PostPage extends React.Component<schema.PostPageRenderer> {
                 {this.props.text}
                 <br/>
                 <img src="/static/cat.jpg" style={{width: "100px"}}/><br/>
-                <Link href={"/users/" + this.props.userId} onClick={() => {}}>User {this.props.userId}</Link>
+                <Link href={this.props.userUrl}>User {this.props.userId}</Link>
                 <br/><br/>
                 You are user: {this.props.currentUserId}
             </div>
