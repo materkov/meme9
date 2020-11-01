@@ -143,7 +143,6 @@ func (m *Main) Main() {
 	m.getFeed = &handlers.GetFeed{Store: m.store}
 	m.composer = &handlers.Composer{Store: m.store}
 	m.index = &handlers.Index{Store: m.store}
-	loginApi := &handlers.LoginApi{Store: m.store}
 	logoutApi := &handlers.LogoutApi{}
 	vkCallbackApi := &handlers.VKCallback{Store: m.store}
 
@@ -175,7 +174,6 @@ func (m *Main) Main() {
 	}
 
 	http.HandleFunc("/vk-callback", vkCallbackApi.Handle)
-	http.HandleFunc("/api/login", loginApi.ServeHTTP)
 	http.HandleFunc("/api/logout", logoutApi.ServeHTTP)
 	http.HandleFunc("/", authMiddleware.Do(mainHandler))
 	http.HandleFunc("/api", authMiddleware.Do(apiHandler))
