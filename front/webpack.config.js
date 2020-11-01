@@ -61,6 +61,9 @@ module.exports = {
                     if (req.originalUrl.startsWith('/static')) {
                         return req.originalUrl.substring(8);
                     }
+                    if (req.originalUrl.startsWith('/test.html')) {
+                        return req.originalUrl;
+                    }
                     return null;
                 }
             },

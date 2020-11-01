@@ -13,6 +13,7 @@ export interface AnyRenderer {
   composerRenderer: ComposerRenderer | undefined;
   indexRenderer: IndexRenderer | undefined;
   logoutRenderer: LogoutRenderer | undefined;
+  vkCallbackRenderer: VKCallbackRenderer | undefined;
 }
 
 export interface AnyRequest {
@@ -25,6 +26,7 @@ export interface AnyRequest {
   composerRequest: ComposerRequest | undefined;
   indexRequest: IndexRequest | undefined;
   logoutRequest: LogoutRequest | undefined;
+  vkCallbackRequest: VKCallbackRequest | undefined;
 }
 
 export interface ErrorRenderer {
@@ -52,6 +54,7 @@ export interface LoginPageRequest {
 export interface LoginPageRenderer {
   submitUrl: string;
   welcomeText: string;
+  vkUrl: string;
   headerRenderer: HeaderRenderer | undefined;
 }
 
@@ -141,6 +144,13 @@ export interface HeaderRenderer_Link {
   label: string;
 }
 
+export interface VKCallbackRequest {
+}
+
+export interface VKCallbackRenderer {
+  headerRenderer: HeaderRenderer | undefined;
+}
+
 const baseAnyRenderer: object = {
 };
 
@@ -171,6 +181,7 @@ const baseLoginPageRequest: object = {
 const baseLoginPageRenderer: object = {
   submitUrl: "",
   welcomeText: "",
+  vkUrl: "",
 };
 
 const basePostPageRenderer: object = {
@@ -251,6 +262,12 @@ const baseHeaderRenderer_Link: object = {
   label: "",
 };
 
+const baseVKCallbackRequest: object = {
+};
+
+const baseVKCallbackRenderer: object = {
+};
+
 export const protobufPackage = ''
 
 export const AnyRenderer = {
@@ -284,6 +301,9 @@ export const AnyRenderer = {
     }
     if (message.logoutRenderer !== undefined) {
       LogoutRenderer.encode(message.logoutRenderer, writer.uint32(82).fork()).ldelim();
+    }
+    if (message.vkCallbackRenderer !== undefined) {
+      VKCallbackRenderer.encode(message.vkCallbackRenderer, writer.uint32(90).fork()).ldelim();
     }
     return writer;
   },
@@ -323,6 +343,9 @@ export const AnyRenderer = {
           break;
         case 10:
           message.logoutRenderer = LogoutRenderer.decode(reader, reader.uint32());
+          break;
+        case 11:
+          message.vkCallbackRenderer = VKCallbackRenderer.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -383,6 +406,11 @@ export const AnyRenderer = {
     } else {
       message.logoutRenderer = undefined;
     }
+    if (object.vkCallbackRenderer !== undefined && object.vkCallbackRenderer !== null) {
+      message.vkCallbackRenderer = VKCallbackRenderer.fromJSON(object.vkCallbackRenderer);
+    } else {
+      message.vkCallbackRenderer = undefined;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<AnyRenderer>): AnyRenderer {
@@ -437,6 +465,11 @@ export const AnyRenderer = {
     } else {
       message.logoutRenderer = undefined;
     }
+    if (object.vkCallbackRenderer !== undefined && object.vkCallbackRenderer !== null) {
+      message.vkCallbackRenderer = VKCallbackRenderer.fromPartial(object.vkCallbackRenderer);
+    } else {
+      message.vkCallbackRenderer = undefined;
+    }
     return message;
   },
   toJSON(message: AnyRenderer): unknown {
@@ -451,6 +484,7 @@ export const AnyRenderer = {
     message.composerRenderer !== undefined && (obj.composerRenderer = message.composerRenderer ? ComposerRenderer.toJSON(message.composerRenderer) : undefined);
     message.indexRenderer !== undefined && (obj.indexRenderer = message.indexRenderer ? IndexRenderer.toJSON(message.indexRenderer) : undefined);
     message.logoutRenderer !== undefined && (obj.logoutRenderer = message.logoutRenderer ? LogoutRenderer.toJSON(message.logoutRenderer) : undefined);
+    message.vkCallbackRenderer !== undefined && (obj.vkCallbackRenderer = message.vkCallbackRenderer ? VKCallbackRenderer.toJSON(message.vkCallbackRenderer) : undefined);
     return obj;
   },
 };
@@ -483,6 +517,9 @@ export const AnyRequest = {
     }
     if (message.logoutRequest !== undefined) {
       LogoutRequest.encode(message.logoutRequest, writer.uint32(74).fork()).ldelim();
+    }
+    if (message.vkCallbackRequest !== undefined) {
+      VKCallbackRequest.encode(message.vkCallbackRequest, writer.uint32(82).fork()).ldelim();
     }
     return writer;
   },
@@ -519,6 +556,9 @@ export const AnyRequest = {
           break;
         case 9:
           message.logoutRequest = LogoutRequest.decode(reader, reader.uint32());
+          break;
+        case 10:
+          message.vkCallbackRequest = VKCallbackRequest.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -574,6 +614,11 @@ export const AnyRequest = {
     } else {
       message.logoutRequest = undefined;
     }
+    if (object.vkCallbackRequest !== undefined && object.vkCallbackRequest !== null) {
+      message.vkCallbackRequest = VKCallbackRequest.fromJSON(object.vkCallbackRequest);
+    } else {
+      message.vkCallbackRequest = undefined;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<AnyRequest>): AnyRequest {
@@ -623,6 +668,11 @@ export const AnyRequest = {
     } else {
       message.logoutRequest = undefined;
     }
+    if (object.vkCallbackRequest !== undefined && object.vkCallbackRequest !== null) {
+      message.vkCallbackRequest = VKCallbackRequest.fromPartial(object.vkCallbackRequest);
+    } else {
+      message.vkCallbackRequest = undefined;
+    }
     return message;
   },
   toJSON(message: AnyRequest): unknown {
@@ -636,6 +686,7 @@ export const AnyRequest = {
     message.composerRequest !== undefined && (obj.composerRequest = message.composerRequest ? ComposerRequest.toJSON(message.composerRequest) : undefined);
     message.indexRequest !== undefined && (obj.indexRequest = message.indexRequest ? IndexRequest.toJSON(message.indexRequest) : undefined);
     message.logoutRequest !== undefined && (obj.logoutRequest = message.logoutRequest ? LogoutRequest.toJSON(message.logoutRequest) : undefined);
+    message.vkCallbackRequest !== undefined && (obj.vkCallbackRequest = message.vkCallbackRequest ? VKCallbackRequest.toJSON(message.vkCallbackRequest) : undefined);
     return obj;
   },
 };
@@ -898,6 +949,7 @@ export const LoginPageRenderer = {
   encode(message: LoginPageRenderer, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).string(message.submitUrl);
     writer.uint32(18).string(message.welcomeText);
+    writer.uint32(34).string(message.vkUrl);
     if (message.headerRenderer !== undefined && message.headerRenderer !== undefined) {
       HeaderRenderer.encode(message.headerRenderer, writer.uint32(26).fork()).ldelim();
     }
@@ -915,6 +967,9 @@ export const LoginPageRenderer = {
           break;
         case 2:
           message.welcomeText = reader.string();
+          break;
+        case 4:
+          message.vkUrl = reader.string();
           break;
         case 3:
           message.headerRenderer = HeaderRenderer.decode(reader, reader.uint32());
@@ -938,6 +993,11 @@ export const LoginPageRenderer = {
     } else {
       message.welcomeText = "";
     }
+    if (object.vkUrl !== undefined && object.vkUrl !== null) {
+      message.vkUrl = String(object.vkUrl);
+    } else {
+      message.vkUrl = "";
+    }
     if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
       message.headerRenderer = HeaderRenderer.fromJSON(object.headerRenderer);
     } else {
@@ -957,6 +1017,11 @@ export const LoginPageRenderer = {
     } else {
       message.welcomeText = "";
     }
+    if (object.vkUrl !== undefined && object.vkUrl !== null) {
+      message.vkUrl = object.vkUrl;
+    } else {
+      message.vkUrl = "";
+    }
     if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
       message.headerRenderer = HeaderRenderer.fromPartial(object.headerRenderer);
     } else {
@@ -968,6 +1033,7 @@ export const LoginPageRenderer = {
     const obj: any = {};
     message.submitUrl !== undefined && (obj.submitUrl = message.submitUrl);
     message.welcomeText !== undefined && (obj.welcomeText = message.welcomeText);
+    message.vkUrl !== undefined && (obj.vkUrl = message.vkUrl);
     message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
     return obj;
   },
@@ -2077,6 +2143,87 @@ export const HeaderRenderer_Link = {
     const obj: any = {};
     message.url !== undefined && (obj.url = message.url);
     message.label !== undefined && (obj.label = message.label);
+    return obj;
+  },
+};
+
+export const VKCallbackRequest = {
+  encode(_: VKCallbackRequest, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): VKCallbackRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseVKCallbackRequest } as VKCallbackRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(_: any): VKCallbackRequest {
+    const message = { ...baseVKCallbackRequest } as VKCallbackRequest;
+    return message;
+  },
+  fromPartial(_: DeepPartial<VKCallbackRequest>): VKCallbackRequest {
+    const message = { ...baseVKCallbackRequest } as VKCallbackRequest;
+    return message;
+  },
+  toJSON(_: VKCallbackRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+};
+
+export const VKCallbackRenderer = {
+  encode(message: VKCallbackRenderer, writer: Writer = Writer.create()): Writer {
+    if (message.headerRenderer !== undefined && message.headerRenderer !== undefined) {
+      HeaderRenderer.encode(message.headerRenderer, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): VKCallbackRenderer {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseVKCallbackRenderer } as VKCallbackRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.headerRenderer = HeaderRenderer.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): VKCallbackRenderer {
+    const message = { ...baseVKCallbackRenderer } as VKCallbackRenderer;
+    if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
+      message.headerRenderer = HeaderRenderer.fromJSON(object.headerRenderer);
+    } else {
+      message.headerRenderer = undefined;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<VKCallbackRenderer>): VKCallbackRenderer {
+    const message = { ...baseVKCallbackRenderer } as VKCallbackRenderer;
+    if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
+      message.headerRenderer = HeaderRenderer.fromPartial(object.headerRenderer);
+    } else {
+      message.headerRenderer = undefined;
+    }
+    return message;
+  },
+  toJSON(message: VKCallbackRenderer): unknown {
+    const obj: any = {};
+    message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
     return obj;
   },
 };

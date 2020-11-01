@@ -51,6 +51,7 @@ type User struct {
 	ID           int
 	Name         string
 	PasswordHash string
+	VkID         int
 }
 
 type Post struct {

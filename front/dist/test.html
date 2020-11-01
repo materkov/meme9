@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <meta charset="utf-8">
+    <title>meme</title>
+</head>
+<body>
+<div id="root"></div>
+<script>
+    window.modules = {};
+    window.InitRequest = {
+        "loginPageRequest": null
+    };
+    window.InitData = {
+        "loginPageRenderer": {
+            "submitUrl": "/submit_url",
+            "welcomeText": "Login welcome текстsssик",
+            "headerRenderer": {
+                "links": [
+                    {"url": "/", "label": "Главная страница"},
+                    {"url": "/feed", "label": "Лента"},
+                    {"url": "/login", "label": "Логин"},
+                    {"url": "/composer", "label": "Написать пост"}
+                ]
+            }
+        }
+    };
+    //window.InitJsBundles = ["/static/LoginPage.js", "/static/React.js", "/static/Global.js", ];
+    window.apiKey = "access-key";
+</script>
+<script src="/static/LoginPage.js"></script>
+
+<script src="/static/React.js"></script>
+<script src="/static/Global.js"></script>
+</body>
+</html>

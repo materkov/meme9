@@ -448,6 +448,12 @@ func (z *User) DecodeMsg(dc *msgp.Reader) (err error) {
 				err = msgp.WrapError(err, "PasswordHash")
 				return
 			}
+		case "VkID":
+			z.VkID, err = dc.ReadInt()
+			if err != nil {
+				err = msgp.WrapError(err, "VkID")
+				return
+			}
 		default:
 			err = dc.Skip()
 			if err != nil {
@@ -460,10 +466,10 @@ func (z *User) DecodeMsg(dc *msgp.Reader) (err error) {
 }
 
 // EncodeMsg implements msgp.Encodable
-func (z User) EncodeMsg(en *msgp.Writer) (err error) {
-	// map header, size 3
+func (z *User) EncodeMsg(en *msgp.Writer) (err error) {
+	// map header, size 4
 	// write "ID"
-	err = en.Append(0x83, 0xa2, 0x49, 0x44)
+	err = en.Append(0x84, 0xa2, 0x49, 0x44)
 	if err != nil {
 		return
 	}
@@ -492,15 +498,25 @@ func (z User) EncodeMsg(en *msgp.Writer) (err error) {
 		err = msgp.WrapError(err, "PasswordHash")
 		return
 	}
+	// write "VkID"
+	err = en.Append(0xa4, 0x56, 0x6b, 0x49, 0x44)
+	if err != nil {
+		return
+	}
+	err = en.WriteInt(z.VkID)
+	if err != nil {
+		err = msgp.WrapError(err, "VkID")
+		return
+	}
 	return
 }
 
 // MarshalMsg implements msgp.Marshaler
-func (z User) MarshalMsg(b []byte) (o []byte, err error) {
+func (z *User) MarshalMsg(b []byte) (o []byte, err error) {
 	o = msgp.Require(b, z.Msgsize())
-	// map header, size 3
+	// map header, size 4
 	// string "ID"
-	o = append(o, 0x83, 0xa2, 0x49, 0x44)
+	o = append(o, 0x84, 0xa2, 0x49, 0x44)
 	o = msgp.AppendInt(o, z.ID)
 	// string "Name"
 	o = append(o, 0xa4, 0x4e, 0x61, 0x6d, 0x65)
@@ -508,6 +524,9 @@ func (z User) MarshalMsg(b []byte) (o []byte, err error) {
 	// string "PasswordHash"
 	o = append(o, 0xac, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x48, 0x61, 0x73, 0x68)
 	o = msgp.AppendString(o, z.PasswordHash)
+	// string "VkID"
+	o = append(o, 0xa4, 0x56, 0x6b, 0x49, 0x44)
+	o = msgp.AppendInt(o, z.VkID)
 	return
 }
 
@@ -547,6 +566,12 @@ func (z *User) UnmarshalMsg(bts []byte) (o []byte, err error) {
 				err = msgp.WrapError(err, "PasswordHash")
 				return
 			}
+		case "VkID":
+			z.VkID, bts, err = msgp.ReadIntBytes(bts)
+			if err != nil {
+				err = msgp.WrapError(err, "VkID")
+				return
+			}
 		default:
 			bts, err = msgp.Skip(bts)
 			if err != nil {
@@ -560,7 +585,7 @@ func (z *User) UnmarshalMsg(bts []byte) (o []byte, err error) {
 }
 
 // Msgsize returns an upper bound estimate of the number of bytes occupied by the serialized message
-func (z User) Msgsize() (s int) {
-	s = 1 + 3 + msgp.IntSize + 5 + msgp.StringPrefixSize + len(z.Name) + 13 + msgp.StringPrefixSize + len(z.PasswordHash)
+func (z *User) Msgsize() (s int) {
+	s = 1 + 3 + msgp.IntSize + 5 + msgp.StringPrefixSize + len(z.Name) + 13 + msgp.StringPrefixSize + len(z.PasswordHash) + 5 + msgp.IntSize
 	return
 }

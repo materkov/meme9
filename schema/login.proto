@@ -12,6 +12,7 @@ message AnyRenderer {
     ComposerRenderer composer_renderer = 8;
     IndexRenderer index_renderer = 9;
     LogoutRenderer logout_renderer = 10;
+    VKCallbackRenderer vk_callback_renderer = 11;
   }
 }
 
@@ -26,6 +27,7 @@ message AnyRequest {
     ComposerRequest composer_request = 7;
     IndexRequest index_request = 8;
     LogoutRequest logout_request = 9;
+    VKCallbackRequest vk_callback_request = 10;
   }
 }
 
@@ -54,6 +56,7 @@ message LoginPageRequest {
 message LoginPageRenderer {
   string submit_url = 1;
   string welcome_text = 2;
+  string vk_url = 4;
 
   HeaderRenderer header_renderer = 3;
 }
@@ -150,4 +153,12 @@ message HeaderRenderer {
     string label = 2;
   }
   repeated Link links = 3;
+}
+
+message VKCallbackRequest {
+
+}
+
+message VKCallbackRenderer {
+  HeaderRenderer header_renderer = 1;
 }

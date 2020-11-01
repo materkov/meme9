@@ -77,6 +77,13 @@ func resolveRoute(url string) resolvedRoute {
 		}
 	}
 
+	if match, _ := regexp.MatchString(`^/vk-callback`, url); match {
+		return resolvedRoute{
+			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_VkCallbackRequest{}},
+			js:         []string{},
+		}
+	}
+
 	if match, _ := regexp.MatchString(`^/$`, url); match {
 		return resolvedRoute{
 			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_IndexRequest{}},
@@ -138,6 +145,7 @@ func (m *Main) Main() {
 	m.index = &handlers.Index{Store: m.store}
 	loginApi := &handlers.LoginApi{Store: m.store}
 	logoutApi := &handlers.LogoutApi{}
+	vkCallbackApi := &handlers.VKCallback{Store: m.store}
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
 		resolvedRoute := resolveRoute(r.URL.Path)
@@ -166,6 +174,7 @@ func (m *Main) Main() {
 		writeResponse(w, resp)
 	}
 
+	http.HandleFunc("/vk-callback", vkCallbackApi.Handle)
 	http.HandleFunc("/api/login", loginApi.ServeHTTP)
 	http.HandleFunc("/api/logout", logoutApi.ServeHTTP)
 	http.HandleFunc("/", authMiddleware.Do(mainHandler))

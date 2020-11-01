@@ -49,6 +49,10 @@ export class LoginPage extends React.Component<schema.LoginPageRenderer, LoginPa
         });
     }
 
+    onVKClick = () => {
+        window.location.href = this.props.vkUrl;
+    };
+
     render() {
         return (
             <div>
@@ -56,6 +60,8 @@ export class LoginPage extends React.Component<schema.LoginPageRenderer, LoginPa
 
                 <h2>{this.props.welcomeText}</h2>
                 <br/>
+
+                Войти через <Link onClick={this.onVKClick} href={""}>VK</Link><br/>
 
                 {this.props.headerRenderer?.currentUserId ?
                     <span>

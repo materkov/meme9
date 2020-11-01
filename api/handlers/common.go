@@ -24,3 +24,5 @@ func writeInternalError(w http.ResponseWriter, err error) {
 	log.Printf("[ERROR] Internal error: %s", err)
 	writeError(w, &login.ErrorRenderer{DisplayText: "Internal error"})
 }
+
+const VKAppID = 7260220
