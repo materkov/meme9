@@ -22,7 +22,7 @@ export class UserPage extends React.Component<UserPageProps> {
                 <br/>
                 Name: {this.props.data.name}
                 <br/><br/>
-                You are user: {this.props.data.currentUserId}
+                You are user: {this.props.data.headerRenderer?.currentUserId}
             </div>
         );
     }

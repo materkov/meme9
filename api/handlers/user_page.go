@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/materkov/meme9/api/api"
@@ -13,15 +14,22 @@ type UserPage struct {
 	Store *store.Store
 }
 
-func (p *UserPage) Handle(viewer *api.Viewer, req *login.UserPageRequest) *login.AnyRenderer {
-	return &login.AnyRenderer{Renderer: &login.AnyRenderer_UserPageRenderer{
-		UserPageRenderer: &login.UserPageRenderer{
-			Id:             req.UserId,
-			LastPostId:     "2",
-			LastPostUrl:    "/posts/2",
-			CurrentUserId:  strconv.Itoa(viewer.User.ID),
-			Name:           req.UserId + " - name",
-			HeaderRenderer: common.GetHeaderRenderer(viewer),
-		},
-	}}
+func (p *UserPage) Handle(viewer *api.Viewer, req *login.UserPageRequest) (*login.UserPageRenderer, error) {
+	userID, _ := strconv.Atoi(req.UserId)
+	user, err := p.Store.GetUser(userID)
+	if err == store.ErrNodeNotFound {
+		return nil, api.NewError("USER_NOT_FOUND", "Пользователь не найден")
+	} else if err != nil {
+		return nil, fmt.Errorf("error getting user from store: %w", err)
+	}
+
+	renderer := &login.UserPageRenderer{
+		Id:             strconv.Itoa(user.ID),
+		LastPostId:     "2",
+		LastPostUrl:    "/posts/2",
+		Name:           user.Name,
+		HeaderRenderer: common.GetHeaderRenderer(viewer),
+	}
+
+	return renderer, nil
 }

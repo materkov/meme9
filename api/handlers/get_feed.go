@@ -42,11 +42,11 @@ func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) *login.A
 	postPageRenderers := make([]*login.PostPageRenderer, len(posts))
 	for i, post := range posts {
 		postPageRenderers[i] = &login.PostPageRenderer{
-			Id:            strconv.Itoa(post.ID),
-			PostUrl:       fmt.Sprintf("/posts/%d", post.ID),
-			Text:          post.Text,
-			UserId:        strconv.Itoa(post.UserID),
-			UserUrl:       fmt.Sprintf("/users/%d", post.UserID),
+			Id:      strconv.Itoa(post.ID),
+			PostUrl: fmt.Sprintf("/posts/%d", post.ID),
+			Text:    post.Text,
+			UserId:  strconv.Itoa(post.UserID),
+			UserUrl: fmt.Sprintf("/users/%d", post.UserID),
 		}
 	}
 

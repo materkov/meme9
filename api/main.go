@@ -115,31 +115,40 @@ type Main struct {
 	userPage  *handlers.UserPage
 }
 
+func (m *Main) wrapError(err error) *login.AnyRenderer {
+	errorRenderer := login.ErrorRenderer{}
+
+	var apiErr *api.Error
+	if errors.As(err, &apiErr) {
+		errorRenderer.ErrorCode = apiErr.Code
+		errorRenderer.DisplayText = apiErr.DisplayText
+	} else {
+		log.Printf("[ERROR] Internal error: %s", err)
+
+		errorRenderer.ErrorCode = "INTERNAL_ERROR"
+		errorRenderer.DisplayText = "Internal error"
+	}
+
+	return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
+		ErrorRenderer: &errorRenderer,
+	}}
+}
+
 func (m *Main) apiRequest(viewer *api.Viewer, req *login.AnyRequest) *login.AnyRenderer {
 	switch req := req.GetRequest().(type) {
 	case *login.AnyRequest_UserPageRequest:
-		return m.userPage.Handle(viewer, req.UserPageRequest)
+		resp, err := m.userPage.Handle(viewer, req.UserPageRequest)
+		if err != nil {
+			return m.wrapError(err)
+		}
+
+		return &login.AnyRenderer{Renderer: &login.AnyRenderer_UserPageRenderer{
+			UserPageRenderer: resp,
+		}}
 	case *login.AnyRequest_PostPageRequest:
 		resp, err := m.postPage.Handle(viewer, req.PostPageRequest)
-
 		if err != nil {
-			var apiErr *api.Error
-			if errors.As(err, &apiErr) {
-				return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
-					ErrorRenderer: &login.ErrorRenderer{
-						ErrorCode:   apiErr.Code,
-						DisplayText: apiErr.DisplayText,
-					},
-				}}
-			} else {
-				log.Printf("[ERROR] Internal error: %s", err)
-				return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
-					ErrorRenderer: &login.ErrorRenderer{
-						ErrorCode:   "INTERNAL_ERROR",
-						DisplayText: "Internal error",
-					},
-				}}
-			}
+			return m.wrapError(err)
 		}
 
 		return &login.AnyRenderer{Renderer: &login.AnyRenderer_PostPageRenderer{
@@ -167,6 +176,7 @@ func (m *Main) Main() {
 	m.loginPage = &handlers.LoginPage{Store: m.store}
 	m.addPost = &handlers.AddPost{Store: m.store}
 	m.postPage = &handlers.PostPage{Store: m.store}
+	m.userPage = &handlers.UserPage{Store: m.store}
 	m.getFeed = &handlers.GetFeed{Store: m.store}
 	m.composer = &handlers.Composer{Store: m.store}
 	m.index = &handlers.Index{Store: m.store}

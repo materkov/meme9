@@ -73,7 +73,6 @@ export interface UserPageRenderer {
   id: string;
   lastPostId: string;
   lastPostUrl: string;
-  currentUserId: string;
   name: string;
   headerRenderer: HeaderRenderer | undefined;
 }
@@ -200,7 +199,6 @@ const baseUserPageRenderer: object = {
   id: "",
   lastPostId: "",
   lastPostUrl: "",
-  currentUserId: "",
   name: "",
 };
 
@@ -1202,7 +1200,6 @@ export const UserPageRenderer = {
     writer.uint32(10).string(message.id);
     writer.uint32(18).string(message.lastPostId);
     writer.uint32(50).string(message.lastPostUrl);
-    writer.uint32(26).string(message.currentUserId);
     writer.uint32(34).string(message.name);
     if (message.headerRenderer !== undefined && message.headerRenderer !== undefined) {
       HeaderRenderer.encode(message.headerRenderer, writer.uint32(42).fork()).ldelim();
@@ -1224,9 +1221,6 @@ export const UserPageRenderer = {
           break;
         case 6:
           message.lastPostUrl = reader.string();
-          break;
-        case 3:
-          message.currentUserId = reader.string();
           break;
         case 4:
           message.name = reader.string();
@@ -1258,11 +1252,6 @@ export const UserPageRenderer = {
     } else {
       message.lastPostUrl = "";
     }
-    if (object.currentUserId !== undefined && object.currentUserId !== null) {
-      message.currentUserId = String(object.currentUserId);
-    } else {
-      message.currentUserId = "";
-    }
     if (object.name !== undefined && object.name !== null) {
       message.name = String(object.name);
     } else {
@@ -1292,11 +1281,6 @@ export const UserPageRenderer = {
     } else {
       message.lastPostUrl = "";
     }
-    if (object.currentUserId !== undefined && object.currentUserId !== null) {
-      message.currentUserId = object.currentUserId;
-    } else {
-      message.currentUserId = "";
-    }
     if (object.name !== undefined && object.name !== null) {
       message.name = object.name;
     } else {
@@ -1314,7 +1298,6 @@ export const UserPageRenderer = {
     message.id !== undefined && (obj.id = message.id);
     message.lastPostId !== undefined && (obj.lastPostId = message.lastPostId);
     message.lastPostUrl !== undefined && (obj.lastPostUrl = message.lastPostUrl);
-    message.currentUserId !== undefined && (obj.currentUserId = message.currentUserId);
     message.name !== undefined && (obj.name = message.name);
     message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
     return obj;

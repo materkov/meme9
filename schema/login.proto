@@ -77,12 +77,13 @@ message PostPageRenderer {
 }
 
 message UserPageRenderer {
+  reserved 3;
+
   string id = 1;
 
   string lastPostId = 2;
   string lastPostUrl = 6;
 
-  string currentUserId = 3;
   string name = 4;
 
   HeaderRenderer header_renderer = 5;
