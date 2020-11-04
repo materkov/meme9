@@ -7,7 +7,7 @@ import (
 
 	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/handlers/common"
-	login "github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
 )
 
@@ -15,7 +15,7 @@ type GetFeed struct {
 	Store *store.Store
 }
 
-func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) (*login.GetFeedRenderer, error) {
+func (g *GetFeed) Handle(viewer *api.Viewer, req *pb.GetFeedRequest) (*pb.GetFeedRenderer, error) {
 	postIds, err := g.Store.GetFeed()
 	if err != nil {
 		return nil, fmt.Errorf("error getting feed: %w", err)
@@ -35,9 +35,9 @@ func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) (*login.
 	}
 	wg.Wait()
 
-	postPageRenderers := make([]*login.PostPageRenderer, len(posts))
+	postPageRenderers := make([]*pb.PostPageRenderer, len(posts))
 	for i, post := range posts {
-		postPageRenderers[i] = &login.PostPageRenderer{
+		postPageRenderers[i] = &pb.PostPageRenderer{
 			Id:      strconv.Itoa(post.ID),
 			PostUrl: fmt.Sprintf("/posts/%d", post.ID),
 			Text:    post.Text,
@@ -46,7 +46,7 @@ func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) (*login.
 		}
 	}
 
-	renderer := &login.GetFeedRenderer{
+	renderer := &pb.GetFeedRenderer{
 		Posts:          postPageRenderers,
 		HeaderRenderer: common.GetHeaderRenderer(viewer),
 	}

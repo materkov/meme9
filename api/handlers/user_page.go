@@ -6,7 +6,7 @@ import (
 
 	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/handlers/common"
-	login "github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
 )
 
@@ -14,7 +14,7 @@ type UserPage struct {
 	Store *store.Store
 }
 
-func (p *UserPage) Handle(viewer *api.Viewer, req *login.UserPageRequest) (*login.UserPageRenderer, error) {
+func (p *UserPage) Handle(viewer *api.Viewer, req *pb.UserPageRequest) (*pb.UserPageRenderer, error) {
 	userID, _ := strconv.Atoi(req.UserId)
 	user, err := p.Store.GetUser(userID)
 	if err == store.ErrNodeNotFound {
@@ -23,7 +23,7 @@ func (p *UserPage) Handle(viewer *api.Viewer, req *login.UserPageRequest) (*logi
 		return nil, fmt.Errorf("error getting user from store: %w", err)
 	}
 
-	renderer := &login.UserPageRenderer{
+	renderer := &pb.UserPageRenderer{
 		Id:             strconv.Itoa(user.ID),
 		LastPostId:     "2",
 		LastPostUrl:    "/posts/2",

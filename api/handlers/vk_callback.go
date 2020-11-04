@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	login "github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
 )
 
@@ -20,7 +20,7 @@ type VKCallback struct {
 func (v *VKCallback) Handle(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		writeError(w, &login.ErrorRenderer{DisplayText: "empty code"})
+		writeError(w, &pb.ErrorRenderer{DisplayText: "empty code"})
 		return
 	}
 

@@ -1,5 +1,22 @@
 syntax = "proto3";
 
+package meme;
+
+option go_package = "pb";
+
+service API {
+  rpc LoginPage(LoginPageRequest) returns (LoginPageRenderer);
+  rpc PostPage(PostPageRequest) returns (PostPageRenderer);
+  rpc UserPage(UserPageRequest) returns (UserPageRenderer);
+  rpc Login(LoginRequest) returns (LoginRenderer);
+  rpc AddPost(AddPostRequest) returns (AddPostRenderer);
+  rpc GetFeed(GetFeedRequest) returns (GetFeedRenderer);
+  rpc Composer(ComposerRequest) returns (ComposerRenderer);
+  rpc Index(IndexRequest) returns (IndexRenderer);
+  rpc Logout(LogoutRequest) returns (LogoutRenderer);
+  rpc VKCallback(VKCallbackRenderer) returns (VKCallbackRenderer);
+}
+
 message AnyRenderer {
   oneof renderer {
     LoginPageRenderer login_page_renderer = 1;

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	login "github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pb"
 )
 
 type LogoutApi struct{}
@@ -17,7 +17,7 @@ func (l *LogoutApi) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-	writeResponse(w, &login.AnyRenderer{Renderer: &login.AnyRenderer_LogoutRenderer{
-		LogoutRenderer: &login.LogoutRenderer{},
+	writeResponse(w, &pb.AnyRenderer{Renderer: &pb.AnyRenderer_LogoutRenderer{
+		LogoutRenderer: &pb.LogoutRenderer{},
 	}})
 }

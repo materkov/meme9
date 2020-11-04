@@ -11,7 +11,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/handlers"
-	login "github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
 )
 
@@ -28,8 +28,8 @@ var globalJs = []string{
 func resolveRoute(url string) resolvedRoute {
 	if match, _ := regexp.MatchString(`^/users/([0-9]+)`, url); match {
 		return resolvedRoute{
-			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_UserPageRequest{
-				UserPageRequest: &login.UserPageRequest{
+			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_UserPageRequest{
+				UserPageRequest: &pb.UserPageRequest{
 					UserId: url[7:],
 				},
 			}},
@@ -42,8 +42,8 @@ func resolveRoute(url string) resolvedRoute {
 
 	if match, _ := regexp.MatchString(`^/posts/([0-9]+)`, url); match {
 		return resolvedRoute{
-			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_PostPageRequest{
-				PostPageRequest: &login.PostPageRequest{
+			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_PostPageRequest{
+				PostPageRequest: &pb.PostPageRequest{
 					PostId: url[7:],
 				},
 			}},
@@ -54,9 +54,9 @@ func resolveRoute(url string) resolvedRoute {
 		}
 	}
 
-	if match, _ := regexp.MatchString(`^/login`, url); match {
+	if match, _ := regexp.MatchString(`^/pb`, url); match {
 		return resolvedRoute{
-			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_LoginPageRequest{}},
+			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_LoginPageRequest{}},
 			js: []string{
 				"/static/LoginPage.js",
 			},
@@ -66,7 +66,7 @@ func resolveRoute(url string) resolvedRoute {
 
 	if match, _ := regexp.MatchString(`^/composer`, url); match {
 		return resolvedRoute{
-			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_ComposerRequest{}},
+			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_ComposerRequest{}},
 			js: []string{
 				"/static/Composer.js",
 			},
@@ -76,7 +76,7 @@ func resolveRoute(url string) resolvedRoute {
 
 	if match, _ := regexp.MatchString(`^/feed`, url); match {
 		return resolvedRoute{
-			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_GetFeedRequest{}},
+			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_GetFeedRequest{}},
 			js: []string{
 				"/static/Feed.js",
 			},
@@ -86,7 +86,7 @@ func resolveRoute(url string) resolvedRoute {
 
 	if match, _ := regexp.MatchString(`^/vk-callback`, url); match {
 		return resolvedRoute{
-			apiRequest:    &login.AnyRequest{Request: &login.AnyRequest_VkCallbackRequest{}},
+			apiRequest:    &pb.AnyRequest{Request: &pb.AnyRequest_VkCallbackRequest{}},
 			js:            []string{},
 			rootComponent: "",
 		}
@@ -94,7 +94,7 @@ func resolveRoute(url string) resolvedRoute {
 
 	if match, _ := regexp.MatchString(`^/$`, url); match {
 		return resolvedRoute{
-			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_IndexRequest{}},
+			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_IndexRequest{}},
 			js: []string{
 				"/static/Index.js",
 			},
@@ -106,7 +106,7 @@ func resolveRoute(url string) resolvedRoute {
 }
 
 type resolvedRoute struct {
-	apiRequest    *login.AnyRequest
+	apiRequest    *pb.AnyRequest
 	js            []string
 	rootComponent string
 }
@@ -123,8 +123,8 @@ type Main struct {
 	userPage  *handlers.UserPage
 }
 
-func (m *Main) wrapError(err error) *login.AnyRenderer {
-	errorRenderer := login.ErrorRenderer{}
+func (m *Main) wrapError(err error) *pb.AnyRenderer {
+	errorRenderer := pb.ErrorRenderer{}
 
 	var apiErr *api.Error
 	if errors.As(err, &apiErr) {
@@ -137,74 +137,74 @@ func (m *Main) wrapError(err error) *login.AnyRenderer {
 		errorRenderer.DisplayText = "Internal error"
 	}
 
-	return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
+	return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_ErrorRenderer{
 		ErrorRenderer: &errorRenderer,
 	}}
 }
 
-func (m *Main) apiRequest(viewer *api.Viewer, req *login.AnyRequest) *login.AnyRenderer {
+func (m *Main) apiRequest(viewer *api.Viewer, req *pb.AnyRequest) *pb.AnyRenderer {
 	switch req := req.GetRequest().(type) {
-	case *login.AnyRequest_UserPageRequest:
+	case *pb.AnyRequest_UserPageRequest:
 		resp, err := m.userPage.Handle(viewer, req.UserPageRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_UserPageRenderer{
+		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_UserPageRenderer{
 			UserPageRenderer: resp,
 		}}
-	case *login.AnyRequest_PostPageRequest:
+	case *pb.AnyRequest_PostPageRequest:
 		resp, err := m.postPage.Handle(viewer, req.PostPageRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_PostPageRenderer{
+		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_PostPageRenderer{
 			PostPageRenderer: resp,
 		}}
-	case *login.AnyRequest_LoginPageRequest:
+	case *pb.AnyRequest_LoginPageRequest:
 		resp, err :=  m.loginPage.Handle(viewer, req.LoginPageRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_LoginPageRenderer{
+		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_LoginPageRenderer{
 			LoginPageRenderer: resp,
 		}}
-	case *login.AnyRequest_AddPostRequest:
+	case *pb.AnyRequest_AddPostRequest:
 		resp, err := m.addPost.Handle(viewer, req.AddPostRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_AddPostRenderer{
+		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_AddPostRenderer{
 			AddPostRenderer: resp,
 		}}
-	case *login.AnyRequest_GetFeedRequest:
+	case *pb.AnyRequest_GetFeedRequest:
 		resp, err := m.getFeed.Handle(viewer, req.GetFeedRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_GetFeedRenderer{
+		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_GetFeedRenderer{
 			GetFeedRenderer: resp,
 		}}
-	case *login.AnyRequest_ComposerRequest:
+	case *pb.AnyRequest_ComposerRequest:
 		resp, err := m.composer.Handle(viewer, req.ComposerRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_ComposerRenderer{
+		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_ComposerRenderer{
 			ComposerRenderer: resp,
 		}}
-	case *login.AnyRequest_IndexRequest:
+	case *pb.AnyRequest_IndexRequest:
 		resp, err := m.index.Handle(viewer, req.IndexRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_IndexRenderer{
+		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_IndexRenderer{
 			IndexRenderer: resp,
 		}}
 	default:
@@ -247,7 +247,7 @@ func (m *Main) Main() {
 	apiHandler := func(w http.ResponseWriter, r *http.Request) {
 		viewer, _ := r.Context().Value(viewerCtxKey).(*api.Viewer)
 
-		req := &login.AnyRequest{}
+		req := &pb.AnyRequest{}
 		_ = jsonpb.Unmarshal(r.Body, req)
 
 		resp := m.apiRequest(viewer, req)
@@ -259,13 +259,13 @@ func (m *Main) Main() {
 	http.HandleFunc("/", authMiddleware.Do(mainHandler))
 	http.HandleFunc("/api", authMiddleware.Do(apiHandler))
 	http.HandleFunc("/resolve-route", func(w http.ResponseWriter, r *http.Request) {
-		req := login.ResolveRouteRequest{}
+		req := pb.ResolveRouteRequest{}
 		_ = jsonpb.Unmarshal(r.Body, &req)
 
 		route := resolveRoute(req.Url)
 		js := append(route.js, globalJs...)
 
-		writeResponse(w, &login.ResolveRouteResponse{
+		writeResponse(w, &pb.ResolveRouteResponse{
 			Request:       route.apiRequest,
 			Js:            js,
 			RootComponent: route.rootComponent,

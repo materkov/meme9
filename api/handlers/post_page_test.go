@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/materkov/meme9/api/api"
-	login "github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
 	"github.com/stretchr/testify/require"
 )
@@ -28,7 +28,7 @@ func TestPostPage_Handle(t *testing.T) {
 			ID: 56, Name: "test user",
 		}}
 
-		r, err := handler.Handle(viewer, &login.PostPageRequest{PostId: "581"})
+		r, err := handler.Handle(viewer, &pb.PostPageRequest{PostId: "581"})
 		require.NoError(t, err)
 		require.NotNil(t, r)
 		require.Equal(t, r.Id, "581")
@@ -40,14 +40,14 @@ func TestPostPage_Handle(t *testing.T) {
 	})
 
 	t.Run("no auth", func(t *testing.T) {
-		r, err := handler.Handle(&api.Viewer{}, &login.PostPageRequest{PostId: "581"})
+		r, err := handler.Handle(&api.Viewer{}, &pb.PostPageRequest{PostId: "581"})
 		require.NoError(t, err)
 		require.Equal(t, r.Id, "581")
 		require.Equal(t, "", r.HeaderRenderer.CurrentUserId)
 	})
 
 	t.Run("post not found", func(t *testing.T) {
-		_, err := handler.Handle(&api.Viewer{}, &login.PostPageRequest{PostId: "5"})
+		_, err := handler.Handle(&api.Viewer{}, &pb.PostPageRequest{PostId: "5"})
 		require.Equal(t, err.(*api.Error).Code, "POST_NOT_FOUND")
 	})
 }

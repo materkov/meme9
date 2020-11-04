@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Writer, Reader } from 'protobufjs/minimal';
+import { Reader, Writer } from 'protobufjs/minimal';
 
 
 export interface AnyRenderer {
@@ -272,7 +272,107 @@ const baseVKCallbackRequest: object = {
 const baseVKCallbackRenderer: object = {
 };
 
-export const protobufPackage = ''
+export interface API {
+
+  LoginPage(request: LoginPageRequest): Promise<LoginPageRenderer>;
+
+  PostPage(request: PostPageRequest): Promise<PostPageRenderer>;
+
+  UserPage(request: UserPageRequest): Promise<UserPageRenderer>;
+
+  Login(request: LoginRequest): Promise<LoginRenderer>;
+
+  AddPost(request: AddPostRequest): Promise<AddPostRenderer>;
+
+  GetFeed(request: GetFeedRequest): Promise<GetFeedRenderer>;
+
+  Composer(request: ComposerRequest): Promise<ComposerRenderer>;
+
+  Index(request: IndexRequest): Promise<IndexRenderer>;
+
+  Logout(request: LogoutRequest): Promise<LogoutRenderer>;
+
+  VKCallback(request: VKCallbackRenderer): Promise<VKCallbackRenderer>;
+
+}
+
+export class APIClientImpl implements API {
+
+  private readonly rpc: Rpc;
+
+  constructor(rpc: Rpc) {
+    this.rpc = rpc;
+  }
+
+  LoginPage(request: LoginPageRequest): Promise<LoginPageRenderer> {
+    const data = LoginPageRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "LoginPage", data);
+    return promise.then(data => LoginPageRenderer.decode(new Reader(data)));
+  }
+
+  PostPage(request: PostPageRequest): Promise<PostPageRenderer> {
+    const data = PostPageRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "PostPage", data);
+    return promise.then(data => PostPageRenderer.decode(new Reader(data)));
+  }
+
+  UserPage(request: UserPageRequest): Promise<UserPageRenderer> {
+    const data = UserPageRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "UserPage", data);
+    return promise.then(data => UserPageRenderer.decode(new Reader(data)));
+  }
+
+  Login(request: LoginRequest): Promise<LoginRenderer> {
+    const data = LoginRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "Login", data);
+    return promise.then(data => LoginRenderer.decode(new Reader(data)));
+  }
+
+  AddPost(request: AddPostRequest): Promise<AddPostRenderer> {
+    const data = AddPostRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "AddPost", data);
+    return promise.then(data => AddPostRenderer.decode(new Reader(data)));
+  }
+
+  GetFeed(request: GetFeedRequest): Promise<GetFeedRenderer> {
+    const data = GetFeedRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "GetFeed", data);
+    return promise.then(data => GetFeedRenderer.decode(new Reader(data)));
+  }
+
+  Composer(request: ComposerRequest): Promise<ComposerRenderer> {
+    const data = ComposerRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "Composer", data);
+    return promise.then(data => ComposerRenderer.decode(new Reader(data)));
+  }
+
+  Index(request: IndexRequest): Promise<IndexRenderer> {
+    const data = IndexRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "Index", data);
+    return promise.then(data => IndexRenderer.decode(new Reader(data)));
+  }
+
+  Logout(request: LogoutRequest): Promise<LogoutRenderer> {
+    const data = LogoutRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "Logout", data);
+    return promise.then(data => LogoutRenderer.decode(new Reader(data)));
+  }
+
+  VKCallback(request: VKCallbackRenderer): Promise<VKCallbackRenderer> {
+    const data = VKCallbackRenderer.encode(request).finish();
+    const promise = this.rpc.request("meme.API", "VKCallback", data);
+    return promise.then(data => VKCallbackRenderer.decode(new Reader(data)));
+  }
+
+}
+
+interface Rpc {
+
+  request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>;
+
+}
+
+export const protobufPackage = 'meme'
 
 export const AnyRenderer = {
   encode(message: AnyRenderer, writer: Writer = Writer.create()): Writer {

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/materkov/meme9/api/api"
-	login "github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
 )
 
@@ -15,7 +15,7 @@ type AddPost struct {
 	Store *store.Store
 }
 
-func (a *AddPost) Handle(viewer *api.Viewer, req *login.AddPostRequest) (*login.AddPostRenderer, error) {
+func (a *AddPost) Handle(viewer *api.Viewer, req *pb.AddPostRequest) (*pb.AddPostRenderer, error) {
 	postID, err := a.Store.GenerateNodeID()
 	if err != nil {
 		return nil, fmt.Errorf("error generating node id: %w", err)
@@ -39,7 +39,7 @@ func (a *AddPost) Handle(viewer *api.Viewer, req *login.AddPostRequest) (*login.
 		log.Printf("[ERROR] Error adding post to feed: %s", err)
 	}
 
-	renderer := &login.AddPostRenderer{
+	renderer := &pb.AddPostRenderer{
 		Id:   strconv.Itoa(post.ID),
 		Text: post.Text,
 	}

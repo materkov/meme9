@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/materkov/meme9/api/api"
-	login "github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/store"
 	"github.com/stretchr/testify/require"
 )
@@ -21,7 +21,7 @@ func TestUserPage_Handle(t *testing.T) {
 	handler := UserPage{Store: testStore}
 
 	t.Run("normal", func(t *testing.T) {
-		resp, err := handler.Handle(&api.Viewer{User: &store.User{ID: 44}}, &login.UserPageRequest{UserId: "44"})
+		resp, err := handler.Handle(&api.Viewer{User: &store.User{ID: 44}}, &pb.UserPageRequest{UserId: "44"})
 		require.NoError(t, err)
 		require.Equal(t, resp.Id, "44")
 		require.Equal(t, resp.LastPostId, "2")
@@ -31,14 +31,14 @@ func TestUserPage_Handle(t *testing.T) {
 	})
 
 	t.Run("no auth", func(t *testing.T) {
-		resp, err := handler.Handle(&api.Viewer{}, &login.UserPageRequest{UserId: "44"})
+		resp, err := handler.Handle(&api.Viewer{}, &pb.UserPageRequest{UserId: "44"})
 		require.NoError(t, err)
 		require.Equal(t, resp.Id, "44")
 		require.Equal(t, resp.HeaderRenderer.CurrentUserId, "")
 	})
 
 	t.Run("user not found", func(t *testing.T) {
-		_, err := handler.Handle(&api.Viewer{}, &login.UserPageRequest{UserId: "44111"})
+		_, err := handler.Handle(&api.Viewer{}, &pb.UserPageRequest{UserId: "44111"})
 		require.Equal(t, err.(*api.Error).Code, "USER_NOT_FOUND")
 	})
 }
