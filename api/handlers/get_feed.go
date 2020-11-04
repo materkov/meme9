@@ -47,7 +47,7 @@ func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) *login.A
 			Text:          post.Text,
 			UserId:        strconv.Itoa(post.UserID),
 			UserUrl:       fmt.Sprintf("/users/%d", post.UserID),
-			CurrentUserId: strconv.Itoa(viewer.UserID),
+			CurrentUserId: strconv.Itoa(viewer.User.ID),
 		}
 	}
 

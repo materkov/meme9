@@ -16,7 +16,7 @@ func (c *Composer) Handle(viewer *api.Viewer, req *login.ComposerRequest) *login
 		HeaderRenderer: common.GetHeaderRenderer(viewer),
 	}
 
-	if viewer.UserID == 0 {
+	if viewer.User == nil {
 		renderer.UnathorizedText = "Нужно авторизоваться чтобы написать пост"
 	} else {
 		renderer.WelcomeText = "текст фром бакеэнд"

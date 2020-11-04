@@ -30,6 +30,7 @@ export interface AnyRequest {
 }
 
 export interface ErrorRenderer {
+  errorCode: string;
   displayText: string;
 }
 
@@ -145,6 +146,7 @@ export interface HeaderRenderer_Link {
 }
 
 export interface VKCallbackRequest {
+  vkCode: string;
 }
 
 export interface VKCallbackRenderer {
@@ -158,6 +160,7 @@ const baseAnyRequest: object = {
 };
 
 const baseErrorRenderer: object = {
+  errorCode: "",
   displayText: "",
 };
 
@@ -263,6 +266,7 @@ const baseHeaderRenderer_Link: object = {
 };
 
 const baseVKCallbackRequest: object = {
+  vkCode: "",
 };
 
 const baseVKCallbackRenderer: object = {
@@ -693,7 +697,8 @@ export const AnyRequest = {
 
 export const ErrorRenderer = {
   encode(message: ErrorRenderer, writer: Writer = Writer.create()): Writer {
-    writer.uint32(10).string(message.displayText);
+    writer.uint32(10).string(message.errorCode);
+    writer.uint32(18).string(message.displayText);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): ErrorRenderer {
@@ -704,6 +709,9 @@ export const ErrorRenderer = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          message.errorCode = reader.string();
+          break;
+        case 2:
           message.displayText = reader.string();
           break;
         default:
@@ -715,6 +723,11 @@ export const ErrorRenderer = {
   },
   fromJSON(object: any): ErrorRenderer {
     const message = { ...baseErrorRenderer } as ErrorRenderer;
+    if (object.errorCode !== undefined && object.errorCode !== null) {
+      message.errorCode = String(object.errorCode);
+    } else {
+      message.errorCode = "";
+    }
     if (object.displayText !== undefined && object.displayText !== null) {
       message.displayText = String(object.displayText);
     } else {
@@ -724,6 +737,11 @@ export const ErrorRenderer = {
   },
   fromPartial(object: DeepPartial<ErrorRenderer>): ErrorRenderer {
     const message = { ...baseErrorRenderer } as ErrorRenderer;
+    if (object.errorCode !== undefined && object.errorCode !== null) {
+      message.errorCode = object.errorCode;
+    } else {
+      message.errorCode = "";
+    }
     if (object.displayText !== undefined && object.displayText !== null) {
       message.displayText = object.displayText;
     } else {
@@ -733,6 +751,7 @@ export const ErrorRenderer = {
   },
   toJSON(message: ErrorRenderer): unknown {
     const obj: any = {};
+    message.errorCode !== undefined && (obj.errorCode = message.errorCode);
     message.displayText !== undefined && (obj.displayText = message.displayText);
     return obj;
   },
@@ -2148,7 +2167,8 @@ export const HeaderRenderer_Link = {
 };
 
 export const VKCallbackRequest = {
-  encode(_: VKCallbackRequest, writer: Writer = Writer.create()): Writer {
+  encode(message: VKCallbackRequest, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).string(message.vkCode);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): VKCallbackRequest {
@@ -2158,6 +2178,9 @@ export const VKCallbackRequest = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1:
+          message.vkCode = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -2165,16 +2188,27 @@ export const VKCallbackRequest = {
     }
     return message;
   },
-  fromJSON(_: any): VKCallbackRequest {
+  fromJSON(object: any): VKCallbackRequest {
     const message = { ...baseVKCallbackRequest } as VKCallbackRequest;
+    if (object.vkCode !== undefined && object.vkCode !== null) {
+      message.vkCode = String(object.vkCode);
+    } else {
+      message.vkCode = "";
+    }
     return message;
   },
-  fromPartial(_: DeepPartial<VKCallbackRequest>): VKCallbackRequest {
+  fromPartial(object: DeepPartial<VKCallbackRequest>): VKCallbackRequest {
     const message = { ...baseVKCallbackRequest } as VKCallbackRequest;
+    if (object.vkCode !== undefined && object.vkCode !== null) {
+      message.vkCode = object.vkCode;
+    } else {
+      message.vkCode = "";
+    }
     return message;
   },
-  toJSON(_: VKCallbackRequest): unknown {
+  toJSON(message: VKCallbackRequest): unknown {
     const obj: any = {};
+    message.vkCode !== undefined && (obj.vkCode = message.vkCode);
     return obj;
   },
 };

@@ -10,7 +10,7 @@ import (
 func GetHeaderRenderer(viewer *api.Viewer) *login.HeaderRenderer {
 	renderer := login.HeaderRenderer{}
 
-	if viewer.UserID != 0 {
+	if viewer.User != nil {
 		renderer.CurrentUserId = strconv.Itoa(viewer.User.ID)
 		renderer.CurrentUserName = viewer.User.Name
 	}

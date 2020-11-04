@@ -14,6 +14,9 @@ build-all:
 	cd api && go build cmd/main.go
 	cd front && yarn && yarn build
 
+test-all:
+	cd api && go test -v ./...
+
 lint-all:
 	cd api && test -z $$(gofmt -l .| tee /dev/stderr)
 

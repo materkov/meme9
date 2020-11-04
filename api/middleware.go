@@ -50,8 +50,6 @@ func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		if token != nil {
-			viewer.UserID = token.UserID
-
 			viewer.User, err = a.store.GetUser(token.UserID)
 			if err != nil {
 				panic(1)

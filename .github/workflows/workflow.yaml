@@ -34,3 +34,6 @@ jobs:
 
       - name: build all
         run: make build-all
+
+      - name: test all
+        run: make test-all

@@ -19,7 +19,7 @@ func (p *UserPage) Handle(viewer *api.Viewer, req *login.UserPageRequest) *login
 			Id:             req.UserId,
 			LastPostId:     "2",
 			LastPostUrl:    "/posts/2",
-			CurrentUserId:  strconv.Itoa(viewer.UserID),
+			CurrentUserId:  strconv.Itoa(viewer.User.ID),
 			Name:           req.UserId + " - name",
 			HeaderRenderer: common.GetHeaderRenderer(viewer),
 		},

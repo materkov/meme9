@@ -26,7 +26,7 @@ func (a *AddPost) Handle(viewer *api.Viewer, req *login.AddPostRequest) *login.A
 	post := store.Post{
 		ID:        postID,
 		Text:      req.Text,
-		UserID:    viewer.UserID,
+		UserID:    viewer.User.ID,
 		Date:      int(time.Now().Unix()),
 		UserAgent: viewer.UserAgent,
 	}

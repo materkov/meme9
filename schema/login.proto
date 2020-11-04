@@ -32,7 +32,8 @@ message AnyRequest {
 }
 
 message ErrorRenderer {
-  string display_text = 1;
+  string error_code = 1;
+  string display_text = 2;
 }
 
 message LoginRequest {
@@ -156,7 +157,7 @@ message HeaderRenderer {
 }
 
 message VKCallbackRequest {
-
+  string vk_code = 1;
 }
 
 message VKCallbackRenderer {
