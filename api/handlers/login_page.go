@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 
 	"github.com/materkov/meme9/api/api"
@@ -15,8 +16,8 @@ type LoginPage struct {
 }
 
 func (l *LoginPage) Handle(viewer *api.Viewer, req *login.LoginPageRequest) *login.AnyRenderer {
-	//redirectURL := "http://localhost:3000/vk-callback"
-	redirectURL := url.QueryEscape("https://meme.mmaks.me/vk-callback")
+	redirectURL := url.QueryEscape(fmt.Sprintf("%s://%s/vk-callback", viewer.RequestScheme, viewer.RequestHost))
+	log.Printf("viewer %s", viewer.RequestHost)
 
 	return &login.AnyRenderer{Renderer: &login.AnyRenderer_LoginPageRenderer{
 		LoginPageRenderer: &login.LoginPageRenderer{

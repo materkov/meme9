@@ -45,8 +45,15 @@ func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 			panic(1)
 		}
 
+		requestScheme := r.Header.Get("x-forwarded-proto")
+		if requestScheme == "" {
+			requestScheme = "http"
+		}
+
 		viewer := api.Viewer{
-			UserAgent: r.Header.Get("user-agent"),
+			UserAgent:     r.Header.Get("user-agent"),
+			RequestHost:   r.Host,
+			RequestScheme: requestScheme,
 		}
 
 		if token != nil {
