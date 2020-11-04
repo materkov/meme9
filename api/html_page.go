@@ -4,12 +4,13 @@ import (
 	"strings"
 
 	"github.com/gogo/protobuf/jsonpb"
+	"github.com/gogo/protobuf/proto"
 	"github.com/materkov/meme9/api/pb"
 )
 
 type HTMLPage struct {
 	Request       *pb.AnyRequest
-	Data          *pb.AnyRenderer
+	Data          proto.Message
 	JsBundles     []string
 	ApiKey        string
 	RootComponent string

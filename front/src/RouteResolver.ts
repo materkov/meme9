@@ -45,11 +45,6 @@ export function resolveRoute(url: string): Promise<schema.ResolveRouteResponse> 
                 url: path,
             })
         }).then(r => r.json()).then((r: schema.ResolveRouteResponse) => {
-            if (!r.request) {
-                reject();
-                return;
-            }
-
             cachedRoutes[path] = r;
             resolve(r);
 

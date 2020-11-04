@@ -41,7 +41,7 @@ export class Root extends React.Component<{}, State> {
             }
 
             Promise.all([
-                fetchJs(resolvedRoute.js),
+                fetchJs(resolvedRoute.js || []),
                 fetchData(resolvedRoute.request)
             ]).then(([_, renderer]) => {
                 this.setState({
@@ -60,9 +60,8 @@ export class Root extends React.Component<{}, State> {
 
         const Component = window.modules[this.state.rootComponent];
 
-        // TODO remove Object.keys
         //@ts-ignore
-        return <Component data={this.state.rootData[Object.keys(this.state.rootData)[0]]}/>
+        return <Component data={this.state.rootData}/>
     }
 
     render() {

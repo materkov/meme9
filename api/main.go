@@ -54,7 +54,7 @@ func resolveRoute(url string) resolvedRoute {
 		}
 	}
 
-	if match, _ := regexp.MatchString(`^/pb`, url); match {
+	if match, _ := regexp.MatchString(`^/login`, url); match {
 		return resolvedRoute{
 			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_LoginPageRequest{}},
 			js: []string{
@@ -142,7 +142,7 @@ func (m *Main) wrapError(err error) *pb.AnyRenderer {
 	}}
 }
 
-func (m *Main) apiRequest(viewer *api.Viewer, req *pb.AnyRequest) *pb.AnyRenderer {
+func (m *Main) apiRequest(viewer *api.Viewer, req *pb.AnyRequest) proto.Message {
 	switch req := req.GetRequest().(type) {
 	case *pb.AnyRequest_UserPageRequest:
 		resp, err := m.userPage.Handle(viewer, req.UserPageRequest)
@@ -150,63 +150,49 @@ func (m *Main) apiRequest(viewer *api.Viewer, req *pb.AnyRequest) *pb.AnyRendere
 			return m.wrapError(err)
 		}
 
-		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_UserPageRenderer{
-			UserPageRenderer: resp,
-		}}
+		return resp
 	case *pb.AnyRequest_PostPageRequest:
 		resp, err := m.postPage.Handle(viewer, req.PostPageRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_PostPageRenderer{
-			PostPageRenderer: resp,
-		}}
+		return resp
 	case *pb.AnyRequest_LoginPageRequest:
 		resp, err :=  m.loginPage.Handle(viewer, req.LoginPageRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_LoginPageRenderer{
-			LoginPageRenderer: resp,
-		}}
+		return resp
 	case *pb.AnyRequest_AddPostRequest:
 		resp, err := m.addPost.Handle(viewer, req.AddPostRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_AddPostRenderer{
-			AddPostRenderer: resp,
-		}}
+		return resp
 	case *pb.AnyRequest_GetFeedRequest:
 		resp, err := m.getFeed.Handle(viewer, req.GetFeedRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_GetFeedRenderer{
-			GetFeedRenderer: resp,
-		}}
+		return resp
 	case *pb.AnyRequest_ComposerRequest:
 		resp, err := m.composer.Handle(viewer, req.ComposerRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_ComposerRenderer{
-			ComposerRenderer: resp,
-		}}
+		return resp
 	case *pb.AnyRequest_IndexRequest:
 		resp, err := m.index.Handle(viewer, req.IndexRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
-		return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_IndexRenderer{
-			IndexRenderer: resp,
-		}}
+		return resp
 	default:
 		return nil
 	}
