@@ -27,9 +27,9 @@ func TestPostPage_Handle(t *testing.T) {
 		viewer := &api.Viewer{User: &store.User{
 			ID: 56, Name: "test user",
 		}}
-		resp := handler.Handle(viewer, &login.PostPageRequest{PostId: "581"})
 
-		r := resp.GetPostPageRenderer()
+		r, err := handler.Handle(viewer, &login.PostPageRequest{PostId: "581"})
+		require.NoError(t, err)
 		require.NotNil(t, r)
 		require.Equal(t, r.Id, "581")
 		require.Equal(t, r.Text, "test text")
@@ -40,15 +40,14 @@ func TestPostPage_Handle(t *testing.T) {
 	})
 
 	t.Run("no auth", func(t *testing.T) {
-		resp := handler.Handle(&api.Viewer{}, &login.PostPageRequest{PostId: "581"})
-
-		r := resp.GetPostPageRenderer()
+		r, err := handler.Handle(&api.Viewer{}, &login.PostPageRequest{PostId: "581"})
+		require.NoError(t, err)
 		require.Equal(t, r.Id, "581")
-		require.Nil(t, r.HeaderRenderer)
+		require.Equal(t, "", r.HeaderRenderer.CurrentUserId)
 	})
 
 	t.Run("post not found", func(t *testing.T) {
-		resp := handler.Handle(&api.Viewer{}, &login.PostPageRequest{PostId: "5"})
-		require.Equal(t, resp.GetErrorRenderer().ErrorCode, "POST_NOT_FOUND")
+		_, err := handler.Handle(&api.Viewer{}, &login.PostPageRequest{PostId: "5"})
+		require.Equal(t, err.(*api.Error).Code, "POST_NOT_FOUND")
 	})
 }

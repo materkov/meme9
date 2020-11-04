@@ -1,6 +1,8 @@
 package api
 
 import (
+	"errors"
+	"log"
 	"net/http"
 	"regexp"
 
@@ -118,7 +120,31 @@ func (m *Main) apiRequest(viewer *api.Viewer, req *login.AnyRequest) *login.AnyR
 	case *login.AnyRequest_UserPageRequest:
 		return m.userPage.Handle(viewer, req.UserPageRequest)
 	case *login.AnyRequest_PostPageRequest:
-		return m.postPage.Handle(viewer, req.PostPageRequest)
+		resp, err := m.postPage.Handle(viewer, req.PostPageRequest)
+
+		if err != nil {
+			var apiErr *api.Error
+			if errors.As(err, &apiErr) {
+				return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
+					ErrorRenderer: &login.ErrorRenderer{
+						ErrorCode:   apiErr.Code,
+						DisplayText: apiErr.DisplayText,
+					},
+				}}
+			} else {
+				log.Printf("[ERROR] Internal error: %s", err)
+				return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
+					ErrorRenderer: &login.ErrorRenderer{
+						ErrorCode:   "INTERNAL_ERROR",
+						DisplayText: "Internal error",
+					},
+				}}
+			}
+		}
+
+		return &login.AnyRenderer{Renderer: &login.AnyRenderer_PostPageRenderer{
+			PostPageRenderer: resp,
+		}}
 	case *login.AnyRequest_LoginPageRequest:
 		return m.loginPage.Handle(viewer, req.LoginPageRequest)
 	case *login.AnyRequest_AddPostRequest:

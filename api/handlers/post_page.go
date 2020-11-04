@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/materkov/meme9/api/api"
@@ -15,25 +14,14 @@ type PostPage struct {
 	Store *store.Store
 }
 
-func (p *PostPage) Handle(viewer *api.Viewer, req *login.PostPageRequest) *login.AnyRenderer {
+func (p *PostPage) Handle(viewer *api.Viewer, req *login.PostPageRequest) (*login.PostPageRenderer, error) {
 	postID, _ := strconv.Atoi(req.PostId)
 
 	post, err := p.Store.GetPost(postID)
 	if err == store.ErrNodeNotFound {
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
-			ErrorRenderer: &login.ErrorRenderer{
-				ErrorCode:   "POST_NOT_FOUND",
-				DisplayText: "Пост не найден",
-			},
-		}}
+		return nil, api.NewError("POST_NOT_FOUND", "Пост не найден")
 	} else if err != nil {
-		log.Printf("[ERROR] Internal error: %s", err)
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
-			ErrorRenderer: &login.ErrorRenderer{
-				ErrorCode:   "INTERNAL_ERROR",
-				DisplayText: "Неизвестная ошибка",
-			},
-		}}
+		return nil, fmt.Errorf("error getting post from store: %w", err)
 	}
 
 	renderer := &login.PostPageRenderer{
@@ -45,7 +33,5 @@ func (p *PostPage) Handle(viewer *api.Viewer, req *login.PostPageRequest) *login
 		HeaderRenderer: common.GetHeaderRenderer(viewer),
 	}
 
-	return &login.AnyRenderer{Renderer: &login.AnyRenderer_PostPageRenderer{
-		PostPageRenderer: renderer,
-	}}
+	return renderer, nil
 }

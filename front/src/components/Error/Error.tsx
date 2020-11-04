@@ -5,8 +5,8 @@ interface ErrorProps {
     data: schema.ErrorRenderer;
 }
 
-function Error(props: ErrorProps) {
+export function Error(props: ErrorProps) {
     return <div style={{fontSize: '20px'}}>
-        {props.data.displayText}
+        Произошла ошибочка: <b>{props.data.displayText}</b>
     </div>
 }

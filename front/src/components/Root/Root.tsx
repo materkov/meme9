@@ -58,7 +58,7 @@ export class Root extends React.Component<{}, State> {
         const Component = window.modules[componentName];
 
         //@ts-ignore
-        return <Component {...this.state.rootData[key]}/>
+        return <Component data={this.state.rootData[key]}/>
     }
 
     render() {

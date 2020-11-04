@@ -3,22 +3,26 @@ import * as schema from "../../schema/login";
 import {Link} from "../Link/Link";
 import {Header} from "../Header/Header";
 
-export class UserPage extends React.Component<schema.UserPageRenderer> {
+export interface UserPageProps {
+    data: schema.UserPageRenderer;
+}
+
+export class UserPage extends React.Component<UserPageProps> {
     render() {
         return (
             <div>
-                {this.props.headerRenderer && <Header data={this.props.headerRenderer}/>}
+                {this.props.data.headerRenderer && <Header data={this.props.data.headerRenderer}/>}
 
-                <h1>User {this.props.id}</h1>
+                <h1>User {this.props.data.id}</h1>
                 <br/>
-                <Link href={this.props.lastPostUrl} onClick={() => {
+                <Link href={this.props.data.lastPostUrl} onClick={() => {
                 }}>
-                    Latest post {this.props.lastPostId}
+                    Latest post {this.props.data.lastPostId}
                 </Link>
                 <br/>
-                Name: {this.props.name}
+                Name: {this.props.data.name}
                 <br/><br/>
-                You are user: {this.props.currentUserId}
+                You are user: {this.props.data.currentUserId}
             </div>
         );
     }

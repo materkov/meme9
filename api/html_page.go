@@ -31,6 +31,8 @@ func (h *HTMLPage) render() string {
 		window.InitData = {{.InitData}};
 		window.InitJsBundles = [{{.InitJsBundles}}];
 		window.apiKey = "{{.ApiKey}}";
+
+		console.log("Init data", window.InitData);
 	</script>
 	{{.Scripts}}
 </body>

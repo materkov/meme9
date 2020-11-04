@@ -4,6 +4,10 @@ import {AnyRenderer} from '../../schema/login';
 import {Header} from "../Header/Header";
 import {Link} from "../Link/Link";
 
+export interface LoginPageProps {
+    data: schema.LoginPageRenderer;
+}
+
 interface LoginPageState {
     login: string;
     password: string;
@@ -11,7 +15,7 @@ interface LoginPageState {
     logoutResponse?: schema.AnyRenderer;
 }
 
-export class LoginPage extends React.Component<schema.LoginPageRenderer, LoginPageState> {
+export class LoginPage extends React.Component<LoginPageProps, LoginPageState> {
     state: LoginPageState = {
         login: '',
         password: '',
@@ -50,23 +54,25 @@ export class LoginPage extends React.Component<schema.LoginPageRenderer, LoginPa
     }
 
     onVKClick = () => {
-        window.location.href = this.props.vkUrl;
+        window.location.href = this.props.data.vkUrl;
     };
 
     render() {
+        const data = this.props.data;
+
         return (
             <div>
-                {this.props.headerRenderer && <Header data={this.props.headerRenderer}/>}
+                {data.headerRenderer && <Header data={data.headerRenderer}/>}
 
-                <h2>{this.props.welcomeText}</h2>
+                <h2>{data.welcomeText}</h2>
                 <br/>
 
                 Войти через <Link onClick={this.onVKClick} href={""}>VK</Link><br/>
 
-                {this.props.headerRenderer?.currentUserId ?
+                {data.headerRenderer?.currentUserId ?
                     <span>
                         Вы уже вошли в систему
-                        как <b>{this.props.headerRenderer.currentUserName}</b>. <Link href={""}
+                        как <b>{data.headerRenderer.currentUserName}</b>. <Link href={""}
                                                                                       onClick={this.logout}>Выйти</Link>
                     </span> :
                     this.renderForm()
