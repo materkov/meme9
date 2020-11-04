@@ -15,7 +15,7 @@ export class PostPage extends React.Component<schema.PostPageRenderer> {
                 <img src="/static/cat.jpg" style={{width: "100px"}}/><br/>
                 <Link href={this.props.userUrl}>User {this.props.userId}</Link>
                 <br/><br/>
-                You are user: {this.props.currentUserId}
+                You are user: {this.props.headerRenderer?.currentUserId}
             </div>
         );
     }

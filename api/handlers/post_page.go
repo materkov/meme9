@@ -37,16 +37,12 @@ func (p *PostPage) Handle(viewer *api.Viewer, req *login.PostPageRequest) *login
 	}
 
 	renderer := &login.PostPageRenderer{
-		Id:      req.PostId,
-		PostUrl: fmt.Sprintf("/posts/%s", req.PostId),
-		Text:    post.Text,
-		UserId:  strconv.Itoa(post.UserID),
-		UserUrl: fmt.Sprintf("/users/%d", post.UserID),
-	}
-
-	if viewer.User != nil {
-		renderer.CurrentUserId = strconv.Itoa(viewer.User.ID)
-		renderer.HeaderRenderer = common.GetHeaderRenderer(viewer)
+		Id:             req.PostId,
+		PostUrl:        fmt.Sprintf("/posts/%s", req.PostId),
+		Text:           post.Text,
+		UserId:         strconv.Itoa(post.UserID),
+		UserUrl:        fmt.Sprintf("/users/%d", post.UserID),
+		HeaderRenderer: common.GetHeaderRenderer(viewer),
 	}
 
 	return &login.AnyRenderer{Renderer: &login.AnyRenderer_PostPageRenderer{

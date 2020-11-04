@@ -140,6 +140,7 @@ func (m *Main) Main() {
 	authMiddleware := &AuthMiddleware{store: m.store}
 	m.loginPage = &handlers.LoginPage{Store: m.store}
 	m.addPost = &handlers.AddPost{Store: m.store}
+	m.postPage = &handlers.PostPage{Store: m.store}
 	m.getFeed = &handlers.GetFeed{Store: m.store}
 	m.composer = &handlers.Composer{Store: m.store}
 	m.index = &handlers.Index{Store: m.store}

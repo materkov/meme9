@@ -35,7 +35,6 @@ func TestPostPage_Handle(t *testing.T) {
 		require.Equal(t, r.Text, "test text")
 		require.Equal(t, r.UserId, "45")
 		require.Equal(t, r.UserUrl, "/users/45")
-		require.Equal(t, r.CurrentUserId, "56")
 		require.Equal(t, r.PostUrl, "/posts/581")
 		require.Equal(t, r.HeaderRenderer.CurrentUserId, "56")
 	})
@@ -45,7 +44,6 @@ func TestPostPage_Handle(t *testing.T) {
 
 		r := resp.GetPostPageRenderer()
 		require.Equal(t, r.Id, "581")
-		require.Equal(t, r.CurrentUserId, "")
 		require.Nil(t, r.HeaderRenderer)
 	})
 
