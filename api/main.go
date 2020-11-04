@@ -163,15 +163,50 @@ func (m *Main) apiRequest(viewer *api.Viewer, req *login.AnyRequest) *login.AnyR
 			PostPageRenderer: resp,
 		}}
 	case *login.AnyRequest_LoginPageRequest:
-		return m.loginPage.Handle(viewer, req.LoginPageRequest)
+		resp, err :=  m.loginPage.Handle(viewer, req.LoginPageRequest)
+		if err != nil {
+			return m.wrapError(err)
+		}
+
+		return &login.AnyRenderer{Renderer: &login.AnyRenderer_LoginPageRenderer{
+			LoginPageRenderer: resp,
+		}}
 	case *login.AnyRequest_AddPostRequest:
-		return m.addPost.Handle(viewer, req.AddPostRequest)
+		resp, err := m.addPost.Handle(viewer, req.AddPostRequest)
+		if err != nil {
+			return m.wrapError(err)
+		}
+
+		return &login.AnyRenderer{Renderer: &login.AnyRenderer_AddPostRenderer{
+			AddPostRenderer: resp,
+		}}
 	case *login.AnyRequest_GetFeedRequest:
-		return m.getFeed.Handle(viewer, req.GetFeedRequest)
+		resp, err := m.getFeed.Handle(viewer, req.GetFeedRequest)
+		if err != nil {
+			return m.wrapError(err)
+		}
+
+		return &login.AnyRenderer{Renderer: &login.AnyRenderer_GetFeedRenderer{
+			GetFeedRenderer: resp,
+		}}
 	case *login.AnyRequest_ComposerRequest:
-		return m.composer.Handle(viewer, req.ComposerRequest)
+		resp, err := m.composer.Handle(viewer, req.ComposerRequest)
+		if err != nil {
+			return m.wrapError(err)
+		}
+
+		return &login.AnyRenderer{Renderer: &login.AnyRenderer_ComposerRenderer{
+			ComposerRenderer: resp,
+		}}
 	case *login.AnyRequest_IndexRequest:
-		return m.index.Handle(viewer, req.IndexRequest)
+		resp, err := m.index.Handle(viewer, req.IndexRequest)
+		if err != nil {
+			return m.wrapError(err)
+		}
+
+		return &login.AnyRenderer{Renderer: &login.AnyRenderer_IndexRenderer{
+			IndexRenderer: resp,
+		}}
 	default:
 		return nil
 	}

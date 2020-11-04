@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -13,14 +15,10 @@ type AddPost struct {
 	Store *store.Store
 }
 
-func (a *AddPost) Handle(viewer *api.Viewer, req *login.AddPostRequest) *login.AnyRenderer {
+func (a *AddPost) Handle(viewer *api.Viewer, req *login.AddPostRequest) (*login.AddPostRenderer, error) {
 	postID, err := a.Store.GenerateNodeID()
 	if err != nil {
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
-			ErrorRenderer: &login.ErrorRenderer{
-				DisplayText: "eer",
-			},
-		}}
+		return nil, fmt.Errorf("error generating node id: %w", err)
 	}
 
 	post := store.Post{
@@ -33,19 +31,18 @@ func (a *AddPost) Handle(viewer *api.Viewer, req *login.AddPostRequest) *login.A
 
 	err = a.Store.AddPost(&post)
 	if err != nil {
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
-			ErrorRenderer: &login.ErrorRenderer{
-				DisplayText: "eer",
-			},
-		}}
+		return nil, fmt.Errorf("error adding post: %w", err)
 	}
 
-	_ = a.Store.AddToFeed(post.ID)
+	err = a.Store.AddToFeed(post.ID)
+	if err != nil {
+		log.Printf("[ERROR] Error adding post to feed: %s", err)
+	}
 
-	return &login.AnyRenderer{Renderer: &login.AnyRenderer_AddPostRenderer{
-		AddPostRenderer: &login.AddPostRenderer{
-			Id:   strconv.Itoa(post.ID),
-			Text: post.Text,
-		},
-	}}
+	renderer := &login.AddPostRenderer{
+		Id:   strconv.Itoa(post.ID),
+		Text: post.Text,
+	}
+
+	return renderer, nil
 }

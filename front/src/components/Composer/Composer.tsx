@@ -4,14 +4,18 @@ import {Header} from "../Header/Header";
 import {PostComposer} from "./PostComposer";
 import {UnathorizedPlaceholder} from "./UnathorizedPlaceholder";
 
-export function Composer(props: schema.ComposerRenderer) {
+export interface ComposerProps {
+    data: schema.ComposerRenderer;
+}
+
+export function Composer(props: ComposerProps) {
     return (
         <div>
-            {props.headerRenderer && <Header data={props.headerRenderer}/>}
+            {props.data.headerRenderer && <Header data={props.data.headerRenderer}/>}
 
-            {props.unathorizedText ?
-                <UnathorizedPlaceholder data={props}/> :
-                <PostComposer data={props}/>
+            {props.data.unathorizedText ?
+                <UnathorizedPlaceholder data={props.data}/> :
+                <PostComposer data={props.data}/>
             }
         </div>
     );

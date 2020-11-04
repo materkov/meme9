@@ -15,14 +15,10 @@ type GetFeed struct {
 	Store *store.Store
 }
 
-func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) *login.AnyRenderer {
+func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) (*login.GetFeedRenderer, error) {
 	postIds, err := g.Store.GetFeed()
 	if err != nil {
-		return &login.AnyRenderer{Renderer: &login.AnyRenderer_ErrorRenderer{
-			ErrorRenderer: &login.ErrorRenderer{
-				DisplayText: "eer",
-			},
-		}}
+		return nil, fmt.Errorf("error getting feed: %w", err)
 	}
 
 	wg := sync.WaitGroup{}
@@ -50,10 +46,10 @@ func (g *GetFeed) Handle(viewer *api.Viewer, req *login.GetFeedRequest) *login.A
 		}
 	}
 
-	return &login.AnyRenderer{Renderer: &login.AnyRenderer_GetFeedRenderer{
-		GetFeedRenderer: &login.GetFeedRenderer{
-			Posts:          postPageRenderers,
-			HeaderRenderer: common.GetHeaderRenderer(viewer),
-		},
-	}}
+	renderer := &login.GetFeedRenderer{
+		Posts:          postPageRenderers,
+		HeaderRenderer: common.GetHeaderRenderer(viewer),
+	}
+
+	return renderer, nil
 }

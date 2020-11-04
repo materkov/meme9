@@ -11,7 +11,7 @@ type Composer struct {
 	Store *store.Store
 }
 
-func (c *Composer) Handle(viewer *api.Viewer, req *login.ComposerRequest) *login.AnyRenderer {
+func (c *Composer) Handle(viewer *api.Viewer, req *login.ComposerRequest) (*login.ComposerRenderer, error) {
 	renderer := &login.ComposerRenderer{
 		HeaderRenderer: common.GetHeaderRenderer(viewer),
 	}
@@ -22,7 +22,5 @@ func (c *Composer) Handle(viewer *api.Viewer, req *login.ComposerRequest) *login
 		renderer.WelcomeText = "текст фром бакеэнд"
 	}
 
-	return &login.AnyRenderer{Renderer: &login.AnyRenderer_ComposerRenderer{
-		ComposerRenderer: renderer,
-	}}
+	return renderer, nil
 }

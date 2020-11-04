@@ -11,12 +11,12 @@ type Index struct {
 	Store *store.Store
 }
 
-func (i *Index) Handle(viewer *api.Viewer, req *login.IndexRequest) *login.AnyRenderer {
-	return &login.AnyRenderer{Renderer: &login.AnyRenderer_IndexRenderer{
-		IndexRenderer: &login.IndexRenderer{
-			Text:           "Текст главной странцы сайтика",
-			FeedUrl:        "/feed",
-			HeaderRenderer: common.GetHeaderRenderer(viewer),
-		},
-	}}
+func (i *Index) Handle(viewer *api.Viewer, req *login.IndexRequest) (*login.IndexRenderer, error) {
+	renderer := &login.IndexRenderer{
+		Text:           "Текст главной странцы сайтика",
+		FeedUrl:        "/feed",
+		HeaderRenderer: common.GetHeaderRenderer(viewer),
+	}
+
+	return renderer, nil
 }
