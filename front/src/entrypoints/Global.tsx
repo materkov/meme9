@@ -6,7 +6,7 @@ import {Error} from "../components/Error/Error";
 if (!window.rootLoaded) {
     window.rootLoaded = true;
 
-    window.modules.ErrorRenderer = Error;
+    window.modules.Error = Error;
 
     ReactDOM.render(<Root/>, document.getElementById('root'));
 }

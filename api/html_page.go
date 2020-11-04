@@ -8,10 +8,11 @@ import (
 )
 
 type HTMLPage struct {
-	Request   *login.AnyRequest
-	Data      *login.AnyRenderer
-	JsBundles []string
-	ApiKey    string
+	Request       *login.AnyRequest
+	Data          *login.AnyRenderer
+	JsBundles     []string
+	ApiKey        string
+	RootComponent string
 }
 
 func (h *HTMLPage) render() string {
@@ -30,6 +31,7 @@ func (h *HTMLPage) render() string {
 		window.InitRequest = {{.InitRequest}};
 		window.InitData = {{.InitData}};
 		window.InitJsBundles = [{{.InitJsBundles}}];
+		window.InitRootComponent = "{{.InitRootComponent}}";
 		window.apiKey = "{{.ApiKey}}";
 
 		console.log("Init data", window.InitData);
@@ -56,6 +58,7 @@ func (h *HTMLPage) render() string {
 	page = strings.Replace(page, "{{.Scripts}}", scriptTags, 1)
 	page = strings.Replace(page, "{{.InitData}}", initDataStr, 1)
 	page = strings.Replace(page, "{{.InitRequest}}", initRequestStr, 1)
+	page = strings.Replace(page, "{{.InitRootComponent}}", h.RootComponent, 1)
 
 	return page
 }

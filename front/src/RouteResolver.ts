@@ -7,6 +7,7 @@ if (window.InitData) {
     cachedRoutes[window.location.pathname] = {
         request: window.InitRequest,
         js: window.InitJsBundles,
+        rootComponent: window.InitRootComponent,
     };
 }
 

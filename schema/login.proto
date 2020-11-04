@@ -96,6 +96,7 @@ message ResolveRouteRequest {
 message ResolveRouteResponse {
   repeated string js = 1;
   AnyRequest request = 2;
+  string root_component = 3;
 }
 
 message PostPageRequest {

@@ -6,16 +6,21 @@ import {fetchJs} from "../../JsFetcher";
 
 interface State {
     rootData: schema.AnyRenderer | undefined;
+    rootComponent: string;
 }
 
 export class Root extends React.Component<{}, State> {
     state: State = {
         rootData: undefined,
+        rootComponent: '',
     };
 
     componentDidMount() {
         if (window.InitData) {
-            this.setState({rootData: window.InitData});
+            this.setState({
+                rootData: window.InitData,
+                rootComponent: window.InitRootComponent,
+            });
         }
     }
 
@@ -39,26 +44,25 @@ export class Root extends React.Component<{}, State> {
                 fetchJs(resolvedRoute.js),
                 fetchData(resolvedRoute.request)
             ]).then(([_, renderer]) => {
-                this.setState({rootData: renderer})
+                this.setState({
+                    rootData: renderer,
+                    rootComponent: resolvedRoute.rootComponent,
+                })
                 window.history.replaceState({}, 'meme', url);
             })
         })
     }
 
     renderRoot() {
-        if (!this.state.rootData) {
+        if (!this.state.rootData || !this.state.rootComponent) {
             return '';
         }
 
-        let key = ""
-        for (key in this.state.rootData) {
-            break;
-        }
-        const componentName = key[0].toUpperCase() + key.substring(1);
-        const Component = window.modules[componentName];
+        const Component = window.modules[this.state.rootComponent];
 
+        // TODO remove Object.keys
         //@ts-ignore
-        return <Component data={this.state.rootData[key]}/>
+        return <Component data={this.state.rootData[Object.keys(this.state.rootData)[0]]}/>
     }
 
     render() {

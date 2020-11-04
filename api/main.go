@@ -36,6 +36,7 @@ func resolveRoute(url string) resolvedRoute {
 			js: []string{
 				"/static/UserPage.js",
 			},
+			rootComponent: "UserPage",
 		}
 	}
 
@@ -49,6 +50,7 @@ func resolveRoute(url string) resolvedRoute {
 			js: []string{
 				"/static/PostPage.js",
 			},
+			rootComponent: "PostPage",
 		}
 	}
 
@@ -58,6 +60,7 @@ func resolveRoute(url string) resolvedRoute {
 			js: []string{
 				"/static/LoginPage.js",
 			},
+			rootComponent: "LoginPage",
 		}
 	}
 
@@ -67,6 +70,7 @@ func resolveRoute(url string) resolvedRoute {
 			js: []string{
 				"/static/Composer.js",
 			},
+			rootComponent: "Composer",
 		}
 	}
 
@@ -76,13 +80,15 @@ func resolveRoute(url string) resolvedRoute {
 			js: []string{
 				"/static/Feed.js",
 			},
+			rootComponent: "Feed",
 		}
 	}
 
 	if match, _ := regexp.MatchString(`^/vk-callback`, url); match {
 		return resolvedRoute{
-			apiRequest: &login.AnyRequest{Request: &login.AnyRequest_VkCallbackRequest{}},
-			js:         []string{},
+			apiRequest:    &login.AnyRequest{Request: &login.AnyRequest_VkCallbackRequest{}},
+			js:            []string{},
+			rootComponent: "",
 		}
 	}
 
@@ -92,6 +98,7 @@ func resolveRoute(url string) resolvedRoute {
 			js: []string{
 				"/static/Index.js",
 			},
+			rootComponent: "Index",
 		}
 	}
 
@@ -99,8 +106,9 @@ func resolveRoute(url string) resolvedRoute {
 }
 
 type resolvedRoute struct {
-	apiRequest *login.AnyRequest
-	js         []string
+	apiRequest    *login.AnyRequest
+	js            []string
+	rootComponent string
 }
 
 type Main struct {
@@ -192,10 +200,11 @@ func (m *Main) Main() {
 		js := append(resolvedRoute.js, globalJs...)
 
 		page := HTMLPage{
-			Request:   resolvedRoute.apiRequest,
-			Data:      resp,
-			JsBundles: js,
-			ApiKey:    "access-key",
+			Request:       resolvedRoute.apiRequest,
+			Data:          resp,
+			JsBundles:     js,
+			ApiKey:        "access-key",
+			RootComponent: resolvedRoute.rootComponent,
 		}
 		_, _ = w.Write([]byte(page.render()))
 	}
@@ -222,8 +231,9 @@ func (m *Main) Main() {
 		js := append(route.js, globalJs...)
 
 		writeResponse(w, &login.ResolveRouteResponse{
-			Request: route.apiRequest,
-			Js:      js,
+			Request:       route.apiRequest,
+			Js:            js,
+			RootComponent: route.rootComponent,
 		})
 	})
 

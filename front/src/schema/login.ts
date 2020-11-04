@@ -84,6 +84,7 @@ export interface ResolveRouteRequest {
 export interface ResolveRouteResponse {
   js: string[];
   request: AnyRequest | undefined;
+  rootComponent: string;
 }
 
 export interface PostPageRequest {
@@ -208,6 +209,7 @@ const baseResolveRouteRequest: object = {
 
 const baseResolveRouteResponse: object = {
   js: "",
+  rootComponent: "",
 };
 
 const basePostPageRequest: object = {
@@ -1359,6 +1361,7 @@ export const ResolveRouteResponse = {
     if (message.request !== undefined && message.request !== undefined) {
       AnyRequest.encode(message.request, writer.uint32(18).fork()).ldelim();
     }
+    writer.uint32(26).string(message.rootComponent);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): ResolveRouteResponse {
@@ -1374,6 +1377,9 @@ export const ResolveRouteResponse = {
           break;
         case 2:
           message.request = AnyRequest.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.rootComponent = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1395,6 +1401,11 @@ export const ResolveRouteResponse = {
     } else {
       message.request = undefined;
     }
+    if (object.rootComponent !== undefined && object.rootComponent !== null) {
+      message.rootComponent = String(object.rootComponent);
+    } else {
+      message.rootComponent = "";
+    }
     return message;
   },
   fromPartial(object: DeepPartial<ResolveRouteResponse>): ResolveRouteResponse {
@@ -1410,6 +1421,11 @@ export const ResolveRouteResponse = {
     } else {
       message.request = undefined;
     }
+    if (object.rootComponent !== undefined && object.rootComponent !== null) {
+      message.rootComponent = object.rootComponent;
+    } else {
+      message.rootComponent = "";
+    }
     return message;
   },
   toJSON(message: ResolveRouteResponse): unknown {
@@ -1420,6 +1436,7 @@ export const ResolveRouteResponse = {
       obj.js = [];
     }
     message.request !== undefined && (obj.request = message.request ? AnyRequest.toJSON(message.request) : undefined);
+    message.rootComponent !== undefined && (obj.rootComponent = message.rootComponent);
     return obj;
   },
 };
