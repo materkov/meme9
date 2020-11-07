@@ -13,8 +13,7 @@ var hashKey = []byte("]G4<w}t>;EZA*erX")
 
 func GenerateCSRFToken(viewerID int) string {
 	mac := hmac.New(sha256.New, hashKey)
-	mac.Write([]byte(strconv.Itoa(viewerID)))
-	return fmt.Sprintf("%d-%x", viewerID, mac.Sum(nil))
+	return fmt.Sprintf("%d-%x", viewerID, mac.Sum([]byte(strconv.Itoa(viewerID))))
 }
 
 func ValidateCSRFToken(viewerID int, token string) bool {
