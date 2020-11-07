@@ -18,6 +18,8 @@ import (
 )
 
 func writeResponse(w http.ResponseWriter, resp proto.Message) {
+	w.Header().Set("content-type", "application/json")
+
 	m := jsonpb.Marshaler{}
 	_ = m.Marshal(w, resp)
 }
