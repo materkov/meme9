@@ -14,12 +14,11 @@ type Composer struct {
 func (c *Composer) Handle(viewer *api.Viewer, req *pb.ComposerRequest) (*pb.ComposerRenderer, error) {
 	renderer := &pb.ComposerRenderer{
 		HeaderRenderer: common.GetHeaderRenderer(viewer),
+		WelcomeText:    "текст фром бакеэнд",
 	}
 
 	if viewer.User == nil {
 		renderer.UnathorizedText = "Нужно авторизоваться чтобы написать пост"
-	} else {
-		renderer.WelcomeText = "текст фром бакеэнд"
 	}
 
 	return renderer, nil

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/materkov/meme9/api/api"
@@ -21,9 +22,20 @@ func (a *AddPost) Handle(viewer *api.Viewer, req *pb.AddPostRequest) (*pb.AddPos
 		return nil, fmt.Errorf("error generating node id: %w", err)
 	}
 
+	if viewer.User == nil {
+		return nil, api.NewError("NOT_AUTHORIZED", "User not authorized")
+	}
+
+	text := strings.TrimSpace(req.Text)
+	if text == "" {
+		return nil, api.NewError("TEXT_EMPTY", "Text is empty")
+	} else if len(text) > 1000 {
+		return nil, api.NewError("TEXT_TOO_LONG", "Text is too long")
+	}
+
 	post := store.Post{
 		ID:        postID,
-		Text:      req.Text,
+		Text:      text,
 		UserID:    viewer.User.ID,
 		Date:      int(time.Now().Unix()),
 		UserAgent: viewer.UserAgent,

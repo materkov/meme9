@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"sync"
 
@@ -28,22 +29,30 @@ func (g *GetFeed) Handle(viewer *api.Viewer, req *pb.GetFeedRequest) (*pb.GetFee
 	for i := range postIds {
 		idxCopy := i
 		go func() {
-			post, _ := g.Store.GetPost(postIds[idxCopy])
+			post, err := g.Store.GetPost(postIds[idxCopy])
+			if err != nil {
+				log.Printf("[ERROR] Error getting post for feed: %s", err)
+			}
+
 			posts[idxCopy] = post
 			wg.Done()
 		}()
 	}
 	wg.Wait()
 
-	postPageRenderers := make([]*pb.PostPageRenderer, len(posts))
+	postPageRenderers := make([]*pb.PostPageRenderer, 0)
 	for i, post := range posts {
-		postPageRenderers[i] = &pb.PostPageRenderer{
+		if posts[i] == nil {
+			continue
+		}
+
+		postPageRenderers = append(postPageRenderers, &pb.PostPageRenderer{
 			Id:      strconv.Itoa(post.ID),
 			PostUrl: fmt.Sprintf("/posts/%d", post.ID),
 			Text:    post.Text,
 			UserId:  strconv.Itoa(post.UserID),
 			UserUrl: fmt.Sprintf("/users/%d", post.UserID),
-		}
+		})
 	}
 
 	renderer := &pb.GetFeedRenderer{
