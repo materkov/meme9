@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// TODO: move to redis
 var hashKey = []byte("]G4<w}t>;EZA*erX")
 
 func GenerateCSRFToken(viewerID int) string {
