@@ -31,4 +31,3 @@ func ValidateCSRFToken(viewerID int, token string) bool {
 	validToken := GenerateCSRFToken(viewerID)
 	return validToken == token
 }
-
