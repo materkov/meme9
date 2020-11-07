@@ -37,7 +37,7 @@ func (h *HTMLPage) render() string {
 		window.InitRootComponent = "{{.InitRootComponent}}";
 		window.CSRFToken = "{{.CSRFToken}}";
 
-		console.log("Initial API:", window.InitApiMethod, window.InitApiRequest, window.InitApiResponse);
+		console.log("Initial API", {method: window.InitApiMethod, request: window.InitApiRequest, response: window.InitApiResponse});
 	</script>
 	{{.Scripts}}
 </body>
