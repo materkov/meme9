@@ -1,8 +1,15 @@
 package main
 
-import "github.com/materkov/meme9/api"
+import (
+	"math/rand"
+	"time"
+
+	"github.com/materkov/meme9/api"
+)
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	m := api.Main{}
 	m.Main()
 }

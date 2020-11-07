@@ -25,6 +25,9 @@ export class PostComposer extends React.Component<PostComposerProps, PostCompose
 
         fetch("/api/meme.API/AddPost", {
             method: 'POST',
+            headers: {
+                'x-csrf-token': window.CSRFToken,
+            },
             body: JSON.stringify(params),
         }).then(r => r.json()).then(r => {
 

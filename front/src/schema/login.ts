@@ -58,7 +58,7 @@ export interface ResolveRouteResponse {
   js: string[];
   rootComponent: string;
   apiMethod: string;
-  apiArgs: string;
+  apiRequest: string;
 }
 
 export interface PostPageRequest {
@@ -179,7 +179,7 @@ const baseResolveRouteResponse: object = {
   js: "",
   rootComponent: "",
   apiMethod: "",
-  apiArgs: "",
+  apiRequest: "",
 };
 
 const basePostPageRequest: object = {
@@ -1009,7 +1009,7 @@ export const ResolveRouteResponse = {
     }
     writer.uint32(26).string(message.rootComponent);
     writer.uint32(34).string(message.apiMethod);
-    writer.uint32(42).string(message.apiArgs);
+    writer.uint32(42).string(message.apiRequest);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): ResolveRouteResponse {
@@ -1030,7 +1030,7 @@ export const ResolveRouteResponse = {
           message.apiMethod = reader.string();
           break;
         case 5:
-          message.apiArgs = reader.string();
+          message.apiRequest = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1057,10 +1057,10 @@ export const ResolveRouteResponse = {
     } else {
       message.apiMethod = "";
     }
-    if (object.apiArgs !== undefined && object.apiArgs !== null) {
-      message.apiArgs = String(object.apiArgs);
+    if (object.apiRequest !== undefined && object.apiRequest !== null) {
+      message.apiRequest = String(object.apiRequest);
     } else {
-      message.apiArgs = "";
+      message.apiRequest = "";
     }
     return message;
   },
@@ -1082,10 +1082,10 @@ export const ResolveRouteResponse = {
     } else {
       message.apiMethod = "";
     }
-    if (object.apiArgs !== undefined && object.apiArgs !== null) {
-      message.apiArgs = object.apiArgs;
+    if (object.apiRequest !== undefined && object.apiRequest !== null) {
+      message.apiRequest = object.apiRequest;
     } else {
-      message.apiArgs = "";
+      message.apiRequest = "";
     }
     return message;
   },
@@ -1098,7 +1098,7 @@ export const ResolveRouteResponse = {
     }
     message.rootComponent !== undefined && (obj.rootComponent = message.rootComponent);
     message.apiMethod !== undefined && (obj.apiMethod = message.apiMethod);
-    message.apiArgs !== undefined && (obj.apiArgs = message.apiArgs);
+    message.apiRequest !== undefined && (obj.apiRequest = message.apiRequest);
     return obj;
   },
 };

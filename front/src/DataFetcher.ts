@@ -21,6 +21,9 @@ export function fetchData(method: string, args: string): Promise<any> {
 
         fetch('/api/' + method, {
             method: 'POST',
+            headers: {
+                'x-csrf-token': window.CSRFToken,
+            },
             body: argsText,
         }).then(r => (
             r.json()

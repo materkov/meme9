@@ -6,6 +6,7 @@ interface Window {
     InitApiResponse: any;
     InitJsBundles: string[];
     InitRootComponent: string;
+    CSRFToken: string;
     apiKey: string;
     apiCache: { [key: string]: any };
 }

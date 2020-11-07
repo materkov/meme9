@@ -241,6 +241,7 @@ func (m *Main) Main() {
 	redisClient := redis.NewClient(&redis.Options{})
 	m.store = store.NewStore(redisClient)
 	authMiddleware := &AuthMiddleware{store: m.store}
+	csrfMiddleware := &CSRFMiddleware{}
 	m.loginPage = &handlers.LoginPage{Store: m.store}
 	m.addPost = &handlers.AddPost{Store: m.store}
 	m.postPage = &handlers.PostPage{Store: m.store}
@@ -263,12 +264,18 @@ func (m *Main) Main() {
 
 		js := append(resolvedRoute.js, globalJs...)
 
+		CSRFToken := ""
+		if viewer.User != nil {
+			CSRFToken = api.GenerateCSRFToken(viewer.User.ID)
+		}
+
 		page := HTMLPage{
 			ApiMethod:     resolvedRoute.apiMethod,
 			ApiRequest:    resolvedRoute.apiArgs,
 			ApiResponse:   resp,
 			JsBundles:     js,
 			ApiKey:        "access-key",
+			CSRFToken:     CSRFToken,
 			RootComponent: resolvedRoute.rootComponent,
 		}
 		_, _ = w.Write([]byte(page.render()))
@@ -287,7 +294,7 @@ func (m *Main) Main() {
 	http.HandleFunc("/vk-callback", vkCallbackApi.Handle)
 	http.HandleFunc("/api/logout", logoutApi.ServeHTTP)
 	http.HandleFunc("/", authMiddleware.Do(mainHandler))
-	http.HandleFunc("/api/", authMiddleware.Do(apiHandler))
+	http.HandleFunc("/api/", authMiddleware.Do(csrfMiddleware.Do(apiHandler)))
 	http.HandleFunc("/resolve-route", func(w http.ResponseWriter, r *http.Request) {
 		req := pb.ResolveRouteRequest{}
 		_ = jsonpb.Unmarshal(r.Body, &req)
@@ -296,13 +303,13 @@ func (m *Main) Main() {
 		js := append(route.js, globalJs...)
 
 		m := jsonpb.Marshaler{}
-		argsStr, _ := m.MarshalToString(route.apiArgs)
+		apiRequestStr, _ := m.MarshalToString(route.apiArgs)
 
 		writeResponse(w, &pb.ResolveRouteResponse{
 			Js:            js,
 			RootComponent: route.rootComponent,
 			ApiMethod:     route.apiMethod,
-			ApiArgs:       argsStr,
+			ApiRequest:    apiRequestStr,
 		})
 	})
 

@@ -14,6 +14,7 @@ type HTMLPage struct {
 	JsBundles     []string
 	ApiKey        string
 	RootComponent string
+	CSRFToken     string
 }
 
 func (h *HTMLPage) render() string {
@@ -34,7 +35,7 @@ func (h *HTMLPage) render() string {
 		window.InitApiResponse = {{.InitApiResponse}};
 		window.InitJsBundles = [{{.InitJsBundles}}];
 		window.InitRootComponent = "{{.InitRootComponent}}";
-		window.apiKey = "{{.ApiKey}}";
+		window.CSRFToken = "{{.CSRFToken}}";
 
 		console.log("Initial API:", window.InitApiMethod, window.InitApiRequest, window.InitApiResponse);
 	</script>
@@ -62,6 +63,7 @@ func (h *HTMLPage) render() string {
 	page = strings.Replace(page, "{{.InitApiResponse}}", initApiRequestStr, 1)
 	page = strings.Replace(page, "{{.InitApiRequest}}", initApiArgsStr, 1)
 	page = strings.Replace(page, "{{.InitRootComponent}}", h.RootComponent, 1)
+	page = strings.Replace(page, "{{.CSRFToken}}", h.CSRFToken, 1)
 
 	return page
 }
