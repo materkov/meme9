@@ -2,24 +2,24 @@ import * as schema from "./schema/login";
 
 let cache: { [request: string]: any } = {};
 
-if (window.InitApiCommand) {
-    const cacheKey = window.InitApiCommand + "__" + JSON.stringify(window.InitApiArgs);
-    cache[cacheKey] = window.InitData;
+if (window.InitApiMethod) {
+    const cacheKey = window.InitApiMethod + "__" + JSON.stringify(window.InitApiRequest);
+    cache[cacheKey] = window.InitApiResponse;
 }
 
-export function fetchData(command: string, args: string): Promise<any> {
+export function fetchData(method: string, args: string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
         //const argsText = JSON.stringify(args);
         const argsText = args;
 
-        const cacheKey = command + "__" + argsText;
+        const cacheKey = method + "__" + argsText;
         const cached = cache[cacheKey];
         if (cached) {
             resolve(cached);
             return;
         }
 
-        fetch('/api2/' + command, {
+        fetch('/api/' + method, {
             method: 'POST',
             body: argsText,
         }).then(r => (

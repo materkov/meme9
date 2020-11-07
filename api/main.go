@@ -34,7 +34,7 @@ func resolveRoute(url string) resolvedRoute {
 				"/static/UserPage.js",
 			},
 			rootComponent: "UserPage",
-			apiCommand:    "meme.API/UserPage",
+			apiMethod:     "meme.API/UserPage",
 			apiArgs: &pb.UserPageRequest{
 				UserId: url[7:],
 			},
@@ -47,7 +47,7 @@ func resolveRoute(url string) resolvedRoute {
 				"/static/PostPage.js",
 			},
 			rootComponent: "PostPage",
-			apiCommand:    "meme.API/PostPage",
+			apiMethod:     "meme.API/PostPage",
 			apiArgs: &pb.PostPageRequest{
 				PostId: url[7:],
 			},
@@ -60,7 +60,7 @@ func resolveRoute(url string) resolvedRoute {
 				"/static/LoginPage.js",
 			},
 			rootComponent: "LoginPage",
-			apiCommand:    "meme.API/LoginPage",
+			apiMethod:     "meme.API/LoginPage",
 			apiArgs:       &pb.LoginPageRequest{},
 		}
 	}
@@ -71,7 +71,7 @@ func resolveRoute(url string) resolvedRoute {
 				"/static/Composer.js",
 			},
 			rootComponent: "Composer",
-			apiCommand:    "meme.API/Composer",
+			apiMethod:     "meme.API/Composer",
 			apiArgs:       &pb.ComposerRequest{},
 		}
 	}
@@ -82,7 +82,7 @@ func resolveRoute(url string) resolvedRoute {
 				"/static/Feed.js",
 			},
 			rootComponent: "Feed",
-			apiCommand:    "meme.API/GetFeed",
+			apiMethod:     "meme.API/GetFeed",
 			apiArgs:       &pb.GetFeedRequest{},
 		}
 	}
@@ -91,7 +91,7 @@ func resolveRoute(url string) resolvedRoute {
 		return resolvedRoute{
 			js:            []string{},
 			rootComponent: "",
-			apiCommand:    "meme.API/VKCallback",
+			apiMethod:     "meme.API/VKCallback",
 			apiArgs:       &pb.VKCallbackRequest{},
 		}
 	}
@@ -102,7 +102,7 @@ func resolveRoute(url string) resolvedRoute {
 				"/static/Index.js",
 			},
 			rootComponent: "Index",
-			apiCommand:    "meme.API/Index",
+			apiMethod:     "meme.API/Index",
 			apiArgs:       &pb.IndexRequest{},
 		}
 	}
@@ -113,7 +113,7 @@ func resolveRoute(url string) resolvedRoute {
 type resolvedRoute struct {
 	js            []string
 	rootComponent string
-	apiCommand    string
+	apiMethod     string
 	apiArgs       proto.Message
 }
 
@@ -146,8 +146,8 @@ func (m *Main) wrapError(err error) *pb.ErrorRenderer {
 	return errorRenderer
 }
 
-func (m *Main) apiRequestV2(viewer *api.Viewer, command string, args string) proto.Message {
-	switch command {
+func (m *Main) apiRequestV2(viewer *api.Viewer, method string, args string) proto.Message {
+	switch method {
 	case "meme.API/UserPage":
 		req := &pb.UserPageRequest{}
 		if err := jsonpb.UnmarshalString(args, req); err != nil {
@@ -259,14 +259,14 @@ func (m *Main) Main() {
 		encoder := jsonpb.Marshaler{}
 		argsStr, _ := encoder.MarshalToString(resolvedRoute.apiArgs)
 
-		resp := m.apiRequestV2(viewer, resolvedRoute.apiCommand, argsStr)
+		resp := m.apiRequestV2(viewer, resolvedRoute.apiMethod, argsStr)
 
 		js := append(resolvedRoute.js, globalJs...)
 
 		page := HTMLPage{
-			ApiCommand:    resolvedRoute.apiCommand,
-			ApiArgs:       resolvedRoute.apiArgs,
-			Data:          resp,
+			ApiMethod:     resolvedRoute.apiMethod,
+			ApiRequest:    resolvedRoute.apiArgs,
+			ApiResponse:   resp,
 			JsBundles:     js,
 			ApiKey:        "access-key",
 			RootComponent: resolvedRoute.rootComponent,
@@ -274,20 +274,20 @@ func (m *Main) Main() {
 		_, _ = w.Write([]byte(page.render()))
 	}
 
-	api2Handler := func(w http.ResponseWriter, r *http.Request) {
+	apiHandler := func(w http.ResponseWriter, r *http.Request) {
 		viewer, _ := r.Context().Value(viewerCtxKey).(*api.Viewer)
 		body, _ := ioutil.ReadAll(r.Body)
 
-		command := strings.TrimPrefix(r.URL.Path, "/api2/")
+		method := strings.TrimPrefix(r.URL.Path, "/api/")
 
-		resp := m.apiRequestV2(viewer, command, string(body))
+		resp := m.apiRequestV2(viewer, method, string(body))
 		writeResponse(w, resp)
 	}
 
 	http.HandleFunc("/vk-callback", vkCallbackApi.Handle)
 	http.HandleFunc("/api/logout", logoutApi.ServeHTTP)
 	http.HandleFunc("/", authMiddleware.Do(mainHandler))
-	http.HandleFunc("/api2/", authMiddleware.Do(api2Handler))
+	http.HandleFunc("/api/", authMiddleware.Do(apiHandler))
 	http.HandleFunc("/resolve-route", func(w http.ResponseWriter, r *http.Request) {
 		req := pb.ResolveRouteRequest{}
 		_ = jsonpb.Unmarshal(r.Body, &req)
@@ -301,7 +301,7 @@ func (m *Main) Main() {
 		writeResponse(w, &pb.ResolveRouteResponse{
 			Js:            js,
 			RootComponent: route.rootComponent,
-			ApiCommand:    route.apiCommand,
+			ApiMethod:     route.apiMethod,
 			ApiArgs:       argsStr,
 		})
 	})

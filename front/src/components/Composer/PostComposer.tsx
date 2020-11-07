@@ -23,7 +23,7 @@ export class PostComposer extends React.Component<PostComposerProps, PostCompose
             text: this.state.text,
         };
 
-        fetch("/api2/meme.API/AddPost", {
+        fetch("/api/meme.API/AddPost", {
             method: 'POST',
             body: JSON.stringify(params),
         }).then(r => r.json()).then(r => {

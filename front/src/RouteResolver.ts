@@ -3,10 +3,10 @@ import * as schema from "./schema/login";
 let cachedRoutes: { [url: string]: schema.ResolveRouteResponse } = {};
 let waiting: { [url: string]: ((r: schema.ResolveRouteResponse) => void)[] } = {};
 
-if (window.InitData) {
+if (window.InitApiResponse) {
     cachedRoutes[window.location.pathname] = {
-        apiCommand: window.InitApiCommand,
-        apiArgs: JSON.stringify(window.InitApiArgs),
+        apiMethod: window.InitApiMethod,
+        apiArgs: JSON.stringify(window.InitApiRequest),
         js: window.InitJsBundles,
         rootComponent: window.InitRootComponent,
     };

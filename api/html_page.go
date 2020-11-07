@@ -8,9 +8,9 @@ import (
 )
 
 type HTMLPage struct {
-	ApiCommand    string
-	ApiArgs       proto.Message
-	Data          proto.Message
+	ApiMethod     string
+	ApiRequest    proto.Message
+	ApiResponse   proto.Message
 	JsBundles     []string
 	ApiKey        string
 	RootComponent string
@@ -29,14 +29,14 @@ func (h *HTMLPage) render() string {
 	<div id="root"></div>
 	<script>
 		window.modules = {};
-		window.InitApiCommand = "{{.InitApiCommand}}";
-		window.InitApiArgs = {{.InitApiArgs}};
-		window.InitData = {{.InitData}};
+		window.InitApiMethod = "{{.InitApiMethod}}";
+		window.InitApiRequest = {{.InitApiRequest}};
+		window.InitApiResponse = {{.InitApiResponse}};
 		window.InitJsBundles = [{{.InitJsBundles}}];
 		window.InitRootComponent = "{{.InitRootComponent}}";
 		window.apiKey = "{{.ApiKey}}";
 
-		console.log("Init data", window.InitData);
+		console.log("Initial API:", window.InitApiMethod, window.InitApiRequest, window.InitApiResponse);
 	</script>
 	{{.Scripts}}
 </body>
@@ -52,15 +52,15 @@ func (h *HTMLPage) render() string {
 	}
 
 	m := jsonpb.Marshaler{}
-	initDataStr, _ := m.MarshalToString(h.Data)
-	initApiArgsStr, _ := m.MarshalToString(h.ApiArgs)
+	initApiRequestStr, _ := m.MarshalToString(h.ApiResponse)
+	initApiArgsStr, _ := m.MarshalToString(h.ApiRequest)
 
 	page = strings.Replace(page, "{{.InitJsBundles}}", jsBundles, 1)
 	page = strings.Replace(page, "{{.ApiKey}}", h.ApiKey, 1)
 	page = strings.Replace(page, "{{.Scripts}}", scriptTags, 1)
-	page = strings.Replace(page, "{{.InitData}}", initDataStr, 1)
-	page = strings.Replace(page, "{{.InitApiCommand}}", h.ApiCommand, 1)
-	page = strings.Replace(page, "{{.InitApiArgs}}", initApiArgsStr, 1)
+	page = strings.Replace(page, "{{.InitApiMethod}}", h.ApiMethod, 1)
+	page = strings.Replace(page, "{{.InitApiResponse}}", initApiRequestStr, 1)
+	page = strings.Replace(page, "{{.InitApiRequest}}", initApiArgsStr, 1)
 	page = strings.Replace(page, "{{.InitRootComponent}}", h.RootComponent, 1)
 
 	return page

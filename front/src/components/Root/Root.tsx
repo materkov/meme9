@@ -15,9 +15,9 @@ export class Root extends React.Component<{}, State> {
     };
 
     componentDidMount() {
-        if (window.InitData) {
+        if (window.InitApiResponse) {
             this.setState({
-                rootData: window.InitData,
+                rootData: window.InitApiResponse,
                 rootComponent: window.InitRootComponent,
             });
         }
@@ -37,7 +37,7 @@ export class Root extends React.Component<{}, State> {
         resolveRoute(url).then((resolvedRoute) => {
             Promise.all([
                 fetchJs(resolvedRoute.js || []),
-                fetchData(resolvedRoute.apiCommand, resolvedRoute.apiArgs)
+                fetchData(resolvedRoute.apiMethod, resolvedRoute.apiArgs)
             ]).then(([_, renderer]) => {
                 this.setState({
                     rootData: renderer,

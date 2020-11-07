@@ -56,11 +56,8 @@ export interface ResolveRouteRequest {
 
 export interface ResolveRouteResponse {
   js: string[];
-  /**
-   * AnyRequest request = 2;
-   */
   rootComponent: string;
-  apiCommand: string;
+  apiMethod: string;
   apiArgs: string;
 }
 
@@ -181,7 +178,7 @@ const baseResolveRouteRequest: object = {
 const baseResolveRouteResponse: object = {
   js: "",
   rootComponent: "",
-  apiCommand: "",
+  apiMethod: "",
   apiArgs: "",
 };
 
@@ -1011,7 +1008,7 @@ export const ResolveRouteResponse = {
       writer.uint32(10).string(v!);
     }
     writer.uint32(26).string(message.rootComponent);
-    writer.uint32(34).string(message.apiCommand);
+    writer.uint32(34).string(message.apiMethod);
     writer.uint32(42).string(message.apiArgs);
     return writer;
   },
@@ -1030,7 +1027,7 @@ export const ResolveRouteResponse = {
           message.rootComponent = reader.string();
           break;
         case 4:
-          message.apiCommand = reader.string();
+          message.apiMethod = reader.string();
           break;
         case 5:
           message.apiArgs = reader.string();
@@ -1055,10 +1052,10 @@ export const ResolveRouteResponse = {
     } else {
       message.rootComponent = "";
     }
-    if (object.apiCommand !== undefined && object.apiCommand !== null) {
-      message.apiCommand = String(object.apiCommand);
+    if (object.apiMethod !== undefined && object.apiMethod !== null) {
+      message.apiMethod = String(object.apiMethod);
     } else {
-      message.apiCommand = "";
+      message.apiMethod = "";
     }
     if (object.apiArgs !== undefined && object.apiArgs !== null) {
       message.apiArgs = String(object.apiArgs);
@@ -1080,10 +1077,10 @@ export const ResolveRouteResponse = {
     } else {
       message.rootComponent = "";
     }
-    if (object.apiCommand !== undefined && object.apiCommand !== null) {
-      message.apiCommand = object.apiCommand;
+    if (object.apiMethod !== undefined && object.apiMethod !== null) {
+      message.apiMethod = object.apiMethod;
     } else {
-      message.apiCommand = "";
+      message.apiMethod = "";
     }
     if (object.apiArgs !== undefined && object.apiArgs !== null) {
       message.apiArgs = object.apiArgs;
@@ -1100,7 +1097,7 @@ export const ResolveRouteResponse = {
       obj.js = [];
     }
     message.rootComponent !== undefined && (obj.rootComponent = message.rootComponent);
-    message.apiCommand !== undefined && (obj.apiCommand = message.apiCommand);
+    message.apiMethod !== undefined && (obj.apiMethod = message.apiMethod);
     message.apiArgs !== undefined && (obj.apiArgs = message.apiArgs);
     return obj;
   },

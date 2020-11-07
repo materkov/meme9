@@ -85,7 +85,7 @@ message ResolveRouteResponse {
 
   repeated string js = 1;
   string root_component = 3;
-  string api_command = 4;
+  string api_method = 4;
   string api_args = 5;
 }
 
