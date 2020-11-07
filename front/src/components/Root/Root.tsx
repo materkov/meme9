@@ -1,11 +1,10 @@
 import React from "react";
-import * as schema from "../../schema/login";
 import {resolveRoute} from "../../RouteResolver";
 import {fetchData} from "../../DataFetcher";
 import {fetchJs} from "../../JsFetcher";
 
 interface State {
-    rootData: schema.AnyRenderer | undefined;
+    rootData: any;
     rootComponent: string;
 }
 
@@ -36,13 +35,9 @@ export class Root extends React.Component<{}, State> {
         const url = e.target.href;
 
         resolveRoute(url).then((resolvedRoute) => {
-            if (!resolvedRoute.request) {
-                return
-            }
-
             Promise.all([
                 fetchJs(resolvedRoute.js || []),
-                fetchData(resolvedRoute.request)
+                fetchData(resolvedRoute.apiCommand, resolvedRoute.apiArgs)
             ]).then(([_, renderer]) => {
                 this.setState({
                     rootData: renderer,

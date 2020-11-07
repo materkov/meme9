@@ -1,28 +1,31 @@
 import * as schema from "./schema/login";
 
-let cache: { [request: string]: schema.AnyRenderer } = {};
+let cache: { [request: string]: any } = {};
 
-if (window.InitData) {
-    cache[JSON.stringify(window.InitRequest)] = window.InitData;
+if (window.InitApiCommand) {
+    const cacheKey = window.InitApiCommand + "__" + JSON.stringify(window.InitApiArgs);
+    cache[cacheKey] = window.InitData;
 }
 
-export function fetchData(request: schema.AnyRequest): Promise<schema.AnyRenderer> {
-    return new Promise<schema.AnyRenderer>((resolve, reject) => {
-        const requestText = JSON.stringify(request);
+export function fetchData(command: string, args: string): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+        //const argsText = JSON.stringify(args);
+        const argsText = args;
 
-        const cached = cache[requestText];
+        const cacheKey = command + "__" + argsText;
+        const cached = cache[cacheKey];
         if (cached) {
             resolve(cached);
             return;
         }
 
-        fetch('/api', {
+        fetch('/api2/' + command, {
             method: 'POST',
-            body: requestText,
+            body: argsText,
         }).then(r => (
             r.json()
         )).then(r => {
-            cache[requestText] = r;
+            cache[cacheKey] = r;
             resolve(r);
         }).catch(() => {
             reject();

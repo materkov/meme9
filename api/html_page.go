@@ -5,11 +5,11 @@ import (
 
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
-	"github.com/materkov/meme9/api/pb"
 )
 
 type HTMLPage struct {
-	Request       *pb.AnyRequest
+	ApiCommand    string
+	ApiArgs       proto.Message
 	Data          proto.Message
 	JsBundles     []string
 	ApiKey        string
@@ -29,7 +29,8 @@ func (h *HTMLPage) render() string {
 	<div id="root"></div>
 	<script>
 		window.modules = {};
-		window.InitRequest = {{.InitRequest}};
+		window.InitApiCommand = "{{.InitApiCommand}}";
+		window.InitApiArgs = {{.InitApiArgs}};
 		window.InitData = {{.InitData}};
 		window.InitJsBundles = [{{.InitJsBundles}}];
 		window.InitRootComponent = "{{.InitRootComponent}}";
@@ -52,13 +53,14 @@ func (h *HTMLPage) render() string {
 
 	m := jsonpb.Marshaler{}
 	initDataStr, _ := m.MarshalToString(h.Data)
-	initRequestStr, _ := m.MarshalToString(h.Request)
+	initApiArgsStr, _ := m.MarshalToString(h.ApiArgs)
 
 	page = strings.Replace(page, "{{.InitJsBundles}}", jsBundles, 1)
 	page = strings.Replace(page, "{{.ApiKey}}", h.ApiKey, 1)
 	page = strings.Replace(page, "{{.Scripts}}", scriptTags, 1)
 	page = strings.Replace(page, "{{.InitData}}", initDataStr, 1)
-	page = strings.Replace(page, "{{.InitRequest}}", initRequestStr, 1)
+	page = strings.Replace(page, "{{.InitApiCommand}}", h.ApiCommand, 1)
+	page = strings.Replace(page, "{{.InitApiArgs}}", initApiArgsStr, 1)
 	page = strings.Replace(page, "{{.InitRootComponent}}", h.RootComponent, 1)
 
 	return page

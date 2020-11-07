@@ -5,7 +5,8 @@ let waiting: { [url: string]: ((r: schema.ResolveRouteResponse) => void)[] } = {
 
 if (window.InitData) {
     cachedRoutes[window.location.pathname] = {
-        request: window.InitRequest,
+        apiCommand: window.InitApiCommand,
+        apiArgs: JSON.stringify(window.InitApiArgs),
         js: window.InitJsBundles,
         rootComponent: window.InitRootComponent,
     };

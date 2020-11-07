@@ -1,6 +1,6 @@
 import React from 'react';
 import * as schema from '../../schema/login';
-import {AnyRenderer} from '../../schema/login';
+import {LoginRenderer, LogoutRenderer} from '../../schema/login';
 import {Header} from "../Header/Header";
 import {Link} from "../Link/Link";
 
@@ -11,8 +11,8 @@ export interface LoginPageProps {
 interface LoginPageState {
     login: string;
     password: string;
-    response?: schema.AnyRenderer;
-    logoutResponse?: schema.AnyRenderer;
+    response?: schema.LoginRenderer;
+    logoutResponse?: schema.LogoutRenderer;
 }
 
 export class LoginPage extends React.Component<LoginPageProps, LoginPageState> {
@@ -39,7 +39,7 @@ export class LoginPage extends React.Component<LoginPageProps, LoginPageState> {
 
         fetch("/api/login", {
             method: 'POST', body: JSON.stringify(params)
-        }).then(r => r.json()).then((r: AnyRenderer) => {
+        }).then(r => r.json()).then((r: LoginRenderer) => {
             this.setState({response: r});
         })
     };
@@ -48,7 +48,7 @@ export class LoginPage extends React.Component<LoginPageProps, LoginPageState> {
         const params: schema.LogoutRequest = {};
         fetch("/api/logout", {
             method: 'POST', body: JSON.stringify(params),
-        }).then(r => r.json()).then((r: AnyRenderer) => {
+        }).then(r => r.json()).then((r: LogoutRenderer) => {
             this.setState({logoutResponse: r});
         });
     }
@@ -78,15 +78,7 @@ export class LoginPage extends React.Component<LoginPageProps, LoginPageState> {
                     this.renderForm()
                 }
 
-                {this.state.response?.errorRenderer &&
-                <Error data={this.state.response.errorRenderer}/>
-                }
-
-                {this.state.response?.loginRenderer &&
-                <Success data={this.state.response.loginRenderer}/>
-                }
-
-                {this.state.logoutResponse?.logoutRenderer &&
+                {this.state.logoutResponse &&
                 <LogoutSuccess/>
                 }
             </div>

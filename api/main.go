@@ -2,9 +2,11 @@ package api
 
 import (
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/go-redis/redis"
 	"github.com/gogo/protobuf/jsonpb"
@@ -28,77 +30,80 @@ var globalJs = []string{
 func resolveRoute(url string) resolvedRoute {
 	if match, _ := regexp.MatchString(`^/users/([0-9]+)`, url); match {
 		return resolvedRoute{
-			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_UserPageRequest{
-				UserPageRequest: &pb.UserPageRequest{
-					UserId: url[7:],
-				},
-			}},
 			js: []string{
 				"/static/UserPage.js",
 			},
 			rootComponent: "UserPage",
+			apiCommand:    "meme.API/UserPage",
+			apiArgs: &pb.UserPageRequest{
+				UserId: url[7:],
+			},
 		}
 	}
 
 	if match, _ := regexp.MatchString(`^/posts/([0-9]+)`, url); match {
 		return resolvedRoute{
-			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_PostPageRequest{
-				PostPageRequest: &pb.PostPageRequest{
-					PostId: url[7:],
-				},
-			}},
 			js: []string{
 				"/static/PostPage.js",
 			},
 			rootComponent: "PostPage",
+			apiCommand:    "meme.API/PostPage",
+			apiArgs: &pb.PostPageRequest{
+				PostId: url[7:],
+			},
 		}
 	}
 
 	if match, _ := regexp.MatchString(`^/login`, url); match {
 		return resolvedRoute{
-			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_LoginPageRequest{}},
 			js: []string{
 				"/static/LoginPage.js",
 			},
 			rootComponent: "LoginPage",
+			apiCommand:    "meme.API/LoginPage",
+			apiArgs:       &pb.LoginPageRequest{},
 		}
 	}
 
 	if match, _ := regexp.MatchString(`^/composer`, url); match {
 		return resolvedRoute{
-			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_ComposerRequest{}},
 			js: []string{
 				"/static/Composer.js",
 			},
 			rootComponent: "Composer",
+			apiCommand:    "meme.API/Composer",
+			apiArgs:       &pb.ComposerRequest{},
 		}
 	}
 
 	if match, _ := regexp.MatchString(`^/feed`, url); match {
 		return resolvedRoute{
-			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_GetFeedRequest{}},
 			js: []string{
 				"/static/Feed.js",
 			},
 			rootComponent: "Feed",
+			apiCommand:    "meme.API/GetFeed",
+			apiArgs:       &pb.GetFeedRequest{},
 		}
 	}
 
 	if match, _ := regexp.MatchString(`^/vk-callback`, url); match {
 		return resolvedRoute{
-			apiRequest:    &pb.AnyRequest{Request: &pb.AnyRequest_VkCallbackRequest{}},
 			js:            []string{},
 			rootComponent: "",
+			apiCommand:    "meme.API/VKCallback",
+			apiArgs:       &pb.VKCallbackRequest{},
 		}
 	}
 
 	if match, _ := regexp.MatchString(`^/$`, url); match {
 		return resolvedRoute{
-			apiRequest: &pb.AnyRequest{Request: &pb.AnyRequest_IndexRequest{}},
 			js: []string{
 				"/static/Index.js",
 			},
 			rootComponent: "Index",
+			apiCommand:    "meme.API/Index",
+			apiArgs:       &pb.IndexRequest{},
 		}
 	}
 
@@ -106,9 +111,10 @@ func resolveRoute(url string) resolvedRoute {
 }
 
 type resolvedRoute struct {
-	apiRequest    *pb.AnyRequest
 	js            []string
 	rootComponent string
+	apiCommand    string
+	apiArgs       proto.Message
 }
 
 type Main struct {
@@ -123,8 +129,8 @@ type Main struct {
 	userPage  *handlers.UserPage
 }
 
-func (m *Main) wrapError(err error) *pb.AnyRenderer {
-	errorRenderer := pb.ErrorRenderer{}
+func (m *Main) wrapError(err error) *pb.ErrorRenderer {
+	errorRenderer := &pb.ErrorRenderer{}
 
 	var apiErr *api.Error
 	if errors.As(err, &apiErr) {
@@ -137,57 +143,90 @@ func (m *Main) wrapError(err error) *pb.AnyRenderer {
 		errorRenderer.DisplayText = "Internal error"
 	}
 
-	return &pb.AnyRenderer{Renderer: &pb.AnyRenderer_ErrorRenderer{
-		ErrorRenderer: &errorRenderer,
-	}}
+	return errorRenderer
 }
 
-func (m *Main) apiRequest(viewer *api.Viewer, req *pb.AnyRequest) proto.Message {
-	switch req := req.GetRequest().(type) {
-	case *pb.AnyRequest_UserPageRequest:
-		resp, err := m.userPage.Handle(viewer, req.UserPageRequest)
+func (m *Main) apiRequestV2(viewer *api.Viewer, command string, args string) proto.Message {
+	switch command {
+	case "meme.API/UserPage":
+		req := &pb.UserPageRequest{}
+		if err := jsonpb.UnmarshalString(args, req); err != nil {
+			return m.wrapError(api.NewError("INVALID_REQUEST", "Failed parsing request"))
+		}
+
+		resp, err := m.userPage.Handle(viewer, req)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
 		return resp
-	case *pb.AnyRequest_PostPageRequest:
-		resp, err := m.postPage.Handle(viewer, req.PostPageRequest)
+	case "meme.API/PostPage":
+		req := &pb.PostPageRequest{}
+		if err := jsonpb.UnmarshalString(args, req); err != nil {
+			return m.wrapError(api.NewError("INVALID_REQUEST", "Failed parsing request"))
+		}
+
+		resp, err := m.postPage.Handle(viewer, req)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
 		return resp
-	case *pb.AnyRequest_LoginPageRequest:
-		resp, err := m.loginPage.Handle(viewer, req.LoginPageRequest)
+	case "meme.API/LoginPage":
+		req := &pb.LoginPageRequest{}
+		if err := jsonpb.UnmarshalString(args, req); err != nil {
+			return m.wrapError(api.NewError("INVALID_REQUEST", "Failed parsing request"))
+		}
+
+		resp, err := m.loginPage.Handle(viewer, req)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
 		return resp
-	case *pb.AnyRequest_AddPostRequest:
-		resp, err := m.addPost.Handle(viewer, req.AddPostRequest)
+	case "meme.API/AddPost":
+		req := &pb.AddPostRequest{}
+		if err := jsonpb.UnmarshalString(args, req); err != nil {
+			return m.wrapError(api.NewError("INVALID_REQUEST", "Failed parsing request"))
+		}
+
+		resp, err := m.addPost.Handle(viewer, req)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
 		return resp
-	case *pb.AnyRequest_GetFeedRequest:
-		resp, err := m.getFeed.Handle(viewer, req.GetFeedRequest)
+	case "meme.API/GetFeed":
+		req := &pb.GetFeedRequest{}
+		if err := jsonpb.UnmarshalString(args, req); err != nil {
+			return m.wrapError(api.NewError("INVALID_REQUEST", "Failed parsing request"))
+		}
+
+		resp, err := m.getFeed.Handle(viewer, req)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
 		return resp
-	case *pb.AnyRequest_ComposerRequest:
-		resp, err := m.composer.Handle(viewer, req.ComposerRequest)
+	case "meme.API/Composer":
+		req := &pb.ComposerRequest{}
+		if err := jsonpb.UnmarshalString(args, req); err != nil {
+			return m.wrapError(api.NewError("INVALID_REQUEST", "Failed parsing request"))
+		}
+
+		resp, err := m.composer.Handle(viewer, req)
 		if err != nil {
 			return m.wrapError(err)
 		}
 
 		return resp
-	case *pb.AnyRequest_IndexRequest:
-		resp, err := m.index.Handle(viewer, req.IndexRequest)
+	case "meme.API/Index":
+		req := &pb.IndexRequest{}
+		if err := jsonpb.UnmarshalString(args, req); err != nil {
+			return m.wrapError(api.NewError("INVALID_REQUEST", "Failed parsing request"))
+		}
+
+		resp, err := m.index.Handle(viewer, req)
 		if err != nil {
 			return m.wrapError(err)
 		}
@@ -216,12 +255,17 @@ func (m *Main) Main() {
 		resolvedRoute := resolveRoute(r.URL.Path)
 		viewer, _ := r.Context().Value(viewerCtxKey).(*api.Viewer)
 
-		resp := m.apiRequest(viewer, resolvedRoute.apiRequest)
+		// TODO think about this
+		encoder := jsonpb.Marshaler{}
+		argsStr, _ := encoder.MarshalToString(resolvedRoute.apiArgs)
+
+		resp := m.apiRequestV2(viewer, resolvedRoute.apiCommand, argsStr)
 
 		js := append(resolvedRoute.js, globalJs...)
 
 		page := HTMLPage{
-			Request:       resolvedRoute.apiRequest,
+			ApiCommand:    resolvedRoute.apiCommand,
+			ApiArgs:       resolvedRoute.apiArgs,
 			Data:          resp,
 			JsBundles:     js,
 			ApiKey:        "access-key",
@@ -230,20 +274,20 @@ func (m *Main) Main() {
 		_, _ = w.Write([]byte(page.render()))
 	}
 
-	apiHandler := func(w http.ResponseWriter, r *http.Request) {
+	api2Handler := func(w http.ResponseWriter, r *http.Request) {
 		viewer, _ := r.Context().Value(viewerCtxKey).(*api.Viewer)
+		body, _ := ioutil.ReadAll(r.Body)
 
-		req := &pb.AnyRequest{}
-		_ = jsonpb.Unmarshal(r.Body, req)
+		command := strings.TrimPrefix(r.URL.Path, "/api2/")
 
-		resp := m.apiRequest(viewer, req)
+		resp := m.apiRequestV2(viewer, command, string(body))
 		writeResponse(w, resp)
 	}
 
 	http.HandleFunc("/vk-callback", vkCallbackApi.Handle)
 	http.HandleFunc("/api/logout", logoutApi.ServeHTTP)
 	http.HandleFunc("/", authMiddleware.Do(mainHandler))
-	http.HandleFunc("/api", authMiddleware.Do(apiHandler))
+	http.HandleFunc("/api2/", authMiddleware.Do(api2Handler))
 	http.HandleFunc("/resolve-route", func(w http.ResponseWriter, r *http.Request) {
 		req := pb.ResolveRouteRequest{}
 		_ = jsonpb.Unmarshal(r.Body, &req)
@@ -251,10 +295,14 @@ func (m *Main) Main() {
 		route := resolveRoute(req.Url)
 		js := append(route.js, globalJs...)
 
+		m := jsonpb.Marshaler{}
+		argsStr, _ := m.MarshalToString(route.apiArgs)
+
 		writeResponse(w, &pb.ResolveRouteResponse{
-			Request:       route.apiRequest,
 			Js:            js,
 			RootComponent: route.rootComponent,
+			ApiCommand:    route.apiCommand,
+			ApiArgs:       argsStr,
 		})
 	})
 

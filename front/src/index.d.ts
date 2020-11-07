@@ -1,7 +1,8 @@
 interface Window {
     modules: { [renderer: string]: object };
     rootLoaded: boolean;
-    InitRequest: any;
+    InitApiCommand: string;
+    InitApiArgs: any;
     InitData: any;
     InitJsBundles: string[];
     InitRootComponent: string;

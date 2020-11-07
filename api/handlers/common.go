@@ -15,9 +15,7 @@ func writeResponse(w http.ResponseWriter, resp proto.Message) {
 }
 
 func writeError(w http.ResponseWriter, err *pb.ErrorRenderer) {
-	writeResponse(w, &pb.AnyRenderer{Renderer: &pb.AnyRenderer_ErrorRenderer{
-		ErrorRenderer: err,
-	}})
+	writeResponse(w, err)
 }
 
 func writeInternalError(w http.ResponseWriter, err error) {

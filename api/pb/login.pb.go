@@ -22,397 +22,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type AnyRenderer struct {
-	// Types that are valid to be assigned to Renderer:
-	//	*AnyRenderer_LoginPageRenderer
-	//	*AnyRenderer_PostPageRenderer
-	//	*AnyRenderer_UserPageRenderer
-	//	*AnyRenderer_ErrorRenderer
-	//	*AnyRenderer_LoginRenderer
-	//	*AnyRenderer_AddPostRenderer
-	//	*AnyRenderer_GetFeedRenderer
-	//	*AnyRenderer_ComposerRenderer
-	//	*AnyRenderer_IndexRenderer
-	//	*AnyRenderer_LogoutRenderer
-	//	*AnyRenderer_VkCallbackRenderer
-	Renderer isAnyRenderer_Renderer `protobuf_oneof:"renderer"`
-}
-
-func (m *AnyRenderer) Reset()         { *m = AnyRenderer{} }
-func (m *AnyRenderer) String() string { return proto.CompactTextString(m) }
-func (*AnyRenderer) ProtoMessage()    {}
-func (*AnyRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{0}
-}
-func (m *AnyRenderer) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *AnyRenderer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_AnyRenderer.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *AnyRenderer) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AnyRenderer.Merge(m, src)
-}
-func (m *AnyRenderer) XXX_Size() int {
-	return m.Size()
-}
-func (m *AnyRenderer) XXX_DiscardUnknown() {
-	xxx_messageInfo_AnyRenderer.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AnyRenderer proto.InternalMessageInfo
-
-type isAnyRenderer_Renderer interface {
-	isAnyRenderer_Renderer()
-	MarshalTo([]byte) (int, error)
-	Size() int
-}
-
-type AnyRenderer_LoginPageRenderer struct {
-	LoginPageRenderer *LoginPageRenderer `protobuf:"bytes,1,opt,name=login_page_renderer,json=loginPageRenderer,proto3,oneof" json:"login_page_renderer,omitempty"`
-}
-type AnyRenderer_PostPageRenderer struct {
-	PostPageRenderer *PostPageRenderer `protobuf:"bytes,2,opt,name=post_page_renderer,json=postPageRenderer,proto3,oneof" json:"post_page_renderer,omitempty"`
-}
-type AnyRenderer_UserPageRenderer struct {
-	UserPageRenderer *UserPageRenderer `protobuf:"bytes,3,opt,name=user_page_renderer,json=userPageRenderer,proto3,oneof" json:"user_page_renderer,omitempty"`
-}
-type AnyRenderer_ErrorRenderer struct {
-	ErrorRenderer *ErrorRenderer `protobuf:"bytes,4,opt,name=error_renderer,json=errorRenderer,proto3,oneof" json:"error_renderer,omitempty"`
-}
-type AnyRenderer_LoginRenderer struct {
-	LoginRenderer *LoginRenderer `protobuf:"bytes,5,opt,name=login_renderer,json=loginRenderer,proto3,oneof" json:"login_renderer,omitempty"`
-}
-type AnyRenderer_AddPostRenderer struct {
-	AddPostRenderer *AddPostRenderer `protobuf:"bytes,6,opt,name=add_post_renderer,json=addPostRenderer,proto3,oneof" json:"add_post_renderer,omitempty"`
-}
-type AnyRenderer_GetFeedRenderer struct {
-	GetFeedRenderer *GetFeedRenderer `protobuf:"bytes,7,opt,name=get_feed_renderer,json=getFeedRenderer,proto3,oneof" json:"get_feed_renderer,omitempty"`
-}
-type AnyRenderer_ComposerRenderer struct {
-	ComposerRenderer *ComposerRenderer `protobuf:"bytes,8,opt,name=composer_renderer,json=composerRenderer,proto3,oneof" json:"composer_renderer,omitempty"`
-}
-type AnyRenderer_IndexRenderer struct {
-	IndexRenderer *IndexRenderer `protobuf:"bytes,9,opt,name=index_renderer,json=indexRenderer,proto3,oneof" json:"index_renderer,omitempty"`
-}
-type AnyRenderer_LogoutRenderer struct {
-	LogoutRenderer *LogoutRenderer `protobuf:"bytes,10,opt,name=logout_renderer,json=logoutRenderer,proto3,oneof" json:"logout_renderer,omitempty"`
-}
-type AnyRenderer_VkCallbackRenderer struct {
-	VkCallbackRenderer *VKCallbackRenderer `protobuf:"bytes,11,opt,name=vk_callback_renderer,json=vkCallbackRenderer,proto3,oneof" json:"vk_callback_renderer,omitempty"`
-}
-
-func (*AnyRenderer_LoginPageRenderer) isAnyRenderer_Renderer()  {}
-func (*AnyRenderer_PostPageRenderer) isAnyRenderer_Renderer()   {}
-func (*AnyRenderer_UserPageRenderer) isAnyRenderer_Renderer()   {}
-func (*AnyRenderer_ErrorRenderer) isAnyRenderer_Renderer()      {}
-func (*AnyRenderer_LoginRenderer) isAnyRenderer_Renderer()      {}
-func (*AnyRenderer_AddPostRenderer) isAnyRenderer_Renderer()    {}
-func (*AnyRenderer_GetFeedRenderer) isAnyRenderer_Renderer()    {}
-func (*AnyRenderer_ComposerRenderer) isAnyRenderer_Renderer()   {}
-func (*AnyRenderer_IndexRenderer) isAnyRenderer_Renderer()      {}
-func (*AnyRenderer_LogoutRenderer) isAnyRenderer_Renderer()     {}
-func (*AnyRenderer_VkCallbackRenderer) isAnyRenderer_Renderer() {}
-
-func (m *AnyRenderer) GetRenderer() isAnyRenderer_Renderer {
-	if m != nil {
-		return m.Renderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetLoginPageRenderer() *LoginPageRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_LoginPageRenderer); ok {
-		return x.LoginPageRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetPostPageRenderer() *PostPageRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_PostPageRenderer); ok {
-		return x.PostPageRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetUserPageRenderer() *UserPageRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_UserPageRenderer); ok {
-		return x.UserPageRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetErrorRenderer() *ErrorRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_ErrorRenderer); ok {
-		return x.ErrorRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetLoginRenderer() *LoginRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_LoginRenderer); ok {
-		return x.LoginRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetAddPostRenderer() *AddPostRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_AddPostRenderer); ok {
-		return x.AddPostRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetGetFeedRenderer() *GetFeedRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_GetFeedRenderer); ok {
-		return x.GetFeedRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetComposerRenderer() *ComposerRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_ComposerRenderer); ok {
-		return x.ComposerRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetIndexRenderer() *IndexRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_IndexRenderer); ok {
-		return x.IndexRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetLogoutRenderer() *LogoutRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_LogoutRenderer); ok {
-		return x.LogoutRenderer
-	}
-	return nil
-}
-
-func (m *AnyRenderer) GetVkCallbackRenderer() *VKCallbackRenderer {
-	if x, ok := m.GetRenderer().(*AnyRenderer_VkCallbackRenderer); ok {
-		return x.VkCallbackRenderer
-	}
-	return nil
-}
-
-// XXX_OneofWrappers is for the internal use of the proto package.
-func (*AnyRenderer) XXX_OneofWrappers() []interface{} {
-	return []interface{}{
-		(*AnyRenderer_LoginPageRenderer)(nil),
-		(*AnyRenderer_PostPageRenderer)(nil),
-		(*AnyRenderer_UserPageRenderer)(nil),
-		(*AnyRenderer_ErrorRenderer)(nil),
-		(*AnyRenderer_LoginRenderer)(nil),
-		(*AnyRenderer_AddPostRenderer)(nil),
-		(*AnyRenderer_GetFeedRenderer)(nil),
-		(*AnyRenderer_ComposerRenderer)(nil),
-		(*AnyRenderer_IndexRenderer)(nil),
-		(*AnyRenderer_LogoutRenderer)(nil),
-		(*AnyRenderer_VkCallbackRenderer)(nil),
-	}
-}
-
-type AnyRequest struct {
-	// Types that are valid to be assigned to Request:
-	//	*AnyRequest_LoginPageRequest
-	//	*AnyRequest_PostPageRequest
-	//	*AnyRequest_UserPageRequest
-	//	*AnyRequest_LoginRequest
-	//	*AnyRequest_AddPostRequest
-	//	*AnyRequest_GetFeedRequest
-	//	*AnyRequest_ComposerRequest
-	//	*AnyRequest_IndexRequest
-	//	*AnyRequest_LogoutRequest
-	//	*AnyRequest_VkCallbackRequest
-	Request isAnyRequest_Request `protobuf_oneof:"request"`
-}
-
-func (m *AnyRequest) Reset()         { *m = AnyRequest{} }
-func (m *AnyRequest) String() string { return proto.CompactTextString(m) }
-func (*AnyRequest) ProtoMessage()    {}
-func (*AnyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{1}
-}
-func (m *AnyRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *AnyRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_AnyRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *AnyRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AnyRequest.Merge(m, src)
-}
-func (m *AnyRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *AnyRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AnyRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AnyRequest proto.InternalMessageInfo
-
-type isAnyRequest_Request interface {
-	isAnyRequest_Request()
-	MarshalTo([]byte) (int, error)
-	Size() int
-}
-
-type AnyRequest_LoginPageRequest struct {
-	LoginPageRequest *LoginPageRequest `protobuf:"bytes,1,opt,name=login_page_request,json=loginPageRequest,proto3,oneof" json:"login_page_request,omitempty"`
-}
-type AnyRequest_PostPageRequest struct {
-	PostPageRequest *PostPageRequest `protobuf:"bytes,2,opt,name=post_page_request,json=postPageRequest,proto3,oneof" json:"post_page_request,omitempty"`
-}
-type AnyRequest_UserPageRequest struct {
-	UserPageRequest *UserPageRequest `protobuf:"bytes,3,opt,name=user_page_request,json=userPageRequest,proto3,oneof" json:"user_page_request,omitempty"`
-}
-type AnyRequest_LoginRequest struct {
-	LoginRequest *LoginRequest `protobuf:"bytes,4,opt,name=login_request,json=loginRequest,proto3,oneof" json:"login_request,omitempty"`
-}
-type AnyRequest_AddPostRequest struct {
-	AddPostRequest *AddPostRequest `protobuf:"bytes,5,opt,name=add_post_request,json=addPostRequest,proto3,oneof" json:"add_post_request,omitempty"`
-}
-type AnyRequest_GetFeedRequest struct {
-	GetFeedRequest *GetFeedRequest `protobuf:"bytes,6,opt,name=get_feed_request,json=getFeedRequest,proto3,oneof" json:"get_feed_request,omitempty"`
-}
-type AnyRequest_ComposerRequest struct {
-	ComposerRequest *ComposerRequest `protobuf:"bytes,7,opt,name=composer_request,json=composerRequest,proto3,oneof" json:"composer_request,omitempty"`
-}
-type AnyRequest_IndexRequest struct {
-	IndexRequest *IndexRequest `protobuf:"bytes,8,opt,name=index_request,json=indexRequest,proto3,oneof" json:"index_request,omitempty"`
-}
-type AnyRequest_LogoutRequest struct {
-	LogoutRequest *LogoutRequest `protobuf:"bytes,9,opt,name=logout_request,json=logoutRequest,proto3,oneof" json:"logout_request,omitempty"`
-}
-type AnyRequest_VkCallbackRequest struct {
-	VkCallbackRequest *VKCallbackRequest `protobuf:"bytes,10,opt,name=vk_callback_request,json=vkCallbackRequest,proto3,oneof" json:"vk_callback_request,omitempty"`
-}
-
-func (*AnyRequest_LoginPageRequest) isAnyRequest_Request()  {}
-func (*AnyRequest_PostPageRequest) isAnyRequest_Request()   {}
-func (*AnyRequest_UserPageRequest) isAnyRequest_Request()   {}
-func (*AnyRequest_LoginRequest) isAnyRequest_Request()      {}
-func (*AnyRequest_AddPostRequest) isAnyRequest_Request()    {}
-func (*AnyRequest_GetFeedRequest) isAnyRequest_Request()    {}
-func (*AnyRequest_ComposerRequest) isAnyRequest_Request()   {}
-func (*AnyRequest_IndexRequest) isAnyRequest_Request()      {}
-func (*AnyRequest_LogoutRequest) isAnyRequest_Request()     {}
-func (*AnyRequest_VkCallbackRequest) isAnyRequest_Request() {}
-
-func (m *AnyRequest) GetRequest() isAnyRequest_Request {
-	if m != nil {
-		return m.Request
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetLoginPageRequest() *LoginPageRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_LoginPageRequest); ok {
-		return x.LoginPageRequest
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetPostPageRequest() *PostPageRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_PostPageRequest); ok {
-		return x.PostPageRequest
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetUserPageRequest() *UserPageRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_UserPageRequest); ok {
-		return x.UserPageRequest
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetLoginRequest() *LoginRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_LoginRequest); ok {
-		return x.LoginRequest
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetAddPostRequest() *AddPostRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_AddPostRequest); ok {
-		return x.AddPostRequest
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetGetFeedRequest() *GetFeedRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_GetFeedRequest); ok {
-		return x.GetFeedRequest
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetComposerRequest() *ComposerRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_ComposerRequest); ok {
-		return x.ComposerRequest
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetIndexRequest() *IndexRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_IndexRequest); ok {
-		return x.IndexRequest
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetLogoutRequest() *LogoutRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_LogoutRequest); ok {
-		return x.LogoutRequest
-	}
-	return nil
-}
-
-func (m *AnyRequest) GetVkCallbackRequest() *VKCallbackRequest {
-	if x, ok := m.GetRequest().(*AnyRequest_VkCallbackRequest); ok {
-		return x.VkCallbackRequest
-	}
-	return nil
-}
-
-// XXX_OneofWrappers is for the internal use of the proto package.
-func (*AnyRequest) XXX_OneofWrappers() []interface{} {
-	return []interface{}{
-		(*AnyRequest_LoginPageRequest)(nil),
-		(*AnyRequest_PostPageRequest)(nil),
-		(*AnyRequest_UserPageRequest)(nil),
-		(*AnyRequest_LoginRequest)(nil),
-		(*AnyRequest_AddPostRequest)(nil),
-		(*AnyRequest_GetFeedRequest)(nil),
-		(*AnyRequest_ComposerRequest)(nil),
-		(*AnyRequest_IndexRequest)(nil),
-		(*AnyRequest_LogoutRequest)(nil),
-		(*AnyRequest_VkCallbackRequest)(nil),
-	}
-}
-
 type ErrorRenderer struct {
 	ErrorCode   string `protobuf:"bytes,1,opt,name=error_code,json=errorCode,proto3" json:"error_code,omitempty"`
 	DisplayText string `protobuf:"bytes,2,opt,name=display_text,json=displayText,proto3" json:"display_text,omitempty"`
@@ -422,7 +31,7 @@ func (m *ErrorRenderer) Reset()         { *m = ErrorRenderer{} }
 func (m *ErrorRenderer) String() string { return proto.CompactTextString(m) }
 func (*ErrorRenderer) ProtoMessage()    {}
 func (*ErrorRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{2}
+	return fileDescriptor_67c21677aa7f4e4f, []int{0}
 }
 func (m *ErrorRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -474,7 +83,7 @@ func (m *LoginRequest) Reset()         { *m = LoginRequest{} }
 func (m *LoginRequest) String() string { return proto.CompactTextString(m) }
 func (*LoginRequest) ProtoMessage()    {}
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{3}
+	return fileDescriptor_67c21677aa7f4e4f, []int{1}
 }
 func (m *LoginRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -525,7 +134,7 @@ func (m *LoginRenderer) Reset()         { *m = LoginRenderer{} }
 func (m *LoginRenderer) String() string { return proto.CompactTextString(m) }
 func (*LoginRenderer) ProtoMessage()    {}
 func (*LoginRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{4}
+	return fileDescriptor_67c21677aa7f4e4f, []int{2}
 }
 func (m *LoginRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -568,7 +177,7 @@ func (m *LogoutRequest) Reset()         { *m = LogoutRequest{} }
 func (m *LogoutRequest) String() string { return proto.CompactTextString(m) }
 func (*LogoutRequest) ProtoMessage()    {}
 func (*LogoutRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{5}
+	return fileDescriptor_67c21677aa7f4e4f, []int{3}
 }
 func (m *LogoutRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -604,7 +213,7 @@ func (m *LogoutRenderer) Reset()         { *m = LogoutRenderer{} }
 func (m *LogoutRenderer) String() string { return proto.CompactTextString(m) }
 func (*LogoutRenderer) ProtoMessage()    {}
 func (*LogoutRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{6}
+	return fileDescriptor_67c21677aa7f4e4f, []int{4}
 }
 func (m *LogoutRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -640,7 +249,7 @@ func (m *LoginPageRequest) Reset()         { *m = LoginPageRequest{} }
 func (m *LoginPageRequest) String() string { return proto.CompactTextString(m) }
 func (*LoginPageRequest) ProtoMessage()    {}
 func (*LoginPageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{7}
+	return fileDescriptor_67c21677aa7f4e4f, []int{5}
 }
 func (m *LoginPageRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -680,7 +289,7 @@ func (m *LoginPageRenderer) Reset()         { *m = LoginPageRenderer{} }
 func (m *LoginPageRenderer) String() string { return proto.CompactTextString(m) }
 func (*LoginPageRenderer) ProtoMessage()    {}
 func (*LoginPageRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{8}
+	return fileDescriptor_67c21677aa7f4e4f, []int{6}
 }
 func (m *LoginPageRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -751,7 +360,7 @@ func (m *PostPageRenderer) Reset()         { *m = PostPageRenderer{} }
 func (m *PostPageRenderer) String() string { return proto.CompactTextString(m) }
 func (*PostPageRenderer) ProtoMessage()    {}
 func (*PostPageRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{9}
+	return fileDescriptor_67c21677aa7f4e4f, []int{7}
 }
 func (m *PostPageRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -841,7 +450,7 @@ func (m *UserPageRenderer) Reset()         { *m = UserPageRenderer{} }
 func (m *UserPageRenderer) String() string { return proto.CompactTextString(m) }
 func (*UserPageRenderer) ProtoMessage()    {}
 func (*UserPageRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{10}
+	return fileDescriptor_67c21677aa7f4e4f, []int{8}
 }
 func (m *UserPageRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -913,7 +522,7 @@ func (m *ResolveRouteRequest) Reset()         { *m = ResolveRouteRequest{} }
 func (m *ResolveRouteRequest) String() string { return proto.CompactTextString(m) }
 func (*ResolveRouteRequest) ProtoMessage()    {}
 func (*ResolveRouteRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{11}
+	return fileDescriptor_67c21677aa7f4e4f, []int{9}
 }
 func (m *ResolveRouteRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -950,16 +559,18 @@ func (m *ResolveRouteRequest) GetUrl() string {
 }
 
 type ResolveRouteResponse struct {
-	Js            []string    `protobuf:"bytes,1,rep,name=js,proto3" json:"js,omitempty"`
-	Request       *AnyRequest `protobuf:"bytes,2,opt,name=request,proto3" json:"request,omitempty"`
-	RootComponent string      `protobuf:"bytes,3,opt,name=root_component,json=rootComponent,proto3" json:"root_component,omitempty"`
+	Js []string `protobuf:"bytes,1,rep,name=js,proto3" json:"js,omitempty"`
+	//AnyRequest request = 2;
+	RootComponent string `protobuf:"bytes,3,opt,name=root_component,json=rootComponent,proto3" json:"root_component,omitempty"`
+	ApiCommand    string `protobuf:"bytes,4,opt,name=api_command,json=apiCommand,proto3" json:"api_command,omitempty"`
+	ApiArgs       string `protobuf:"bytes,5,opt,name=api_args,json=apiArgs,proto3" json:"api_args,omitempty"`
 }
 
 func (m *ResolveRouteResponse) Reset()         { *m = ResolveRouteResponse{} }
 func (m *ResolveRouteResponse) String() string { return proto.CompactTextString(m) }
 func (*ResolveRouteResponse) ProtoMessage()    {}
 func (*ResolveRouteResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{12}
+	return fileDescriptor_67c21677aa7f4e4f, []int{10}
 }
 func (m *ResolveRouteResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -995,16 +606,23 @@ func (m *ResolveRouteResponse) GetJs() []string {
 	return nil
 }
 
-func (m *ResolveRouteResponse) GetRequest() *AnyRequest {
-	if m != nil {
-		return m.Request
-	}
-	return nil
-}
-
 func (m *ResolveRouteResponse) GetRootComponent() string {
 	if m != nil {
 		return m.RootComponent
+	}
+	return ""
+}
+
+func (m *ResolveRouteResponse) GetApiCommand() string {
+	if m != nil {
+		return m.ApiCommand
+	}
+	return ""
+}
+
+func (m *ResolveRouteResponse) GetApiArgs() string {
+	if m != nil {
+		return m.ApiArgs
 	}
 	return ""
 }
@@ -1017,7 +635,7 @@ func (m *PostPageRequest) Reset()         { *m = PostPageRequest{} }
 func (m *PostPageRequest) String() string { return proto.CompactTextString(m) }
 func (*PostPageRequest) ProtoMessage()    {}
 func (*PostPageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{13}
+	return fileDescriptor_67c21677aa7f4e4f, []int{11}
 }
 func (m *PostPageRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1061,7 +679,7 @@ func (m *UserPageRequest) Reset()         { *m = UserPageRequest{} }
 func (m *UserPageRequest) String() string { return proto.CompactTextString(m) }
 func (*UserPageRequest) ProtoMessage()    {}
 func (*UserPageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{14}
+	return fileDescriptor_67c21677aa7f4e4f, []int{12}
 }
 func (m *UserPageRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1105,7 +723,7 @@ func (m *Error) Reset()         { *m = Error{} }
 func (m *Error) String() string { return proto.CompactTextString(m) }
 func (*Error) ProtoMessage()    {}
 func (*Error) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{15}
+	return fileDescriptor_67c21677aa7f4e4f, []int{13}
 }
 func (m *Error) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1149,7 +767,7 @@ func (m *AddPostRequest) Reset()         { *m = AddPostRequest{} }
 func (m *AddPostRequest) String() string { return proto.CompactTextString(m) }
 func (*AddPostRequest) ProtoMessage()    {}
 func (*AddPostRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{16}
+	return fileDescriptor_67c21677aa7f4e4f, []int{14}
 }
 func (m *AddPostRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1194,7 +812,7 @@ func (m *AddPostRenderer) Reset()         { *m = AddPostRenderer{} }
 func (m *AddPostRenderer) String() string { return proto.CompactTextString(m) }
 func (*AddPostRenderer) ProtoMessage()    {}
 func (*AddPostRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{17}
+	return fileDescriptor_67c21677aa7f4e4f, []int{15}
 }
 func (m *AddPostRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1244,7 +862,7 @@ func (m *GetFeedRequest) Reset()         { *m = GetFeedRequest{} }
 func (m *GetFeedRequest) String() string { return proto.CompactTextString(m) }
 func (*GetFeedRequest) ProtoMessage()    {}
 func (*GetFeedRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{18}
+	return fileDescriptor_67c21677aa7f4e4f, []int{16}
 }
 func (m *GetFeedRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1282,7 +900,7 @@ func (m *GetFeedRenderer) Reset()         { *m = GetFeedRenderer{} }
 func (m *GetFeedRenderer) String() string { return proto.CompactTextString(m) }
 func (*GetFeedRenderer) ProtoMessage()    {}
 func (*GetFeedRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{19}
+	return fileDescriptor_67c21677aa7f4e4f, []int{17}
 }
 func (m *GetFeedRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1332,7 +950,7 @@ func (m *ComposerRequest) Reset()         { *m = ComposerRequest{} }
 func (m *ComposerRequest) String() string { return proto.CompactTextString(m) }
 func (*ComposerRequest) ProtoMessage()    {}
 func (*ComposerRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{20}
+	return fileDescriptor_67c21677aa7f4e4f, []int{18}
 }
 func (m *ComposerRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1371,7 +989,7 @@ func (m *ComposerRenderer) Reset()         { *m = ComposerRenderer{} }
 func (m *ComposerRenderer) String() string { return proto.CompactTextString(m) }
 func (*ComposerRenderer) ProtoMessage()    {}
 func (*ComposerRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{21}
+	return fileDescriptor_67c21677aa7f4e4f, []int{19}
 }
 func (m *ComposerRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1428,7 +1046,7 @@ func (m *IndexRequest) Reset()         { *m = IndexRequest{} }
 func (m *IndexRequest) String() string { return proto.CompactTextString(m) }
 func (*IndexRequest) ProtoMessage()    {}
 func (*IndexRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{22}
+	return fileDescriptor_67c21677aa7f4e4f, []int{20}
 }
 func (m *IndexRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1467,7 +1085,7 @@ func (m *IndexRenderer) Reset()         { *m = IndexRenderer{} }
 func (m *IndexRenderer) String() string { return proto.CompactTextString(m) }
 func (*IndexRenderer) ProtoMessage()    {}
 func (*IndexRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{23}
+	return fileDescriptor_67c21677aa7f4e4f, []int{21}
 }
 func (m *IndexRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1527,7 +1145,7 @@ func (m *HeaderRenderer) Reset()         { *m = HeaderRenderer{} }
 func (m *HeaderRenderer) String() string { return proto.CompactTextString(m) }
 func (*HeaderRenderer) ProtoMessage()    {}
 func (*HeaderRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{24}
+	return fileDescriptor_67c21677aa7f4e4f, []int{22}
 }
 func (m *HeaderRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1586,7 +1204,7 @@ func (m *HeaderRenderer_Link) Reset()         { *m = HeaderRenderer_Link{} }
 func (m *HeaderRenderer_Link) String() string { return proto.CompactTextString(m) }
 func (*HeaderRenderer_Link) ProtoMessage()    {}
 func (*HeaderRenderer_Link) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{24, 0}
+	return fileDescriptor_67c21677aa7f4e4f, []int{22, 0}
 }
 func (m *HeaderRenderer_Link) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1637,7 +1255,7 @@ func (m *VKCallbackRequest) Reset()         { *m = VKCallbackRequest{} }
 func (m *VKCallbackRequest) String() string { return proto.CompactTextString(m) }
 func (*VKCallbackRequest) ProtoMessage()    {}
 func (*VKCallbackRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{25}
+	return fileDescriptor_67c21677aa7f4e4f, []int{23}
 }
 func (m *VKCallbackRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1681,7 +1299,7 @@ func (m *VKCallbackRenderer) Reset()         { *m = VKCallbackRenderer{} }
 func (m *VKCallbackRenderer) String() string { return proto.CompactTextString(m) }
 func (*VKCallbackRenderer) ProtoMessage()    {}
 func (*VKCallbackRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_67c21677aa7f4e4f, []int{26}
+	return fileDescriptor_67c21677aa7f4e4f, []int{24}
 }
 func (m *VKCallbackRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1718,8 +1336,6 @@ func (m *VKCallbackRenderer) GetHeaderRenderer() *HeaderRenderer {
 }
 
 func init() {
-	proto.RegisterType((*AnyRenderer)(nil), "meme.AnyRenderer")
-	proto.RegisterType((*AnyRequest)(nil), "meme.AnyRequest")
 	proto.RegisterType((*ErrorRenderer)(nil), "meme.ErrorRenderer")
 	proto.RegisterType((*LoginRequest)(nil), "meme.LoginRequest")
 	proto.RegisterType((*LoginRenderer)(nil), "meme.LoginRenderer")
@@ -1751,598 +1367,71 @@ func init() {
 func init() { proto.RegisterFile("login.proto", fileDescriptor_67c21677aa7f4e4f) }
 
 var fileDescriptor_67c21677aa7f4e4f = []byte{
-	// 1331 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x58, 0x5d, 0x6f, 0xdb, 0x54,
-	0x18, 0xae, 0xf3, 0xd5, 0xe4, 0x4d, 0x93, 0x38, 0x6f, 0xbb, 0xae, 0x58, 0x10, 0x75, 0xd6, 0x10,
-	0x63, 0x9a, 0x0a, 0xda, 0x04, 0xd2, 0xa4, 0x21, 0xfa, 0xa1, 0x8d, 0x15, 0xaa, 0xa9, 0x18, 0xca,
-	0x05, 0x37, 0x91, 0x1b, 0x1f, 0xd2, 0x2c, 0x8e, 0x1d, 0x6c, 0x27, 0x6b, 0x11, 0xe2, 0x27, 0x20,
-	0xfe, 0x01, 0x3f, 0x80, 0x1b, 0xfe, 0x00, 0x42, 0xdc, 0x71, 0xb9, 0x4b, 0x2e, 0x51, 0x7b, 0xc1,
-	0xdf, 0x40, 0xef, 0x39, 0xfe, 0x38, 0xc7, 0x71, 0xa4, 0x55, 0xbd, 0xcb, 0x79, 0x7c, 0xde, 0xa7,
-	0x3e, 0x8f, 0x9f, 0xf7, 0xe3, 0x14, 0x9a, 0xae, 0x3f, 0x1c, 0x79, 0x3b, 0xd3, 0xc0, 0x8f, 0x7c,
-	0xac, 0x4c, 0xd8, 0x84, 0x99, 0x3f, 0xd7, 0xa0, 0xb9, 0xe7, 0x5d, 0x58, 0xcc, 0x73, 0x58, 0xc0,
-	0x02, 0x3c, 0x84, 0x75, 0xbe, 0xa9, 0x3f, 0xb5, 0x87, 0xac, 0x1f, 0xc4, 0xf0, 0x96, 0xb6, 0xad,
-	0xdd, 0x6b, 0x3e, 0xbc, 0xbd, 0x43, 0x31, 0x3b, 0x47, 0xb4, 0xe1, 0xd8, 0x1e, 0xb2, 0x24, 0xea,
-	0xf9, 0x8a, 0xd5, 0x75, 0xf3, 0x20, 0x3e, 0x03, 0x9c, 0xfa, 0x61, 0x94, 0x63, 0x2a, 0x71, 0xa6,
-	0x4d, 0xc1, 0x74, 0xec, 0x87, 0x51, 0x8e, 0x48, 0x9f, 0xe6, 0x30, 0xe2, 0x99, 0x85, 0x2c, 0xc8,
-	0xf1, 0x94, 0x65, 0x9e, 0x93, 0x90, 0x05, 0x79, 0x9e, 0x59, 0x0e, 0xc3, 0x27, 0xd0, 0x66, 0x41,
-	0xe0, 0x07, 0x19, 0x47, 0x85, 0x73, 0xac, 0x0b, 0x8e, 0xa7, 0xf4, 0x4c, 0x22, 0x68, 0x31, 0x19,
-	0xa0, 0x68, 0x21, 0x4c, 0x1a, 0x5d, 0x95, 0xa3, 0xb9, 0x26, 0x72, 0xb4, 0x2b, 0x03, 0x78, 0x00,
-	0x5d, 0xdb, 0x71, 0xfa, 0x5c, 0x8f, 0x94, 0xa0, 0xc6, 0x09, 0x6e, 0x09, 0x82, 0x3d, 0xc7, 0x21,
-	0x35, 0x24, 0x8a, 0x8e, 0xad, 0x42, 0x44, 0x32, 0x64, 0x51, 0xff, 0x3b, 0xc6, 0x9c, 0x8c, 0x64,
-	0x55, 0x26, 0xf9, 0x8c, 0x45, 0xcf, 0x18, 0x73, 0x64, 0x92, 0xa1, 0x0a, 0xe1, 0x53, 0xe8, 0x0e,
-	0xfc, 0xc9, 0xd4, 0x27, 0x45, 0x53, 0x92, 0xba, 0x2c, 0xe6, 0x41, 0xfc, 0x58, 0x16, 0x73, 0x90,
-	0xc3, 0x48, 0x8e, 0x91, 0xe7, 0xb0, 0xf3, 0x8c, 0xa3, 0x21, 0xcb, 0x71, 0x48, 0xcf, 0x64, 0x39,
-	0x46, 0x32, 0x80, 0x9f, 0x42, 0xc7, 0xf5, 0x87, 0xfe, 0x4c, 0x12, 0x03, 0x78, 0xf8, 0x46, 0xaa,
-	0xa6, 0x3f, 0x93, 0xb5, 0x68, 0xbb, 0x0a, 0x82, 0x47, 0xb0, 0x31, 0x1f, 0xf7, 0x07, 0xb6, 0xeb,
-	0x9e, 0xda, 0x83, 0x71, 0xc6, 0xd2, 0xe4, 0x2c, 0x5b, 0x82, 0xe5, 0x9b, 0x2f, 0x0e, 0xe2, 0x0d,
-	0x12, 0x13, 0xce, 0xc7, 0x79, 0x74, 0x1f, 0xa0, 0x9e, 0x30, 0x98, 0xbf, 0x57, 0x01, 0x78, 0x42,
-	0x7c, 0x3f, 0x63, 0x61, 0x44, 0xe6, 0x53, 0xf2, 0x81, 0xa3, 0x71, 0x3a, 0x6c, 0x2e, 0xa4, 0x03,
-	0x7f, 0x4a, 0x7a, 0xb9, 0x39, 0x8c, 0xbe, 0x9d, 0x9c, 0x0c, 0x82, 0xa6, 0x24, 0x7f, 0xbb, 0x2c,
-	0x17, 0x12, 0x96, 0xce, 0x54, 0x85, 0x88, 0x44, 0xce, 0x04, 0x41, 0x52, 0x96, 0x49, 0xb2, 0x44,
-	0x48, 0x49, 0x66, 0x2a, 0x84, 0x8f, 0xa1, 0x95, 0x18, 0x59, 0x10, 0x88, 0x2c, 0x40, 0xc5, 0xc7,
-	0x49, 0xf4, 0x9a, 0x2b, 0xad, 0x71, 0x17, 0x74, 0xc9, 0xc5, 0x22, 0xba, 0x2a, 0x7f, 0xb7, 0xd4,
-	0xc4, 0x49, 0x7c, 0xdb, 0x56, 0x10, 0x62, 0x90, 0x2c, 0x2c, 0x18, 0x6a, 0x32, 0x43, 0xea, 0xe0,
-	0x94, 0x61, 0xa8, 0x20, 0xb8, 0x0f, 0xba, 0xe4, 0x5f, 0xc1, 0xa0, 0xe4, 0x40, 0x66, 0xdf, 0x54,
-	0x82, 0x81, 0x0a, 0x91, 0x04, 0x89, 0x79, 0x05, 0x41, 0x5d, 0x96, 0x20, 0xf6, 0x6e, 0x2a, 0xc1,
-	0x48, 0x5a, 0xc7, 0x65, 0x40, 0x38, 0x57, 0xc4, 0x36, 0x72, 0x65, 0x80, 0xdb, 0x34, 0x09, 0x6e,
-	0xb9, 0x32, 0x40, 0xd5, 0x55, 0xb5, 0xad, 0xa0, 0x00, 0xb9, 0xba, 0xca, 0xae, 0x4d, 0x68, 0xba,
-	0xb2, 0x69, 0x39, 0xb8, 0xdf, 0x80, 0xd5, 0x38, 0xdc, 0xfc, 0x12, 0x5a, 0x4a, 0xf1, 0xc2, 0x77,
-	0x00, 0x44, 0xa5, 0x1b, 0xf8, 0x0e, 0xe3, 0x66, 0x6d, 0x58, 0x0d, 0x8e, 0x1c, 0xf8, 0x0e, 0xc3,
-	0x3b, 0xb0, 0xe6, 0x8c, 0xc2, 0xa9, 0x6b, 0x5f, 0xf4, 0x23, 0x76, 0x2e, 0x6c, 0xd8, 0xb0, 0x9a,
-	0x31, 0xf6, 0x35, 0x3b, 0x8f, 0xcc, 0x5d, 0x58, 0x93, 0x9d, 0x80, 0x1b, 0x50, 0xe5, 0x4e, 0x88,
-	0xc9, 0xc4, 0x02, 0x0d, 0xa8, 0x4f, 0xed, 0x30, 0x7c, 0xe5, 0x07, 0x4e, 0x4c, 0x92, 0xae, 0xcd,
-	0x17, 0xd0, 0x52, 0x6a, 0x22, 0x7e, 0x02, 0x9d, 0x33, 0x66, 0x3b, 0x72, 0xd9, 0xd1, 0xe4, 0x2f,
-	0xff, 0x9c, 0x3f, 0x4c, 0xb6, 0x5b, 0xed, 0x33, 0x65, 0x6d, 0x76, 0x38, 0x5f, 0xa6, 0xa5, 0xa9,
-	0x43, 0x5b, 0x2d, 0x13, 0x26, 0x82, 0x9e, 0xcf, 0x45, 0xf3, 0x37, 0x0d, 0xba, 0x0b, 0xfd, 0x8a,
-	0x04, 0x0a, 0x67, 0xa7, 0x93, 0x51, 0xd4, 0x9f, 0x05, 0x6e, 0x22, 0x90, 0x40, 0x4e, 0x02, 0x97,
-	0x04, 0x7a, 0xc5, 0xdc, 0x81, 0x3f, 0x61, 0x8a, 0x40, 0x31, 0x46, 0x02, 0xe1, 0x2d, 0xa8, 0xcd,
-	0xc7, 0x3c, 0xba, 0x22, 0x14, 0x99, 0x8f, 0x29, 0xb2, 0xe0, 0x90, 0xe5, 0x6b, 0x1c, 0xf2, 0x3f,
-	0x0d, 0xf4, 0x7c, 0x4f, 0xc4, 0x36, 0x94, 0x46, 0x4e, 0xfc, 0x92, 0xa5, 0x91, 0x83, 0x08, 0x15,
-	0xe9, 0xad, 0xf8, 0x6f, 0xdc, 0x84, 0x1a, 0xe5, 0xf9, 0xa1, 0xc3, 0xff, 0x5c, 0xc3, 0x8a, 0x57,
-	0xb8, 0x05, 0xab, 0xf4, 0xeb, 0x24, 0x70, 0x79, 0x9a, 0x35, 0xac, 0x64, 0x89, 0x77, 0xa1, 0x35,
-	0x98, 0x05, 0x01, 0xf3, 0xa2, 0x13, 0x11, 0x28, 0xce, 0xa1, 0x82, 0x14, 0x4f, 0xd9, 0x4e, 0xf1,
-	0xab, 0x22, 0x3e, 0x5e, 0x16, 0x9d, 0xb4, 0x7a, 0x8d, 0x93, 0xfe, 0xa1, 0x81, 0x9e, 0xef, 0xda,
-	0x0b, 0x27, 0xed, 0x01, 0xb8, 0x76, 0x18, 0x91, 0x22, 0x87, 0x89, 0xc3, 0x24, 0x04, 0xb7, 0xa1,
-	0x99, 0xac, 0xb2, 0x13, 0xca, 0x10, 0x69, 0xe5, 0xd9, 0x13, 0x16, 0x1f, 0x8e, 0xff, 0xbe, 0xe1,
-	0x9b, 0x7f, 0x5e, 0xa9, 0x97, 0xf5, 0x8a, 0xf9, 0x1e, 0xac, 0x5b, 0x2c, 0xf4, 0xdd, 0x39, 0xb3,
-	0xfc, 0x59, 0x94, 0x16, 0x57, 0x1d, 0xca, 0x99, 0xa3, 0xe8, 0xa7, 0x79, 0x01, 0x1b, 0xea, 0xc6,
-	0x70, 0xea, 0x7b, 0x21, 0xa3, 0xb3, 0xbe, 0x0c, 0xb7, 0xb4, 0xed, 0x32, 0x9d, 0xf5, 0x65, 0x88,
-	0xf7, 0xd3, 0x7c, 0x8e, 0xdb, 0x82, 0x1e, 0x97, 0xd4, 0xb4, 0x17, 0x59, 0xc9, 0x06, 0x7c, 0x17,
-	0xda, 0x81, 0xef, 0x47, 0x7d, 0x5e, 0xd7, 0x3c, 0xe6, 0x45, 0xf1, 0x57, 0x6f, 0x11, 0x7a, 0x90,
-	0x80, 0xe6, 0x7d, 0xe8, 0xe4, 0x9a, 0x0a, 0xde, 0x16, 0xdf, 0xb3, 0x9f, 0xca, 0x5c, 0x9b, 0x72,
-	0x29, 0x69, 0x6f, 0xae, 0x77, 0xd0, 0x5e, 0xde, 0x6d, 0xb2, 0xbd, 0xc2, 0x54, 0xe6, 0x1d, 0xa8,
-	0xf2, 0x7a, 0x43, 0xee, 0x98, 0xb0, 0x30, 0xb4, 0x87, 0x49, 0x91, 0x49, 0x96, 0xe6, 0x5d, 0x68,
-	0xab, 0xbd, 0x20, 0x75, 0xad, 0x96, 0xb9, 0xd6, 0xfc, 0x08, 0x3a, 0xb9, 0xb1, 0xe7, 0x4d, 0xcc,
-	0x4e, 0x99, 0xaf, 0xb6, 0x09, 0xf3, 0x27, 0xe8, 0xe4, 0x46, 0x1f, 0x7c, 0x00, 0x55, 0x3a, 0x9a,
-	0x90, 0x78, 0xe9, 0xc0, 0x69, 0x89, 0x4d, 0x45, 0x9e, 0x28, 0x5d, 0xc3, 0xcd, 0x5d, 0xe8, 0xe4,
-	0xda, 0x8e, 0xf9, 0xab, 0x06, 0x7a, 0x7e, 0x92, 0x5a, 0x28, 0x2c, 0xda, 0x62, 0x61, 0xb9, 0xd9,
-	0x9b, 0xe0, 0xfb, 0xa0, 0xcf, 0x3c, 0x3b, 0x3a, 0xf3, 0x83, 0xd1, 0x0f, 0xcc, 0x11, 0x7f, 0x45,
-	0x98, 0xa3, 0x23, 0xe1, 0xbc, 0xc6, 0xb7, 0x61, 0x4d, 0x6e, 0x75, 0xe6, 0x8f, 0xd0, 0x52, 0xc6,
-	0xb6, 0xa2, 0x4f, 0x46, 0x9f, 0x9c, 0x9a, 0x37, 0xa5, 0x9b, 0xa0, 0x4d, 0x96, 0x37, 0x95, 0xf0,
-	0x2f, 0x0d, 0xda, 0xea, 0x96, 0xc5, 0x12, 0xa5, 0x15, 0x95, 0xa8, 0x7b, 0xd0, 0x91, 0x80, 0x17,
-	0x94, 0xed, 0xc2, 0x2c, 0x79, 0x18, 0x3f, 0x80, 0xaa, 0x3b, 0xf2, 0xc6, 0xe1, 0x56, 0x99, 0x5b,
-	0xe2, 0xad, 0xa2, 0xf7, 0xda, 0x39, 0x1a, 0x79, 0x63, 0x4b, 0xec, 0x33, 0x76, 0xa0, 0x42, 0xcb,
-	0xc5, 0xac, 0xe6, 0xfd, 0xd0, 0x3e, 0x65, 0x6e, 0xfc, 0xa7, 0xc4, 0xc2, 0x7c, 0x00, 0xdd, 0x85,
-	0xee, 0x4d, 0x69, 0x44, 0x3d, 0x3f, 0xeb, 0xc4, 0xb5, 0xf9, 0x98, 0xda, 0xb0, 0xf9, 0x15, 0xe0,
-	0xe2, 0x84, 0x7a, 0xc3, 0x36, 0xf9, 0xf0, 0xcf, 0x0a, 0x94, 0xf7, 0x8e, 0x0f, 0xf1, 0x09, 0x34,
-	0xd2, 0xb6, 0x87, 0x4b, 0x06, 0x55, 0x63, 0xd9, 0x7d, 0x0e, 0x1f, 0x43, 0x3d, 0xc9, 0x14, 0x2c,
-	0x1e, 0x4f, 0x8d, 0x25, 0x09, 0x45, 0xa1, 0x49, 0x21, 0xc1, 0xe2, 0xa1, 0xd4, 0x58, 0x72, 0x69,
-	0xc3, 0x0f, 0xa1, 0xca, 0x5f, 0x05, 0x0b, 0x66, 0x51, 0xa3, 0xe8, 0x9e, 0x85, 0x1f, 0xc3, 0x6a,
-	0x5c, 0x40, 0xb0, 0x70, 0x02, 0x35, 0x8a, 0x2f, 0x57, 0x14, 0x17, 0xd7, 0x0b, 0x2c, 0x9c, 0x3b,
-	0x8d, 0xe2, 0xfb, 0x14, 0x1d, 0x2e, 0xc9, 0x69, 0x2c, 0x1e, 0x37, 0x8d, 0x25, 0x97, 0x28, 0x3a,
-	0x1c, 0xcf, 0x2e, 0x2c, 0x98, 0x32, 0x8d, 0xa2, 0x5b, 0x13, 0x3e, 0x82, 0x9a, 0x18, 0x70, 0xb0,
-	0x68, 0xb8, 0x34, 0x0a, 0xaf, 0x4a, 0xb8, 0x0b, 0x90, 0x99, 0x0a, 0x97, 0x5e, 0x84, 0x8c, 0xa5,
-	0x4f, 0xf6, 0xdf, 0xfe, 0xfb, 0xb2, 0xa7, 0xbd, 0xbe, 0xec, 0x69, 0xff, 0x5e, 0xf6, 0xb4, 0x5f,
-	0xae, 0x7a, 0x2b, 0xaf, 0xaf, 0x7a, 0x2b, 0xff, 0x5c, 0xf5, 0x56, 0xbe, 0x2d, 0x4d, 0x4f, 0x4f,
-	0x6b, 0xfc, 0x9f, 0x07, 0x8f, 0xfe, 0x0f, 0x00, 0x00, 0xff, 0xff, 0xd9, 0x5f, 0x96, 0xef, 0x4b,
-	0x10, 0x00, 0x00,
+	// 992 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0x4b, 0x6f, 0x1b, 0x55,
+	0x14, 0xee, 0xf8, 0xed, 0xe3, 0xd8, 0x9e, 0xdc, 0x26, 0xad, 0x6b, 0x81, 0x49, 0x47, 0x45, 0x14,
+	0x54, 0x99, 0x2a, 0x15, 0x48, 0x95, 0x40, 0x6a, 0x88, 0x78, 0xa4, 0x54, 0x55, 0x18, 0x08, 0x0b,
+	0x36, 0xd6, 0xd8, 0x73, 0x70, 0xa6, 0x1e, 0xcf, 0x1d, 0xee, 0x1d, 0xbb, 0x01, 0x21, 0x7e, 0x03,
+	0x4b, 0x76, 0xfc, 0x00, 0x7e, 0x03, 0x42, 0xec, 0x58, 0x76, 0xc9, 0x12, 0x25, 0x0b, 0xfe, 0x06,
+	0xba, 0x2f, 0xcf, 0xc3, 0x2e, 0x22, 0x0a, 0xbb, 0x7b, 0xbe, 0x39, 0xe7, 0xdc, 0xf3, 0x9d, 0xd7,
+	0x1d, 0x68, 0x85, 0x74, 0x1a, 0x44, 0xc3, 0x98, 0xd1, 0x84, 0x92, 0xca, 0x1c, 0xe7, 0xe8, 0x7c,
+	0x06, 0xed, 0x0f, 0x19, 0xa3, 0xcc, 0xc5, 0xc8, 0x47, 0x86, 0x8c, 0xbc, 0x0a, 0x80, 0x02, 0x18,
+	0x4d, 0xa8, 0x8f, 0x3d, 0x6b, 0xcf, 0xba, 0xdb, 0x74, 0x9b, 0x12, 0x39, 0xa4, 0x3e, 0x92, 0xdb,
+	0xb0, 0xe5, 0x07, 0x3c, 0x0e, 0xbd, 0x6f, 0x47, 0x09, 0x9e, 0x25, 0xbd, 0x92, 0x54, 0x68, 0x69,
+	0xec, 0x0b, 0x3c, 0x4b, 0x9c, 0x47, 0xb0, 0xf5, 0x44, 0xdc, 0xe3, 0xe2, 0x37, 0x0b, 0xe4, 0x09,
+	0xd9, 0x81, 0xaa, 0xbc, 0x57, 0x3b, 0x53, 0x02, 0xe9, 0x43, 0x23, 0xf6, 0x38, 0x7f, 0x4e, 0x99,
+	0xaf, 0x9d, 0xac, 0x64, 0xe7, 0x29, 0xb4, 0xb5, 0x07, 0x1d, 0xd4, 0xfb, 0xd0, 0x3d, 0x45, 0xcf,
+	0x47, 0x36, 0x62, 0x1a, 0x92, 0xce, 0x5a, 0xfb, 0x3b, 0x43, 0xc1, 0x62, 0xf8, 0x89, 0xfc, 0x68,
+	0xd4, 0xdd, 0xce, 0x69, 0x4e, 0x76, 0xba, 0xd2, 0x1f, 0x5d, 0x24, 0x3a, 0x24, 0xc7, 0x86, 0x8e,
+	0x01, 0xb4, 0x0a, 0x01, 0x5b, 0x5e, 0x79, 0xec, 0x4d, 0xd1, 0x68, 0xfd, 0x62, 0xc1, 0x76, 0x06,
+	0x4c, 0x13, 0xc4, 0x17, 0xe3, 0x79, 0x90, 0x8c, 0x16, 0x2c, 0x34, 0x09, 0x52, 0xc8, 0x09, 0x0b,
+	0x45, 0x82, 0x9e, 0x63, 0x38, 0xa1, 0x73, 0xcc, 0x25, 0x48, 0x63, 0x22, 0x41, 0x64, 0x17, 0x6a,
+	0xcb, 0x99, 0xb4, 0xae, 0xa8, 0x8c, 0x2c, 0x67, 0xc2, 0x72, 0x03, 0xc9, 0xf2, 0x25, 0x48, 0xfe,
+	0x6d, 0x81, 0x7d, 0x4c, 0x79, 0x92, 0x0b, 0xb6, 0x03, 0xa5, 0xc0, 0xd7, 0x41, 0x96, 0x02, 0x9f,
+	0x10, 0xa8, 0x64, 0xa2, 0x92, 0x67, 0x72, 0x03, 0x6a, 0x0b, 0x8e, 0xec, 0xc8, 0x97, 0xd7, 0x35,
+	0x5d, 0x2d, 0x91, 0x1e, 0xd4, 0xc5, 0xe9, 0x84, 0x85, 0xbd, 0x9a, 0xfc, 0x60, 0x44, 0x72, 0x07,
+	0xda, 0x93, 0x05, 0x63, 0x18, 0x25, 0x27, 0xca, 0x50, 0xf1, 0xc8, 0x83, 0xc2, 0x3e, 0xa6, 0x5c,
+	0x24, 0xa5, 0x57, 0x57, 0xf6, 0x5a, 0xdc, 0xc4, 0xb4, 0x7a, 0x09, 0xa6, 0xbf, 0x5a, 0x60, 0x8b,
+	0x3b, 0xfe, 0x95, 0xe9, 0x00, 0x20, 0xf4, 0x78, 0x22, 0x32, 0x72, 0x64, 0x3a, 0x2c, 0x83, 0x90,
+	0x3d, 0x68, 0x19, 0x29, 0x65, 0x98, 0x85, 0x44, 0xae, 0x22, 0x6f, 0x8e, 0x9a, 0x9c, 0x3c, 0x5f,
+	0x31, 0xf2, 0xc7, 0x95, 0x46, 0xd9, 0xae, 0x38, 0x6f, 0xc0, 0x75, 0x17, 0x39, 0x0d, 0x97, 0xe8,
+	0xd2, 0x45, 0x62, 0xda, 0x8d, 0xd8, 0x50, 0x4e, 0x3b, 0x4a, 0x1c, 0x9d, 0x9f, 0x2c, 0xd8, 0xc9,
+	0x6b, 0xf2, 0x98, 0x46, 0x1c, 0x05, 0xd9, 0x67, 0xbc, 0x67, 0xed, 0x95, 0x05, 0xd9, 0x67, 0x9c,
+	0xbc, 0x0e, 0x1d, 0x46, 0x69, 0x32, 0x9a, 0xd0, 0x79, 0x4c, 0x23, 0x8c, 0x12, 0x5d, 0xca, 0xb6,
+	0x40, 0x0f, 0x0d, 0x48, 0x5e, 0x83, 0x96, 0x17, 0x07, 0x42, 0x6b, 0xee, 0x45, 0xa6, 0x6a, 0xe0,
+	0xc5, 0xc1, 0xa1, 0x42, 0xc8, 0x2d, 0x68, 0x08, 0x05, 0x8f, 0x4d, 0xb9, 0xe4, 0xd5, 0x74, 0xeb,
+	0x5e, 0x1c, 0x1c, 0xb0, 0x29, 0x7f, 0x5c, 0x69, 0x94, 0xec, 0xb2, 0x5b, 0x67, 0x7a, 0x36, 0xde,
+	0x82, 0x6e, 0xda, 0x6c, 0x2a, 0xfe, 0x9b, 0xaa, 0xde, 0xa3, 0x55, 0x19, 0x6a, 0xb1, 0x4c, 0xb5,
+	0xd0, 0x4d, 0xcb, 0xb5, 0xd2, 0x15, 0xcd, 0x94, 0xd1, 0x55, 0x4d, 0xe7, 0xdc, 0x86, 0xaa, 0xdc,
+	0x47, 0xa2, 0x7b, 0xe6, 0xc8, 0xb9, 0x37, 0x35, 0x4b, 0xc8, 0x88, 0xce, 0x1d, 0xe8, 0x1c, 0xf8,
+	0xbe, 0xb8, 0xdd, 0x78, 0x33, 0x5d, 0x6d, 0xa5, 0x5d, 0xed, 0xbc, 0x03, 0xdd, 0x95, 0xd6, 0x7f,
+	0x1f, 0x06, 0xb1, 0x19, 0x3e, 0xc6, 0xe4, 0x23, 0x44, 0xdf, 0x6c, 0x81, 0x1f, 0xa0, 0xbb, 0x42,
+	0xb4, 0xa3, 0x7b, 0x50, 0x15, 0xd4, 0x54, 0x05, 0x5a, 0xfb, 0x37, 0x54, 0xed, 0x8b, 0xc3, 0xe7,
+	0x2a, 0xa5, 0x4d, 0x3d, 0x53, 0xba, 0x44, 0xb7, 0x6f, 0x43, 0x57, 0x56, 0x90, 0x0b, 0x4c, 0x85,
+	0xf4, 0xb3, 0x05, 0x76, 0x8a, 0xe9, 0xa0, 0x8a, 0x8b, 0xc7, 0x5a, 0x5f, 0x3c, 0x57, 0x8b, 0x84,
+	0xbc, 0x09, 0xf6, 0x22, 0xf2, 0x92, 0x53, 0xca, 0x82, 0xef, 0xd0, 0x57, 0xb7, 0xa8, 0x3e, 0xeb,
+	0x66, 0x70, 0xf9, 0x06, 0x74, 0x60, 0xeb, 0x28, 0xf2, 0xf1, 0xcc, 0x44, 0xfc, 0x3d, 0xb4, 0xb5,
+	0xac, 0x7d, 0x6d, 0x28, 0x99, 0x28, 0xf9, 0xd7, 0x88, 0xbe, 0x18, 0x47, 0xe5, 0xd6, 0x88, 0x57,
+	0x4d, 0xe1, 0xef, 0x16, 0x74, 0xf2, 0x2a, 0xeb, 0x2b, 0xcc, 0xda, 0xb4, 0xc2, 0xee, 0x42, 0x37,
+	0x03, 0x3c, 0x15, 0xdb, 0x40, 0x35, 0x4b, 0x11, 0x26, 0x6f, 0x43, 0x35, 0x0c, 0xa2, 0x19, 0xef,
+	0x95, 0x65, 0x4b, 0xdc, 0xda, 0x14, 0xd7, 0xf0, 0x49, 0x10, 0xcd, 0x5c, 0xa5, 0xd7, 0x1f, 0x42,
+	0x45, 0x88, 0xeb, 0x53, 0x2f, 0xdf, 0x4b, 0x6f, 0x8c, 0xa1, 0xbe, 0x4a, 0x09, 0xce, 0x3d, 0xd8,
+	0xfe, 0xf2, 0xd3, 0x43, 0x2f, 0x0c, 0xc7, 0xde, 0x64, 0x96, 0x19, 0xa3, 0xe5, 0x2c, 0xfb, 0x52,
+	0xd7, 0x96, 0x33, 0xf1, 0x4c, 0x3b, 0x9f, 0x03, 0xc9, 0x6a, 0xff, 0x2f, 0xcf, 0xe8, 0xfe, 0x6f,
+	0x15, 0x28, 0x1f, 0x1c, 0x1f, 0x91, 0xf7, 0xa0, 0xb9, 0x7a, 0x16, 0x89, 0x6e, 0xfe, 0xe2, 0xe3,
+	0xd9, 0xbf, 0xb9, 0x86, 0xeb, 0x20, 0x1e, 0x42, 0xc3, 0x4c, 0x0a, 0xd9, 0x2d, 0x4e, 0x8e, 0xb2,
+	0x7d, 0xc9, 0x40, 0x09, 0x53, 0xb3, 0x48, 0x8c, 0x69, 0x61, 0xb1, 0x18, 0xd3, 0xb5, 0xe7, 0xe1,
+	0x3e, 0x54, 0x65, 0x28, 0x84, 0x64, 0xe2, 0x32, 0x46, 0xd7, 0x73, 0x98, 0xb6, 0x78, 0x17, 0xea,
+	0x7a, 0x81, 0x10, 0x9d, 0x9e, 0xfc, 0xd6, 0xe9, 0xef, 0x16, 0xd0, 0xd4, 0x4e, 0xef, 0x0b, 0x63,
+	0x97, 0x5f, 0x28, 0xc6, 0xae, 0xb8, 0x54, 0x1e, 0x42, 0xc3, 0xcc, 0xb4, 0x21, 0x57, 0x98, 0x7b,
+	0x43, 0x6e, 0x6d, 0xf4, 0xef, 0x43, 0x55, 0x4e, 0x97, 0x21, 0x97, 0x1d, 0x3d, 0x43, 0x2e, 0x3f,
+	0x7e, 0x0f, 0xa0, 0xa6, 0x7e, 0x80, 0x48, 0xca, 0x3d, 0xfd, 0x3f, 0xea, 0xef, 0xe4, 0x41, 0x6d,
+	0xf4, 0x08, 0x20, 0x6d, 0x2a, 0xd2, 0x53, 0x3a, 0xeb, 0x6d, 0xd6, 0x7f, 0xe9, 0x97, 0x0f, 0x5e,
+	0xf9, 0xe3, 0x7c, 0x60, 0xbd, 0x38, 0x1f, 0x58, 0x7f, 0x9d, 0x0f, 0xac, 0x1f, 0x2f, 0x06, 0xd7,
+	0x5e, 0x5c, 0x0c, 0xae, 0xfd, 0x79, 0x31, 0xb8, 0xf6, 0x55, 0x29, 0x1e, 0x8f, 0x6b, 0xf2, 0xc7,
+	0xf4, 0xc1, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x8c, 0xe1, 0x7e, 0x7c, 0xa7, 0x0a, 0x00, 0x00,
 }
 
-func (m *AnyRenderer) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *AnyRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Renderer != nil {
-		{
-			size := m.Renderer.Size()
-			i -= size
-			if _, err := m.Renderer.MarshalTo(dAtA[i:]); err != nil {
-				return 0, err
-			}
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *AnyRenderer_LoginPageRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_LoginPageRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.LoginPageRenderer != nil {
-		{
-			size, err := m.LoginPageRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_PostPageRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_PostPageRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.PostPageRenderer != nil {
-		{
-			size, err := m.PostPageRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x12
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_UserPageRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_UserPageRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.UserPageRenderer != nil {
-		{
-			size, err := m.UserPageRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x1a
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_ErrorRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_ErrorRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.ErrorRenderer != nil {
-		{
-			size, err := m.ErrorRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x22
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_LoginRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_LoginRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.LoginRenderer != nil {
-		{
-			size, err := m.LoginRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x2a
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_AddPostRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_AddPostRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.AddPostRenderer != nil {
-		{
-			size, err := m.AddPostRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x32
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_GetFeedRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_GetFeedRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.GetFeedRenderer != nil {
-		{
-			size, err := m.GetFeedRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x3a
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_ComposerRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_ComposerRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.ComposerRenderer != nil {
-		{
-			size, err := m.ComposerRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x42
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_IndexRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_IndexRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.IndexRenderer != nil {
-		{
-			size, err := m.IndexRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x4a
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_LogoutRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_LogoutRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.LogoutRenderer != nil {
-		{
-			size, err := m.LogoutRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x52
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRenderer_VkCallbackRenderer) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRenderer_VkCallbackRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.VkCallbackRenderer != nil {
-		{
-			size, err := m.VkCallbackRenderer.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x5a
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *AnyRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Request != nil {
-		{
-			size := m.Request.Size()
-			i -= size
-			if _, err := m.Request.MarshalTo(dAtA[i:]); err != nil {
-				return 0, err
-			}
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *AnyRequest_LoginPageRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_LoginPageRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.LoginPageRequest != nil {
-		{
-			size, err := m.LoginPageRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest_PostPageRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_PostPageRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.PostPageRequest != nil {
-		{
-			size, err := m.PostPageRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x12
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest_UserPageRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_UserPageRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.UserPageRequest != nil {
-		{
-			size, err := m.UserPageRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x1a
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest_LoginRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_LoginRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.LoginRequest != nil {
-		{
-			size, err := m.LoginRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x22
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest_AddPostRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_AddPostRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.AddPostRequest != nil {
-		{
-			size, err := m.AddPostRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x2a
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest_GetFeedRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_GetFeedRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.GetFeedRequest != nil {
-		{
-			size, err := m.GetFeedRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x32
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest_ComposerRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_ComposerRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.ComposerRequest != nil {
-		{
-			size, err := m.ComposerRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x3a
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest_IndexRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_IndexRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.IndexRequest != nil {
-		{
-			size, err := m.IndexRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x42
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest_LogoutRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_LogoutRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.LogoutRequest != nil {
-		{
-			size, err := m.LogoutRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x4a
-	}
-	return len(dAtA) - i, nil
-}
-func (m *AnyRequest_VkCallbackRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AnyRequest_VkCallbackRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.VkCallbackRequest != nil {
-		{
-			size, err := m.VkCallbackRequest.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x52
-	}
-	return len(dAtA) - i, nil
-}
 func (m *ErrorRenderer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -2767,24 +1856,26 @@ func (m *ResolveRouteResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.ApiArgs) > 0 {
+		i -= len(m.ApiArgs)
+		copy(dAtA[i:], m.ApiArgs)
+		i = encodeVarintLogin(dAtA, i, uint64(len(m.ApiArgs)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.ApiCommand) > 0 {
+		i -= len(m.ApiCommand)
+		copy(dAtA[i:], m.ApiCommand)
+		i = encodeVarintLogin(dAtA, i, uint64(len(m.ApiCommand)))
+		i--
+		dAtA[i] = 0x22
+	}
 	if len(m.RootComponent) > 0 {
 		i -= len(m.RootComponent)
 		copy(dAtA[i:], m.RootComponent)
 		i = encodeVarintLogin(dAtA, i, uint64(len(m.RootComponent)))
 		i--
 		dAtA[i] = 0x1a
-	}
-	if m.Request != nil {
-		{
-			size, err := m.Request.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintLogin(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x12
 	}
 	if len(m.Js) > 0 {
 		for iNdEx := len(m.Js) - 1; iNdEx >= 0; iNdEx-- {
@@ -3335,282 +2426,6 @@ func encodeVarintLogin(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *AnyRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Renderer != nil {
-		n += m.Renderer.Size()
-	}
-	return n
-}
-
-func (m *AnyRenderer_LoginPageRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.LoginPageRenderer != nil {
-		l = m.LoginPageRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_PostPageRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.PostPageRenderer != nil {
-		l = m.PostPageRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_UserPageRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.UserPageRenderer != nil {
-		l = m.UserPageRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_ErrorRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.ErrorRenderer != nil {
-		l = m.ErrorRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_LoginRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.LoginRenderer != nil {
-		l = m.LoginRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_AddPostRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.AddPostRenderer != nil {
-		l = m.AddPostRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_GetFeedRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.GetFeedRenderer != nil {
-		l = m.GetFeedRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_ComposerRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.ComposerRenderer != nil {
-		l = m.ComposerRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_IndexRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.IndexRenderer != nil {
-		l = m.IndexRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_LogoutRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.LogoutRenderer != nil {
-		l = m.LogoutRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRenderer_VkCallbackRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.VkCallbackRenderer != nil {
-		l = m.VkCallbackRenderer.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Request != nil {
-		n += m.Request.Size()
-	}
-	return n
-}
-
-func (m *AnyRequest_LoginPageRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.LoginPageRequest != nil {
-		l = m.LoginPageRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest_PostPageRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.PostPageRequest != nil {
-		l = m.PostPageRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest_UserPageRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.UserPageRequest != nil {
-		l = m.UserPageRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest_LoginRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.LoginRequest != nil {
-		l = m.LoginRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest_AddPostRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.AddPostRequest != nil {
-		l = m.AddPostRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest_GetFeedRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.GetFeedRequest != nil {
-		l = m.GetFeedRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest_ComposerRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.ComposerRequest != nil {
-		l = m.ComposerRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest_IndexRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.IndexRequest != nil {
-		l = m.IndexRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest_LogoutRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.LogoutRequest != nil {
-		l = m.LogoutRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
-func (m *AnyRequest_VkCallbackRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.VkCallbackRequest != nil {
-		l = m.VkCallbackRequest.Size()
-		n += 1 + l + sovLogin(uint64(l))
-	}
-	return n
-}
 func (m *ErrorRenderer) Size() (n int) {
 	if m == nil {
 		return 0
@@ -3801,11 +2616,15 @@ func (m *ResolveRouteResponse) Size() (n int) {
 			n += 1 + l + sovLogin(uint64(l))
 		}
 	}
-	if m.Request != nil {
-		l = m.Request.Size()
+	l = len(m.RootComponent)
+	if l > 0 {
 		n += 1 + l + sovLogin(uint64(l))
 	}
-	l = len(m.RootComponent)
+	l = len(m.ApiCommand)
+	if l > 0 {
+		n += 1 + l + sovLogin(uint64(l))
+	}
+	l = len(m.ApiArgs)
 	if l > 0 {
 		n += 1 + l + sovLogin(uint64(l))
 	}
@@ -4040,847 +2859,6 @@ func sovLogin(x uint64) (n int) {
 }
 func sozLogin(x uint64) (n int) {
 	return sovLogin(uint64((x << 1) ^ uint64((int64(x) >> 63))))
-}
-func (m *AnyRenderer) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowLogin
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: AnyRenderer: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AnyRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LoginPageRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &LoginPageRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_LoginPageRenderer{v}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PostPageRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &PostPageRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_PostPageRenderer{v}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field UserPageRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &UserPageRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_UserPageRenderer{v}
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ErrorRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &ErrorRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_ErrorRenderer{v}
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LoginRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &LoginRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_LoginRenderer{v}
-			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AddPostRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &AddPostRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_AddPostRenderer{v}
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field GetFeedRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &GetFeedRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_GetFeedRenderer{v}
-			iNdEx = postIndex
-		case 8:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ComposerRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &ComposerRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_ComposerRenderer{v}
-			iNdEx = postIndex
-		case 9:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field IndexRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &IndexRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_IndexRenderer{v}
-			iNdEx = postIndex
-		case 10:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LogoutRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &LogoutRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_LogoutRenderer{v}
-			iNdEx = postIndex
-		case 11:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field VkCallbackRenderer", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &VKCallbackRenderer{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Renderer = &AnyRenderer_VkCallbackRenderer{v}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipLogin(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *AnyRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowLogin
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: AnyRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AnyRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LoginPageRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &LoginPageRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_LoginPageRequest{v}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PostPageRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &PostPageRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_PostPageRequest{v}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field UserPageRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &UserPageRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_UserPageRequest{v}
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LoginRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &LoginRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_LoginRequest{v}
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AddPostRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &AddPostRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_AddPostRequest{v}
-			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field GetFeedRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &GetFeedRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_GetFeedRequest{v}
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ComposerRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &ComposerRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_ComposerRequest{v}
-			iNdEx = postIndex
-		case 8:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field IndexRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &IndexRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_IndexRequest{v}
-			iNdEx = postIndex
-		case 9:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LogoutRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &LogoutRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_LogoutRequest{v}
-			iNdEx = postIndex
-		case 10:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field VkCallbackRequest", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &VKCallbackRequest{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &AnyRequest_VkCallbackRequest{v}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipLogin(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
 }
 func (m *ErrorRenderer) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -6193,42 +4171,6 @@ func (m *ResolveRouteResponse) Unmarshal(dAtA []byte) error {
 			}
 			m.Js = append(m.Js, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Request", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowLogin
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthLogin
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthLogin
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Request == nil {
-				m.Request = &AnyRequest{}
-			}
-			if err := m.Request.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RootComponent", wireType)
@@ -6260,6 +4202,70 @@ func (m *ResolveRouteResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.RootComponent = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ApiCommand", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ApiCommand = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ApiArgs", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLogin
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthLogin
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLogin
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ApiArgs = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

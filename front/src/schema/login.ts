@@ -2,33 +2,6 @@
 import { Reader, Writer } from 'protobufjs/minimal';
 
 
-export interface AnyRenderer {
-  loginPageRenderer: LoginPageRenderer | undefined;
-  postPageRenderer: PostPageRenderer | undefined;
-  userPageRenderer: UserPageRenderer | undefined;
-  errorRenderer: ErrorRenderer | undefined;
-  loginRenderer: LoginRenderer | undefined;
-  addPostRenderer: AddPostRenderer | undefined;
-  getFeedRenderer: GetFeedRenderer | undefined;
-  composerRenderer: ComposerRenderer | undefined;
-  indexRenderer: IndexRenderer | undefined;
-  logoutRenderer: LogoutRenderer | undefined;
-  vkCallbackRenderer: VKCallbackRenderer | undefined;
-}
-
-export interface AnyRequest {
-  loginPageRequest: LoginPageRequest | undefined;
-  postPageRequest: PostPageRequest | undefined;
-  userPageRequest: UserPageRequest | undefined;
-  loginRequest: LoginRequest | undefined;
-  addPostRequest: AddPostRequest | undefined;
-  getFeedRequest: GetFeedRequest | undefined;
-  composerRequest: ComposerRequest | undefined;
-  indexRequest: IndexRequest | undefined;
-  logoutRequest: LogoutRequest | undefined;
-  vkCallbackRequest: VKCallbackRequest | undefined;
-}
-
 export interface ErrorRenderer {
   errorCode: string;
   displayText: string;
@@ -83,8 +56,12 @@ export interface ResolveRouteRequest {
 
 export interface ResolveRouteResponse {
   js: string[];
-  request: AnyRequest | undefined;
+  /**
+   * AnyRequest request = 2;
+   */
   rootComponent: string;
+  apiCommand: string;
+  apiArgs: string;
 }
 
 export interface PostPageRequest {
@@ -153,12 +130,6 @@ export interface VKCallbackRenderer {
   headerRenderer: HeaderRenderer | undefined;
 }
 
-const baseAnyRenderer: object = {
-};
-
-const baseAnyRequest: object = {
-};
-
 const baseErrorRenderer: object = {
   errorCode: "",
   displayText: "",
@@ -210,6 +181,8 @@ const baseResolveRouteRequest: object = {
 const baseResolveRouteResponse: object = {
   js: "",
   rootComponent: "",
+  apiCommand: "",
+  apiArgs: "",
 };
 
 const basePostPageRequest: object = {
@@ -373,427 +346,6 @@ interface Rpc {
 }
 
 export const protobufPackage = 'meme'
-
-export const AnyRenderer = {
-  encode(message: AnyRenderer, writer: Writer = Writer.create()): Writer {
-    if (message.loginPageRenderer !== undefined) {
-      LoginPageRenderer.encode(message.loginPageRenderer, writer.uint32(10).fork()).ldelim();
-    }
-    if (message.postPageRenderer !== undefined) {
-      PostPageRenderer.encode(message.postPageRenderer, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.userPageRenderer !== undefined) {
-      UserPageRenderer.encode(message.userPageRenderer, writer.uint32(26).fork()).ldelim();
-    }
-    if (message.errorRenderer !== undefined) {
-      ErrorRenderer.encode(message.errorRenderer, writer.uint32(34).fork()).ldelim();
-    }
-    if (message.loginRenderer !== undefined) {
-      LoginRenderer.encode(message.loginRenderer, writer.uint32(42).fork()).ldelim();
-    }
-    if (message.addPostRenderer !== undefined) {
-      AddPostRenderer.encode(message.addPostRenderer, writer.uint32(50).fork()).ldelim();
-    }
-    if (message.getFeedRenderer !== undefined) {
-      GetFeedRenderer.encode(message.getFeedRenderer, writer.uint32(58).fork()).ldelim();
-    }
-    if (message.composerRenderer !== undefined) {
-      ComposerRenderer.encode(message.composerRenderer, writer.uint32(66).fork()).ldelim();
-    }
-    if (message.indexRenderer !== undefined) {
-      IndexRenderer.encode(message.indexRenderer, writer.uint32(74).fork()).ldelim();
-    }
-    if (message.logoutRenderer !== undefined) {
-      LogoutRenderer.encode(message.logoutRenderer, writer.uint32(82).fork()).ldelim();
-    }
-    if (message.vkCallbackRenderer !== undefined) {
-      VKCallbackRenderer.encode(message.vkCallbackRenderer, writer.uint32(90).fork()).ldelim();
-    }
-    return writer;
-  },
-  decode(input: Uint8Array | Reader, length?: number): AnyRenderer {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseAnyRenderer } as AnyRenderer;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.loginPageRenderer = LoginPageRenderer.decode(reader, reader.uint32());
-          break;
-        case 2:
-          message.postPageRenderer = PostPageRenderer.decode(reader, reader.uint32());
-          break;
-        case 3:
-          message.userPageRenderer = UserPageRenderer.decode(reader, reader.uint32());
-          break;
-        case 4:
-          message.errorRenderer = ErrorRenderer.decode(reader, reader.uint32());
-          break;
-        case 5:
-          message.loginRenderer = LoginRenderer.decode(reader, reader.uint32());
-          break;
-        case 6:
-          message.addPostRenderer = AddPostRenderer.decode(reader, reader.uint32());
-          break;
-        case 7:
-          message.getFeedRenderer = GetFeedRenderer.decode(reader, reader.uint32());
-          break;
-        case 8:
-          message.composerRenderer = ComposerRenderer.decode(reader, reader.uint32());
-          break;
-        case 9:
-          message.indexRenderer = IndexRenderer.decode(reader, reader.uint32());
-          break;
-        case 10:
-          message.logoutRenderer = LogoutRenderer.decode(reader, reader.uint32());
-          break;
-        case 11:
-          message.vkCallbackRenderer = VKCallbackRenderer.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromJSON(object: any): AnyRenderer {
-    const message = { ...baseAnyRenderer } as AnyRenderer;
-    if (object.loginPageRenderer !== undefined && object.loginPageRenderer !== null) {
-      message.loginPageRenderer = LoginPageRenderer.fromJSON(object.loginPageRenderer);
-    } else {
-      message.loginPageRenderer = undefined;
-    }
-    if (object.postPageRenderer !== undefined && object.postPageRenderer !== null) {
-      message.postPageRenderer = PostPageRenderer.fromJSON(object.postPageRenderer);
-    } else {
-      message.postPageRenderer = undefined;
-    }
-    if (object.userPageRenderer !== undefined && object.userPageRenderer !== null) {
-      message.userPageRenderer = UserPageRenderer.fromJSON(object.userPageRenderer);
-    } else {
-      message.userPageRenderer = undefined;
-    }
-    if (object.errorRenderer !== undefined && object.errorRenderer !== null) {
-      message.errorRenderer = ErrorRenderer.fromJSON(object.errorRenderer);
-    } else {
-      message.errorRenderer = undefined;
-    }
-    if (object.loginRenderer !== undefined && object.loginRenderer !== null) {
-      message.loginRenderer = LoginRenderer.fromJSON(object.loginRenderer);
-    } else {
-      message.loginRenderer = undefined;
-    }
-    if (object.addPostRenderer !== undefined && object.addPostRenderer !== null) {
-      message.addPostRenderer = AddPostRenderer.fromJSON(object.addPostRenderer);
-    } else {
-      message.addPostRenderer = undefined;
-    }
-    if (object.getFeedRenderer !== undefined && object.getFeedRenderer !== null) {
-      message.getFeedRenderer = GetFeedRenderer.fromJSON(object.getFeedRenderer);
-    } else {
-      message.getFeedRenderer = undefined;
-    }
-    if (object.composerRenderer !== undefined && object.composerRenderer !== null) {
-      message.composerRenderer = ComposerRenderer.fromJSON(object.composerRenderer);
-    } else {
-      message.composerRenderer = undefined;
-    }
-    if (object.indexRenderer !== undefined && object.indexRenderer !== null) {
-      message.indexRenderer = IndexRenderer.fromJSON(object.indexRenderer);
-    } else {
-      message.indexRenderer = undefined;
-    }
-    if (object.logoutRenderer !== undefined && object.logoutRenderer !== null) {
-      message.logoutRenderer = LogoutRenderer.fromJSON(object.logoutRenderer);
-    } else {
-      message.logoutRenderer = undefined;
-    }
-    if (object.vkCallbackRenderer !== undefined && object.vkCallbackRenderer !== null) {
-      message.vkCallbackRenderer = VKCallbackRenderer.fromJSON(object.vkCallbackRenderer);
-    } else {
-      message.vkCallbackRenderer = undefined;
-    }
-    return message;
-  },
-  fromPartial(object: DeepPartial<AnyRenderer>): AnyRenderer {
-    const message = { ...baseAnyRenderer } as AnyRenderer;
-    if (object.loginPageRenderer !== undefined && object.loginPageRenderer !== null) {
-      message.loginPageRenderer = LoginPageRenderer.fromPartial(object.loginPageRenderer);
-    } else {
-      message.loginPageRenderer = undefined;
-    }
-    if (object.postPageRenderer !== undefined && object.postPageRenderer !== null) {
-      message.postPageRenderer = PostPageRenderer.fromPartial(object.postPageRenderer);
-    } else {
-      message.postPageRenderer = undefined;
-    }
-    if (object.userPageRenderer !== undefined && object.userPageRenderer !== null) {
-      message.userPageRenderer = UserPageRenderer.fromPartial(object.userPageRenderer);
-    } else {
-      message.userPageRenderer = undefined;
-    }
-    if (object.errorRenderer !== undefined && object.errorRenderer !== null) {
-      message.errorRenderer = ErrorRenderer.fromPartial(object.errorRenderer);
-    } else {
-      message.errorRenderer = undefined;
-    }
-    if (object.loginRenderer !== undefined && object.loginRenderer !== null) {
-      message.loginRenderer = LoginRenderer.fromPartial(object.loginRenderer);
-    } else {
-      message.loginRenderer = undefined;
-    }
-    if (object.addPostRenderer !== undefined && object.addPostRenderer !== null) {
-      message.addPostRenderer = AddPostRenderer.fromPartial(object.addPostRenderer);
-    } else {
-      message.addPostRenderer = undefined;
-    }
-    if (object.getFeedRenderer !== undefined && object.getFeedRenderer !== null) {
-      message.getFeedRenderer = GetFeedRenderer.fromPartial(object.getFeedRenderer);
-    } else {
-      message.getFeedRenderer = undefined;
-    }
-    if (object.composerRenderer !== undefined && object.composerRenderer !== null) {
-      message.composerRenderer = ComposerRenderer.fromPartial(object.composerRenderer);
-    } else {
-      message.composerRenderer = undefined;
-    }
-    if (object.indexRenderer !== undefined && object.indexRenderer !== null) {
-      message.indexRenderer = IndexRenderer.fromPartial(object.indexRenderer);
-    } else {
-      message.indexRenderer = undefined;
-    }
-    if (object.logoutRenderer !== undefined && object.logoutRenderer !== null) {
-      message.logoutRenderer = LogoutRenderer.fromPartial(object.logoutRenderer);
-    } else {
-      message.logoutRenderer = undefined;
-    }
-    if (object.vkCallbackRenderer !== undefined && object.vkCallbackRenderer !== null) {
-      message.vkCallbackRenderer = VKCallbackRenderer.fromPartial(object.vkCallbackRenderer);
-    } else {
-      message.vkCallbackRenderer = undefined;
-    }
-    return message;
-  },
-  toJSON(message: AnyRenderer): unknown {
-    const obj: any = {};
-    message.loginPageRenderer !== undefined && (obj.loginPageRenderer = message.loginPageRenderer ? LoginPageRenderer.toJSON(message.loginPageRenderer) : undefined);
-    message.postPageRenderer !== undefined && (obj.postPageRenderer = message.postPageRenderer ? PostPageRenderer.toJSON(message.postPageRenderer) : undefined);
-    message.userPageRenderer !== undefined && (obj.userPageRenderer = message.userPageRenderer ? UserPageRenderer.toJSON(message.userPageRenderer) : undefined);
-    message.errorRenderer !== undefined && (obj.errorRenderer = message.errorRenderer ? ErrorRenderer.toJSON(message.errorRenderer) : undefined);
-    message.loginRenderer !== undefined && (obj.loginRenderer = message.loginRenderer ? LoginRenderer.toJSON(message.loginRenderer) : undefined);
-    message.addPostRenderer !== undefined && (obj.addPostRenderer = message.addPostRenderer ? AddPostRenderer.toJSON(message.addPostRenderer) : undefined);
-    message.getFeedRenderer !== undefined && (obj.getFeedRenderer = message.getFeedRenderer ? GetFeedRenderer.toJSON(message.getFeedRenderer) : undefined);
-    message.composerRenderer !== undefined && (obj.composerRenderer = message.composerRenderer ? ComposerRenderer.toJSON(message.composerRenderer) : undefined);
-    message.indexRenderer !== undefined && (obj.indexRenderer = message.indexRenderer ? IndexRenderer.toJSON(message.indexRenderer) : undefined);
-    message.logoutRenderer !== undefined && (obj.logoutRenderer = message.logoutRenderer ? LogoutRenderer.toJSON(message.logoutRenderer) : undefined);
-    message.vkCallbackRenderer !== undefined && (obj.vkCallbackRenderer = message.vkCallbackRenderer ? VKCallbackRenderer.toJSON(message.vkCallbackRenderer) : undefined);
-    return obj;
-  },
-};
-
-export const AnyRequest = {
-  encode(message: AnyRequest, writer: Writer = Writer.create()): Writer {
-    if (message.loginPageRequest !== undefined) {
-      LoginPageRequest.encode(message.loginPageRequest, writer.uint32(10).fork()).ldelim();
-    }
-    if (message.postPageRequest !== undefined) {
-      PostPageRequest.encode(message.postPageRequest, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.userPageRequest !== undefined) {
-      UserPageRequest.encode(message.userPageRequest, writer.uint32(26).fork()).ldelim();
-    }
-    if (message.loginRequest !== undefined) {
-      LoginRequest.encode(message.loginRequest, writer.uint32(34).fork()).ldelim();
-    }
-    if (message.addPostRequest !== undefined) {
-      AddPostRequest.encode(message.addPostRequest, writer.uint32(42).fork()).ldelim();
-    }
-    if (message.getFeedRequest !== undefined) {
-      GetFeedRequest.encode(message.getFeedRequest, writer.uint32(50).fork()).ldelim();
-    }
-    if (message.composerRequest !== undefined) {
-      ComposerRequest.encode(message.composerRequest, writer.uint32(58).fork()).ldelim();
-    }
-    if (message.indexRequest !== undefined) {
-      IndexRequest.encode(message.indexRequest, writer.uint32(66).fork()).ldelim();
-    }
-    if (message.logoutRequest !== undefined) {
-      LogoutRequest.encode(message.logoutRequest, writer.uint32(74).fork()).ldelim();
-    }
-    if (message.vkCallbackRequest !== undefined) {
-      VKCallbackRequest.encode(message.vkCallbackRequest, writer.uint32(82).fork()).ldelim();
-    }
-    return writer;
-  },
-  decode(input: Uint8Array | Reader, length?: number): AnyRequest {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseAnyRequest } as AnyRequest;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.loginPageRequest = LoginPageRequest.decode(reader, reader.uint32());
-          break;
-        case 2:
-          message.postPageRequest = PostPageRequest.decode(reader, reader.uint32());
-          break;
-        case 3:
-          message.userPageRequest = UserPageRequest.decode(reader, reader.uint32());
-          break;
-        case 4:
-          message.loginRequest = LoginRequest.decode(reader, reader.uint32());
-          break;
-        case 5:
-          message.addPostRequest = AddPostRequest.decode(reader, reader.uint32());
-          break;
-        case 6:
-          message.getFeedRequest = GetFeedRequest.decode(reader, reader.uint32());
-          break;
-        case 7:
-          message.composerRequest = ComposerRequest.decode(reader, reader.uint32());
-          break;
-        case 8:
-          message.indexRequest = IndexRequest.decode(reader, reader.uint32());
-          break;
-        case 9:
-          message.logoutRequest = LogoutRequest.decode(reader, reader.uint32());
-          break;
-        case 10:
-          message.vkCallbackRequest = VKCallbackRequest.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromJSON(object: any): AnyRequest {
-    const message = { ...baseAnyRequest } as AnyRequest;
-    if (object.loginPageRequest !== undefined && object.loginPageRequest !== null) {
-      message.loginPageRequest = LoginPageRequest.fromJSON(object.loginPageRequest);
-    } else {
-      message.loginPageRequest = undefined;
-    }
-    if (object.postPageRequest !== undefined && object.postPageRequest !== null) {
-      message.postPageRequest = PostPageRequest.fromJSON(object.postPageRequest);
-    } else {
-      message.postPageRequest = undefined;
-    }
-    if (object.userPageRequest !== undefined && object.userPageRequest !== null) {
-      message.userPageRequest = UserPageRequest.fromJSON(object.userPageRequest);
-    } else {
-      message.userPageRequest = undefined;
-    }
-    if (object.loginRequest !== undefined && object.loginRequest !== null) {
-      message.loginRequest = LoginRequest.fromJSON(object.loginRequest);
-    } else {
-      message.loginRequest = undefined;
-    }
-    if (object.addPostRequest !== undefined && object.addPostRequest !== null) {
-      message.addPostRequest = AddPostRequest.fromJSON(object.addPostRequest);
-    } else {
-      message.addPostRequest = undefined;
-    }
-    if (object.getFeedRequest !== undefined && object.getFeedRequest !== null) {
-      message.getFeedRequest = GetFeedRequest.fromJSON(object.getFeedRequest);
-    } else {
-      message.getFeedRequest = undefined;
-    }
-    if (object.composerRequest !== undefined && object.composerRequest !== null) {
-      message.composerRequest = ComposerRequest.fromJSON(object.composerRequest);
-    } else {
-      message.composerRequest = undefined;
-    }
-    if (object.indexRequest !== undefined && object.indexRequest !== null) {
-      message.indexRequest = IndexRequest.fromJSON(object.indexRequest);
-    } else {
-      message.indexRequest = undefined;
-    }
-    if (object.logoutRequest !== undefined && object.logoutRequest !== null) {
-      message.logoutRequest = LogoutRequest.fromJSON(object.logoutRequest);
-    } else {
-      message.logoutRequest = undefined;
-    }
-    if (object.vkCallbackRequest !== undefined && object.vkCallbackRequest !== null) {
-      message.vkCallbackRequest = VKCallbackRequest.fromJSON(object.vkCallbackRequest);
-    } else {
-      message.vkCallbackRequest = undefined;
-    }
-    return message;
-  },
-  fromPartial(object: DeepPartial<AnyRequest>): AnyRequest {
-    const message = { ...baseAnyRequest } as AnyRequest;
-    if (object.loginPageRequest !== undefined && object.loginPageRequest !== null) {
-      message.loginPageRequest = LoginPageRequest.fromPartial(object.loginPageRequest);
-    } else {
-      message.loginPageRequest = undefined;
-    }
-    if (object.postPageRequest !== undefined && object.postPageRequest !== null) {
-      message.postPageRequest = PostPageRequest.fromPartial(object.postPageRequest);
-    } else {
-      message.postPageRequest = undefined;
-    }
-    if (object.userPageRequest !== undefined && object.userPageRequest !== null) {
-      message.userPageRequest = UserPageRequest.fromPartial(object.userPageRequest);
-    } else {
-      message.userPageRequest = undefined;
-    }
-    if (object.loginRequest !== undefined && object.loginRequest !== null) {
-      message.loginRequest = LoginRequest.fromPartial(object.loginRequest);
-    } else {
-      message.loginRequest = undefined;
-    }
-    if (object.addPostRequest !== undefined && object.addPostRequest !== null) {
-      message.addPostRequest = AddPostRequest.fromPartial(object.addPostRequest);
-    } else {
-      message.addPostRequest = undefined;
-    }
-    if (object.getFeedRequest !== undefined && object.getFeedRequest !== null) {
-      message.getFeedRequest = GetFeedRequest.fromPartial(object.getFeedRequest);
-    } else {
-      message.getFeedRequest = undefined;
-    }
-    if (object.composerRequest !== undefined && object.composerRequest !== null) {
-      message.composerRequest = ComposerRequest.fromPartial(object.composerRequest);
-    } else {
-      message.composerRequest = undefined;
-    }
-    if (object.indexRequest !== undefined && object.indexRequest !== null) {
-      message.indexRequest = IndexRequest.fromPartial(object.indexRequest);
-    } else {
-      message.indexRequest = undefined;
-    }
-    if (object.logoutRequest !== undefined && object.logoutRequest !== null) {
-      message.logoutRequest = LogoutRequest.fromPartial(object.logoutRequest);
-    } else {
-      message.logoutRequest = undefined;
-    }
-    if (object.vkCallbackRequest !== undefined && object.vkCallbackRequest !== null) {
-      message.vkCallbackRequest = VKCallbackRequest.fromPartial(object.vkCallbackRequest);
-    } else {
-      message.vkCallbackRequest = undefined;
-    }
-    return message;
-  },
-  toJSON(message: AnyRequest): unknown {
-    const obj: any = {};
-    message.loginPageRequest !== undefined && (obj.loginPageRequest = message.loginPageRequest ? LoginPageRequest.toJSON(message.loginPageRequest) : undefined);
-    message.postPageRequest !== undefined && (obj.postPageRequest = message.postPageRequest ? PostPageRequest.toJSON(message.postPageRequest) : undefined);
-    message.userPageRequest !== undefined && (obj.userPageRequest = message.userPageRequest ? UserPageRequest.toJSON(message.userPageRequest) : undefined);
-    message.loginRequest !== undefined && (obj.loginRequest = message.loginRequest ? LoginRequest.toJSON(message.loginRequest) : undefined);
-    message.addPostRequest !== undefined && (obj.addPostRequest = message.addPostRequest ? AddPostRequest.toJSON(message.addPostRequest) : undefined);
-    message.getFeedRequest !== undefined && (obj.getFeedRequest = message.getFeedRequest ? GetFeedRequest.toJSON(message.getFeedRequest) : undefined);
-    message.composerRequest !== undefined && (obj.composerRequest = message.composerRequest ? ComposerRequest.toJSON(message.composerRequest) : undefined);
-    message.indexRequest !== undefined && (obj.indexRequest = message.indexRequest ? IndexRequest.toJSON(message.indexRequest) : undefined);
-    message.logoutRequest !== undefined && (obj.logoutRequest = message.logoutRequest ? LogoutRequest.toJSON(message.logoutRequest) : undefined);
-    message.vkCallbackRequest !== undefined && (obj.vkCallbackRequest = message.vkCallbackRequest ? VKCallbackRequest.toJSON(message.vkCallbackRequest) : undefined);
-    return obj;
-  },
-};
 
 export const ErrorRenderer = {
   encode(message: ErrorRenderer, writer: Writer = Writer.create()): Writer {
@@ -1458,10 +1010,9 @@ export const ResolveRouteResponse = {
     for (const v of message.js) {
       writer.uint32(10).string(v!);
     }
-    if (message.request !== undefined && message.request !== undefined) {
-      AnyRequest.encode(message.request, writer.uint32(18).fork()).ldelim();
-    }
     writer.uint32(26).string(message.rootComponent);
+    writer.uint32(34).string(message.apiCommand);
+    writer.uint32(42).string(message.apiArgs);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): ResolveRouteResponse {
@@ -1475,11 +1026,14 @@ export const ResolveRouteResponse = {
         case 1:
           message.js.push(reader.string());
           break;
-        case 2:
-          message.request = AnyRequest.decode(reader, reader.uint32());
-          break;
         case 3:
           message.rootComponent = reader.string();
+          break;
+        case 4:
+          message.apiCommand = reader.string();
+          break;
+        case 5:
+          message.apiArgs = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1496,15 +1050,20 @@ export const ResolveRouteResponse = {
         message.js.push(String(e));
       }
     }
-    if (object.request !== undefined && object.request !== null) {
-      message.request = AnyRequest.fromJSON(object.request);
-    } else {
-      message.request = undefined;
-    }
     if (object.rootComponent !== undefined && object.rootComponent !== null) {
       message.rootComponent = String(object.rootComponent);
     } else {
       message.rootComponent = "";
+    }
+    if (object.apiCommand !== undefined && object.apiCommand !== null) {
+      message.apiCommand = String(object.apiCommand);
+    } else {
+      message.apiCommand = "";
+    }
+    if (object.apiArgs !== undefined && object.apiArgs !== null) {
+      message.apiArgs = String(object.apiArgs);
+    } else {
+      message.apiArgs = "";
     }
     return message;
   },
@@ -1516,15 +1075,20 @@ export const ResolveRouteResponse = {
         message.js.push(e);
       }
     }
-    if (object.request !== undefined && object.request !== null) {
-      message.request = AnyRequest.fromPartial(object.request);
-    } else {
-      message.request = undefined;
-    }
     if (object.rootComponent !== undefined && object.rootComponent !== null) {
       message.rootComponent = object.rootComponent;
     } else {
       message.rootComponent = "";
+    }
+    if (object.apiCommand !== undefined && object.apiCommand !== null) {
+      message.apiCommand = object.apiCommand;
+    } else {
+      message.apiCommand = "";
+    }
+    if (object.apiArgs !== undefined && object.apiArgs !== null) {
+      message.apiArgs = object.apiArgs;
+    } else {
+      message.apiArgs = "";
     }
     return message;
   },
@@ -1535,8 +1099,9 @@ export const ResolveRouteResponse = {
     } else {
       obj.js = [];
     }
-    message.request !== undefined && (obj.request = message.request ? AnyRequest.toJSON(message.request) : undefined);
     message.rootComponent !== undefined && (obj.rootComponent = message.rootComponent);
+    message.apiCommand !== undefined && (obj.apiCommand = message.apiCommand);
+    message.apiArgs !== undefined && (obj.apiArgs = message.apiArgs);
     return obj;
   },
 };

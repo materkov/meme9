@@ -17,37 +17,6 @@ service API {
   rpc VKCallback(VKCallbackRenderer) returns (VKCallbackRenderer);
 }
 
-message AnyRenderer {
-  oneof renderer {
-    LoginPageRenderer login_page_renderer = 1;
-    PostPageRenderer post_page_renderer = 2;
-    UserPageRenderer user_page_renderer = 3;
-    ErrorRenderer error_renderer = 4;
-    LoginRenderer login_renderer = 5;
-    AddPostRenderer add_post_renderer = 6;
-    GetFeedRenderer get_feed_renderer = 7;
-    ComposerRenderer composer_renderer = 8;
-    IndexRenderer index_renderer = 9;
-    LogoutRenderer logout_renderer = 10;
-    VKCallbackRenderer vk_callback_renderer = 11;
-  }
-}
-
-message AnyRequest {
-  oneof request {
-    LoginPageRequest login_page_request = 1;
-    PostPageRequest post_page_request = 2;
-    UserPageRequest user_page_request = 3;
-    LoginRequest login_request = 4;
-    AddPostRequest add_post_request = 5;
-    GetFeedRequest get_feed_request = 6;
-    ComposerRequest composer_request = 7;
-    IndexRequest index_request = 8;
-    LogoutRequest logout_request = 9;
-    VKCallbackRequest vk_callback_request = 10;
-  }
-}
-
 message ErrorRenderer {
   string error_code = 1;
   string display_text = 2;
@@ -111,9 +80,13 @@ message ResolveRouteRequest {
 }
 
 message ResolveRouteResponse {
+  reserved 2;
+  reserved "request";
+
   repeated string js = 1;
-  AnyRequest request = 2;
   string root_component = 3;
+  string api_command = 4;
+  string api_args = 5;
 }
 
 message PostPageRequest {

@@ -17,7 +17,5 @@ func (l *LogoutApi) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-	writeResponse(w, &pb.AnyRenderer{Renderer: &pb.AnyRenderer_LogoutRenderer{
-		LogoutRenderer: &pb.LogoutRenderer{},
-	}})
+	writeResponse(w, &pb.LogoutRenderer{})
 }
