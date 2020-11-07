@@ -159,7 +159,7 @@ func (m *Main) apiRequest(viewer *api.Viewer, req *pb.AnyRequest) proto.Message 
 
 		return resp
 	case *pb.AnyRequest_LoginPageRequest:
-		resp, err :=  m.loginPage.Handle(viewer, req.LoginPageRequest)
+		resp, err := m.loginPage.Handle(viewer, req.LoginPageRequest)
 		if err != nil {
 			return m.wrapError(err)
 		}
