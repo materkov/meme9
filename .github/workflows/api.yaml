@@ -1,4 +1,4 @@
-name: Go
+name: API
 on: [push]
 jobs:
   build:
@@ -33,7 +33,7 @@ jobs:
         run: make lint-all
 
       - name: build all
-        run: make build-all
+        run: make build-api
 
       - name: test all
         run: make test-all

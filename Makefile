@@ -10,8 +10,10 @@ run-proto:
 		--ts_proto_out=front/src/schema \
 		schema/login.proto
 
-build-all:
+build-api:
 	cd api && go build cmd/main.go
+
+build-front:
 	cd front && yarn && yarn build
 
 test-all:
