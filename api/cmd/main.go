@@ -16,20 +16,15 @@ func main() {
 
 	conf := config.Config{}
 
-	configEnv := os.Getenv("CONFIG")
-	var err error
-	if configEnv != "" {
-		err = json.Unmarshal([]byte(configEnv), &conf)
-	} else {
+	configJson := []byte(os.Getenv("CONFIG"))
+	if len(configJson) == 0 {
 		homeDir, _ := os.UserHomeDir()
-		dat, err := ioutil.ReadFile(homeDir + "/.meme")
-		if err == nil {
-			err = json.Unmarshal(dat, &conf)
-		}
+		configJson, _ = ioutil.ReadFile(homeDir + "/.meme")
 	}
 
+	err := json.Unmarshal(configJson, &conf)
 	if err != nil {
-		panic("Error parsing Config: " + err.Error())
+		panic("Error parsing config: " + err.Error())
 	}
 
 	m := api.Main{Config: &conf}
