@@ -14,6 +14,7 @@ import (
 	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/handlers"
 	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pkg/config"
 	"github.com/materkov/meme9/api/store"
 )
 
@@ -120,7 +121,8 @@ type resolvedRoute struct {
 }
 
 type Main struct {
-	store *store.Store
+	store  *store.Store
+	Config *config.Config
 
 	loginPage *handlers.LoginPage
 	addPost   *handlers.AddPost
@@ -243,7 +245,7 @@ func (m *Main) Main() {
 	redisClient := redis.NewClient(&redis.Options{})
 	m.store = store.NewStore(redisClient)
 	authMiddleware := &AuthMiddleware{store: m.store}
-	csrfMiddleware := &CSRFMiddleware{}
+	csrfMiddleware := &CSRFMiddleware{Config: m.Config}
 	m.loginPage = &handlers.LoginPage{Store: m.store}
 	m.addPost = &handlers.AddPost{Store: m.store}
 	m.postPage = &handlers.PostPage{Store: m.store}
@@ -252,7 +254,7 @@ func (m *Main) Main() {
 	m.composer = &handlers.Composer{Store: m.store}
 	m.index = &handlers.Index{Store: m.store}
 	logoutApi := &handlers.LogoutApi{}
-	vkCallbackApi := &handlers.VKCallback{Store: m.store}
+	vkCallbackApi := &handlers.VKCallback{Store: m.store, Config: m.Config}
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
 		resolvedRoute := resolveRoute(r.URL.Path)
@@ -268,7 +270,7 @@ func (m *Main) Main() {
 
 		CSRFToken := ""
 		if viewer.User != nil {
-			CSRFToken = api.GenerateCSRFToken(viewer.User.ID)
+			CSRFToken = api.GenerateCSRFToken(m.Config.CSRFKey, viewer.User.ID)
 		}
 
 		page := HTMLPage{

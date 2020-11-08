@@ -79,12 +79,3 @@ func (s *Store) SaveUserVKID(vkID int, userID int) error {
 
 	return nil
 }
-
-func (s *Store) GetVkSecret() (string, error) {
-	key, err := s.redis.Get("vk_meme_secret").Result()
-	if err != nil {
-		return "", fmt.Errorf("error getting redis key: %w", err)
-	}
-
-	return key, nil
-}

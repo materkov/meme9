@@ -5,9 +5,11 @@ import (
 
 	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pkg/config"
 )
 
 type CSRFMiddleware struct {
+	Config *config.Config
 }
 
 func (c *CSRFMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
@@ -16,7 +18,7 @@ func (c *CSRFMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 		if viewer.User != nil {
 			token := r.Header.Get("x-csrf-token")
 
-			tokenValid := api.ValidateCSRFToken(viewer.User.ID, token)
+			tokenValid := api.ValidateCSRFToken(c.Config.CSRFKey, viewer.User.ID, token)
 			if !tokenValid {
 				err := &pb.ErrorRenderer{
 					ErrorCode:   "CSRF_VALIDATION_FAILED",

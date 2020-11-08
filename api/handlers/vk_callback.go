@@ -10,11 +10,13 @@ import (
 	"time"
 
 	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pkg/config"
 	"github.com/materkov/meme9/api/store"
 )
 
 type VKCallback struct {
-	Store *store.Store
+	Store  *store.Store
+	Config *config.Config
 }
 
 func (v *VKCallback) Handle(w http.ResponseWriter, r *http.Request) {
@@ -29,17 +31,11 @@ func (v *VKCallback) Handle(w http.ResponseWriter, r *http.Request) {
 		proxyScheme = "http"
 	}
 
-	clientSecret, err := v.Store.GetVkSecret()
-	if err != nil {
-		writeInternalError(w, err)
-		return
-	}
-
 	redirectURI := fmt.Sprintf("%s://%s%s", proxyScheme, r.Host, r.URL.EscapedPath())
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
 		"client_id":     []string{strconv.Itoa(VKAppID)},
-		"client_secret": []string{clientSecret},
+		"client_secret": []string{v.Config.VKAppSecret},
 		"redirect_uri":  []string{redirectURI},
 		"code":          []string{code},
 	})

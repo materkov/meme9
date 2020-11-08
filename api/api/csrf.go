@@ -8,16 +8,13 @@ import (
 	"strings"
 )
 
-// TODO: move to redis
-var hashKey = []byte("]G4<w}t>;EZA*erX")
-
-func GenerateCSRFToken(viewerID int) string {
-	mac := hmac.New(sha256.New, hashKey)
+func GenerateCSRFToken(tokenSecret string, viewerID int) string {
+	mac := hmac.New(sha256.New, []byte(tokenSecret))
 	_, _ = mac.Write([]byte(strconv.Itoa(viewerID)))
 	return fmt.Sprintf("%d-%x", viewerID, mac.Sum(nil))
 }
 
-func ValidateCSRFToken(viewerID int, token string) bool {
+func ValidateCSRFToken(tokenSecret string, viewerID int, token string) bool {
 	parts := strings.Split(token, "-")
 	if len(parts) != 2 {
 		return false
@@ -28,6 +25,6 @@ func ValidateCSRFToken(viewerID int, token string) bool {
 		return false
 	}
 
-	validToken := GenerateCSRFToken(viewerID)
+	validToken := GenerateCSRFToken(tokenSecret, viewerID)
 	return validToken == token
 }
