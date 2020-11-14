@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/materkov/meme9/api/api"
@@ -42,7 +43,9 @@ func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, err := a.getTokenFromCookie(r)
 		if err != nil {
-			panic(1)
+			log.Printf("[ERROR] Auth error")
+			//jsonResp := serializeResponse(nil, api.NewError("ERR_AUTH", "Auth error"))
+			//w.Write([]byte(jsonResp))
 		}
 
 		requestScheme := r.Header.Get("x-forwarded-proto")
@@ -59,7 +62,10 @@ func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 		if token != nil {
 			viewer.User, err = a.store.GetUser(token.UserID)
 			if err != nil {
-				panic(1)
+				log.Printf("[ERROR] Error getting user")
+				//jsonResp := serializeResponse(nil, api.NewError("ERR_AUTH2", "Auth error"))
+				//w.Write([]byte(jsonResp))
+				//return
 			}
 		}
 

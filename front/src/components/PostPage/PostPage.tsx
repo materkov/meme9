@@ -11,7 +11,7 @@ export class PostPage extends React.Component<PostPageProps> {
     render() {
         return (
             <div>
-                {this.props.data.headerRenderer && <Header data={this.props.data.headerRenderer}/>}
+                <Header data={this.props.data.headerRenderer}/>
 
                 <h1>Post {this.props.data.id}</h1>
                 {this.props.data.text}

@@ -13,7 +13,7 @@ export class Feed extends React.Component<FeedProps, any> {
 
         return (
             <div>
-                {this.props.data.headerRenderer && <Header data={this.props.data.headerRenderer}/>}
+                <Header data={this.props.data?.headerRenderer}/>
 
                 {posts.map(item => (<FeedItem key={item.id} data={item}/>))}
             </div>

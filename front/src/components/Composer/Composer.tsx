@@ -11,7 +11,7 @@ export interface ComposerProps {
 export function Composer(props: ComposerProps) {
     return (
         <div>
-            {props.data.headerRenderer && <Header data={props.data.headerRenderer}/>}
+            <Header data={props.data.headerRenderer}/>
 
             {props.data.unathorizedText ?
                 <UnathorizedPlaceholder data={props.data}/> :

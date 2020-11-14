@@ -1,5 +1,6 @@
 import React from "react";
 import * as schema from "../../schema/login";
+import {fetchData} from "../../DataFetcher";
 
 interface PostComposerProps {
     data: schema.ComposerRenderer;
@@ -7,11 +8,13 @@ interface PostComposerProps {
 
 interface PostComposerState {
     text: string;
+    success: boolean;
 }
 
 export class PostComposer extends React.Component<PostComposerProps, PostComposerState> {
     state: PostComposerState = {
         text: '',
+        success: false,
     };
 
     onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -23,15 +26,11 @@ export class PostComposer extends React.Component<PostComposerProps, PostCompose
             text: this.state.text,
         };
 
-        fetch("/api/meme.API/AddPost", {
-            method: 'POST',
-            headers: {
-                'x-csrf-token': window.CSRFToken,
-            },
-            body: JSON.stringify(params),
-        }).then(r => r.json()).then(r => {
+        fetchData('meme.API.AddPost', JSON.stringify(params)).then((r: schema.AddPostRenderer) => {
+            this.setState({success: true});
+        }).catch(() => {
 
-        });
+        })
     };
 
     render() {
@@ -43,6 +42,10 @@ export class PostComposer extends React.Component<PostComposerProps, PostCompose
                 {data.welcomeText}<br/>
                 <textarea onChange={this.onChange}></textarea><br/>
                 <button onClick={this.onSubmit}>Отправить</button>
+
+                {this.state.success &&
+                <div>Пост успешно добавлен</div>
+                }
             </div>
         );
     }

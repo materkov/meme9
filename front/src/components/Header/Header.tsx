@@ -3,7 +3,7 @@ import {Link} from "../Link/Link";
 import * as schema from "../../schema/login";
 
 export interface HeaderProps {
-    data: schema.HeaderRenderer;
+    data?: schema.HeaderRenderer;
 }
 
 export class Header extends React.Component<HeaderProps> {
@@ -19,7 +19,7 @@ export class Header extends React.Component<HeaderProps> {
 
                 <br/>
 
-                {data.links.map((link) =>
+                {data?.links.map((link) =>
                     <span key={link.url} style={{marginRight: '4px'}}>
                         <Link href={link.url}>{link.label}</Link>
                     </span>

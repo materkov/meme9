@@ -10,7 +10,7 @@ import (
 type HTMLPage struct {
 	ApiMethod     string
 	ApiRequest    proto.Message
-	ApiResponse   proto.Message
+	ApiResponse   string
 	JsBundles     []string
 	ApiKey        string
 	RootComponent string
@@ -53,14 +53,13 @@ func (h *HTMLPage) render() string {
 	}
 
 	m := jsonpb.Marshaler{}
-	initApiRequestStr, _ := m.MarshalToString(h.ApiResponse)
 	initApiArgsStr, _ := m.MarshalToString(h.ApiRequest)
 
 	page = strings.Replace(page, "{{.InitJsBundles}}", jsBundles, 1)
 	page = strings.Replace(page, "{{.ApiKey}}", h.ApiKey, 1)
 	page = strings.Replace(page, "{{.Scripts}}", scriptTags, 1)
 	page = strings.Replace(page, "{{.InitApiMethod}}", h.ApiMethod, 1)
-	page = strings.Replace(page, "{{.InitApiResponse}}", initApiRequestStr, 1)
+	page = strings.Replace(page, "{{.InitApiResponse}}", h.ApiResponse, 1)
 	page = strings.Replace(page, "{{.InitApiRequest}}", initApiArgsStr, 1)
 	page = strings.Replace(page, "{{.InitRootComponent}}", h.RootComponent, 1)
 	page = strings.Replace(page, "{{.CSRFToken}}", h.CSRFToken, 1)

@@ -2,6 +2,7 @@ import React from "react";
 import {resolveRoute} from "../../RouteResolver";
 import {fetchData} from "../../DataFetcher";
 import {fetchJs} from "../../JsFetcher";
+import {Error} from "../Error/Error";
 
 interface State {
     rootData: any;
@@ -44,7 +45,7 @@ export class Root extends React.Component<{}, State> {
                     rootComponent: resolvedRoute.rootComponent,
                 })
                 window.history.replaceState({}, 'meme', url);
-            })
+            });
         })
     }
 
@@ -53,10 +54,14 @@ export class Root extends React.Component<{}, State> {
             return '';
         }
 
+        if (this.state.rootData.error) {
+            return <Error data={this.state.rootData.error}/>
+        }
+
         const Component = window.modules[this.state.rootComponent];
 
         //@ts-ignore
-        return <Component data={this.state.rootData}/>
+        return <Component data={this.state.rootData.data}/>
     }
 
     render() {

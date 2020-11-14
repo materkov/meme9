@@ -11,7 +11,7 @@ export class Index extends React.Component<IndexProps, any> {
     render() {
         return (
             <div>
-                {this.props.data.headerRenderer && <Header data={this.props.data.headerRenderer}/>}
+                <Header data={this.props.data.headerRenderer}/>
 
                 <h1>Главная страница</h1>
                 {this.props.data.text}

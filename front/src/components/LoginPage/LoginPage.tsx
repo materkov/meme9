@@ -62,7 +62,7 @@ export class LoginPage extends React.Component<LoginPageProps, LoginPageState> {
 
         return (
             <div>
-                {data.headerRenderer && <Header data={data.headerRenderer}/>}
+                <Header data={data.headerRenderer}/>
 
                 <h2>{data.welcomeText}</h2>
                 <br/>

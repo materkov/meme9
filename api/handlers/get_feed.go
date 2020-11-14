@@ -19,7 +19,8 @@ type GetFeed struct {
 func (g *GetFeed) Handle(viewer *api.Viewer, req *pb.GetFeedRequest) (*pb.GetFeedRenderer, error) {
 	postIds, err := g.Store.GetFeed()
 	if err != nil {
-		return nil, fmt.Errorf("error getting feed: %w", err)
+		log.Printf("[ERROR] Erro getting feed: %s", err)
+		//return nil, fmt.Errorf("error getting feed: %w", err)
 	}
 
 	wg := sync.WaitGroup{}
