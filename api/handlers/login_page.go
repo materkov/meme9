@@ -22,6 +22,7 @@ func (l *LoginPage) Handle(viewer *api.Viewer, req *pb.LoginPageRequest) (*pb.Lo
 		WelcomeText:    "Login welcome текстик",
 		HeaderRenderer: common.GetHeaderRenderer(viewer),
 		VkUrl:          fmt.Sprintf("https://oauth.vk.com/authorize?client_id=%d&response_type=code&redirect_uri=%s", VKAppID, redirectURL),
+		VkText:         "Войти через ВК",
 	}
 
 	return renderer, nil

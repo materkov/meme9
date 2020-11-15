@@ -29,7 +29,8 @@ export class Link extends React.Component<Props, any> {
     };
 
     render() {
-        return <a href={this.props.href} onMouseEnter={this.onMouseEnter}
+        return <a href={this.props.href}
+                  onMouseEnter={this.onMouseEnter}
                   onClick={this.onClick}>{this.props.children}</a>;
     }
 }

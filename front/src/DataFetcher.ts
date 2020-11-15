@@ -15,7 +15,7 @@ export function fetchData<T>(method: string, args: string): Promise<T> {
         const cacheKey = method + "__" + argsText;
         const cached = cache[cacheKey];
         if (cached) {
-            resolve(cached);
+            resolve(cached.data);
             return;
         }
 

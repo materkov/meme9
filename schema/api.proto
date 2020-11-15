@@ -44,6 +44,7 @@ message LoginPageRenderer {
   string submit_url = 1;
   string welcome_text = 2;
   string vk_url = 4;
+  string vk_text = 5;
 
   HeaderRenderer header_renderer = 3;
 }

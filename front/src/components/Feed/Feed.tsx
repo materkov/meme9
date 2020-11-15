@@ -31,8 +31,8 @@ class FeedItem extends React.Component<FeedItemProps, any> {
 
         return (
             <div>
-                Post <Link href={post.postUrl}>#{post.id}</Link><br/>
-                From User <Link href={post.userUrl}>#{post.userId}</Link><br/>
+                <Link href={post.postUrl}>Post #{post.id}</Link><br/>
+                <Link href={post.userUrl}>User #{post.userId}</Link><br/>
                 <br/>
                 {post.text}
                 <br/>

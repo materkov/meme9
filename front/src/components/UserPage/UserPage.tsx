@@ -9,20 +9,19 @@ export interface UserPageProps {
 
 export class UserPage extends React.Component<UserPageProps> {
     render() {
+        const {data} = this.props;
+
         return (
             <div>
-                <Header data={this.props.data.headerRenderer}/>
+                <Header data={data.headerRenderer}/>
 
-                <h1>User {this.props.data.id}</h1>
+                <h1>{data.name}</h1>
                 <br/>
-                <Link href={this.props.data.lastPostUrl} onClick={() => {
-                }}>
-                    Latest post {this.props.data.lastPostId}
+                User #{data.id}<br/>
+                <Link href={data.lastPostUrl}>
+                    Latest post: {data.lastPostId}
                 </Link>
                 <br/>
-                Name: {this.props.data.name}
-                <br/><br/>
-                You are user: {this.props.data.headerRenderer?.currentUserId}
             </div>
         );
     }

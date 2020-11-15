@@ -20,7 +20,7 @@ export class Header extends React.Component<HeaderProps> {
                 <br/>
 
                 {data?.links.map((link) =>
-                    <span key={link.url} style={{marginRight: '4px'}}>
+                    <span key={link.url} style={{marginRight: '10px'}}>
                         <Link href={link.url}>{link.label}</Link>
                     </span>
                 )}

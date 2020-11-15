@@ -18,8 +18,6 @@ export class PostPage extends React.Component<PostPageProps> {
                 <br/>
                 <img src="/static/cat.jpg" style={{width: "100px"}}/><br/>
                 <Link href={this.props.data.userUrl}>User {this.props.data.userId}</Link>
-                <br/><br/>
-                You are user: {this.props.data.headerRenderer?.currentUserId}
             </div>
         );
     }

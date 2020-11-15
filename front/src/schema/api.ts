@@ -29,6 +29,7 @@ export interface LoginPageRenderer {
   submitUrl: string;
   welcomeText: string;
   vkUrl: string;
+  vkText: string;
   headerRenderer: HeaderRenderer | undefined;
 }
 
@@ -156,6 +157,7 @@ const baseLoginPageRenderer: object = {
   submitUrl: "",
   welcomeText: "",
   vkUrl: "",
+  vkText: "",
 };
 
 const basePostPageRenderer: object = {
@@ -624,6 +626,7 @@ export const LoginPageRenderer = {
     writer.uint32(10).string(message.submitUrl);
     writer.uint32(18).string(message.welcomeText);
     writer.uint32(34).string(message.vkUrl);
+    writer.uint32(42).string(message.vkText);
     if (message.headerRenderer !== undefined && message.headerRenderer !== undefined) {
       HeaderRenderer.encode(message.headerRenderer, writer.uint32(26).fork()).ldelim();
     }
@@ -644,6 +647,9 @@ export const LoginPageRenderer = {
           break;
         case 4:
           message.vkUrl = reader.string();
+          break;
+        case 5:
+          message.vkText = reader.string();
           break;
         case 3:
           message.headerRenderer = HeaderRenderer.decode(reader, reader.uint32());
@@ -672,6 +678,11 @@ export const LoginPageRenderer = {
     } else {
       message.vkUrl = "";
     }
+    if (object.vkText !== undefined && object.vkText !== null) {
+      message.vkText = String(object.vkText);
+    } else {
+      message.vkText = "";
+    }
     if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
       message.headerRenderer = HeaderRenderer.fromJSON(object.headerRenderer);
     } else {
@@ -696,6 +707,11 @@ export const LoginPageRenderer = {
     } else {
       message.vkUrl = "";
     }
+    if (object.vkText !== undefined && object.vkText !== null) {
+      message.vkText = object.vkText;
+    } else {
+      message.vkText = "";
+    }
     if (object.headerRenderer !== undefined && object.headerRenderer !== null) {
       message.headerRenderer = HeaderRenderer.fromPartial(object.headerRenderer);
     } else {
@@ -708,6 +724,7 @@ export const LoginPageRenderer = {
     message.submitUrl !== undefined && (obj.submitUrl = message.submitUrl);
     message.welcomeText !== undefined && (obj.welcomeText = message.welcomeText);
     message.vkUrl !== undefined && (obj.vkUrl = message.vkUrl);
+    message.vkText !== undefined && (obj.vkText = message.vkText);
     message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
     return obj;
   },
