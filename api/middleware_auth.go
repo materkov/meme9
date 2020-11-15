@@ -43,9 +43,7 @@ func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, err := a.getTokenFromCookie(r)
 		if err != nil {
-			log.Printf("[ERROR] Auth error")
-			//jsonResp := serializeResponse(nil, api.NewError("ERR_AUTH", "Auth error"))
-			//w.Write([]byte(jsonResp))
+			log.Printf("[ERROR] Error checking auth token: %s", err)
 		}
 
 		requestScheme := r.Header.Get("x-forwarded-proto")
@@ -62,10 +60,7 @@ func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 		if token != nil {
 			viewer.User, err = a.store.GetUser(token.UserID)
 			if err != nil {
-				log.Printf("[ERROR] Error getting user")
-				//jsonResp := serializeResponse(nil, api.NewError("ERR_AUTH2", "Auth error"))
-				//w.Write([]byte(jsonResp))
-				//return
+				log.Printf("[ERROR] Error getting user by id: %s", err)
 			}
 		}
 

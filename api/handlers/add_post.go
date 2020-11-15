@@ -22,7 +22,7 @@ func (a *AddPost) Handle(viewer *api.Viewer, req *pb.AddPostRequest) (*pb.AddPos
 		return nil, fmt.Errorf("error generating node id: %w", err)
 	}
 
-	if viewer.User == nil {
+	if viewer.User == nil || !viewer.CSRFValidated {
 		return nil, api.NewError("NOT_AUTHORIZED", "User not authorized")
 	}
 
