@@ -95,6 +95,8 @@ func (m *Main) Run() {
 
 		resp, err := apiHandlers.Call(viewer, method, string(body))
 
+		w.Header().Set("Content-Type", "application/json")
+
 		respStr := serializeResponse(resp, err)
 		_, _ = w.Write([]byte(respStr))
 	}

@@ -3,6 +3,7 @@ import {resolveRoute} from "../../RouteResolver";
 import {fetchData} from "../../DataFetcher";
 import {fetchJs} from "../../JsFetcher";
 import {Error} from "../Error/Error";
+import {NavigateContext} from "../../context";
 
 interface State {
     rootData: any;
@@ -16,27 +17,15 @@ export class Root extends React.Component<{}, State> {
     };
 
     componentDidMount() {
-        if (window.InitApiResponse) {
-            fetchJs(window.InitJsBundles).then(() => {
-                this.setState({
-                    rootData: window.InitApiResponse,
-                    rootComponent: window.InitRootComponent,
-                });
-            })
-        }
+        fetchJs(window.InitJsBundles).then(() => {
+            this.setState({
+                rootData: window.InitApiResponse,
+                rootComponent: window.InitRootComponent,
+            });
+        })
     }
 
-    onClick = (e: React.MouseEvent) => {
-        //@ts-ignore
-        if (!e.target || e.target.nodeName !== "A") {
-            return;
-        }
-
-        e.preventDefault();
-
-        //@ts-ignore
-        const url = e.target.href;
-
+    navigate = (url: string) => {
         resolveRoute(url).then((resolvedRoute) => {
             Promise.all([
                 fetchJs(resolvedRoute.js || []),
@@ -67,6 +56,10 @@ export class Root extends React.Component<{}, State> {
     }
 
     render() {
-        return <div onClick={this.onClick} id="content">{this.renderRoot()}</div>;
+        return (
+            <NavigateContext.Provider value={this.navigate}>
+                {this.renderRoot()}
+            </NavigateContext.Provider>
+        );
     }
 }

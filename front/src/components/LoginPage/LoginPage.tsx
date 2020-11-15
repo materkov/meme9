@@ -66,7 +66,7 @@ export class LoginPage extends React.Component<LoginPageProps, LoginPageState> {
                 {data.headerRenderer?.currentUserId ?
                     <span>
                         Вы уже вошли в систему
-                        как <b>{data.headerRenderer.currentUserName}</b>. <Link href={""}
+                        как <b>{data.headerRenderer.currentUserName}</b>. <Link href={"/logout"}
                                                                                       onClick={this.logout}>Выйти</Link>
                     </span> :
                     this.renderForm()
