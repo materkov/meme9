@@ -1,6 +1,6 @@
 import React from "react";
 import {Link} from "../Link/Link";
-import * as schema from "../../schema/login";
+import * as schema from "../../schema/api";
 
 export interface HeaderProps {
     data?: schema.HeaderRenderer;

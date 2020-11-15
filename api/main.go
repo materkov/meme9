@@ -11,11 +11,12 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
-	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/handlers"
 	"github.com/materkov/meme9/api/handlers/web"
 	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pkg/api"
 	"github.com/materkov/meme9/api/pkg/config"
+	"github.com/materkov/meme9/api/pkg/csrf"
 	"github.com/materkov/meme9/api/store"
 )
 
@@ -187,7 +188,7 @@ func (m *Main) Main() {
 
 		CSRFToken := ""
 		if viewer.User != nil {
-			CSRFToken = api.GenerateCSRFToken(m.Config.CSRFKey, viewer.User.ID)
+			CSRFToken = csrf.GenerateCSRFToken(m.Config.CSRFKey, viewer.User.ID)
 		}
 
 		page := HTMLPage{

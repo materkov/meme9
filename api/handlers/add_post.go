@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pkg/api"
 	"github.com/materkov/meme9/api/store"
 )
 

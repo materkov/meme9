@@ -1,4 +1,4 @@
-import * as schema from "./schema/login";
+import * as schema from "./schema/api";
 
 let cache: { [request: string]: any } = {};
 

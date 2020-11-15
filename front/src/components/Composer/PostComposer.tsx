@@ -1,5 +1,5 @@
 import React from "react";
-import * as schema from "../../schema/login";
+import * as schema from "../../schema/api";
 import {fetchData} from "../../DataFetcher";
 
 interface PostComposerProps {

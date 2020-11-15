@@ -3,8 +3,8 @@ package handlers
 import (
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
-	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pkg/api"
 	"github.com/materkov/meme9/api/pkg/config"
 	"github.com/materkov/meme9/api/store"
 )

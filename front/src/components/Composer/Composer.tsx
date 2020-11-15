@@ -1,5 +1,5 @@
 import React from "react";
-import * as schema from "../../schema/login";
+import * as schema from "../../schema/api";
 import {Header} from "../Header/Header";
 import {PostComposer} from "./PostComposer";
 import {UnathorizedPlaceholder} from "./UnathorizedPlaceholder";

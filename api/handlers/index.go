@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/handlers/common"
 	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pkg/api"
 	"github.com/materkov/meme9/api/store"
 )
 

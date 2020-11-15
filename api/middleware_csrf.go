@@ -3,8 +3,9 @@ package api
 import (
 	"net/http"
 
-	"github.com/materkov/meme9/api/api"
+	"github.com/materkov/meme9/api/pkg/api"
 	"github.com/materkov/meme9/api/pkg/config"
+	"github.com/materkov/meme9/api/pkg/csrf"
 )
 
 type CSRFMiddleware struct {
@@ -17,7 +18,7 @@ func (c *CSRFMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 		viewer := r.Context().Value(viewerCtxKey).(*api.Viewer)
 
 		if viewer.User != nil && token != "" {
-			viewer.CSRFValidated = api.ValidateCSRFToken(c.Config.CSRFKey, viewer.User.ID, token)
+			viewer.CSRFValidated = csrf.ValidateCSRFToken(c.Config.CSRFKey, viewer.User.ID, token)
 		}
 
 		next(w, r)

@@ -1,4 +1,4 @@
-package api
+package csrf
 
 import (
 	"crypto/hmac"

@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/materkov/meme9/api/api"
+	"github.com/materkov/meme9/api/pkg/api"
 	"github.com/materkov/meme9/api/store"
 )
 

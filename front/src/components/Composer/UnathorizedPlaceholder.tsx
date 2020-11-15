@@ -1,4 +1,4 @@
-import * as schema from "../../schema/login";
+import * as schema from "../../schema/api";
 import React from "react";
 
 interface UnathorizedPlaceholderProps {

@@ -1,4 +1,4 @@
-import * as schema from "./schema/login";
+import * as schema from "./schema/api";
 
 let cachedRoutes: { [url: string]: schema.ResolveRouteResponse } = {};
 let waiting: { [url: string]: ((r: schema.ResolveRouteResponse) => void)[] } = {};

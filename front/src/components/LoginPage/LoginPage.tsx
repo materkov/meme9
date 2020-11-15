@@ -1,6 +1,5 @@
 import React from 'react';
-import * as schema from '../../schema/login';
-import {LoginRenderer, LogoutRenderer} from '../../schema/login';
+import * as schema from '../../schema/api';
 import {Header} from "../Header/Header";
 import {Link} from "../Link/Link";
 
@@ -39,7 +38,7 @@ export class LoginPage extends React.Component<LoginPageProps, LoginPageState> {
 
         fetch("/api/login", {
             method: 'POST', body: JSON.stringify(params)
-        }).then(r => r.json()).then((r: LoginRenderer) => {
+        }).then(r => r.json()).then((r: schema.LoginRenderer) => {
             this.setState({response: r});
         })
     };

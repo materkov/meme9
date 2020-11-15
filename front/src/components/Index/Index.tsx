@@ -1,5 +1,5 @@
 import React from "react";
-import * as schema from "../../schema/login";
+import * as schema from "../../schema/api";
 import {Link} from "../Link/Link";
 import {Header} from "../Header/Header";
 
