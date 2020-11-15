@@ -1,15 +1,16 @@
-package handlers
+package web
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
-	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/handlers"
 	"github.com/materkov/meme9/api/pkg/config"
 	"github.com/materkov/meme9/api/store"
 )
@@ -19,10 +20,15 @@ type VKCallback struct {
 	Config *config.Config
 }
 
+func writeInternalError(w http.ResponseWriter, err error) {
+	log.Printf("[ERROR] VK auth internal error: %s", err)
+	_, _ = fmt.Fprint(w, "Internal error")
+}
+
 func (v *VKCallback) Handle(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		writeError(w, &pb.ErrorRenderer{DisplayText: "empty code"})
+		_, _ = fmt.Fprint(w, "Empty VK code")
 		return
 	}
 
@@ -34,20 +40,20 @@ func (v *VKCallback) Handle(w http.ResponseWriter, r *http.Request) {
 	redirectURI := fmt.Sprintf("%s://%s%s", proxyScheme, r.Host, r.URL.EscapedPath())
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
-		"client_id":     []string{strconv.Itoa(VKAppID)},
+		"client_id":     []string{strconv.Itoa(handlers.VKAppID)},
 		"client_secret": []string{v.Config.VKAppSecret},
 		"redirect_uri":  []string{redirectURI},
 		"code":          []string{code},
 	})
 	if err != nil {
-		writeInternalError(w, err)
+		writeInternalError(w, fmt.Errorf("http vk error: %v", err))
 		return
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		writeInternalError(w, err)
+		writeInternalError(w, fmt.Errorf("failed reading http body: %v", err))
 		return
 	}
 
@@ -57,16 +63,16 @@ func (v *VKCallback) Handle(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err = json.Unmarshal(bodyBytes, &body)
 	if err != nil {
-		writeInternalError(w, err)
+		writeInternalError(w, fmt.Errorf("incorrect json: %s", bodyBytes))
 		return
 	} else if body.AccessToken == "" {
-		writeInternalError(w, fmt.Errorf("error from vk: %s", bodyBytes))
+		writeInternalError(w, fmt.Errorf("incorrect response: %s", bodyBytes))
 		return
 	}
 
 	nodeID, err := v.Store.GetUserByVKID(body.UserID)
 	if err != nil {
-		writeInternalError(w, err)
+		writeInternalError(w, fmt.Errorf("failed getting by vk id: %v", err))
 		return
 	}
 
@@ -75,13 +81,13 @@ func (v *VKCallback) Handle(w http.ResponseWriter, r *http.Request) {
 	if nodeID == 0 {
 		userID, err := v.Store.GenerateNodeID()
 		if err != nil {
-			writeInternalError(w, err)
+			writeInternalError(w, fmt.Errorf("failed generating node id: %v", err))
 			return
 		}
 
 		err = v.Store.SaveUserVKID(body.UserID, userID)
 		if err != nil {
-			writeInternalError(w, err)
+			writeInternalError(w, fmt.Errorf("failed saving vk id: %v", err))
 			return
 		}
 
@@ -92,20 +98,20 @@ func (v *VKCallback) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 		err = v.Store.AddUser(user)
 		if err != nil {
-			writeInternalError(w, err)
+			writeInternalError(w, fmt.Errorf("failed saving user: %v", err))
 			return
 		}
 	} else {
 		user, err = v.Store.GetUser(nodeID)
 		if err != nil {
-			writeInternalError(w, fmt.Errorf("error getting user node: %w", err))
+			writeInternalError(w, fmt.Errorf("failed getting user: %v", err))
 			return
 		}
 	}
 
 	tokenID, err := v.Store.GenerateNodeID()
 	if err != nil {
-		writeInternalError(w, err)
+		writeInternalError(w, fmt.Errorf("failed generating node id for token: %v", err))
 		return
 	}
 
@@ -118,7 +124,7 @@ func (v *VKCallback) Handle(w http.ResponseWriter, r *http.Request) {
 
 	err = v.Store.AddToken(&token)
 	if err != nil {
-		writeInternalError(w, err)
+		writeInternalError(w, fmt.Errorf("failed saving token: %v", err))
 		return
 	}
 

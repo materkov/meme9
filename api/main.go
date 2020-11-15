@@ -13,6 +13,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/materkov/meme9/api/api"
 	"github.com/materkov/meme9/api/handlers"
+	"github.com/materkov/meme9/api/handlers/web"
 	"github.com/materkov/meme9/api/pb"
 	"github.com/materkov/meme9/api/pkg/config"
 	"github.com/materkov/meme9/api/store"
@@ -237,8 +238,8 @@ func (m *Main) Main() {
 	m.getFeed = &handlers.GetFeed{Store: m.store}
 	m.composer = &handlers.Composer{Store: m.store}
 	m.index = &handlers.Index{Store: m.store}
-	logoutApi := &handlers.LogoutApi{}
-	vkCallbackApi := &handlers.VKCallback{Store: m.store, Config: m.Config}
+	logoutHandler := &web.Logout{}
+	vkCallbackApi := &web.VKCallback{Store: m.store, Config: m.Config}
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
 		resolvedRoute := resolveRoute(r.URL.Path)
@@ -283,7 +284,7 @@ func (m *Main) Main() {
 	}
 
 	http.HandleFunc("/vk-callback", vkCallbackApi.Handle)
-	http.HandleFunc("/api/logout", logoutApi.ServeHTTP)
+	http.HandleFunc("/logout", logoutHandler.ServeHTTP)
 	http.HandleFunc("/", authMiddleware.Do(mainHandler))
 	http.HandleFunc("/api", authMiddleware.Do(csrfMiddleware.Do(apiHandler)))
 	http.HandleFunc("/resolve-route", func(w http.ResponseWriter, r *http.Request) {

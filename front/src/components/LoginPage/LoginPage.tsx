@@ -45,12 +45,7 @@ export class LoginPage extends React.Component<LoginPageProps, LoginPageState> {
     };
 
     logout = () => {
-        const params: schema.LogoutRequest = {};
-        fetch("/api/logout", {
-            method: 'POST', body: JSON.stringify(params),
-        }).then(r => r.json()).then((r: LogoutRenderer) => {
-            this.setState({logoutResponse: r});
-        });
+        window.location.href = "/logout";
     }
 
     onVKClick = () => {
