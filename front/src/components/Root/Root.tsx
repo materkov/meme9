@@ -43,9 +43,7 @@ export class Root extends React.Component<{}, State> {
     renderRoot() {
         if (!this.state.rootData || !this.state.rootComponent) {
             return '';
-        }
-
-        if (this.state.rootData.error) {
+        } else if (this.state.rootData.error) {
             return <Error data={this.state.rootData.error}/>
         }
 
