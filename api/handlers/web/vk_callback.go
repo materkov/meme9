@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/materkov/meme9/api/handlers"
-	"github.com/materkov/meme9/api/pkg/config"
+	"github.com/materkov/meme9/api/pkg"
 	"github.com/materkov/meme9/api/store"
 )
 
 type VKCallback struct {
 	Store  *store.Store
-	Config *config.Config
+	Config *pkg.Config
 }
 
 func writeInternalError(w http.ResponseWriter, err error) {

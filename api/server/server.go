@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,19 +11,12 @@ import (
 	"github.com/materkov/meme9/api/handlers"
 	"github.com/materkov/meme9/api/handlers/web"
 	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pkg"
 	"github.com/materkov/meme9/api/pkg/api"
-	"github.com/materkov/meme9/api/pkg/config"
 	"github.com/materkov/meme9/api/pkg/csrf"
 	"github.com/materkov/meme9/api/pkg/router"
 	"github.com/materkov/meme9/api/store"
 )
-
-func writeResponse(w http.ResponseWriter, resp proto.Message) {
-	w.Header().Set("content-type", "application/json")
-
-	m := jsonpb.Marshaler{}
-	_ = m.Marshal(w, resp)
-}
 
 func wrapError(err error) *pb.ErrorRenderer {
 	errorRenderer := &pb.ErrorRenderer{}
@@ -46,60 +38,51 @@ func wrapError(err error) *pb.ErrorRenderer {
 func serializeResponse(resp proto.Message, err error) string {
 	m := jsonpb.Marshaler{}
 
-	dataStr := ""
-	errorStr := ""
-	okStr := ""
-
 	if err != nil {
-		okStr = "false"
-		errorStr, _ = m.MarshalToString(wrapError(err))
-		errorStr = `, "error": ` + errorStr
+		serialized, _ := m.MarshalToString(wrapError(err))
+		return `{"ok":false,"data":null,"error":` + serialized + `}`
 	} else {
-		okStr = "true"
-		dataStr, _ = m.MarshalToString(resp)
+		serialized, _ := m.MarshalToString(resp)
+		return `{"ok":true,"data":` + serialized + `}`
 	}
-
-	return fmt.Sprintf(`{"ok": %s, "data": %s%s}`, okStr, dataStr, errorStr)
 }
 
 type Main struct {
 	Store  *store.Store
-	Config *config.Config
+	Config *pkg.Config
 }
 
 func (m *Main) Run() {
-	authMiddleware := &AuthMiddleware{store: m.Store}
-	csrfMiddleware := &CSRFMiddleware{Config: m.Config}
+	authMiddleware := &authMiddleware{store: m.Store}
+	csrfMiddleware := &csrfMiddleware{Config: m.Config}
 	logoutHandler := &web.Logout{}
 	vkCallbackApi := &web.VKCallback{Store: m.Store, Config: m.Config}
 
 	apiHandlers := handlers.NewHandlers(m.Store, m.Config)
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
-		resolvedRoute := router.ResolveRoute(r.URL.Path)
+		route := router.Resolve(r.URL.Path)
 		viewer, _ := r.Context().Value(viewerCtxKey).(*api.Viewer)
 
 		// TODO think about this
 		encoder := jsonpb.Marshaler{}
-		argsStr, _ := encoder.MarshalToString(resolvedRoute.ApiArgs)
+		argsStr, _ := encoder.MarshalToString(route.ApiArgs)
 
-		resp, err := apiHandlers.Call(viewer, resolvedRoute.ApiMethod, argsStr)
+		resp, err := apiHandlers.Call(viewer, route.ApiMethod, argsStr)
 		initResponse := serializeResponse(resp, err)
-
-		js := append(resolvedRoute.Js, router.GlobalJs...)
 
 		CSRFToken := ""
 		if viewer.User != nil {
-			CSRFToken = csrf.GenerateCSRFToken(m.Config.CSRFKey, viewer.User.ID)
+			CSRFToken = csrf.GenerateToken(m.Config.CSRFKey, viewer.User.ID)
 		}
 
 		page := HTMLPage{
-			ApiMethod:     resolvedRoute.ApiMethod,
-			ApiRequest:    resolvedRoute.ApiArgs,
+			ApiMethod:     route.ApiMethod,
+			ApiRequest:    route.ApiArgs,
 			ApiResponse:   initResponse,
-			JsBundles:     js,
+			JsBundles:     route.Js,
 			CSRFToken:     CSRFToken,
-			RootComponent: resolvedRoute.RootComponent,
+			RootComponent: route.RootComponent,
 		}
 		_, _ = w.Write([]byte(page.Render()))
 	}
@@ -120,23 +103,6 @@ func (m *Main) Run() {
 	http.HandleFunc("/logout", logoutHandler.ServeHTTP)
 	http.HandleFunc("/", authMiddleware.Do(mainHandler))
 	http.HandleFunc("/api", authMiddleware.Do(csrfMiddleware.Do(apiHandler)))
-	http.HandleFunc("/resolve-route", func(w http.ResponseWriter, r *http.Request) {
-		req := pb.ResolveRouteRequest{}
-		_ = jsonpb.Unmarshal(r.Body, &req)
-
-		route := router.ResolveRoute(req.Url)
-		js := append(route.Js, router.GlobalJs...)
-
-		m := jsonpb.Marshaler{}
-		apiRequestStr, _ := m.MarshalToString(route.ApiArgs)
-
-		writeResponse(w, &pb.ResolveRouteResponse{
-			Js:            js,
-			RootComponent: route.RootComponent,
-			ApiMethod:     route.ApiMethod,
-			ApiRequest:    apiRequestStr,
-		})
-	})
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }

@@ -41,8 +41,8 @@ func (g *GetFeed) Handle(viewer *api.Viewer, req *pb.GetFeedRequest) (*pb.GetFee
 	wg.Wait()
 
 	postPageRenderers := make([]*pb.PostPageRenderer, 0)
-	for i, post := range posts {
-		if posts[i] == nil {
+	for _, post := range posts {
+		if post == nil {
 			continue
 		}
 

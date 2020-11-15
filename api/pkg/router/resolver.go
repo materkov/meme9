@@ -7,12 +7,7 @@ import (
 	"github.com/materkov/meme9/api/pb"
 )
 
-var GlobalJs = []string{
-	"/static/React.js",
-	"/static/Global.js",
-}
-
-func ResolveRoute(url string) ResolvedRoute {
+func Resolve(url string) ResolvedRoute {
 	if match, _ := regexp.MatchString(`^/users/([0-9]+)`, url); match {
 		return ResolvedRoute{
 			Js: []string{

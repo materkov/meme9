@@ -4,8 +4,8 @@ import (
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
 	"github.com/materkov/meme9/api/pb"
+	"github.com/materkov/meme9/api/pkg"
 	"github.com/materkov/meme9/api/pkg/api"
-	"github.com/materkov/meme9/api/pkg/config"
 	"github.com/materkov/meme9/api/store"
 )
 
@@ -13,19 +13,20 @@ const VKAppID = 7260220
 
 type Handlers struct {
 	store  *store.Store
-	Config *config.Config
+	config *pkg.Config
 
-	loginPage *LoginPage
-	addPost   *AddPost
-	getFeed   *GetFeed
-	composer  *Composer
-	index     *Index
-	postPage  *PostPage
-	userPage  *UserPage
+	loginPage    *LoginPage
+	addPost      *AddPost
+	getFeed      *GetFeed
+	composer     *Composer
+	index        *Index
+	postPage     *PostPage
+	userPage     *UserPage
+	resolveRoute *ResolveRoute
 }
 
-func NewHandlers(store *store.Store, config *config.Config) *Handlers {
-	h := &Handlers{store: store, Config: config}
+func NewHandlers(store *store.Store, config *pkg.Config) *Handlers {
+	h := &Handlers{store: store, config: config}
 
 	h.loginPage = &LoginPage{Store: store}
 	h.addPost = &AddPost{Store: store}
@@ -34,6 +35,7 @@ func NewHandlers(store *store.Store, config *config.Config) *Handlers {
 	h.getFeed = &GetFeed{Store: store}
 	h.composer = &Composer{Store: store}
 	h.index = &Index{Store: store}
+	h.resolveRoute = &ResolveRoute{}
 
 	return h
 }
@@ -82,6 +84,12 @@ func (h *Handlers) Call(viewer *api.Viewer, method string, args string) (proto.M
 			return nil, api.NewError("INVALID_REQUEST", "Failed parsing request")
 		}
 		return h.index.Handle(viewer, req)
+	case "meme.API.ResolveRoute":
+		req := &pb.ResolveRouteRequest{}
+		if err := jsonpb.UnmarshalString(args, req); err != nil {
+			return nil, api.NewError("INVALID_REQUEST", "Failed parsing request")
+		}
+		return h.resolveRoute.Handle(viewer, req)
 	default:
 		return nil, api.NewError("INVALID_METHOD", "Method not found")
 	}

@@ -17,10 +17,12 @@ export class Root extends React.Component<{}, State> {
 
     componentDidMount() {
         if (window.InitApiResponse) {
-            this.setState({
-                rootData: window.InitApiResponse,
-                rootComponent: window.InitRootComponent,
-            });
+            fetchJs(window.InitJsBundles).then(() => {
+                this.setState({
+                    rootData: window.InitApiResponse,
+                    rootComponent: window.InitRootComponent,
+                });
+            })
         }
     }
 

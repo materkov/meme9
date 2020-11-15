@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/materkov/meme9/api/pkg/config"
+	"github.com/materkov/meme9/api/pkg"
 	"github.com/materkov/meme9/api/server"
 	"github.com/materkov/meme9/api/store"
 )
@@ -16,7 +16,7 @@ import (
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	conf := &config.Config{}
+	conf := &pkg.Config{}
 
 	configJson := []byte(os.Getenv("CONFIG"))
 	if len(configJson) == 0 {

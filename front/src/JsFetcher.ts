@@ -1,12 +1,8 @@
 let globalLoaded: { [file: string]: boolean } = {};
 
-if (window.InitJsBundles) {
-    for (let js of window.InitJsBundles) {
-        globalLoaded[js] = true
-    }
-}
-
 export function fetchJs(js: string[]): Promise<null> {
+    js = js || [];
+
     return new Promise<null>((resolve, reject) => {
         let neededJs = [];
         for (let file of js) {

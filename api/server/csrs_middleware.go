@@ -10,11 +10,11 @@ import (
 	"github.com/materkov/meme9/api/store"
 )
 
-type AuthMiddleware struct {
+type authMiddleware struct {
 	store *store.Store
 }
 
-func (a *AuthMiddleware) getTokenFromCookie(r *http.Request) (*store.Token, error) {
+func (a *authMiddleware) getTokenFromCookie(r *http.Request) (*store.Token, error) {
 	tokenCookie, err := r.Cookie("access_token")
 	if err != nil {
 		return nil, nil
@@ -39,7 +39,7 @@ type contextKey string
 
 const viewerCtxKey = contextKey("viewer")
 
-func (a *AuthMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
+func (a *authMiddleware) Do(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, err := a.getTokenFromCookie(r)
 		if err != nil {

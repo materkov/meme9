@@ -40,19 +40,23 @@ export function resolveRoute(url: string): Promise<schema.ResolveRouteResponse> 
 
         waiting[path] = [];
 
-        fetch("/resolve-route", {
+        const req: schema.ResolveRouteRequest = {
+            url: path,
+        };
+
+        fetch("/api?method=meme.API.ResolveRoute", {
             method: 'POST',
-            body: JSON.stringify({
-                url: path,
-            })
-        }).then(r => r.json()).then((r: schema.ResolveRouteResponse) => {
-            cachedRoutes[path] = r;
-            resolve(r);
+            body: JSON.stringify(req)
+        }).then(r => r.json()).then(r  => {
+            const data = r.data as schema.ResolveRouteResponse;
+
+            cachedRoutes[path] = data;
+            resolve(data);
 
             const waitingList = waiting[path];
             if (waitingList) {
                 for (let resolver of waitingList) {
-                    resolver(r);
+                    resolver(data);
                 }
                 delete waiting[path];
             }

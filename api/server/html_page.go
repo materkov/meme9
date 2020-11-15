@@ -36,8 +36,16 @@ func (h *HTMLPage) Render() string {
 		window.InitRootComponent = "{{.InitRootComponent}}";
 		window.CSRFToken = "{{.CSRFToken}}";
 
-		console.log("Initial API", {method: window.InitApiMethod, request: window.InitApiRequest, response: window.InitApiResponse});
+		console.log("Initial API", {
+			method: window.InitApiMethod, 
+			request: window.InitApiRequest, 
+			response: window.InitApiResponse,
+		});
 	</script>
+
+	<script src="/static/React.js"></script>
+	<script src="/static/Global.js"></script>
+
 	{{.Scripts}}
 </body>
 </html>
