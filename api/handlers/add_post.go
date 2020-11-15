@@ -52,8 +52,10 @@ func (a *AddPost) Handle(viewer *api.Viewer, req *pb.AddPostRequest) (*pb.AddPos
 	}
 
 	renderer := &pb.AddPostRenderer{
-		Id:   strconv.Itoa(post.ID),
-		Text: post.Text,
+		Id:          strconv.Itoa(post.ID),
+		Text:        post.Text,
+		SuccessText: "Пост добавлен",
+		PostUrl:     fmt.Sprintf("/posts/%d", post.ID),
 	}
 
 	return renderer, nil

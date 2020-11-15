@@ -1,6 +1,7 @@
 import React from "react";
 import * as schema from "../../schema/api";
 import {fetchData} from "../../DataFetcher";
+import {Link} from "../Link/Link";
 
 interface PostComposerProps {
     data: schema.ComposerRenderer;
@@ -8,13 +9,12 @@ interface PostComposerProps {
 
 interface PostComposerState {
     text: string;
-    success: boolean;
+    success?: schema.AddPostRenderer;
 }
 
 export class PostComposer extends React.Component<PostComposerProps, PostComposerState> {
     state: PostComposerState = {
         text: '',
-        success: false,
     };
 
     onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -27,7 +27,7 @@ export class PostComposer extends React.Component<PostComposerProps, PostCompose
         };
 
         fetchData<schema.AddPostRenderer>('meme.API.AddPost', JSON.stringify(params)).then(r => {
-            this.setState({success: true});
+            this.setState({success: r});
         }).catch(() => {
 
         })
@@ -38,13 +38,15 @@ export class PostComposer extends React.Component<PostComposerProps, PostCompose
 
         return (
             <div>
-                Напишите свой пост здесь:<br/>
                 {data.welcomeText}<br/>
-                <textarea onChange={this.onChange}></textarea><br/>
-                <button onClick={this.onSubmit}>Отправить</button>
+                <textarea onChange={this.onChange}/><br/>
+                <button onClick={this.onSubmit}>{data.sendText}</button>
 
                 {this.state.success &&
-                <div>Пост успешно добавлен</div>
+                <div>
+                    {this.state.success.successText}
+                    <Link href={this.state.success.postUrl}>Перейти</Link>
+                </div>
                 }
             </div>
         );

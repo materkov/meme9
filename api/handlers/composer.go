@@ -14,7 +14,8 @@ type Composer struct {
 func (c *Composer) Handle(viewer *api.Viewer, req *pb.ComposerRequest) (*pb.ComposerRenderer, error) {
 	renderer := &pb.ComposerRenderer{
 		HeaderRenderer: common.GetHeaderRenderer(viewer),
-		WelcomeText:    "текст фром бакеэнд",
+		WelcomeText:    "Напишите свой пост здесь:",
+		SendText:       "Отправить",
 	}
 
 	if viewer.User == nil {

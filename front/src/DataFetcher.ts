@@ -42,7 +42,7 @@ export function fetchData<T>(method: string, args: string): Promise<T> {
                     return;
                 }
 
-                resolve(r);
+                resolve(r.data);
             }).catch(() => {
                 const err: schema.ErrorRenderer = {
                     errorCode: "ERR_JSON",

@@ -19,7 +19,7 @@ export class Root extends React.Component<{}, State> {
     componentDidMount() {
         fetchJs(window.InitJsBundles).then(() => {
             this.setState({
-                rootData: window.InitApiResponse,
+                rootData: window.InitApiResponse.data,
                 rootComponent: window.InitRootComponent,
             });
         })
@@ -50,7 +50,7 @@ export class Root extends React.Component<{}, State> {
         const Component = window.modules[this.state.rootComponent];
 
         //@ts-ignore
-        return <Component data={this.state.rootData.data}/>
+        return <Component data={this.state.rootData}/>
     }
 
     render() {

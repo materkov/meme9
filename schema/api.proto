@@ -108,6 +108,8 @@ message AddPostRequest {
 message AddPostRenderer {
   string id = 1;
   string text = 2;
+  string success_text = 3;
+  string post_url = 4;
 }
 
 message GetFeedRequest {
@@ -125,6 +127,7 @@ message ComposerRenderer {
   string welcome_text = 1;
   HeaderRenderer header_renderer = 2;
   string unathorized_text = 3;
+  string send_text = 4;
 }
 
 message IndexRequest {

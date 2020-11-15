@@ -80,6 +80,8 @@ export interface AddPostRequest {
 export interface AddPostRenderer {
   id: string;
   text: string;
+  successText: string;
+  postUrl: string;
 }
 
 export interface GetFeedRequest {
@@ -97,6 +99,7 @@ export interface ComposerRenderer {
   welcomeText: string;
   headerRenderer: HeaderRenderer | undefined;
   unathorizedText: string;
+  sendText: string;
 }
 
 export interface IndexRequest {
@@ -201,6 +204,8 @@ const baseAddPostRequest: object = {
 const baseAddPostRenderer: object = {
   id: "",
   text: "",
+  successText: "",
+  postUrl: "",
 };
 
 const baseGetFeedRequest: object = {
@@ -215,6 +220,7 @@ const baseComposerRequest: object = {
 const baseComposerRenderer: object = {
   welcomeText: "",
   unathorizedText: "",
+  sendText: "",
 };
 
 const baseIndexRequest: object = {
@@ -1295,6 +1301,8 @@ export const AddPostRenderer = {
   encode(message: AddPostRenderer, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).string(message.id);
     writer.uint32(18).string(message.text);
+    writer.uint32(26).string(message.successText);
+    writer.uint32(34).string(message.postUrl);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): AddPostRenderer {
@@ -1309,6 +1317,12 @@ export const AddPostRenderer = {
           break;
         case 2:
           message.text = reader.string();
+          break;
+        case 3:
+          message.successText = reader.string();
+          break;
+        case 4:
+          message.postUrl = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1329,6 +1343,16 @@ export const AddPostRenderer = {
     } else {
       message.text = "";
     }
+    if (object.successText !== undefined && object.successText !== null) {
+      message.successText = String(object.successText);
+    } else {
+      message.successText = "";
+    }
+    if (object.postUrl !== undefined && object.postUrl !== null) {
+      message.postUrl = String(object.postUrl);
+    } else {
+      message.postUrl = "";
+    }
     return message;
   },
   fromPartial(object: DeepPartial<AddPostRenderer>): AddPostRenderer {
@@ -1343,12 +1367,24 @@ export const AddPostRenderer = {
     } else {
       message.text = "";
     }
+    if (object.successText !== undefined && object.successText !== null) {
+      message.successText = object.successText;
+    } else {
+      message.successText = "";
+    }
+    if (object.postUrl !== undefined && object.postUrl !== null) {
+      message.postUrl = object.postUrl;
+    } else {
+      message.postUrl = "";
+    }
     return message;
   },
   toJSON(message: AddPostRenderer): unknown {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
     message.text !== undefined && (obj.text = message.text);
+    message.successText !== undefined && (obj.successText = message.successText);
+    message.postUrl !== undefined && (obj.postUrl = message.postUrl);
     return obj;
   },
 };
@@ -1497,6 +1533,7 @@ export const ComposerRenderer = {
       HeaderRenderer.encode(message.headerRenderer, writer.uint32(18).fork()).ldelim();
     }
     writer.uint32(26).string(message.unathorizedText);
+    writer.uint32(34).string(message.sendText);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): ComposerRenderer {
@@ -1514,6 +1551,9 @@ export const ComposerRenderer = {
           break;
         case 3:
           message.unathorizedText = reader.string();
+          break;
+        case 4:
+          message.sendText = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1539,6 +1579,11 @@ export const ComposerRenderer = {
     } else {
       message.unathorizedText = "";
     }
+    if (object.sendText !== undefined && object.sendText !== null) {
+      message.sendText = String(object.sendText);
+    } else {
+      message.sendText = "";
+    }
     return message;
   },
   fromPartial(object: DeepPartial<ComposerRenderer>): ComposerRenderer {
@@ -1558,6 +1603,11 @@ export const ComposerRenderer = {
     } else {
       message.unathorizedText = "";
     }
+    if (object.sendText !== undefined && object.sendText !== null) {
+      message.sendText = object.sendText;
+    } else {
+      message.sendText = "";
+    }
     return message;
   },
   toJSON(message: ComposerRenderer): unknown {
@@ -1565,6 +1615,7 @@ export const ComposerRenderer = {
     message.welcomeText !== undefined && (obj.welcomeText = message.welcomeText);
     message.headerRenderer !== undefined && (obj.headerRenderer = message.headerRenderer ? HeaderRenderer.toJSON(message.headerRenderer) : undefined);
     message.unathorizedText !== undefined && (obj.unathorizedText = message.unathorizedText);
+    message.sendText !== undefined && (obj.sendText = message.sendText);
     return obj;
   },
 };
