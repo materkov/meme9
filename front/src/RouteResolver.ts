@@ -1,4 +1,5 @@
 import * as schema from "./schema/api";
+import {fetchData} from "./DataFetcher";
 
 let cachedRoutes: { [url: string]: schema.ResolveRouteResponse } = {};
 let waiting: { [url: string]: ((r: schema.ResolveRouteResponse) => void)[] } = {};
@@ -44,12 +45,7 @@ export function resolveRoute(url: string): Promise<schema.ResolveRouteResponse> 
             url: path,
         };
 
-        fetch("/api?method=meme.API.ResolveRoute", {
-            method: 'POST',
-            body: JSON.stringify(req)
-        }).then(r => r.json()).then(r  => {
-            const data = r.data as schema.ResolveRouteResponse;
-
+        fetchData<schema.ResolveRouteResponse>('meme.API.ResolveRoute', JSON.stringify(req)).then(data => {
             cachedRoutes[path] = data;
             resolve(data);
 
