@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"regexp"
 
 	"github.com/go-redis/redis"
 	"github.com/gogo/protobuf/jsonpb"
@@ -17,6 +16,7 @@ import (
 	"github.com/materkov/meme9/api/pkg/api"
 	"github.com/materkov/meme9/api/pkg/config"
 	"github.com/materkov/meme9/api/pkg/csrf"
+	"github.com/materkov/meme9/api/pkg/router"
 	"github.com/materkov/meme9/api/store"
 )
 
@@ -63,101 +63,6 @@ func serializeResponse(resp proto.Message, err error) string {
 	return fmt.Sprintf(`{"ok": %s, "data": %s%s}`, okStr, dataStr, errorStr)
 }
 
-var globalJs = []string{
-	"/static/React.js",
-	"/static/Global.js",
-}
-
-func resolveRoute(url string) resolvedRoute {
-	if match, _ := regexp.MatchString(`^/users/([0-9]+)`, url); match {
-		return resolvedRoute{
-			js: []string{
-				"/static/UserPage.js",
-			},
-			rootComponent: "UserPage",
-			apiMethod:     "meme.API.UserPage",
-			apiArgs: &pb.UserPageRequest{
-				UserId: url[7:],
-			},
-		}
-	}
-
-	if match, _ := regexp.MatchString(`^/posts/([0-9]+)`, url); match {
-		return resolvedRoute{
-			js: []string{
-				"/static/PostPage.js",
-			},
-			rootComponent: "PostPage",
-			apiMethod:     "meme.API.PostPage",
-			apiArgs: &pb.PostPageRequest{
-				PostId: url[7:],
-			},
-		}
-	}
-
-	if match, _ := regexp.MatchString(`^/login`, url); match {
-		return resolvedRoute{
-			js: []string{
-				"/static/LoginPage.js",
-			},
-			rootComponent: "LoginPage",
-			apiMethod:     "meme.API.LoginPage",
-			apiArgs:       &pb.LoginPageRequest{},
-		}
-	}
-
-	if match, _ := regexp.MatchString(`^/composer`, url); match {
-		return resolvedRoute{
-			js: []string{
-				"/static/Composer.js",
-			},
-			rootComponent: "Composer",
-			apiMethod:     "meme.API.Composer",
-			apiArgs:       &pb.ComposerRequest{},
-		}
-	}
-
-	if match, _ := regexp.MatchString(`^/feed`, url); match {
-		return resolvedRoute{
-			js: []string{
-				"/static/Feed.js",
-			},
-			rootComponent: "Feed",
-			apiMethod:     "meme.API.GetFeed",
-			apiArgs:       &pb.GetFeedRequest{},
-		}
-	}
-
-	if match, _ := regexp.MatchString(`^/vk-callback`, url); match {
-		return resolvedRoute{
-			js:            []string{},
-			rootComponent: "",
-			apiMethod:     "meme.API.VKCallback",
-			apiArgs:       &pb.VKCallbackRequest{},
-		}
-	}
-
-	if match, _ := regexp.MatchString(`^/$`, url); match {
-		return resolvedRoute{
-			js: []string{
-				"/static/Index.js",
-			},
-			rootComponent: "Index",
-			apiMethod:     "meme.API.Index",
-			apiArgs:       &pb.IndexRequest{},
-		}
-	}
-
-	return resolvedRoute{}
-}
-
-type resolvedRoute struct {
-	js            []string
-	rootComponent string
-	apiMethod     string
-	apiArgs       proto.Message
-}
-
 type Main struct {
 	store  *store.Store
 	Config *config.Config
@@ -174,17 +79,17 @@ func (m *Main) Main() {
 	apiHandlers := handlers.NewHandlers(m.store, m.Config)
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
-		resolvedRoute := resolveRoute(r.URL.Path)
+		resolvedRoute := router.ResolveRoute(r.URL.Path)
 		viewer, _ := r.Context().Value(viewerCtxKey).(*api.Viewer)
 
 		// TODO think about this
 		encoder := jsonpb.Marshaler{}
-		argsStr, _ := encoder.MarshalToString(resolvedRoute.apiArgs)
+		argsStr, _ := encoder.MarshalToString(resolvedRoute.ApiArgs)
 
-		resp, err := apiHandlers.Call(viewer, resolvedRoute.apiMethod, argsStr)
+		resp, err := apiHandlers.Call(viewer, resolvedRoute.ApiMethod, argsStr)
 		initResponse := serializeResponse(resp, err)
 
-		js := append(resolvedRoute.js, globalJs...)
+		js := append(resolvedRoute.Js, router.GlobalJs...)
 
 		CSRFToken := ""
 		if viewer.User != nil {
@@ -192,13 +97,13 @@ func (m *Main) Main() {
 		}
 
 		page := HTMLPage{
-			ApiMethod:     resolvedRoute.apiMethod,
-			ApiRequest:    resolvedRoute.apiArgs,
+			ApiMethod:     resolvedRoute.ApiMethod,
+			ApiRequest:    resolvedRoute.ApiArgs,
 			ApiResponse:   initResponse,
 			JsBundles:     js,
 			ApiKey:        "access-key",
 			CSRFToken:     CSRFToken,
-			RootComponent: resolvedRoute.rootComponent,
+			RootComponent: resolvedRoute.RootComponent,
 		}
 		_, _ = w.Write([]byte(page.render()))
 	}
@@ -223,16 +128,16 @@ func (m *Main) Main() {
 		req := pb.ResolveRouteRequest{}
 		_ = jsonpb.Unmarshal(r.Body, &req)
 
-		route := resolveRoute(req.Url)
-		js := append(route.js, globalJs...)
+		route := router.ResolveRoute(req.Url)
+		js := append(route.Js, router.GlobalJs...)
 
 		m := jsonpb.Marshaler{}
-		apiRequestStr, _ := m.MarshalToString(route.apiArgs)
+		apiRequestStr, _ := m.MarshalToString(route.ApiArgs)
 
 		writeResponse(w, &pb.ResolveRouteResponse{
 			Js:            js,
-			RootComponent: route.rootComponent,
-			ApiMethod:     route.apiMethod,
+			RootComponent: route.RootComponent,
+			ApiMethod:     route.ApiMethod,
 			ApiRequest:    apiRequestStr,
 		})
 	})
