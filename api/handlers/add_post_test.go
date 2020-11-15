@@ -19,7 +19,7 @@ func TestAddPost_Handle(t *testing.T) {
 
 	handler := AddPost{Store: testStore}
 
-	resp, err := handler.Handle(&api.Viewer{User: &user}, &pb.AddPostRequest{
+	resp, err := handler.Handle(&api.Viewer{User: &user, CSRFValidated: true}, &pb.AddPostRequest{
 		Text: " test post ",
 	})
 	require.NoError(t, err)
