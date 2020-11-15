@@ -160,70 +160,6 @@ type resolvedRoute struct {
 type Main struct {
 	store  *store.Store
 	Config *config.Config
-
-	loginPage *handlers.LoginPage
-	addPost   *handlers.AddPost
-	getFeed   *handlers.GetFeed
-	composer  *handlers.Composer
-	index     *handlers.Index
-	postPage  *handlers.PostPage
-	userPage  *handlers.UserPage
-}
-
-func (m *Main) apiRequest(viewer *api.Viewer, method string, args string) (proto.Message, error) {
-	switch method {
-	case "meme.API.UserPage":
-		req := &pb.UserPageRequest{}
-		if err := jsonpb.UnmarshalString(args, req); err != nil {
-			return nil, api.NewError("INVALID_REQUEST", "Failed parsing request")
-		}
-
-		return m.userPage.Handle(viewer, req)
-	case "meme.API.PostPage":
-		req := &pb.PostPageRequest{}
-		if err := jsonpb.UnmarshalString(args, req); err != nil {
-			return nil, api.NewError("INVALID_REQUEST", "Failed parsing request")
-		}
-
-		return m.postPage.Handle(viewer, req)
-	case "meme.API.LoginPage":
-		req := &pb.LoginPageRequest{}
-		if err := jsonpb.UnmarshalString(args, req); err != nil {
-			return nil, api.NewError("INVALID_REQUEST", "Failed parsing request")
-		}
-
-		return m.loginPage.Handle(viewer, req)
-	case "meme.API.AddPost":
-		req := &pb.AddPostRequest{}
-		if err := jsonpb.UnmarshalString(args, req); err != nil {
-			return nil, api.NewError("INVALID_REQUEST", "Failed parsing request")
-		}
-
-		return m.addPost.Handle(viewer, req)
-	case "meme.API.GetFeed":
-		req := &pb.GetFeedRequest{}
-		if err := jsonpb.UnmarshalString(args, req); err != nil {
-			return nil, api.NewError("INVALID_REQUEST", "Failed parsing request")
-		}
-
-		return m.getFeed.Handle(viewer, req)
-	case "meme.API.Composer":
-		req := &pb.ComposerRequest{}
-		if err := jsonpb.UnmarshalString(args, req); err != nil {
-			return nil, api.NewError("INVALID_REQUEST", "Failed parsing request")
-		}
-
-		return m.composer.Handle(viewer, req)
-	case "meme.API.Index":
-		req := &pb.IndexRequest{}
-		if err := jsonpb.UnmarshalString(args, req); err != nil {
-			return nil, api.NewError("INVALID_REQUEST", "Failed parsing request")
-		}
-
-		return m.index.Handle(viewer, req)
-	default:
-		return nil, api.NewError("INVALID_METHOD", "Method not found")
-	}
 }
 
 func (m *Main) Main() {
@@ -231,15 +167,10 @@ func (m *Main) Main() {
 	m.store = store.NewStore(redisClient)
 	authMiddleware := &AuthMiddleware{store: m.store}
 	csrfMiddleware := &CSRFMiddleware{Config: m.Config}
-	m.loginPage = &handlers.LoginPage{Store: m.store}
-	m.addPost = &handlers.AddPost{Store: m.store}
-	m.postPage = &handlers.PostPage{Store: m.store}
-	m.userPage = &handlers.UserPage{Store: m.store}
-	m.getFeed = &handlers.GetFeed{Store: m.store}
-	m.composer = &handlers.Composer{Store: m.store}
-	m.index = &handlers.Index{Store: m.store}
 	logoutHandler := &web.Logout{}
 	vkCallbackApi := &web.VKCallback{Store: m.store, Config: m.Config}
+
+	apiHandlers := handlers.NewHandlers(m.store, m.Config)
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
 		resolvedRoute := resolveRoute(r.URL.Path)
@@ -249,7 +180,7 @@ func (m *Main) Main() {
 		encoder := jsonpb.Marshaler{}
 		argsStr, _ := encoder.MarshalToString(resolvedRoute.apiArgs)
 
-		resp, err := m.apiRequest(viewer, resolvedRoute.apiMethod, argsStr)
+		resp, err := apiHandlers.Call(viewer, resolvedRoute.apiMethod, argsStr)
 		initResponse := serializeResponse(resp, err)
 
 		js := append(resolvedRoute.js, globalJs...)
@@ -277,7 +208,7 @@ func (m *Main) Main() {
 
 		method := r.URL.Query().Get("method")
 
-		resp, err := m.apiRequest(viewer, method, string(body))
+		resp, err := apiHandlers.Call(viewer, method, string(body))
 
 		respStr := serializeResponse(resp, err)
 		_, _ = w.Write([]byte(respStr))
