@@ -43,10 +43,10 @@ func (h *HTMLPage) Render() string {
 		});
 	</script>
 
+	{{.Scripts}}
+
 	<script src="/static/React.js"></script>
 	<script src="/static/Global.js"></script>
-
-	{{.Scripts}}
 </body>
 </html>
 `
