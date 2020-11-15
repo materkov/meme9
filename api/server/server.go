@@ -1,4 +1,4 @@
-package api
+package server
 
 import (
 	"errors"
@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-redis/redis"
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
 	"github.com/materkov/meme9/api/handlers"
@@ -64,19 +63,17 @@ func serializeResponse(resp proto.Message, err error) string {
 }
 
 type Main struct {
-	store  *store.Store
+	Store  *store.Store
 	Config *config.Config
 }
 
-func (m *Main) Main() {
-	redisClient := redis.NewClient(&redis.Options{})
-	m.store = store.NewStore(redisClient)
-	authMiddleware := &AuthMiddleware{store: m.store}
+func (m *Main) Run() {
+	authMiddleware := &AuthMiddleware{store: m.Store}
 	csrfMiddleware := &CSRFMiddleware{Config: m.Config}
 	logoutHandler := &web.Logout{}
-	vkCallbackApi := &web.VKCallback{Store: m.store, Config: m.Config}
+	vkCallbackApi := &web.VKCallback{Store: m.Store, Config: m.Config}
 
-	apiHandlers := handlers.NewHandlers(m.store, m.Config)
+	apiHandlers := handlers.NewHandlers(m.Store, m.Config)
 
 	mainHandler := func(w http.ResponseWriter, r *http.Request) {
 		resolvedRoute := router.ResolveRoute(r.URL.Path)
@@ -101,11 +98,10 @@ func (m *Main) Main() {
 			ApiRequest:    resolvedRoute.ApiArgs,
 			ApiResponse:   initResponse,
 			JsBundles:     js,
-			ApiKey:        "access-key",
 			CSRFToken:     CSRFToken,
 			RootComponent: resolvedRoute.RootComponent,
 		}
-		_, _ = w.Write([]byte(page.render()))
+		_, _ = w.Write([]byte(page.Render()))
 	}
 
 	apiHandler := func(w http.ResponseWriter, r *http.Request) {

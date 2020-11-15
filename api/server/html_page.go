@@ -1,4 +1,4 @@
-package api
+package server
 
 import (
 	"strings"
@@ -12,12 +12,11 @@ type HTMLPage struct {
 	ApiRequest    proto.Message
 	ApiResponse   string
 	JsBundles     []string
-	ApiKey        string
 	RootComponent string
 	CSRFToken     string
 }
 
-func (h *HTMLPage) render() string {
+func (h *HTMLPage) Render() string {
 	const template = `
 <!DOCTYPE html>
 <html>
@@ -56,7 +55,6 @@ func (h *HTMLPage) render() string {
 	initApiArgsStr, _ := m.MarshalToString(h.ApiRequest)
 
 	page = strings.Replace(page, "{{.InitJsBundles}}", jsBundles, 1)
-	page = strings.Replace(page, "{{.ApiKey}}", h.ApiKey, 1)
 	page = strings.Replace(page, "{{.Scripts}}", scriptTags, 1)
 	page = strings.Replace(page, "{{.InitApiMethod}}", h.ApiMethod, 1)
 	page = strings.Replace(page, "{{.InitApiResponse}}", h.ApiResponse, 1)

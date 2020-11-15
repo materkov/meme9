@@ -7,14 +7,16 @@ import (
 	"os"
 	"time"
 
-	"github.com/materkov/meme9/api"
+	"github.com/go-redis/redis"
 	"github.com/materkov/meme9/api/pkg/config"
+	"github.com/materkov/meme9/api/server"
+	"github.com/materkov/meme9/api/store"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	conf := config.Config{}
+	conf := &config.Config{}
 
 	configJson := []byte(os.Getenv("CONFIG"))
 	if len(configJson) == 0 {
@@ -22,11 +24,17 @@ func main() {
 		configJson, _ = ioutil.ReadFile(homeDir + "/.meme")
 	}
 
-	err := json.Unmarshal(configJson, &conf)
+	err := json.Unmarshal(configJson, conf)
 	if err != nil {
 		panic("Error parsing config: " + err.Error())
 	}
 
-	m := api.Main{Config: &conf}
-	m.Main()
+	redisClient := redis.NewClient(&redis.Options{})
+	dataStore := store.NewStore(redisClient)
+
+	m := server.Main{
+		Store:  dataStore,
+		Config: conf,
+	}
+	m.Run()
 }
