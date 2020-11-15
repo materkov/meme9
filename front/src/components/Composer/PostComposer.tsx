@@ -26,7 +26,7 @@ export class PostComposer extends React.Component<PostComposerProps, PostCompose
             text: this.state.text,
         };
 
-        fetchData('meme.API.AddPost', JSON.stringify(params)).then((r: schema.AddPostRenderer) => {
+        fetchData<schema.AddPostRenderer>('meme.API.AddPost', JSON.stringify(params)).then(r => {
             this.setState({success: true});
         }).catch(() => {
 

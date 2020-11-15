@@ -7,8 +7,8 @@ if (window.InitApiMethod) {
     cache[cacheKey] = window.InitApiResponse;
 }
 
-export function fetchData(method: string, args: string): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
+export function fetchData<T>(method: string, args: string): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
         //const argsText = JSON.stringify(args);
         const argsText = args;
 

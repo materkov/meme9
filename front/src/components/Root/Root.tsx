@@ -38,7 +38,7 @@ export class Root extends React.Component<{}, State> {
         resolveRoute(url).then((resolvedRoute) => {
             Promise.all([
                 fetchJs(resolvedRoute.js || []),
-                fetchData(resolvedRoute.apiMethod, resolvedRoute.apiRequest)
+                fetchData<any>(resolvedRoute.apiMethod, resolvedRoute.apiRequest)
             ]).then(([_, renderer]) => {
                 this.setState({
                     rootData: renderer,
