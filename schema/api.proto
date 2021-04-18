@@ -1,4 +1,4 @@
-syntax = "proto3";
+/*syntax = "proto3";
 
 package meme;
 
@@ -15,6 +15,27 @@ service API {
   rpc Index(IndexRequest) returns (IndexRenderer);
   rpc Logout(LogoutRequest) returns (LogoutRenderer);
   rpc VKCallback(VKCallbackRenderer) returns (VKCallbackRenderer);
+}
+
+enum Language {
+  RUS = 0;
+  EN = 1;
+}
+
+message RpcHeaders {
+  Language lang = 1;
+}
+
+message RpcRequest {
+  string method = 1;
+  bytes request = 2;
+  RpcHeaders headers = 3;
+}
+
+message RpcResponse {
+  bool ok = 1;
+  bytes response = 2;
+  ErrorRenderer error = 3;
 }
 
 message ErrorRenderer {
@@ -159,3 +180,11 @@ message VKCallbackRequest {
 message VKCallbackRenderer {
   HeaderRenderer header_renderer = 1;
 }
+
+// Map from renderers to react components
+// Relay way - map in components, for fragments
+// Top level - query renderer (compose from fragments)
+// Root renderer & entrypoints. Map from route to entrypoint?
+// Server needs to know query&variables that needed for entrypoint
+//
+*/

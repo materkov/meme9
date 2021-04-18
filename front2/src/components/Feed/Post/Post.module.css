@@ -1,0 +1,38 @@
+.Post {
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #FFFFFF;
+}
+
+.Header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.AuthorAvatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    margin-right: 5px;
+}
+
+.Author {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.Date {
+    color: #777;
+    font-size: 14px;
+}
+
+.Text {
+    margin: 10px 0;
+}
+
+.Image {
+    max-width: 100%;
+}

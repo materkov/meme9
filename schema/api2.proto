@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package meme;
+option go_package = "pb";
+
+
+service Feed {
+  rpc Get(FeedGetRequest) returns (FeedGetResponse);
+}
+
+service Profile {
+  rpc Get(ProfileGetRequest) returns (ProfileGetResponse);
+}
+
+message ProfileGetRequest {
+  string id = 1;
+}
+
+message ProfileGetResponse {
+  ProfileRenderer renderer = 1;
+}
+
+message ProfileRenderer {
+  string id = 1;
+  string name = 2;
+  string avatar = 3;
+}
+
+message FeedGetRequest {
+}
+
+message FeedGetResponse {
+  FeedRenderer renderer = 1;
+}
+
+message FeedRenderer {
+  message Post {
+    string id = 1;
+
+    string authorId = 2;
+    string authorAvatar = 3;
+    string authorName = 4;
+    string authorUrl = 8;
+
+    string dateDisplay = 5;
+
+    string text = 6;
+    string imageUrl = 7;
+  }
+  repeated Post posts = 1;
+}
+
+enum Renderers {
+  UNKNOWN = 0;
+  FEED = 1;
+  PROFILE = 2;
+}
+
+message HeaderRenderer {
+  string mainUrl = 1;
+  string userName = 2;
+  string userAvatar = 3;
+}
+
+message ResolveRouteResponse {
+  Renderers renderer = 1;
+}

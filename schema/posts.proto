@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package meme;
+option go_package = "pb";
+
+service Posts {
+  rpc Add(PostsAddRequest) returns (PostsAddResponse);
+}
+
+message PostsAddRequest {
+  string text = 1;
+}
+
+message PostsAddResponse {
+  string postUrl = 1;
+}

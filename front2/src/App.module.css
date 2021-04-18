@@ -1,0 +1,29 @@
+.Background {
+    padding: 5px;
+}
+
+.App {
+    max-width: 800px;
+    margin: 0 auto;
+    font-size: 16px;
+}
+
+.App, textarea {
+    font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+:root {
+    --white: #FFFFFF;
+    --web-wash: #F0F2F5;
+    --border-color: #dddddd;
+    --text: #333;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--web-wash);
+}
+
+button {
+}

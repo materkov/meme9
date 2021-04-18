@@ -1,0 +1,27 @@
+.Composer {
+    background: #FFFFFF;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 4px;
+    resize: none;
+    font-size: 16px;
+    padding: 10px;
+    min-height: 50px;
+    border-color: var(--border-color);
+}
+
+.Composer__hasText {
+    min-height: 100px;
+}
+
+.BottomContainer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.BottomContainer__hidden {
+    display: none;
+}
+
+.SubmitBtn {
+}

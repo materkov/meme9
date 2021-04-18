@@ -10,6 +10,14 @@ run-proto:
 		--ts_proto_out=front/src/schema \
 		schema/api.proto
 
+run-proto2:
+	mkdir -p web/pb
+	protoc --gogofaster_out=web/pb \
+		--proto_path schema \
+		--proto_path ~/go/pkg/mod/github.com/gogo/protobuf@v1.3.1/ \
+		schema/*.proto
+
+
 build-api:
 	cd api && go build cmd/main.go
 
