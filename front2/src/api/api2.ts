@@ -8,6 +8,7 @@ export enum Renderers {
   UNKNOWN = "UNKNOWN",
   FEED = "FEED",
   PROFILE = "PROFILE",
+  LOGIN = "LOGIN",
   UNRECOGNIZED = "UNRECOGNIZED",
 }
 
@@ -22,6 +23,9 @@ export function renderersFromJSON(object: any): Renderers {
     case 2:
     case "PROFILE":
       return Renderers.PROFILE;
+    case 3:
+    case "LOGIN":
+      return Renderers.LOGIN;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -37,6 +41,8 @@ export function renderersToJSON(object: Renderers): string {
       return "FEED";
     case Renderers.PROFILE:
       return "PROFILE";
+    case Renderers.LOGIN:
+      return "LOGIN";
     default:
       return "UNKNOWN";
   }
@@ -50,6 +56,8 @@ export function renderersToNumber(object: Renderers): number {
       return 1;
     case Renderers.PROFILE:
       return 2;
+    case Renderers.LOGIN:
+      return 3;
     default:
       return 0;
   }
@@ -90,10 +98,20 @@ export interface FeedRenderer_Post {
   imageUrl: string;
 }
 
+export interface FeedGetHeaderRequest {}
+
+export interface FeedGetHeaderResponse {
+  renderer: HeaderRenderer | undefined;
+}
+
 export interface HeaderRenderer {
   mainUrl: string;
   userName: string;
   userAvatar: string;
+}
+
+export interface ResolveRouteResponse {
+  renderer: Renderers;
 }
 
 const baseProfileGetRequest: object = { id: "" };
@@ -649,6 +667,110 @@ export const FeedRenderer_Post = {
   },
 };
 
+const baseFeedGetHeaderRequest: object = {};
+
+export const FeedGetHeaderRequest = {
+  encode(_: FeedGetHeaderRequest, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): FeedGetHeaderRequest {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseFeedGetHeaderRequest } as FeedGetHeaderRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): FeedGetHeaderRequest {
+    const message = { ...baseFeedGetHeaderRequest } as FeedGetHeaderRequest;
+    return message;
+  },
+
+  toJSON(_: FeedGetHeaderRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(_: DeepPartial<FeedGetHeaderRequest>): FeedGetHeaderRequest {
+    const message = { ...baseFeedGetHeaderRequest } as FeedGetHeaderRequest;
+    return message;
+  },
+};
+
+const baseFeedGetHeaderResponse: object = {};
+
+export const FeedGetHeaderResponse = {
+  encode(
+    message: FeedGetHeaderResponse,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.renderer !== undefined) {
+      HeaderRenderer.encode(
+        message.renderer,
+        writer.uint32(10).fork()
+      ).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): FeedGetHeaderResponse {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseFeedGetHeaderResponse } as FeedGetHeaderResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.renderer = HeaderRenderer.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): FeedGetHeaderResponse {
+    const message = { ...baseFeedGetHeaderResponse } as FeedGetHeaderResponse;
+    if (object.renderer !== undefined && object.renderer !== null) {
+      message.renderer = HeaderRenderer.fromJSON(object.renderer);
+    } else {
+      message.renderer = undefined;
+    }
+    return message;
+  },
+
+  toJSON(message: FeedGetHeaderResponse): unknown {
+    const obj: any = {};
+    message.renderer !== undefined &&
+      (obj.renderer = message.renderer
+        ? HeaderRenderer.toJSON(message.renderer)
+        : undefined);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<FeedGetHeaderResponse>
+  ): FeedGetHeaderResponse {
+    const message = { ...baseFeedGetHeaderResponse } as FeedGetHeaderResponse;
+    if (object.renderer !== undefined && object.renderer !== null) {
+      message.renderer = HeaderRenderer.fromPartial(object.renderer);
+    } else {
+      message.renderer = undefined;
+    }
+    return message;
+  },
+};
+
 const baseHeaderRenderer: object = {
   mainUrl: "",
   userName: "",
@@ -742,8 +864,68 @@ export const HeaderRenderer = {
   },
 };
 
+const baseResolveRouteResponse: object = { renderer: Renderers.UNKNOWN };
+
+export const ResolveRouteResponse = {
+  encode(
+    message: ResolveRouteResponse,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.renderer !== Renderers.UNKNOWN) {
+      writer.uint32(8).int32(renderersToNumber(message.renderer));
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): ResolveRouteResponse {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseResolveRouteResponse } as ResolveRouteResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.renderer = renderersFromJSON(reader.int32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ResolveRouteResponse {
+    const message = { ...baseResolveRouteResponse } as ResolveRouteResponse;
+    if (object.renderer !== undefined && object.renderer !== null) {
+      message.renderer = renderersFromJSON(object.renderer);
+    } else {
+      message.renderer = Renderers.UNKNOWN;
+    }
+    return message;
+  },
+
+  toJSON(message: ResolveRouteResponse): unknown {
+    const obj: any = {};
+    message.renderer !== undefined &&
+      (obj.renderer = renderersToJSON(message.renderer));
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<ResolveRouteResponse>): ResolveRouteResponse {
+    const message = { ...baseResolveRouteResponse } as ResolveRouteResponse;
+    if (object.renderer !== undefined && object.renderer !== null) {
+      message.renderer = object.renderer;
+    } else {
+      message.renderer = Renderers.UNKNOWN;
+    }
+    return message;
+  },
+};
+
 export interface Feed {
   Get(request: FeedGetRequest): Promise<FeedGetResponse>;
+  GetHeader(request: FeedGetHeaderRequest): Promise<FeedGetHeaderResponse>;
 }
 
 export class FeedClientImpl implements Feed {
@@ -755,6 +937,14 @@ export class FeedClientImpl implements Feed {
     const data = FeedGetRequest.encode(request).finish();
     const promise = this.rpc.request("meme.Feed", "Get", data);
     return promise.then((data) => FeedGetResponse.decode(new Reader(data)));
+  }
+
+  GetHeader(request: FeedGetHeaderRequest): Promise<FeedGetHeaderResponse> {
+    const data = FeedGetHeaderRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.Feed", "GetHeader", data);
+    return promise.then((data) =>
+      FeedGetHeaderResponse.decode(new Reader(data))
+    );
   }
 }
 

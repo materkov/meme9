@@ -4,16 +4,27 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
 	"github.com/materkov/meme9/web/pb"
 )
 
-func apiHandler(method string, body io.Reader) proto.Message {
+type Config struct {
+	VKAppSecret string
+}
+
+var config Config
+
+func apiHandler(method string, body io.Reader, viewerID int) proto.Message {
 	switch method {
 	case "meme.Feed/Get":
 		req := pb.FeedGetRequest{}
@@ -58,6 +69,15 @@ func apiHandler(method string, body io.Reader) proto.Message {
 			},
 		}
 
+	case "meme.Feed/GetHeader":
+		return &pb.FeedGetHeaderResponse{
+			Renderer: &pb.HeaderRenderer{
+				MainUrl:    "/",
+				UserName:   fmt.Sprintf("User %d", viewerID),
+				UserAvatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
+			},
+		}
+
 	case "meme.Posts/Add":
 		req := pb.PostsAddRequest{}
 		_ = jsonpb.Unmarshal(body, &req)
@@ -66,16 +86,38 @@ func apiHandler(method string, body io.Reader) proto.Message {
 			PostUrl: "/profile/5",
 		}
 
+	case "meme.Auth/LoginPage":
+		requestScheme := "http"
+		requestHost := "localhost:8000"
+		vkAppID := 7260220
+		redirectURL := url.QueryEscape(fmt.Sprintf("%s://%s/vk-callback", requestScheme, requestHost))
+		vkURL := fmt.Sprintf("https://oauth.vk.com/authorize?client_id=%d&response_type=code&redirect_uri=%s", vkAppID, redirectURL)
+
+		return &pb.LoginPageResponse{
+			Renderer: &pb.LoginPageRenderer{
+				AuthUrl: vkURL,
+				Text:    "Войти через ВК",
+			},
+		}
+
 	default:
 		return nil
 	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	viewerID := 0
+
+	accessCookie, err := r.Cookie("access_token")
+	if err == nil {
+		viewerID, _ = strconv.Atoi(accessCookie.Value)
+	}
 
 	method := strings.TrimPrefix(r.URL.Path, "/api/")
-	resp := apiHandler(method, r.Body)
+	resp := apiHandler(method, r.Body, viewerID)
 
 	m := jsonpb.Marshaler{}
 	_ = m.Marshal(w, resp)
@@ -87,7 +129,8 @@ type routeResp struct {
 }
 
 func handleRoute(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	url := r.URL.Query().Get("url")
 
 	enc := json.NewEncoder(w)
@@ -96,7 +139,12 @@ func handleRoute(w http.ResponseWriter, r *http.Request) {
 
 	if url == "/" {
 		component = pb.Renderers_FEED
-		data = apiHandler("meme.Feed/Get", strings.NewReader(""))
+		data = apiHandler("meme.Feed/Get", strings.NewReader(""), 0)
+	}
+
+	if url == "/login" {
+		component = pb.Renderers_LOGIN
+		data = apiHandler("meme.Auth/LoginPage", strings.NewReader(""), 0)
 	}
 
 	match, _ := regexp.MatchString(`^/profile/(\d+)$`, url)
@@ -107,7 +155,7 @@ func handleRoute(w http.ResponseWriter, r *http.Request) {
 		}
 		m := jsonpb.Marshaler{}
 		reqStr, _ := m.MarshalToString(req)
-		data = apiHandler("meme.Profile/Get", strings.NewReader(reqStr))
+		data = apiHandler("meme.Profile/Get", strings.NewReader(reqStr), 0)
 	}
 
 	m := jsonpb.Marshaler{}
@@ -119,9 +167,67 @@ func handleRoute(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func handleVKCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		_, _ = fmt.Fprint(w, "Empty VK code")
+		return
+	}
+
+	proxyScheme := "http"
+	vkAppID := 7260220
+
+	redirectURI := fmt.Sprintf("%s://%s%s", proxyScheme, r.Host, r.URL.EscapedPath())
+
+	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
+		"client_id":     []string{strconv.Itoa(vkAppID)},
+		"client_secret": []string{config.VKAppSecret},
+		"redirect_uri":  []string{redirectURI},
+		"code":          []string{code},
+	})
+	if err != nil {
+		fmt.Fprintf(w, "http vk error: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Fprintf(w, "failed reading http body: %v", err)
+		return
+	}
+
+	body := struct {
+		AccessToken string `json:"access_token"`
+		UserID      int    `json:"user_id"`
+	}{}
+	err = json.Unmarshal(bodyBytes, &body)
+	if err != nil {
+		fmt.Fprintf(w, "incorrect json: %s", bodyBytes)
+		return
+	} else if body.AccessToken == "" {
+		fmt.Fprintf(w, "incorrect response: %s", bodyBytes)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    strconv.Itoa(body.UserID),
+		Expires:  time.Now().Add(time.Hour),
+		Path:     "/",
+		HttpOnly: true,
+	})
+
+	http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
+}
+
 func main() {
+	configStr, _ := os.LookupEnv("CONFIG")
+	_ = json.Unmarshal([]byte(configStr), &config)
+
 	http.HandleFunc("/api/", handler)
 	http.HandleFunc("/router", handleRoute)
+	http.HandleFunc("/vk-callback", handleVKCallback)
 
 	http.ListenAndServe("127.0.0.1:8000", nil)
 }

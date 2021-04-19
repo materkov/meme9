@@ -5,10 +5,11 @@ package pb
 
 import (
 	fmt "fmt"
-	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+
+	proto "github.com/gogo/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -28,18 +29,21 @@ const (
 	Renderers_UNKNOWN Renderers = 0
 	Renderers_FEED    Renderers = 1
 	Renderers_PROFILE Renderers = 2
+	Renderers_LOGIN   Renderers = 3
 )
 
 var Renderers_name = map[int32]string{
 	0: "UNKNOWN",
 	1: "FEED",
 	2: "PROFILE",
+	3: "LOGIN",
 }
 
 var Renderers_value = map[string]int32{
 	"UNKNOWN": 0,
 	"FEED":    1,
 	"PROFILE": 2,
+	"LOGIN":   3,
 }
 
 func (x Renderers) String() string {
@@ -422,6 +426,86 @@ func (m *FeedRenderer_Post) GetImageUrl() string {
 	return ""
 }
 
+type FeedGetHeaderRequest struct {
+}
+
+func (m *FeedGetHeaderRequest) Reset()         { *m = FeedGetHeaderRequest{} }
+func (m *FeedGetHeaderRequest) String() string { return proto.CompactTextString(m) }
+func (*FeedGetHeaderRequest) ProtoMessage()    {}
+func (*FeedGetHeaderRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_592802a36db5ccc7, []int{6}
+}
+func (m *FeedGetHeaderRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *FeedGetHeaderRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_FeedGetHeaderRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *FeedGetHeaderRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FeedGetHeaderRequest.Merge(m, src)
+}
+func (m *FeedGetHeaderRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *FeedGetHeaderRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_FeedGetHeaderRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FeedGetHeaderRequest proto.InternalMessageInfo
+
+type FeedGetHeaderResponse struct {
+	Renderer *HeaderRenderer `protobuf:"bytes,1,opt,name=renderer,proto3" json:"renderer,omitempty"`
+}
+
+func (m *FeedGetHeaderResponse) Reset()         { *m = FeedGetHeaderResponse{} }
+func (m *FeedGetHeaderResponse) String() string { return proto.CompactTextString(m) }
+func (*FeedGetHeaderResponse) ProtoMessage()    {}
+func (*FeedGetHeaderResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_592802a36db5ccc7, []int{7}
+}
+func (m *FeedGetHeaderResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *FeedGetHeaderResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_FeedGetHeaderResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *FeedGetHeaderResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FeedGetHeaderResponse.Merge(m, src)
+}
+func (m *FeedGetHeaderResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *FeedGetHeaderResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_FeedGetHeaderResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FeedGetHeaderResponse proto.InternalMessageInfo
+
+func (m *FeedGetHeaderResponse) GetRenderer() *HeaderRenderer {
+	if m != nil {
+		return m.Renderer
+	}
+	return nil
+}
+
 type HeaderRenderer struct {
 	MainUrl    string `protobuf:"bytes,1,opt,name=mainUrl,proto3" json:"mainUrl,omitempty"`
 	UserName   string `protobuf:"bytes,2,opt,name=userName,proto3" json:"userName,omitempty"`
@@ -432,7 +516,7 @@ func (m *HeaderRenderer) Reset()         { *m = HeaderRenderer{} }
 func (m *HeaderRenderer) String() string { return proto.CompactTextString(m) }
 func (*HeaderRenderer) ProtoMessage()    {}
 func (*HeaderRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_592802a36db5ccc7, []int{6}
+	return fileDescriptor_592802a36db5ccc7, []int{8}
 }
 func (m *HeaderRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -482,6 +566,50 @@ func (m *HeaderRenderer) GetUserAvatar() string {
 	return ""
 }
 
+type ResolveRouteResponse struct {
+	Renderer Renderers `protobuf:"varint,1,opt,name=renderer,proto3,enum=meme.Renderers" json:"renderer,omitempty"`
+}
+
+func (m *ResolveRouteResponse) Reset()         { *m = ResolveRouteResponse{} }
+func (m *ResolveRouteResponse) String() string { return proto.CompactTextString(m) }
+func (*ResolveRouteResponse) ProtoMessage()    {}
+func (*ResolveRouteResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_592802a36db5ccc7, []int{9}
+}
+func (m *ResolveRouteResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ResolveRouteResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ResolveRouteResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ResolveRouteResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResolveRouteResponse.Merge(m, src)
+}
+func (m *ResolveRouteResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *ResolveRouteResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ResolveRouteResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ResolveRouteResponse proto.InternalMessageInfo
+
+func (m *ResolveRouteResponse) GetRenderer() Renderers {
+	if m != nil {
+		return m.Renderer
+	}
+	return Renderers_UNKNOWN
+}
+
 func init() {
 	proto.RegisterEnum("meme.Renderers", Renderers_name, Renderers_value)
 	proto.RegisterType((*ProfileGetRequest)(nil), "meme.ProfileGetRequest")
@@ -491,43 +619,51 @@ func init() {
 	proto.RegisterType((*FeedGetResponse)(nil), "meme.FeedGetResponse")
 	proto.RegisterType((*FeedRenderer)(nil), "meme.FeedRenderer")
 	proto.RegisterType((*FeedRenderer_Post)(nil), "meme.FeedRenderer.Post")
+	proto.RegisterType((*FeedGetHeaderRequest)(nil), "meme.FeedGetHeaderRequest")
+	proto.RegisterType((*FeedGetHeaderResponse)(nil), "meme.FeedGetHeaderResponse")
 	proto.RegisterType((*HeaderRenderer)(nil), "meme.HeaderRenderer")
+	proto.RegisterType((*ResolveRouteResponse)(nil), "meme.ResolveRouteResponse")
 }
 
 func init() { proto.RegisterFile("api2.proto", fileDescriptor_592802a36db5ccc7) }
 
 var fileDescriptor_592802a36db5ccc7 = []byte{
-	// 476 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x53, 0x4d, 0x6f, 0xd3, 0x40,
-	0x10, 0x8d, 0x1d, 0x37, 0x1f, 0x93, 0x2a, 0x0d, 0x23, 0x4a, 0x57, 0x51, 0x65, 0x45, 0xe6, 0x52,
-	0x21, 0x61, 0x84, 0xb9, 0x20, 0x6e, 0x85, 0x26, 0xa1, 0x02, 0xd2, 0xc8, 0x52, 0x85, 0xc4, 0x6d,
-	0x2b, 0x4f, 0xc1, 0x52, 0x1c, 0x9b, 0xdd, 0x0d, 0x82, 0x7f, 0xc1, 0xaf, 0xe0, 0xb7, 0x70, 0xec,
-	0x91, 0x23, 0x4a, 0x24, 0x7e, 0x07, 0x5a, 0xaf, 0x93, 0x38, 0x71, 0x6f, 0xf3, 0xde, 0x3c, 0x8f,
-	0xdf, 0x1b, 0x8f, 0x01, 0x78, 0x16, 0x07, 0x7e, 0x26, 0x52, 0x95, 0xa2, 0x93, 0x50, 0x42, 0xde,
-	0x63, 0x78, 0x30, 0x15, 0xe9, 0x6d, 0x3c, 0xa3, 0x31, 0xa9, 0x90, 0xbe, 0x2e, 0x48, 0x2a, 0xec,
-	0x82, 0x1d, 0x47, 0xcc, 0x1a, 0x58, 0x67, 0xed, 0xd0, 0x8e, 0x23, 0x6f, 0x0c, 0x58, 0x16, 0xc9,
-	0x2c, 0x9d, 0x4b, 0xc2, 0xe7, 0xd0, 0x12, 0x34, 0x8f, 0x48, 0x90, 0xc8, 0xb5, 0x9d, 0xe0, 0xd8,
-	0xd7, 0x33, 0xfd, 0x42, 0x1b, 0x16, 0xcd, 0x70, 0x23, 0xf3, 0x3e, 0xc0, 0xd1, 0x5e, 0x73, 0xff,
-	0x5d, 0x88, 0xe0, 0xcc, 0x79, 0x42, 0xcc, 0xce, 0x99, 0xbc, 0xc6, 0x47, 0xd0, 0xe0, 0xdf, 0xb8,
-	0xe2, 0x82, 0xd5, 0x73, 0xb6, 0x40, 0x5e, 0x0f, 0xba, 0x23, 0xa2, 0x68, 0xeb, 0xdc, 0x3b, 0x87,
-	0xa3, 0x0d, 0x53, 0xd8, 0xf4, 0x2b, 0x36, 0xd1, 0xd8, 0xd4, 0xc2, 0x7b, 0x3c, 0xfe, 0xb2, 0xe1,
-	0xb0, 0xdc, 0xc2, 0xa7, 0x70, 0x90, 0xa5, 0x52, 0x49, 0x66, 0x0d, 0xea, 0x67, 0x9d, 0xe0, 0xa4,
-	0xfa, 0xb4, 0x3f, 0x4d, 0xa5, 0x0a, 0x8d, 0xaa, 0xff, 0xcf, 0x02, 0x47, 0xe3, 0x4a, 0xb2, 0x3e,
-	0xb4, 0xf8, 0x42, 0x7d, 0x49, 0xc5, 0x65, 0x54, 0xa4, 0xdb, 0x60, 0xf4, 0xe0, 0xd0, 0xd4, 0xe7,
-	0xe5, 0x9c, 0x3b, 0x1c, 0xba, 0x00, 0x06, 0x4f, 0xf4, 0x7e, 0x9c, 0x5c, 0x51, 0x62, 0xf0, 0x14,
-	0xda, 0x06, 0x5d, 0x8b, 0x19, 0x6b, 0xe5, 0xed, 0x2d, 0x81, 0x03, 0xe8, 0x44, 0x5c, 0xd1, 0x45,
-	0x2c, 0xb3, 0x19, 0xff, 0xc1, 0x0e, 0xf2, 0x7e, 0x99, 0xd2, 0x9b, 0x57, 0xf4, 0x5d, 0xb1, 0x86,
-	0xd9, 0xbc, 0xae, 0xb5, 0xe7, 0x38, 0xe1, 0x9f, 0x49, 0x8f, 0x6c, 0x1a, 0xcf, 0x6b, 0xec, 0xdd,
-	0x42, 0xf7, 0x2d, 0xf1, 0x88, 0xc4, 0x66, 0x53, 0x0c, 0x9a, 0x09, 0x8f, 0xe7, 0x5a, 0x6c, 0x62,
-	0xaf, 0xa1, 0x9e, 0xb3, 0x90, 0x64, 0x9c, 0x17, 0xd9, 0xd7, 0x58, 0xe7, 0xd2, 0xf5, 0x4e, 0xf2,
-	0x12, 0xf3, 0xe4, 0x19, 0xb4, 0xd7, 0x6f, 0x90, 0xd8, 0x81, 0xe6, 0xf5, 0xe4, 0xdd, 0xe4, 0xea,
-	0xe3, 0xa4, 0x57, 0xc3, 0x16, 0x38, 0xa3, 0xe1, 0xf0, 0xa2, 0x67, 0x69, 0x7a, 0x1a, 0x5e, 0x8d,
-	0x2e, 0xdf, 0x0f, 0x7b, 0x76, 0xf0, 0x0a, 0x1c, 0xfd, 0x75, 0x30, 0x80, 0xfa, 0x98, 0x14, 0x3e,
-	0xdc, 0x7e, 0xb0, 0xed, 0xa5, 0xf4, 0x8f, 0xf7, 0x58, 0x73, 0x2d, 0xc1, 0x1b, 0x68, 0x16, 0x17,
-	0x8a, 0x2f, 0xcd, 0xe3, 0x27, 0x3b, 0x47, 0x5d, 0x9a, 0xc0, 0xaa, 0x0d, 0x33, 0xe4, 0xf5, 0xe9,
-	0xef, 0xa5, 0x6b, 0xdd, 0x2d, 0x5d, 0xeb, 0xef, 0xd2, 0xb5, 0x7e, 0xae, 0xdc, 0xda, 0xdd, 0xca,
-	0xad, 0xfd, 0x59, 0xb9, 0xb5, 0x4f, 0x76, 0x76, 0x73, 0xd3, 0xc8, 0xff, 0xbf, 0x17, 0xff, 0x03,
-	0x00, 0x00, 0xff, 0xff, 0x6c, 0x30, 0x28, 0xf6, 0x8d, 0x03, 0x00, 0x00,
+	// 553 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x94, 0xcf, 0x6e, 0xd3, 0x40,
+	0x10, 0xc6, 0x63, 0xc7, 0xcd, 0x9f, 0x49, 0x95, 0x84, 0x51, 0xd2, 0x5a, 0xa1, 0xb2, 0x22, 0x73,
+	0xa9, 0x40, 0x44, 0x60, 0x2e, 0x88, 0x5b, 0x69, 0xfe, 0x10, 0x51, 0x92, 0xc8, 0x52, 0x85, 0xc4,
+	0x6d, 0x2b, 0x4f, 0xc1, 0x52, 0x12, 0x1b, 0x7b, 0x53, 0xc1, 0x8d, 0x47, 0xe0, 0x29, 0x78, 0x16,
+	0x8e, 0x3d, 0x72, 0x44, 0x89, 0xc4, 0x73, 0xa0, 0xf5, 0xda, 0x8e, 0x1d, 0xf7, 0xb6, 0xf3, 0xcd,
+	0x97, 0xc9, 0x6f, 0xbf, 0xb1, 0x0d, 0xc0, 0x7c, 0xd7, 0x1a, 0xf8, 0x81, 0xc7, 0x3d, 0xd4, 0x56,
+	0xb4, 0x22, 0xf3, 0x09, 0x3c, 0x5a, 0x04, 0xde, 0xad, 0xbb, 0xa4, 0x09, 0x71, 0x9b, 0xbe, 0x6e,
+	0x28, 0xe4, 0xd8, 0x04, 0xd5, 0x75, 0x74, 0xa5, 0xaf, 0x9c, 0xd7, 0x6d, 0xd5, 0x75, 0xcc, 0x09,
+	0x60, 0xd6, 0x14, 0xfa, 0xde, 0x3a, 0x24, 0x7c, 0x09, 0xb5, 0x80, 0xd6, 0x0e, 0x05, 0x14, 0x44,
+	0xde, 0x86, 0xd5, 0x1d, 0x88, 0x99, 0x83, 0xd8, 0x6b, 0xc7, 0x4d, 0x3b, 0xb5, 0x99, 0x1f, 0xa0,
+	0x75, 0xd0, 0x3c, 0xfc, 0x2f, 0x44, 0xd0, 0xd6, 0x6c, 0x45, 0xba, 0x1a, 0x29, 0xd1, 0x19, 0x4f,
+	0xa0, 0xc2, 0xee, 0x18, 0x67, 0x81, 0x5e, 0x8e, 0xd4, 0xb8, 0x32, 0xdb, 0xd0, 0x1c, 0x13, 0x39,
+	0x7b, 0x72, 0xf3, 0x02, 0x5a, 0xa9, 0x12, 0x63, 0x0e, 0x0a, 0x98, 0x28, 0x31, 0x85, 0xf1, 0x01,
+	0xc6, 0x5f, 0x2a, 0x1c, 0x67, 0x5b, 0xf8, 0x1c, 0x8e, 0x7c, 0x2f, 0xe4, 0xa1, 0xae, 0xf4, 0xcb,
+	0xe7, 0x0d, 0xeb, 0xb4, 0xf8, 0xeb, 0xc1, 0xc2, 0x0b, 0xb9, 0x2d, 0x5d, 0xbd, 0x7f, 0x0a, 0x68,
+	0xa2, 0x2e, 0xdc, 0xac, 0x07, 0x35, 0xb6, 0xe1, 0x5f, 0xbc, 0x60, 0xea, 0xc4, 0xb7, 0x4b, 0x6b,
+	0x34, 0xe1, 0x58, 0x9e, 0x2f, 0xb2, 0xf7, 0xcc, 0x69, 0x68, 0x00, 0xc8, 0x7a, 0x26, 0xf2, 0xd1,
+	0x22, 0x47, 0x46, 0xc1, 0x33, 0xa8, 0xcb, 0xea, 0x3a, 0x58, 0xea, 0xb5, 0xa8, 0xbd, 0x17, 0xb0,
+	0x0f, 0x0d, 0x87, 0x71, 0x1a, 0xba, 0xa1, 0xbf, 0x64, 0xdf, 0xf5, 0xa3, 0xa8, 0x9f, 0x95, 0x44,
+	0xf2, 0x9c, 0xbe, 0x71, 0xbd, 0x22, 0x93, 0x17, 0x67, 0xc1, 0xec, 0xae, 0xd8, 0x67, 0x12, 0x23,
+	0xab, 0x92, 0x39, 0xa9, 0xcd, 0x13, 0xe8, 0xc4, 0x59, 0xbf, 0x23, 0xe6, 0x50, 0x90, 0xec, 0x60,
+	0x0a, 0xdd, 0x03, 0x3d, 0xde, 0xc4, 0x8b, 0xc2, 0x26, 0x3a, 0x32, 0xcb, 0xc4, 0x57, 0xd8, 0xc5,
+	0x2d, 0x34, 0xf3, 0x3d, 0xd4, 0xa1, 0xba, 0x62, 0xee, 0x5a, 0xf0, 0xc8, 0x64, 0x93, 0x52, 0xa0,
+	0x6e, 0x42, 0x92, 0xe1, 0xc4, 0xf1, 0x26, 0xb5, 0x88, 0x4e, 0x9c, 0x73, 0xe1, 0x66, 0x14, 0xf3,
+	0x12, 0x3a, 0x36, 0x85, 0xde, 0xf2, 0x8e, 0x6c, 0x6f, 0xc3, 0x29, 0x25, 0x7e, 0x76, 0x40, 0xdc,
+	0xb4, 0x5a, 0x92, 0x38, 0xe1, 0x09, 0xf7, 0xb0, 0x4f, 0xdf, 0x40, 0x3d, 0x95, 0xb1, 0x01, 0xd5,
+	0xeb, 0xd9, 0xfb, 0xd9, 0xfc, 0xe3, 0xac, 0x5d, 0xc2, 0x1a, 0x68, 0xe3, 0xd1, 0x68, 0xd8, 0x56,
+	0x84, 0xbc, 0xb0, 0xe7, 0xe3, 0xe9, 0xd5, 0xa8, 0xad, 0x62, 0x1d, 0x8e, 0xae, 0xe6, 0x93, 0xe9,
+	0xac, 0x5d, 0xb6, 0x7e, 0x28, 0xa0, 0x89, 0xd0, 0xd0, 0x82, 0xf2, 0x84, 0x38, 0x76, 0xf6, 0x0f,
+	0xd9, 0xfe, 0xe9, 0xee, 0x75, 0x0f, 0xd4, 0x98, 0x72, 0x08, 0xf5, 0x34, 0x6c, 0xec, 0xe5, 0x3c,
+	0xb9, 0xcd, 0xf4, 0x1e, 0x3f, 0xd8, 0x93, 0x53, 0xac, 0x4b, 0xa8, 0xc6, 0xef, 0x26, 0xbe, 0x96,
+	0x10, 0xa7, 0xb9, 0xd7, 0x39, 0xc3, 0xa1, 0x17, 0x1b, 0x72, 0xc8, 0xdb, 0xb3, 0xdf, 0x5b, 0x43,
+	0xb9, 0xdf, 0x1a, 0xca, 0xdf, 0xad, 0xa1, 0xfc, 0xdc, 0x19, 0xa5, 0xfb, 0x9d, 0x51, 0xfa, 0xb3,
+	0x33, 0x4a, 0x9f, 0x54, 0xff, 0xe6, 0xa6, 0x12, 0x7d, 0x79, 0x5e, 0xfd, 0x0f, 0x00, 0x00, 0xff,
+	0xff, 0x0e, 0x3e, 0x54, 0x20, 0x87, 0x04, 0x00, 0x00,
 }
 
 func (m *ProfileGetRequest) Marshal() (dAtA []byte, err error) {
@@ -813,6 +949,64 @@ func (m *FeedRenderer_Post) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *FeedGetHeaderRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FeedGetHeaderRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FeedGetHeaderRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *FeedGetHeaderResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FeedGetHeaderResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FeedGetHeaderResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Renderer != nil {
+		{
+			size, err := m.Renderer.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintApi2(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *HeaderRenderer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -853,6 +1047,34 @@ func (m *HeaderRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintApi2(dAtA, i, uint64(len(m.MainUrl)))
 		i--
 		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ResolveRouteResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ResolveRouteResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ResolveRouteResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Renderer != 0 {
+		i = encodeVarintApi2(dAtA, i, uint64(m.Renderer))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -993,6 +1215,28 @@ func (m *FeedRenderer_Post) Size() (n int) {
 	return n
 }
 
+func (m *FeedGetHeaderRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *FeedGetHeaderResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Renderer != nil {
+		l = m.Renderer.Size()
+		n += 1 + l + sovApi2(uint64(l))
+	}
+	return n
+}
+
 func (m *HeaderRenderer) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1010,6 +1254,18 @@ func (m *HeaderRenderer) Size() (n int) {
 	l = len(m.UserAvatar)
 	if l > 0 {
 		n += 1 + l + sovApi2(uint64(l))
+	}
+	return n
+}
+
+func (m *ResolveRouteResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Renderer != 0 {
+		n += 1 + sovApi2(uint64(m.Renderer))
 	}
 	return n
 }
@@ -1881,6 +2137,148 @@ func (m *FeedRenderer_Post) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *FeedGetHeaderRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowApi2
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FeedGetHeaderRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FeedGetHeaderRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipApi2(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *FeedGetHeaderResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowApi2
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FeedGetHeaderResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FeedGetHeaderResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Renderer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowApi2
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthApi2
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Renderer == nil {
+				m.Renderer = &HeaderRenderer{}
+			}
+			if err := m.Renderer.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipApi2(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *HeaderRenderer) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2006,6 +2404,78 @@ func (m *HeaderRenderer) Unmarshal(dAtA []byte) error {
 			}
 			m.UserAvatar = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipApi2(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ResolveRouteResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowApi2
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ResolveRouteResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ResolveRouteResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Renderer", wireType)
+			}
+			m.Renderer = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowApi2
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Renderer |= Renderers(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipApi2(dAtA[iNdEx:])

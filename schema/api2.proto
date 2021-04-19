@@ -6,6 +6,7 @@ option go_package = "pb";
 
 service Feed {
   rpc Get(FeedGetRequest) returns (FeedGetResponse);
+  rpc GetHeader(FeedGetHeaderRequest) returns (FeedGetHeaderResponse);
 }
 
 service Profile {
@@ -54,6 +55,14 @@ enum Renderers {
   UNKNOWN = 0;
   FEED = 1;
   PROFILE = 2;
+  LOGIN = 3;
+}
+
+message FeedGetHeaderRequest {
+}
+
+message FeedGetHeaderResponse {
+  HeaderRenderer renderer = 1;
 }
 
 message HeaderRenderer {

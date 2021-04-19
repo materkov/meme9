@@ -5,6 +5,7 @@ import styles from "./App.module.css";
 import {Profile} from "./components/Profile/Profile";
 import * as schema from "./api/api2";
 import {Router} from "./components/Router/Router";
+import {Login} from "./components/Login/Login";
 
 function App() {
     return (
@@ -18,5 +19,6 @@ function App() {
 
 window.modules[schema.Renderers.FEED] = Feed
 window.modules[schema.Renderers.PROFILE] = Profile
+window.modules[schema.Renderers.LOGIN] = Login
 
 ReactDOM.render(<App/>, document.getElementById('root'));

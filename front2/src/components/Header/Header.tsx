@@ -1,11 +1,36 @@
 import React from "react";
 import styles from "./Header.module.css";
 import {Link} from "../Link/Link";
-import * as schema from "../../api/api2";
+import {FeedGetHeaderRequest, FeedGetHeaderResponse, HeaderRenderer} from "../../api/api2";
+import {api} from "../../Api";
 
-export class Header extends React.Component<{ data: schema.HeaderRenderer }> {
+interface State {
+    data?: HeaderRenderer;
+}
+
+export class Header extends React.Component {
+    state: State = {};
+
+    componentDidMount() {
+        this.refreshData();
+        setInterval(this.refreshData, 10 * 1000);
+    }
+
+    refreshData = () => {
+        api<FeedGetHeaderRequest, FeedGetHeaderResponse>("meme.Feed", "GetHeader", {}).then(r => {
+            this.setState({data: r.renderer});
+        })
+    }
+
     render() {
-        const data = this.props.data;
+        let data = this.state.data;
+        if (!data) {
+            data = {
+                userName: "",
+                userAvatar: "",
+                mainUrl: "/",
+            }
+        }
 
         return (
             <div className={styles.Header}>
