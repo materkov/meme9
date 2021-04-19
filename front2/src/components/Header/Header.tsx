@@ -29,6 +29,7 @@ export class Header extends React.Component {
                 userName: "",
                 userAvatar: "",
                 mainUrl: "/",
+                isAuthorized: false,
             }
         }
 
@@ -37,8 +38,10 @@ export class Header extends React.Component {
                 <Link href={data.mainUrl} className={styles.Logo}>meme</Link>
 
                 <div className={styles.RightContainer}>
-                    <div className={styles.Name}>{data.userName}</div>
-                    <img className={styles.Avatar} alt="" src={data.userAvatar}/>
+                    {data.isAuthorized && <div className={styles.Name}>{data.userName}</div>}
+                    {data.isAuthorized && <img className={styles.Avatar} alt="" src={data.userAvatar}/>}
+
+                    {!data.isAuthorized && <Link className={styles.Name} href={"/login"}>Войти</Link>}
                 </div>
             </div>
         );

@@ -108,6 +108,7 @@ export interface HeaderRenderer {
   mainUrl: string;
   userName: string;
   userAvatar: string;
+  isAuthorized: boolean;
 }
 
 export interface ResolveRouteResponse {
@@ -775,6 +776,7 @@ const baseHeaderRenderer: object = {
   mainUrl: "",
   userName: "",
   userAvatar: "",
+  isAuthorized: false,
 };
 
 export const HeaderRenderer = {
@@ -787,6 +789,9 @@ export const HeaderRenderer = {
     }
     if (message.userAvatar !== "") {
       writer.uint32(26).string(message.userAvatar);
+    }
+    if (message.isAuthorized === true) {
+      writer.uint32(32).bool(message.isAuthorized);
     }
     return writer;
   },
@@ -806,6 +811,9 @@ export const HeaderRenderer = {
           break;
         case 3:
           message.userAvatar = reader.string();
+          break;
+        case 4:
+          message.isAuthorized = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -832,6 +840,11 @@ export const HeaderRenderer = {
     } else {
       message.userAvatar = "";
     }
+    if (object.isAuthorized !== undefined && object.isAuthorized !== null) {
+      message.isAuthorized = Boolean(object.isAuthorized);
+    } else {
+      message.isAuthorized = false;
+    }
     return message;
   },
 
@@ -840,6 +853,8 @@ export const HeaderRenderer = {
     message.mainUrl !== undefined && (obj.mainUrl = message.mainUrl);
     message.userName !== undefined && (obj.userName = message.userName);
     message.userAvatar !== undefined && (obj.userAvatar = message.userAvatar);
+    message.isAuthorized !== undefined &&
+      (obj.isAuthorized = message.isAuthorized);
     return obj;
   },
 
@@ -859,6 +874,11 @@ export const HeaderRenderer = {
       message.userAvatar = object.userAvatar;
     } else {
       message.userAvatar = "";
+    }
+    if (object.isAuthorized !== undefined && object.isAuthorized !== null) {
+      message.isAuthorized = object.isAuthorized;
+    } else {
+      message.isAuthorized = false;
     }
     return message;
   },

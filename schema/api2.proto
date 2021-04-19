@@ -69,6 +69,7 @@ message HeaderRenderer {
   string mainUrl = 1;
   string userName = 2;
   string userAvatar = 3;
+  bool isAuthorized = 4;
 }
 
 message ResolveRouteResponse {

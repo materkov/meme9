@@ -72,9 +72,10 @@ func apiHandler(method string, body io.Reader, viewerID int) proto.Message {
 	case "meme.Feed/GetHeader":
 		return &pb.FeedGetHeaderResponse{
 			Renderer: &pb.HeaderRenderer{
-				MainUrl:    "/",
-				UserName:   fmt.Sprintf("User %d", viewerID),
-				UserAvatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
+				IsAuthorized: viewerID != 0,
+				MainUrl:      "/",
+				UserName:     fmt.Sprintf("User %d", viewerID),
+				UserAvatar:   "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
 			},
 		}
 
