@@ -5,15 +5,27 @@ import {FeedGetHeaderRequest, FeedGetHeaderResponse, HeaderRenderer} from "../..
 import {api} from "../../Api";
 
 interface State {
-    data?: HeaderRenderer;
+    data: HeaderRenderer;
 }
 
 export class Header extends React.Component {
-    state: State = {};
+    state: State;
+
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            data: {
+                isAuthorized: false,
+                mainUrl: "/",
+                userName: "Макс",
+                userAvatar: "https://sun2.43222.userapi.com/s/v1/ig2/WVgdYwZ6Cd8mMcMunD_Po2YDv0_2BHRGf3ofZ1NHyGcbd9nKDQJ029FOYIgwo614Rqv3RT1hO7z5t01DUSRaJosq.jpg?size=100x0&quality=96&crop=122,105,561,561&ava=1",
+            }
+        };
+    }
 
     componentDidMount() {
         this.refreshData();
-        setInterval(this.refreshData, 10 * 1000);
+        setInterval(this.refreshData, 60 * 1000);
     }
 
     refreshData = () => {
@@ -23,15 +35,7 @@ export class Header extends React.Component {
     }
 
     render() {
-        let data = this.state.data;
-        if (!data) {
-            data = {
-                userName: "",
-                userAvatar: "",
-                mainUrl: "/",
-                isAuthorized: false,
-            }
-        }
+        const data = this.state.data;
 
         return (
             <div className={styles.Header}>

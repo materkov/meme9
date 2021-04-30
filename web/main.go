@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -13,8 +14,10 @@ import (
 	"strings"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
+	"github.com/jmoiron/sqlx"
 	"github.com/materkov/meme9/web/pb"
 )
 
@@ -23,52 +26,10 @@ type Config struct {
 }
 
 var config Config
+var store Store
 
 func apiHandler(method string, body io.Reader, viewerID int) proto.Message {
 	switch method {
-	case "meme.Feed/Get":
-		req := pb.FeedGetRequest{}
-		_ = jsonpb.Unmarshal(body, &req)
-
-		return &pb.FeedGetResponse{
-			Renderer: &pb.FeedRenderer{
-				Posts: []*pb.FeedRenderer_Post{
-					{
-						Id:           "3331",
-						AuthorUrl:    "/profile/4",
-						AuthorId:     "4",
-						AuthorAvatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
-						AuthorName:   "Maks Materkov",
-						DateDisplay:  "16 янв 2021 в 11:42",
-						Text:         "Пост текст текст текст текст текст текст текст текст текст текст текст",
-						ImageUrl:     "https://sun9-48.userapi.com/impg/-nlbpow-jdaXTpOb6isHbSobFZQvpt5GvdDaaA/147nS0j68sg.jpg?size=2560x1897&quality=96&sign=97141104582fb9f6a35162fd3aff78ec&type=album",
-					},
-					{
-						Id:           "521",
-						AuthorUrl:    "/profile/5",
-						AuthorId:     "5",
-						AuthorAvatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
-						AuthorName:   "Vasya Pupmpkin",
-						DateDisplay:  "16 апр 2018 в 15:40",
-						Text:         "(Note, if you're a new user of ts-proto and using a modern TS setup with esModuleInterop, you need to also pass that as a ts_proto_opt.)",
-						ImageUrl:     "https://sun3.43222.userapi.com/impg/ZlHHJIwh9h-Jx8tKkfDB3O5A_XTJgbg0bq_4AQ/crxXzinhDrk.jpg?size=1920x1440&quality=96&sign=c79c25cb7ad78d5ada79408d363593e9&type=album",
-					},
-				},
-			},
-		}
-
-	case "meme.Profile/Get":
-		req := pb.ProfileGetRequest{}
-		_ = jsonpb.Unmarshal(body, &req)
-
-		return &pb.ProfileGetResponse{
-			Renderer: &pb.ProfileRenderer{
-				Id:     req.Id,
-				Name:   fmt.Sprintf("Maks Materkov #%s", req.Id),
-				Avatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
-			},
-		}
-
 	case "meme.Feed/GetHeader":
 		return &pb.FeedGetHeaderResponse{
 			Renderer: &pb.HeaderRenderer{
@@ -85,20 +46,6 @@ func apiHandler(method string, body io.Reader, viewerID int) proto.Message {
 
 		return &pb.PostsAddResponse{
 			PostUrl: "/profile/5",
-		}
-
-	case "meme.Auth/LoginPage":
-		requestScheme := "http"
-		requestHost := "localhost:8000"
-		vkAppID := 7260220
-		redirectURL := url.QueryEscape(fmt.Sprintf("%s://%s/vk-callback", requestScheme, requestHost))
-		vkURL := fmt.Sprintf("https://oauth.vk.com/authorize?client_id=%d&response_type=code&redirect_uri=%s", vkAppID, redirectURL)
-
-		return &pb.LoginPageResponse{
-			Renderer: &pb.LoginPageRenderer{
-				AuthUrl: vkURL,
-				Text:    "Войти через ВК",
-			},
 		}
 
 	default:
@@ -124,45 +71,104 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	_ = m.Marshal(w, resp)
 }
 
-type routeResp struct {
-	Component string          `json:"component"`
-	Data      json.RawMessage `json:"data"`
+type routeHandler func(url string) (pb.Renderers, proto.Message)
+
+var router = map[*regexp.Regexp]routeHandler{
+	regexp.MustCompile(`/`):              handleIndex,
+	regexp.MustCompile(`/login`):         handleLogin,
+	regexp.MustCompile(`/profile/(\d+)`): handleProfile,
+}
+
+func handleIndex(_ string) (pb.Renderers, proto.Message) {
+	postIds, err := store.GetFeed()
+	log.Printf("%v %s", postIds, err)
+
+	posts, err := store.GetPosts(postIds)
+	log.Printf("%v %s", posts, err)
+
+	postsMap := map[int]*Post{}
+	for _, post := range posts {
+		postsMap[post.ID] = post
+	}
+
+	postsWrapped := make([]*pb.FeedRenderer_Post, 0)
+	for _, postID := range postIds {
+		post := postsMap[postID]
+		if post == nil {
+			continue
+		}
+
+		dateDisplay := time.Unix(int64(post.Date), 0).Format("2 Jan 2006 15:04")
+
+		postsWrapped = append(postsWrapped, &pb.FeedRenderer_Post{
+			Id:           strconv.Itoa(post.ID),
+			AuthorUrl:    fmt.Sprintf("/profile/%d", post.ID),
+			AuthorId:     strconv.Itoa(post.UserID),
+			AuthorAvatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
+			AuthorName:   "Maks Materkov",
+			DateDisplay:  dateDisplay,
+			Text:         post.Text,
+			ImageUrl:     "https://sun9-48.userapi.com/impg/-nlbpow-jdaXTpOb6isHbSobFZQvpt5GvdDaaA/147nS0j68sg.jpg?size=2560x1897&quality=96&sign=97141104582fb9f6a35162fd3aff78ec&type=album",
+		})
+	}
+
+	return pb.Renderers_FEED, &pb.FeedGetResponse{
+		Renderer: &pb.FeedRenderer{
+			Posts: postsWrapped,
+		},
+	}
+}
+
+func handleLogin(_ string) (pb.Renderers, proto.Message) {
+	requestScheme := "http"
+	requestHost := "localhost:8000"
+	vkAppID := 7260220
+	redirectURL := url.QueryEscape(fmt.Sprintf("%s://%s/vk-callback", requestScheme, requestHost))
+	vkURL := fmt.Sprintf("https://oauth.vk.com/authorize?client_id=%d&response_type=code&redirect_uri=%s", vkAppID, redirectURL)
+
+	return pb.Renderers_LOGIN, &pb.LoginPageResponse{
+		Renderer: &pb.LoginPageRenderer{
+			AuthUrl: vkURL,
+			Text:    "Войти через ВК",
+		},
+	}
+}
+
+func handleProfile(url string) (pb.Renderers, proto.Message) {
+	req := &pb.ProfileGetRequest{
+		Id: strings.TrimPrefix(url, "/profile/"),
+	}
+
+	return pb.Renderers_PROFILE, &pb.ProfileGetResponse{
+		Renderer: &pb.ProfileRenderer{
+			Id:     req.Id,
+			Name:   fmt.Sprintf("Maks Materkov #%s", req.Id),
+			Avatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
+		},
+	}
 }
 
 func handleRoute(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	url := r.URL.Query().Get("url")
+	urlAddress := r.URL.Query().Get("url")
 
-	enc := json.NewEncoder(w)
 	var component pb.Renderers
 	var data proto.Message
 
-	if url == "/" {
-		component = pb.Renderers_FEED
-		data = apiHandler("meme.Feed/Get", strings.NewReader(""), 0)
-	}
-
-	if url == "/login" {
-		component = pb.Renderers_LOGIN
-		data = apiHandler("meme.Auth/LoginPage", strings.NewReader(""), 0)
-	}
-
-	match, _ := regexp.MatchString(`^/profile/(\d+)$`, url)
-	if match {
-		component = pb.Renderers_PROFILE
-		req := &pb.ProfileGetRequest{
-			Id: strings.TrimPrefix(url, "/profile/"),
+	for route, handler := range router {
+		if route.MatchString(urlAddress) {
+			handler(urlAddress)
 		}
-		m := jsonpb.Marshaler{}
-		reqStr, _ := m.MarshalToString(req)
-		data = apiHandler("meme.Profile/Get", strings.NewReader(reqStr), 0)
 	}
 
 	m := jsonpb.Marshaler{}
 	dataStr, _ := m.MarshalToString(data)
 
-	_ = enc.Encode(routeResp{
+	_ = json.NewEncoder(w).Encode(struct {
+		Component string          `json:"component"`
+		Data      json.RawMessage `json:"data"`
+	}{
 		Component: pb.Renderers_name[int32(component)],
 		Data:      json.RawMessage(dataStr),
 	})
@@ -225,6 +231,13 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 func main() {
 	configStr, _ := os.LookupEnv("CONFIG")
 	_ = json.Unmarshal([]byte(configStr), &config)
+
+	db, err := sqlx.Open("mysql", "root:root@/meme9")
+	if err != nil {
+		panic(err)
+	}
+
+	store = Store{db: db}
 
 	http.HandleFunc("/api/", handler)
 	http.HandleFunc("/router", handleRoute)
