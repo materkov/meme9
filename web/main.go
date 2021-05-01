@@ -25,15 +25,21 @@ import (
 type apiHandler func(body io.Reader, viewer *Viewer) proto.Message
 
 func apiHandlerFeedGetHeader(body io.Reader, viewer *Viewer) proto.Message {
-	return &pb.FeedGetHeaderResponse{
-		Renderer: &pb.HeaderRenderer{
-			IsAuthorized: viewer.UserID != 0,
-			MainUrl:      "/",
-			UserName:     fmt.Sprintf("User %d", viewer.UserID),
-			UserAvatar:   "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
-			LogoutUrl:    "http://localhost:8000/logout",
-		},
+	headerRenderer := pb.HeaderRenderer{
+		MainUrl:   "/",
+		LogoutUrl: "http://localhost:8000/logout",
 	}
+
+	if viewer.UserID != 0 {
+		users, _ := store.GetUsers([]int{viewer.UserID})
+		user := users[0]
+
+		headerRenderer.IsAuthorized = true
+		headerRenderer.UserAvatar = user.VkAvatar
+		headerRenderer.UserName = user.Name
+	}
+
+	return &pb.FeedGetHeaderResponse{Renderer: &headerRenderer}
 }
 
 func apiHandlerPostsAdd(body io.Reader, viewer *Viewer) proto.Message {
@@ -62,35 +68,11 @@ func handleIndex(_ string) *pb.UniversalRenderer {
 	posts, err := store.GetPosts(postIds)
 	log.Printf("%v %s", posts, err)
 
-	postsMap := map[int]*Post{}
-	for _, post := range posts {
-		postsMap[post.ID] = post
-	}
-
-	postsWrapped := make([]*pb.Post, 0)
-	for _, postID := range postIds {
-		post := postsMap[postID]
-		if post == nil {
-			continue
-		}
-
-		dateDisplay := time.Unix(int64(post.Date), 0).Format("2 Jan 2006 15:04")
-
-		postsWrapped = append(postsWrapped, &pb.Post{
-			Id:           strconv.Itoa(post.ID),
-			AuthorUrl:    fmt.Sprintf("/profile/%d", post.ID),
-			AuthorId:     strconv.Itoa(post.UserID),
-			AuthorAvatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
-			AuthorName:   "Maks Materkov",
-			DateDisplay:  dateDisplay,
-			Text:         post.Text,
-			ImageUrl:     "https://sun9-48.userapi.com/impg/-nlbpow-jdaXTpOb6isHbSobFZQvpt5GvdDaaA/147nS0j68sg.jpg?size=2560x1897&quality=96&sign=97141104582fb9f6a35162fd3aff78ec&type=album",
-		})
-	}
+	wrappedPosts := convertPosts(posts)
 
 	return &pb.UniversalRenderer{
 		Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
-			Posts: postsWrapped,
+			Posts: wrappedPosts,
 		}},
 	}
 }
@@ -112,41 +94,22 @@ func handleLogin(_ string) *pb.UniversalRenderer {
 
 func handleProfile(url string) *pb.UniversalRenderer {
 	req := &pb.ProfileGetRequest{
-		Id: strings.TrimPrefix(url, "/profile/"),
+		Id: strings.TrimPrefix(url, "/users/"),
 	}
 
 	userID, _ := strconv.Atoi(req.Id)
 	postIds, _ := store.GetPostsByUser(userID)
 	posts, _ := store.GetPosts(postIds)
-	postsMap := map[int]*Post{}
-	for _, post := range posts {
-		postsMap[post.ID] = post
-	}
+	wrappedPosts := convertPosts(posts)
 
-	var postsWrapped []*pb.Post
-	for _, postID := range postIds {
-		post := postsMap[postID]
-		if post == nil {
-			continue
-		}
-
-		postsWrapped = append(postsWrapped, &pb.Post{
-			Id:           strconv.Itoa(post.ID),
-			AuthorId:     strconv.Itoa(post.UserID),
-			AuthorAvatar: "",
-			AuthorName:   "",
-			AuthorUrl:    fmt.Sprintf("/profile/%d", post.UserID),
-			DateDisplay:  "qwer",
-			Text:         post.Text,
-			ImageUrl:     "",
-		})
-	}
+	users, _ := store.GetUsers([]int{userID})
+	user := users[0]
 
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_ProfileRenderer{ProfileRenderer: &pb.ProfileRenderer{
-		Id:     req.Id,
-		Name:   fmt.Sprintf("Maks Materkov #%s", req.Id),
-		Avatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
-		Posts:  postsWrapped,
+		Id:     strconv.Itoa(user.ID),
+		Name:   user.Name,
+		Avatar: user.VkAvatar,
+		Posts:  wrappedPosts,
 	}}}
 }
 
@@ -155,22 +118,55 @@ func handlePostPage(url string) *pb.UniversalRenderer {
 	postID, _ := strconv.Atoi(postIDStr)
 
 	posts, _ := store.GetPosts([]int{postID})
-	post := posts[0]
-
-	postWrapped := &pb.Post{
-		Id:           strconv.Itoa(post.ID),
-		AuthorId:     strconv.Itoa(post.UserID),
-		AuthorAvatar: "",
-		AuthorName:   "",
-		AuthorUrl:    fmt.Sprintf("/profile/%d", post.UserID),
-		DateDisplay:  "qwer",
-		Text:         post.Text,
-		ImageUrl:     "",
-	}
+	wrappedPosts := convertPosts(posts)
 
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_PostRenderer{PostRenderer: &pb.PostRenderer{
-		Post: postWrapped,
+		Post: wrappedPosts[0],
 	}}}
+}
+
+func convertPosts(posts []*Post) []*pb.Post {
+	userIdsMap := map[int]bool{}
+	for _, post := range posts {
+		userIdsMap[post.UserID] = true
+	}
+
+	userIds := make([]int, len(userIdsMap))
+	i := 0
+	for userID := range userIdsMap {
+		userIds[i] = userID
+		i++
+	}
+
+	users, _ := store.GetUsers(userIds)
+
+	usersMap := map[int]*User{}
+	for _, user := range users {
+		usersMap[user.ID] = user
+	}
+
+	result := make([]*pb.Post, len(posts))
+	for i, post := range posts {
+
+		wrappedPost := pb.Post{
+			Id:          strconv.Itoa(post.ID),
+			Url:         fmt.Sprintf("/posts/%d", post.ID),
+			AuthorId:    strconv.Itoa(post.UserID),
+			AuthorUrl:   fmt.Sprintf("/users/%d", post.UserID),
+			Text:        post.Text,
+			DateDisplay: time.Unix(int64(post.Date), 0).Format("2 Jan 2006 15:04"),
+		}
+
+		user, ok := usersMap[post.UserID]
+		if ok {
+			wrappedPost.AuthorName = user.Name
+			wrappedPost.AuthorAvatar = user.VkAvatar
+		}
+
+		result[i] = &wrappedPost
+	}
+
+	return result
 }
 
 func handleVKCallback(w http.ResponseWriter, r *http.Request) {
@@ -223,6 +219,16 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	users, _ := store.GetUsers([]int{userID})
+	user := users[0]
+
+	vkName, vkAvatar, err := fetchVkData(body.UserID, body.AccessToken)
+	if err == nil {
+		user.Name = vkName
+		user.VkAvatar = vkAvatar
+		_ = store.UpdateNameAvatar(user)
+	}
+
 	token := Token{
 		Token:  RandString(50),
 		UserID: userID,
@@ -242,6 +248,42 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 	})
 
 	http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
+}
+
+func fetchVkData(userId int, accessToken string) (string, string, error) {
+	resp, err := http.PostForm("https://api.vk.com/method/users.get", url.Values{
+		"access_token": []string{accessToken},
+		"v":            []string{"5.130"},
+		"user_ids":     []string{strconv.Itoa(userId)},
+		"fields":       []string{"photo_200,first_name,last_name"},
+	})
+	if err != nil {
+		return "", "", fmt.Errorf("http error: %w", err)
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", "", fmt.Errorf("error reading http body: %w", err)
+	}
+
+	body := struct {
+		Response []struct {
+			FirstName string `json:"first_name"`
+			LastName  string `json:"last_name"`
+			Photo200  string `json:"photo_200"`
+		}
+	}{}
+	err = json.Unmarshal(bodyBytes, &body)
+	if err != nil {
+		return "", "", fmt.Errorf("failed parsing json: %w", err)
+	}
+
+	if len(body.Response) == 0 {
+		return "", "", fmt.Errorf("response length zero: %s", bodyBytes)
+	}
+
+	return body.Response[0].FirstName + " " + body.Response[0].LastName, body.Response[0].Photo200, nil
 }
 
 func handleLogout(w http.ResponseWriter, r *http.Request) {
@@ -320,7 +362,7 @@ func main() {
 	// Router
 	r.HandleFunc("/", routerWrapper(handleIndex))
 	r.HandleFunc("/login", routerWrapper(handleLogin))
-	r.HandleFunc("/profile/{id}", routerWrapper(handleProfile))
+	r.HandleFunc("/users/{id}", routerWrapper(handleProfile))
 	r.HandleFunc("/posts/{id}", routerWrapper(handlePostPage))
 
 	// Other

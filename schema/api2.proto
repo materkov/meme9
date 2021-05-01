@@ -36,6 +36,7 @@ message FeedGetResponse {
 
 message Post {
   string id = 1;
+  string url = 9;
 
   string authorId = 2;
   string authorAvatar = 3;

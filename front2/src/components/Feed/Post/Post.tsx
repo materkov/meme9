@@ -17,7 +17,7 @@ export class Post extends React.Component<Props> {
                     <img className={styles.AuthorAvatar} alt="" src={data.authorAvatar}/>
                     <div>
                         <Link className={styles.Author} href={data.authorUrl}>{data.authorName}</Link>
-                        <div className={styles.Date}>{data.dateDisplay}</div>
+                        <Link href={data.url} className={styles.Date}>{data.dateDisplay}</Link>
                     </div>
                 </div>
 

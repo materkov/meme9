@@ -17,8 +17,11 @@ type Post struct {
 }
 
 type User struct {
-	ID       int
-	AvatarID int
+	ID       int    `db:"id"`
+	Name     string `db:"name"`
+	AvatarID int    `db:"avatar_id"`
+	VkID     int    `db:"vk_id"`
+	VkAvatar string `db:"vk_avatar"`
 }
 
 type Photo struct {
@@ -98,6 +101,14 @@ func (s *Store) GetByVkID(vkID int) (int, error) {
 	return userID, err
 }
 
+func (s *Store) UpdateNameAvatar(user *User) error {
+	_, err := s.db.Exec(
+		"update user set name = ?, vk_avatar = ? where id = ?",
+		user.Name, user.VkAvatar, user.ID,
+	)
+	return err
+}
+
 func (s *Store) GetToken(tokenStr string) (*Token, error) {
 	token := Token{}
 	err := s.db.Get(&token, "select * from token where token = ?", tokenStr)
@@ -118,4 +129,14 @@ func (s *Store) AddToken(token *Token) error {
 	token.ID = int(id)
 
 	return nil
+}
+
+func (s *Store) GetUsers(ids []int) ([]*User, error) {
+	var users []*User
+	err := s.db.Select(&users, "select id, coalesce(name, '') as name, coalesce(vk_avatar, '') as vk_avatar, coalesce(vk_id, 0) as vk_id from user where id in ("+s.idsStr(ids)+")")
+	if err != nil {
+		return nil, fmt.Errorf("error selecting users")
+	}
+
+	return users, err
 }

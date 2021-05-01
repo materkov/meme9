@@ -27,6 +27,7 @@ export interface FeedGetResponse {
 
 export interface Post {
   id: string;
+  url: string;
   authorId: string;
   authorAvatar: string;
   authorName: string;
@@ -395,6 +396,7 @@ export const FeedGetResponse = {
 
 const basePost: object = {
   id: "",
+  url: "",
   authorId: "",
   authorAvatar: "",
   authorName: "",
@@ -408,6 +410,9 @@ export const Post = {
   encode(message: Post, writer: Writer = Writer.create()): Writer {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
+    }
+    if (message.url !== "") {
+      writer.uint32(74).string(message.url);
     }
     if (message.authorId !== "") {
       writer.uint32(18).string(message.authorId);
@@ -442,6 +447,9 @@ export const Post = {
       switch (tag >>> 3) {
         case 1:
           message.id = reader.string();
+          break;
+        case 9:
+          message.url = reader.string();
           break;
         case 2:
           message.authorId = reader.string();
@@ -478,6 +486,11 @@ export const Post = {
       message.id = String(object.id);
     } else {
       message.id = "";
+    }
+    if (object.url !== undefined && object.url !== null) {
+      message.url = String(object.url);
+    } else {
+      message.url = "";
     }
     if (object.authorId !== undefined && object.authorId !== null) {
       message.authorId = String(object.authorId);
@@ -520,6 +533,7 @@ export const Post = {
   toJSON(message: Post): unknown {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
+    message.url !== undefined && (obj.url = message.url);
     message.authorId !== undefined && (obj.authorId = message.authorId);
     message.authorAvatar !== undefined &&
       (obj.authorAvatar = message.authorAvatar);
@@ -538,6 +552,11 @@ export const Post = {
       message.id = object.id;
     } else {
       message.id = "";
+    }
+    if (object.url !== undefined && object.url !== null) {
+      message.url = object.url;
+    } else {
+      message.url = "";
     }
     if (object.authorId !== undefined && object.authorId !== null) {
       message.authorId = object.authorId;
