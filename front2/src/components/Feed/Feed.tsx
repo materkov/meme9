@@ -10,7 +10,7 @@ export function Feed(props: { data: schema.FeedRenderer }) {
     </>
 }
 
-function PostsList(props: { posts: schema.FeedRenderer_Post[] }) {
+function PostsList(props: { posts: schema.Post[] }) {
     return <>
         {props.posts.map(post => (
             <Post key={post.id} data={post}/>

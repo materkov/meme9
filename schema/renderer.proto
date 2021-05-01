@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package meme;
+option go_package = "pb";
+
+import "api2.proto";
+import "login.proto";
+
+message UniversalRenderer {
+  oneof renderer {
+    ProfileRenderer profileRenderer = 1;
+    FeedRenderer feedRenderer = 2;
+    PostRenderer postRenderer = 3;
+    HeaderRenderer headerRenderer = 4;
+    LoginPageRenderer loginPageRenderer = 5;
+  }
+}

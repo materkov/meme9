@@ -9,6 +9,7 @@ export enum Renderers {
   FEED = "FEED",
   PROFILE = "PROFILE",
   LOGIN = "LOGIN",
+  POST = "POST",
   UNRECOGNIZED = "UNRECOGNIZED",
 }
 
@@ -26,6 +27,9 @@ export function renderersFromJSON(object: any): Renderers {
     case 3:
     case "LOGIN":
       return Renderers.LOGIN;
+    case 4:
+    case "POST":
+      return Renderers.POST;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -43,6 +47,8 @@ export function renderersToJSON(object: Renderers): string {
       return "PROFILE";
     case Renderers.LOGIN:
       return "LOGIN";
+    case Renderers.POST:
+      return "POST";
     default:
       return "UNKNOWN";
   }
@@ -58,6 +64,8 @@ export function renderersToNumber(object: Renderers): number {
       return 2;
     case Renderers.LOGIN:
       return 3;
+    case Renderers.POST:
+      return 4;
     default:
       return 0;
   }
@@ -75,6 +83,7 @@ export interface ProfileRenderer {
   id: string;
   name: string;
   avatar: string;
+  posts: Post[];
 }
 
 export interface FeedGetRequest {}
@@ -83,11 +92,7 @@ export interface FeedGetResponse {
   renderer: FeedRenderer | undefined;
 }
 
-export interface FeedRenderer {
-  posts: FeedRenderer_Post[];
-}
-
-export interface FeedRenderer_Post {
+export interface Post {
   id: string;
   authorId: string;
   authorAvatar: string;
@@ -96,6 +101,18 @@ export interface FeedRenderer_Post {
   dateDisplay: string;
   text: string;
   imageUrl: string;
+}
+
+export interface FeedRenderer {
+  posts: Post[];
+}
+
+export interface PostRenderer {
+  post: Post | undefined;
+}
+
+export interface PostPageResponse {
+  renderer: PostRenderer | undefined;
 }
 
 export interface FeedGetHeaderRequest {}
@@ -247,6 +264,9 @@ export const ProfileRenderer = {
     if (message.avatar !== "") {
       writer.uint32(26).string(message.avatar);
     }
+    for (const v of message.posts) {
+      Post.encode(v!, writer.uint32(34).fork()).ldelim();
+    }
     return writer;
   },
 
@@ -254,6 +274,7 @@ export const ProfileRenderer = {
     const reader = input instanceof Reader ? input : new Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseProfileRenderer } as ProfileRenderer;
+    message.posts = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -266,6 +287,9 @@ export const ProfileRenderer = {
         case 3:
           message.avatar = reader.string();
           break;
+        case 4:
+          message.posts.push(Post.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -276,6 +300,7 @@ export const ProfileRenderer = {
 
   fromJSON(object: any): ProfileRenderer {
     const message = { ...baseProfileRenderer } as ProfileRenderer;
+    message.posts = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = String(object.id);
     } else {
@@ -291,6 +316,11 @@ export const ProfileRenderer = {
     } else {
       message.avatar = "";
     }
+    if (object.posts !== undefined && object.posts !== null) {
+      for (const e of object.posts) {
+        message.posts.push(Post.fromJSON(e));
+      }
+    }
     return message;
   },
 
@@ -299,11 +329,17 @@ export const ProfileRenderer = {
     message.id !== undefined && (obj.id = message.id);
     message.name !== undefined && (obj.name = message.name);
     message.avatar !== undefined && (obj.avatar = message.avatar);
+    if (message.posts) {
+      obj.posts = message.posts.map((e) => (e ? Post.toJSON(e) : undefined));
+    } else {
+      obj.posts = [];
+    }
     return obj;
   },
 
   fromPartial(object: DeepPartial<ProfileRenderer>): ProfileRenderer {
     const message = { ...baseProfileRenderer } as ProfileRenderer;
+    message.posts = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
@@ -318,6 +354,11 @@ export const ProfileRenderer = {
       message.avatar = object.avatar;
     } else {
       message.avatar = "";
+    }
+    if (object.posts !== undefined && object.posts !== null) {
+      for (const e of object.posts) {
+        message.posts.push(Post.fromPartial(e));
+      }
     }
     return message;
   },
@@ -419,71 +460,7 @@ export const FeedGetResponse = {
   },
 };
 
-const baseFeedRenderer: object = {};
-
-export const FeedRenderer = {
-  encode(message: FeedRenderer, writer: Writer = Writer.create()): Writer {
-    for (const v of message.posts) {
-      FeedRenderer_Post.encode(v!, writer.uint32(10).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(input: Reader | Uint8Array, length?: number): FeedRenderer {
-    const reader = input instanceof Reader ? input : new Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseFeedRenderer } as FeedRenderer;
-    message.posts = [];
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.posts.push(FeedRenderer_Post.decode(reader, reader.uint32()));
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): FeedRenderer {
-    const message = { ...baseFeedRenderer } as FeedRenderer;
-    message.posts = [];
-    if (object.posts !== undefined && object.posts !== null) {
-      for (const e of object.posts) {
-        message.posts.push(FeedRenderer_Post.fromJSON(e));
-      }
-    }
-    return message;
-  },
-
-  toJSON(message: FeedRenderer): unknown {
-    const obj: any = {};
-    if (message.posts) {
-      obj.posts = message.posts.map((e) =>
-        e ? FeedRenderer_Post.toJSON(e) : undefined
-      );
-    } else {
-      obj.posts = [];
-    }
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<FeedRenderer>): FeedRenderer {
-    const message = { ...baseFeedRenderer } as FeedRenderer;
-    message.posts = [];
-    if (object.posts !== undefined && object.posts !== null) {
-      for (const e of object.posts) {
-        message.posts.push(FeedRenderer_Post.fromPartial(e));
-      }
-    }
-    return message;
-  },
-};
-
-const baseFeedRenderer_Post: object = {
+const basePost: object = {
   id: "",
   authorId: "",
   authorAvatar: "",
@@ -494,8 +471,8 @@ const baseFeedRenderer_Post: object = {
   imageUrl: "",
 };
 
-export const FeedRenderer_Post = {
-  encode(message: FeedRenderer_Post, writer: Writer = Writer.create()): Writer {
+export const Post = {
+  encode(message: Post, writer: Writer = Writer.create()): Writer {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -523,10 +500,10 @@ export const FeedRenderer_Post = {
     return writer;
   },
 
-  decode(input: Reader | Uint8Array, length?: number): FeedRenderer_Post {
+  decode(input: Reader | Uint8Array, length?: number): Post {
     const reader = input instanceof Reader ? input : new Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseFeedRenderer_Post } as FeedRenderer_Post;
+    const message = { ...basePost } as Post;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -562,8 +539,8 @@ export const FeedRenderer_Post = {
     return message;
   },
 
-  fromJSON(object: any): FeedRenderer_Post {
-    const message = { ...baseFeedRenderer_Post } as FeedRenderer_Post;
+  fromJSON(object: any): Post {
+    const message = { ...basePost } as Post;
     if (object.id !== undefined && object.id !== null) {
       message.id = String(object.id);
     } else {
@@ -607,7 +584,7 @@ export const FeedRenderer_Post = {
     return message;
   },
 
-  toJSON(message: FeedRenderer_Post): unknown {
+  toJSON(message: Post): unknown {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
     message.authorId !== undefined && (obj.authorId = message.authorId);
@@ -622,8 +599,8 @@ export const FeedRenderer_Post = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<FeedRenderer_Post>): FeedRenderer_Post {
-    const message = { ...baseFeedRenderer_Post } as FeedRenderer_Post;
+  fromPartial(object: DeepPartial<Post>): Post {
+    const message = { ...basePost } as Post;
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
@@ -663,6 +640,182 @@ export const FeedRenderer_Post = {
       message.imageUrl = object.imageUrl;
     } else {
       message.imageUrl = "";
+    }
+    return message;
+  },
+};
+
+const baseFeedRenderer: object = {};
+
+export const FeedRenderer = {
+  encode(message: FeedRenderer, writer: Writer = Writer.create()): Writer {
+    for (const v of message.posts) {
+      Post.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): FeedRenderer {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseFeedRenderer } as FeedRenderer;
+    message.posts = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.posts.push(Post.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): FeedRenderer {
+    const message = { ...baseFeedRenderer } as FeedRenderer;
+    message.posts = [];
+    if (object.posts !== undefined && object.posts !== null) {
+      for (const e of object.posts) {
+        message.posts.push(Post.fromJSON(e));
+      }
+    }
+    return message;
+  },
+
+  toJSON(message: FeedRenderer): unknown {
+    const obj: any = {};
+    if (message.posts) {
+      obj.posts = message.posts.map((e) => (e ? Post.toJSON(e) : undefined));
+    } else {
+      obj.posts = [];
+    }
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<FeedRenderer>): FeedRenderer {
+    const message = { ...baseFeedRenderer } as FeedRenderer;
+    message.posts = [];
+    if (object.posts !== undefined && object.posts !== null) {
+      for (const e of object.posts) {
+        message.posts.push(Post.fromPartial(e));
+      }
+    }
+    return message;
+  },
+};
+
+const basePostRenderer: object = {};
+
+export const PostRenderer = {
+  encode(message: PostRenderer, writer: Writer = Writer.create()): Writer {
+    if (message.post !== undefined) {
+      Post.encode(message.post, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): PostRenderer {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...basePostRenderer } as PostRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.post = Post.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PostRenderer {
+    const message = { ...basePostRenderer } as PostRenderer;
+    if (object.post !== undefined && object.post !== null) {
+      message.post = Post.fromJSON(object.post);
+    } else {
+      message.post = undefined;
+    }
+    return message;
+  },
+
+  toJSON(message: PostRenderer): unknown {
+    const obj: any = {};
+    message.post !== undefined &&
+      (obj.post = message.post ? Post.toJSON(message.post) : undefined);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<PostRenderer>): PostRenderer {
+    const message = { ...basePostRenderer } as PostRenderer;
+    if (object.post !== undefined && object.post !== null) {
+      message.post = Post.fromPartial(object.post);
+    } else {
+      message.post = undefined;
+    }
+    return message;
+  },
+};
+
+const basePostPageResponse: object = {};
+
+export const PostPageResponse = {
+  encode(message: PostPageResponse, writer: Writer = Writer.create()): Writer {
+    if (message.renderer !== undefined) {
+      PostRenderer.encode(message.renderer, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): PostPageResponse {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...basePostPageResponse } as PostPageResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.renderer = PostRenderer.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PostPageResponse {
+    const message = { ...basePostPageResponse } as PostPageResponse;
+    if (object.renderer !== undefined && object.renderer !== null) {
+      message.renderer = PostRenderer.fromJSON(object.renderer);
+    } else {
+      message.renderer = undefined;
+    }
+    return message;
+  },
+
+  toJSON(message: PostPageResponse): unknown {
+    const obj: any = {};
+    message.renderer !== undefined &&
+      (obj.renderer = message.renderer
+        ? PostRenderer.toJSON(message.renderer)
+        : undefined);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<PostPageResponse>): PostPageResponse {
+    const message = { ...basePostPageResponse } as PostPageResponse;
+    if (object.renderer !== undefined && object.renderer !== null) {
+      message.renderer = PostRenderer.fromPartial(object.renderer);
+    } else {
+      message.renderer = undefined;
     }
     return message;
   },

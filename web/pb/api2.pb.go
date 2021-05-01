@@ -22,37 +22,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type Renderers int32
-
-const (
-	Renderers_UNKNOWN Renderers = 0
-	Renderers_FEED    Renderers = 1
-	Renderers_PROFILE Renderers = 2
-	Renderers_LOGIN   Renderers = 3
-)
-
-var Renderers_name = map[int32]string{
-	0: "UNKNOWN",
-	1: "FEED",
-	2: "PROFILE",
-	3: "LOGIN",
-}
-
-var Renderers_value = map[string]int32{
-	"UNKNOWN": 0,
-	"FEED":    1,
-	"PROFILE": 2,
-	"LOGIN":   3,
-}
-
-func (x Renderers) String() string {
-	return proto.EnumName(Renderers_name, int32(x))
-}
-
-func (Renderers) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_592802a36db5ccc7, []int{0}
-}
-
 type ProfileGetRequest struct {
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 }
@@ -142,9 +111,10 @@ func (m *ProfileGetResponse) GetRenderer() *ProfileRenderer {
 }
 
 type ProfileRenderer struct {
-	Id     string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name   string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Avatar string `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Id     string  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name   string  `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Avatar string  `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Posts  []*Post `protobuf:"bytes,4,rep,name=posts,proto3" json:"posts,omitempty"`
 }
 
 func (m *ProfileRenderer) Reset()         { *m = ProfileRenderer{} }
@@ -199,6 +169,13 @@ func (m *ProfileRenderer) GetAvatar() string {
 		return m.Avatar
 	}
 	return ""
+}
+
+func (m *ProfileRenderer) GetPosts() []*Post {
+	if m != nil {
+		return m.Posts
+	}
+	return nil
 }
 
 type FeedGetRequest struct {
@@ -281,15 +258,115 @@ func (m *FeedGetResponse) GetRenderer() *FeedRenderer {
 	return nil
 }
 
+type Post struct {
+	Id           string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	AuthorId     string `protobuf:"bytes,2,opt,name=authorId,proto3" json:"authorId,omitempty"`
+	AuthorAvatar string `protobuf:"bytes,3,opt,name=authorAvatar,proto3" json:"authorAvatar,omitempty"`
+	AuthorName   string `protobuf:"bytes,4,opt,name=authorName,proto3" json:"authorName,omitempty"`
+	AuthorUrl    string `protobuf:"bytes,8,opt,name=authorUrl,proto3" json:"authorUrl,omitempty"`
+	DateDisplay  string `protobuf:"bytes,5,opt,name=dateDisplay,proto3" json:"dateDisplay,omitempty"`
+	Text         string `protobuf:"bytes,6,opt,name=text,proto3" json:"text,omitempty"`
+	ImageUrl     string `protobuf:"bytes,7,opt,name=imageUrl,proto3" json:"imageUrl,omitempty"`
+}
+
+func (m *Post) Reset()         { *m = Post{} }
+func (m *Post) String() string { return proto.CompactTextString(m) }
+func (*Post) ProtoMessage()    {}
+func (*Post) Descriptor() ([]byte, []int) {
+	return fileDescriptor_592802a36db5ccc7, []int{5}
+}
+func (m *Post) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Post) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Post.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Post) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Post.Merge(m, src)
+}
+func (m *Post) XXX_Size() int {
+	return m.Size()
+}
+func (m *Post) XXX_DiscardUnknown() {
+	xxx_messageInfo_Post.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Post proto.InternalMessageInfo
+
+func (m *Post) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+func (m *Post) GetAuthorId() string {
+	if m != nil {
+		return m.AuthorId
+	}
+	return ""
+}
+
+func (m *Post) GetAuthorAvatar() string {
+	if m != nil {
+		return m.AuthorAvatar
+	}
+	return ""
+}
+
+func (m *Post) GetAuthorName() string {
+	if m != nil {
+		return m.AuthorName
+	}
+	return ""
+}
+
+func (m *Post) GetAuthorUrl() string {
+	if m != nil {
+		return m.AuthorUrl
+	}
+	return ""
+}
+
+func (m *Post) GetDateDisplay() string {
+	if m != nil {
+		return m.DateDisplay
+	}
+	return ""
+}
+
+func (m *Post) GetText() string {
+	if m != nil {
+		return m.Text
+	}
+	return ""
+}
+
+func (m *Post) GetImageUrl() string {
+	if m != nil {
+		return m.ImageUrl
+	}
+	return ""
+}
+
 type FeedRenderer struct {
-	Posts []*FeedRenderer_Post `protobuf:"bytes,1,rep,name=posts,proto3" json:"posts,omitempty"`
+	Posts []*Post `protobuf:"bytes,1,rep,name=posts,proto3" json:"posts,omitempty"`
 }
 
 func (m *FeedRenderer) Reset()         { *m = FeedRenderer{} }
 func (m *FeedRenderer) String() string { return proto.CompactTextString(m) }
 func (*FeedRenderer) ProtoMessage()    {}
 func (*FeedRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_592802a36db5ccc7, []int{5}
+	return fileDescriptor_592802a36db5ccc7, []int{6}
 }
 func (m *FeedRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -318,36 +395,29 @@ func (m *FeedRenderer) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_FeedRenderer proto.InternalMessageInfo
 
-func (m *FeedRenderer) GetPosts() []*FeedRenderer_Post {
+func (m *FeedRenderer) GetPosts() []*Post {
 	if m != nil {
 		return m.Posts
 	}
 	return nil
 }
 
-type FeedRenderer_Post struct {
-	Id           string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	AuthorId     string `protobuf:"bytes,2,opt,name=authorId,proto3" json:"authorId,omitempty"`
-	AuthorAvatar string `protobuf:"bytes,3,opt,name=authorAvatar,proto3" json:"authorAvatar,omitempty"`
-	AuthorName   string `protobuf:"bytes,4,opt,name=authorName,proto3" json:"authorName,omitempty"`
-	AuthorUrl    string `protobuf:"bytes,8,opt,name=authorUrl,proto3" json:"authorUrl,omitempty"`
-	DateDisplay  string `protobuf:"bytes,5,opt,name=dateDisplay,proto3" json:"dateDisplay,omitempty"`
-	Text         string `protobuf:"bytes,6,opt,name=text,proto3" json:"text,omitempty"`
-	ImageUrl     string `protobuf:"bytes,7,opt,name=imageUrl,proto3" json:"imageUrl,omitempty"`
+type PostRenderer struct {
+	Post *Post `protobuf:"bytes,1,opt,name=post,proto3" json:"post,omitempty"`
 }
 
-func (m *FeedRenderer_Post) Reset()         { *m = FeedRenderer_Post{} }
-func (m *FeedRenderer_Post) String() string { return proto.CompactTextString(m) }
-func (*FeedRenderer_Post) ProtoMessage()    {}
-func (*FeedRenderer_Post) Descriptor() ([]byte, []int) {
-	return fileDescriptor_592802a36db5ccc7, []int{5, 0}
+func (m *PostRenderer) Reset()         { *m = PostRenderer{} }
+func (m *PostRenderer) String() string { return proto.CompactTextString(m) }
+func (*PostRenderer) ProtoMessage()    {}
+func (*PostRenderer) Descriptor() ([]byte, []int) {
+	return fileDescriptor_592802a36db5ccc7, []int{7}
 }
-func (m *FeedRenderer_Post) XXX_Unmarshal(b []byte) error {
+func (m *PostRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *FeedRenderer_Post) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *PostRenderer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_FeedRenderer_Post.Marshal(b, m, deterministic)
+		return xxx_messageInfo_PostRenderer.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -357,72 +427,67 @@ func (m *FeedRenderer_Post) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return b[:n], nil
 	}
 }
-func (m *FeedRenderer_Post) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_FeedRenderer_Post.Merge(m, src)
+func (m *PostRenderer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PostRenderer.Merge(m, src)
 }
-func (m *FeedRenderer_Post) XXX_Size() int {
+func (m *PostRenderer) XXX_Size() int {
 	return m.Size()
 }
-func (m *FeedRenderer_Post) XXX_DiscardUnknown() {
-	xxx_messageInfo_FeedRenderer_Post.DiscardUnknown(m)
+func (m *PostRenderer) XXX_DiscardUnknown() {
+	xxx_messageInfo_PostRenderer.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_FeedRenderer_Post proto.InternalMessageInfo
+var xxx_messageInfo_PostRenderer proto.InternalMessageInfo
 
-func (m *FeedRenderer_Post) GetId() string {
+func (m *PostRenderer) GetPost() *Post {
 	if m != nil {
-		return m.Id
+		return m.Post
 	}
-	return ""
+	return nil
 }
 
-func (m *FeedRenderer_Post) GetAuthorId() string {
-	if m != nil {
-		return m.AuthorId
-	}
-	return ""
+type PostPageResponse struct {
+	Renderer *PostRenderer `protobuf:"bytes,1,opt,name=renderer,proto3" json:"renderer,omitempty"`
 }
 
-func (m *FeedRenderer_Post) GetAuthorAvatar() string {
-	if m != nil {
-		return m.AuthorAvatar
+func (m *PostPageResponse) Reset()         { *m = PostPageResponse{} }
+func (m *PostPageResponse) String() string { return proto.CompactTextString(m) }
+func (*PostPageResponse) ProtoMessage()    {}
+func (*PostPageResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_592802a36db5ccc7, []int{8}
+}
+func (m *PostPageResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *PostPageResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_PostPageResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
 	}
-	return ""
+}
+func (m *PostPageResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PostPageResponse.Merge(m, src)
+}
+func (m *PostPageResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *PostPageResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PostPageResponse.DiscardUnknown(m)
 }
 
-func (m *FeedRenderer_Post) GetAuthorName() string {
-	if m != nil {
-		return m.AuthorName
-	}
-	return ""
-}
+var xxx_messageInfo_PostPageResponse proto.InternalMessageInfo
 
-func (m *FeedRenderer_Post) GetAuthorUrl() string {
+func (m *PostPageResponse) GetRenderer() *PostRenderer {
 	if m != nil {
-		return m.AuthorUrl
+		return m.Renderer
 	}
-	return ""
-}
-
-func (m *FeedRenderer_Post) GetDateDisplay() string {
-	if m != nil {
-		return m.DateDisplay
-	}
-	return ""
-}
-
-func (m *FeedRenderer_Post) GetText() string {
-	if m != nil {
-		return m.Text
-	}
-	return ""
-}
-
-func (m *FeedRenderer_Post) GetImageUrl() string {
-	if m != nil {
-		return m.ImageUrl
-	}
-	return ""
+	return nil
 }
 
 type FeedGetHeaderRequest struct {
@@ -432,7 +497,7 @@ func (m *FeedGetHeaderRequest) Reset()         { *m = FeedGetHeaderRequest{} }
 func (m *FeedGetHeaderRequest) String() string { return proto.CompactTextString(m) }
 func (*FeedGetHeaderRequest) ProtoMessage()    {}
 func (*FeedGetHeaderRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_592802a36db5ccc7, []int{6}
+	return fileDescriptor_592802a36db5ccc7, []int{9}
 }
 func (m *FeedGetHeaderRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -469,7 +534,7 @@ func (m *FeedGetHeaderResponse) Reset()         { *m = FeedGetHeaderResponse{} }
 func (m *FeedGetHeaderResponse) String() string { return proto.CompactTextString(m) }
 func (*FeedGetHeaderResponse) ProtoMessage()    {}
 func (*FeedGetHeaderResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_592802a36db5ccc7, []int{7}
+	return fileDescriptor_592802a36db5ccc7, []int{10}
 }
 func (m *FeedGetHeaderResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -516,7 +581,7 @@ func (m *HeaderRenderer) Reset()         { *m = HeaderRenderer{} }
 func (m *HeaderRenderer) String() string { return proto.CompactTextString(m) }
 func (*HeaderRenderer) ProtoMessage()    {}
 func (*HeaderRenderer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_592802a36db5ccc7, []int{8}
+	return fileDescriptor_592802a36db5ccc7, []int{11}
 }
 func (m *HeaderRenderer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -574,14 +639,13 @@ func (m *HeaderRenderer) GetIsAuthorized() bool {
 }
 
 type ResolveRouteResponse struct {
-	Renderer Renderers `protobuf:"varint,1,opt,name=renderer,proto3,enum=meme.Renderers" json:"renderer,omitempty"`
 }
 
 func (m *ResolveRouteResponse) Reset()         { *m = ResolveRouteResponse{} }
 func (m *ResolveRouteResponse) String() string { return proto.CompactTextString(m) }
 func (*ResolveRouteResponse) ProtoMessage()    {}
 func (*ResolveRouteResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_592802a36db5ccc7, []int{9}
+	return fileDescriptor_592802a36db5ccc7, []int{12}
 }
 func (m *ResolveRouteResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -610,22 +674,16 @@ func (m *ResolveRouteResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ResolveRouteResponse proto.InternalMessageInfo
 
-func (m *ResolveRouteResponse) GetRenderer() Renderers {
-	if m != nil {
-		return m.Renderer
-	}
-	return Renderers_UNKNOWN
-}
-
 func init() {
-	proto.RegisterEnum("meme.Renderers", Renderers_name, Renderers_value)
 	proto.RegisterType((*ProfileGetRequest)(nil), "meme.ProfileGetRequest")
 	proto.RegisterType((*ProfileGetResponse)(nil), "meme.ProfileGetResponse")
 	proto.RegisterType((*ProfileRenderer)(nil), "meme.ProfileRenderer")
 	proto.RegisterType((*FeedGetRequest)(nil), "meme.FeedGetRequest")
 	proto.RegisterType((*FeedGetResponse)(nil), "meme.FeedGetResponse")
+	proto.RegisterType((*Post)(nil), "meme.Post")
 	proto.RegisterType((*FeedRenderer)(nil), "meme.FeedRenderer")
-	proto.RegisterType((*FeedRenderer_Post)(nil), "meme.FeedRenderer.Post")
+	proto.RegisterType((*PostRenderer)(nil), "meme.PostRenderer")
+	proto.RegisterType((*PostPageResponse)(nil), "meme.PostPageResponse")
 	proto.RegisterType((*FeedGetHeaderRequest)(nil), "meme.FeedGetHeaderRequest")
 	proto.RegisterType((*FeedGetHeaderResponse)(nil), "meme.FeedGetHeaderResponse")
 	proto.RegisterType((*HeaderRenderer)(nil), "meme.HeaderRenderer")
@@ -635,43 +693,41 @@ func init() {
 func init() { proto.RegisterFile("api2.proto", fileDescriptor_592802a36db5ccc7) }
 
 var fileDescriptor_592802a36db5ccc7 = []byte{
-	// 569 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x54, 0x4d, 0x8f, 0xd2, 0x4e,
-	0x18, 0xa7, 0xa5, 0xbc, 0x3d, 0x6c, 0x80, 0xff, 0x04, 0x76, 0x1b, 0xfe, 0x9b, 0x86, 0xd4, 0xcb,
-	0x46, 0x23, 0xd1, 0x7a, 0x31, 0xde, 0x70, 0x79, 0x91, 0xb8, 0x02, 0x69, 0xb2, 0x31, 0xf1, 0x36,
-	0x9b, 0x3e, 0x6a, 0x13, 0xa0, 0xb5, 0x33, 0x6c, 0xd4, 0x93, 0x67, 0x4f, 0x7e, 0x0a, 0x3f, 0x8b,
-	0xc7, 0x3d, 0x7a, 0x34, 0x90, 0xf8, 0x39, 0xcc, 0x74, 0xda, 0xd2, 0x97, 0xbd, 0xcd, 0xef, 0x85,
-	0xe1, 0xf7, 0xfc, 0x1e, 0x06, 0x00, 0xea, 0xbb, 0xd6, 0xd0, 0x0f, 0x3c, 0xee, 0x11, 0x6d, 0x83,
-	0x1b, 0x34, 0x1f, 0xc0, 0x7f, 0xab, 0xc0, 0x7b, 0xef, 0xae, 0x71, 0x86, 0xdc, 0xc6, 0x4f, 0x3b,
-	0x64, 0x9c, 0xb4, 0x40, 0x75, 0x1d, 0x5d, 0x19, 0x28, 0x17, 0x0d, 0x5b, 0x75, 0x1d, 0x73, 0x06,
-	0x24, 0x6d, 0x62, 0xbe, 0xb7, 0x65, 0x48, 0x9e, 0x42, 0x3d, 0xc0, 0xad, 0x83, 0x01, 0x06, 0xa1,
-	0xb7, 0x69, 0xf5, 0x86, 0xe2, 0xce, 0x61, 0xe4, 0xb5, 0x23, 0xd1, 0x4e, 0x6c, 0xe6, 0x1b, 0x68,
-	0xe7, 0xc4, 0xfc, 0x77, 0x11, 0x02, 0xda, 0x96, 0x6e, 0x50, 0x57, 0x43, 0x26, 0x3c, 0x93, 0x53,
-	0xa8, 0xd2, 0x5b, 0xca, 0x69, 0xa0, 0x97, 0x43, 0x36, 0x42, 0x66, 0x07, 0x5a, 0x53, 0x44, 0xe7,
-	0x98, 0xdc, 0x1c, 0x41, 0x3b, 0x61, 0xa2, 0x98, 0xc3, 0x42, 0x4c, 0x22, 0x63, 0x0a, 0xe3, 0x3d,
-	0x19, 0x7f, 0xaa, 0x70, 0x92, 0x96, 0xc8, 0x63, 0xa8, 0xf8, 0x1e, 0xe3, 0x4c, 0x57, 0x06, 0xe5,
-	0x8b, 0xa6, 0x75, 0x56, 0xfc, 0xf4, 0x70, 0xe5, 0x31, 0x6e, 0x4b, 0x57, 0xff, 0xaf, 0x02, 0x9a,
-	0xc0, 0x85, 0xc9, 0xfa, 0x50, 0xa7, 0x3b, 0xfe, 0xd1, 0x0b, 0xe6, 0x4e, 0x34, 0x5d, 0x82, 0x89,
-	0x09, 0x27, 0xf2, 0x3c, 0x4a, 0xcf, 0x99, 0xe1, 0x88, 0x01, 0x20, 0xf1, 0x42, 0xf4, 0xa3, 0x85,
-	0x8e, 0x14, 0x43, 0xce, 0xa1, 0x21, 0xd1, 0x75, 0xb0, 0xd6, 0xeb, 0xa1, 0x7c, 0x24, 0xc8, 0x00,
-	0x9a, 0x0e, 0xe5, 0x38, 0x76, 0x99, 0xbf, 0xa6, 0x5f, 0xf4, 0x4a, 0xa8, 0xa7, 0x29, 0xd1, 0x3c,
-	0xc7, 0xcf, 0x5c, 0xaf, 0xca, 0xe6, 0xc5, 0x59, 0x64, 0x76, 0x37, 0xf4, 0x03, 0x8a, 0x2b, 0x6b,
-	0x32, 0x73, 0x8c, 0xcd, 0x53, 0xe8, 0x46, 0x5d, 0xbf, 0x42, 0xea, 0x60, 0x10, 0xef, 0x60, 0x0e,
-	0xbd, 0x1c, 0x1f, 0x6d, 0xe2, 0x49, 0x61, 0x13, 0x5d, 0xd9, 0x65, 0xec, 0x2b, 0xec, 0xe2, 0xbb,
-	0x02, 0xad, 0xac, 0x48, 0x74, 0xa8, 0x6d, 0xa8, 0xbb, 0x15, 0x81, 0x64, 0xb5, 0x31, 0x14, 0x59,
-	0x77, 0x0c, 0x65, 0x3b, 0x51, 0xbf, 0x31, 0x16, 0xdd, 0x89, 0x73, 0xa6, 0xdd, 0x14, 0x23, 0xfa,
-	0x77, 0xd9, 0x28, 0x2c, 0xcb, 0xfd, 0x8a, 0x4e, 0xd8, 0x6e, 0xdd, 0xce, 0x70, 0xe6, 0x25, 0x74,
-	0x6d, 0x64, 0xde, 0xfa, 0x16, 0x6d, 0x6f, 0xc7, 0x31, 0x19, 0xeb, 0x51, 0x6e, 0xac, 0x96, 0xd5,
-	0x96, 0x63, 0xc5, 0x99, 0xd9, 0x71, 0xa2, 0x87, 0x2f, 0xa0, 0x91, 0xd0, 0xa4, 0x09, 0xb5, 0xeb,
-	0xc5, 0xeb, 0xc5, 0xf2, 0xed, 0xa2, 0x53, 0x22, 0x75, 0xd0, 0xa6, 0x93, 0xc9, 0xb8, 0xa3, 0x08,
-	0x7a, 0x65, 0x2f, 0xa7, 0xf3, 0xab, 0x49, 0x47, 0x25, 0x0d, 0xa8, 0x5c, 0x2d, 0x67, 0xf3, 0x45,
-	0xa7, 0x6c, 0x7d, 0x53, 0x40, 0x13, 0xcd, 0x12, 0x0b, 0xca, 0x33, 0xe4, 0xa4, 0x7b, 0xfc, 0x25,
-	0x1e, 0x9f, 0x40, 0xbf, 0x97, 0x63, 0xa3, 0x94, 0x63, 0x68, 0x24, 0x1b, 0x21, 0xfd, 0x8c, 0x27,
-	0xb3, 0xbe, 0xfe, 0xff, 0xf7, 0x6a, 0xf2, 0x16, 0xeb, 0x12, 0x6a, 0xd1, 0x03, 0x26, 0xcf, 0x65,
-	0x88, 0xb3, 0xcc, 0x9b, 0x4f, 0xe5, 0xd0, 0x8b, 0x82, 0xbc, 0xe4, 0xe5, 0xf9, 0xaf, 0xbd, 0xa1,
-	0xdc, 0xed, 0x0d, 0xe5, 0xcf, 0xde, 0x50, 0x7e, 0x1c, 0x8c, 0xd2, 0xdd, 0xc1, 0x28, 0xfd, 0x3e,
-	0x18, 0xa5, 0x77, 0xaa, 0x7f, 0x73, 0x53, 0x0d, 0xff, 0x9e, 0x9e, 0xfd, 0x0b, 0x00, 0x00, 0xff,
-	0xff, 0x4b, 0xcc, 0x28, 0x3b, 0xac, 0x04, 0x00, 0x00,
+	// 539 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x54, 0x4b, 0x6f, 0xd3, 0x4c,
+	0x14, 0x8d, 0x13, 0x37, 0x8f, 0x9b, 0x28, 0xed, 0x37, 0x4a, 0xfa, 0x59, 0xa1, 0xb2, 0x22, 0xb3,
+	0xe9, 0x2a, 0x2a, 0x66, 0xc3, 0x36, 0xa5, 0x22, 0x74, 0x83, 0x2a, 0x4b, 0x6c, 0xd8, 0x4d, 0xe5,
+	0x4b, 0xb1, 0x14, 0x67, 0x8c, 0x67, 0x52, 0x01, 0x2b, 0xd6, 0xac, 0xf8, 0x59, 0x2c, 0xbb, 0x64,
+	0x89, 0x12, 0x89, 0xdf, 0x81, 0xe6, 0x61, 0x7b, 0x1c, 0x17, 0xb1, 0x9b, 0x73, 0xce, 0xcd, 0x7d,
+	0x9c, 0x7b, 0x63, 0x00, 0x9a, 0x25, 0xe1, 0x22, 0xcb, 0x99, 0x60, 0xc4, 0x4d, 0x31, 0xc5, 0xe0,
+	0x29, 0xfc, 0x77, 0x93, 0xb3, 0xf7, 0xc9, 0x1a, 0x57, 0x28, 0x22, 0xfc, 0xb8, 0x45, 0x2e, 0xc8,
+	0x18, 0xda, 0x49, 0xec, 0x39, 0x73, 0xe7, 0x7c, 0x10, 0xb5, 0x93, 0x38, 0x58, 0x01, 0xb1, 0x83,
+	0x78, 0xc6, 0x36, 0x1c, 0xc9, 0x33, 0xe8, 0xe7, 0xb8, 0x89, 0x31, 0xc7, 0x5c, 0xc5, 0x0e, 0xc3,
+	0xe9, 0x42, 0xe6, 0x5c, 0x98, 0xd8, 0xc8, 0x88, 0x51, 0x19, 0x16, 0x30, 0x38, 0x3e, 0x10, 0x0f,
+	0x6b, 0x11, 0x02, 0xee, 0x86, 0xa6, 0xe8, 0xb5, 0x15, 0xa3, 0xde, 0xe4, 0x14, 0xba, 0xf4, 0x9e,
+	0x0a, 0x9a, 0x7b, 0x1d, 0xc5, 0x1a, 0x44, 0xe6, 0x70, 0x94, 0x31, 0x2e, 0xb8, 0xe7, 0xce, 0x3b,
+	0xe7, 0xc3, 0x10, 0x4c, 0x79, 0xc6, 0x45, 0xa4, 0x85, 0xe0, 0x04, 0xc6, 0xaf, 0x10, 0xe3, 0x6a,
+	0xb6, 0x60, 0x09, 0xc7, 0x25, 0x63, 0x06, 0x59, 0x34, 0x06, 0x21, 0x3a, 0x93, 0x0c, 0x7c, 0x64,
+	0x8a, 0xdf, 0x0e, 0xb8, 0xb2, 0x48, 0xa3, 0xf7, 0x19, 0xf4, 0xe9, 0x56, 0x7c, 0x60, 0xf9, 0x75,
+	0x6c, 0xfa, 0x2f, 0x31, 0x09, 0x60, 0xa4, 0xdf, 0x4b, 0x7b, 0x92, 0x1a, 0x47, 0x7c, 0x00, 0x8d,
+	0xdf, 0x48, 0x07, 0x5c, 0x15, 0x61, 0x31, 0xe4, 0x0c, 0x06, 0x1a, 0xbd, 0xcd, 0xd7, 0x5e, 0x5f,
+	0xc9, 0x15, 0x41, 0xe6, 0x30, 0x8c, 0xa9, 0xc0, 0xab, 0x84, 0x67, 0x6b, 0xfa, 0xd9, 0x3b, 0x52,
+	0xba, 0x4d, 0x49, 0x6f, 0x05, 0x7e, 0x12, 0x5e, 0x57, 0x7b, 0x2b, 0xdf, 0xb2, 0xe7, 0x24, 0xa5,
+	0x77, 0x28, 0x53, 0xf6, 0x74, 0xcf, 0x05, 0x0e, 0x2e, 0x60, 0x64, 0x5b, 0x50, 0xf9, 0xed, 0xfc,
+	0xcd, 0xef, 0x05, 0x8c, 0x14, 0x2c, 0x7e, 0xe1, 0x83, 0x2b, 0x05, 0x63, 0xab, 0xfd, 0x03, 0xc5,
+	0x07, 0x97, 0x70, 0x22, 0xd1, 0x0d, 0xbd, 0xc3, 0x7f, 0xaf, 0xc3, 0xce, 0x6c, 0xad, 0xe3, 0x14,
+	0x26, 0x66, 0xa3, 0xaf, 0x91, 0xc6, 0x98, 0x17, 0x9b, 0xbe, 0x86, 0xe9, 0x01, 0x6f, 0x0a, 0x5c,
+	0x34, 0x0a, 0x4c, 0x74, 0x81, 0x22, 0xae, 0x51, 0xe2, 0x9b, 0x03, 0xe3, 0xba, 0x48, 0x3c, 0xe8,
+	0xa5, 0x34, 0xd9, 0x48, 0xdb, 0xf4, 0x01, 0x14, 0x50, 0x3a, 0xba, 0xe5, 0xa8, 0x77, 0x68, 0xae,
+	0xa0, 0xc0, 0x72, 0xc3, 0xf2, 0x5d, 0xbb, 0x01, 0x8b, 0x91, 0x57, 0x92, 0xf0, 0xa5, 0x5a, 0x69,
+	0xf2, 0x05, 0x63, 0x75, 0x03, 0xfd, 0xa8, 0xc6, 0xc9, 0x79, 0x23, 0xe4, 0x6c, 0x7d, 0x8f, 0x11,
+	0xdb, 0x8a, 0xd2, 0xb7, 0xf0, 0xab, 0x03, 0xae, 0x1c, 0x98, 0x84, 0xd0, 0x59, 0xa1, 0x20, 0x93,
+	0xea, 0x88, 0xab, 0xfb, 0x9f, 0x4d, 0x0f, 0x58, 0xe3, 0xc9, 0x15, 0x0c, 0x4a, 0xa3, 0xc8, 0xac,
+	0x16, 0x53, 0x73, 0x75, 0xf6, 0xe4, 0x51, 0xcd, 0xb4, 0xf0, 0x12, 0x7a, 0xe6, 0xff, 0x4d, 0x5e,
+	0xe8, 0x26, 0xfe, 0xaf, 0x7d, 0x12, 0xac, 0x3e, 0xbc, 0xa6, 0xa0, 0x93, 0x5c, 0x9e, 0xfd, 0xd8,
+	0xf9, 0xce, 0xc3, 0xce, 0x77, 0x7e, 0xed, 0x7c, 0xe7, 0xfb, 0xde, 0x6f, 0x3d, 0xec, 0xfd, 0xd6,
+	0xcf, 0xbd, 0xdf, 0x7a, 0xd7, 0xce, 0x6e, 0x6f, 0xbb, 0xea, 0xeb, 0xf5, 0xfc, 0x4f, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0x93, 0x03, 0x59, 0x33, 0xcb, 0x04, 0x00, 0x00,
 }
 
 func (m *ProfileGetRequest) Marshal() (dAtA []byte, err error) {
@@ -759,6 +815,20 @@ func (m *ProfileRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.Posts) > 0 {
+		for iNdEx := len(m.Posts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Posts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintApi2(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
 	if len(m.Avatar) > 0 {
 		i -= len(m.Avatar)
 		copy(dAtA[i:], m.Avatar)
@@ -841,7 +911,7 @@ func (m *FeedGetResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *FeedRenderer) Marshal() (dAtA []byte, err error) {
+func (m *Post) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -851,49 +921,12 @@ func (m *FeedRenderer) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *FeedRenderer) MarshalTo(dAtA []byte) (int, error) {
+func (m *Post) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *FeedRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Posts) > 0 {
-		for iNdEx := len(m.Posts) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Posts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintApi2(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *FeedRenderer_Post) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *FeedRenderer_Post) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *FeedRenderer_Post) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *Post) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -951,6 +984,113 @@ func (m *FeedRenderer_Post) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.Id)
 		copy(dAtA[i:], m.Id)
 		i = encodeVarintApi2(dAtA, i, uint64(len(m.Id)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *FeedRenderer) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FeedRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FeedRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Posts) > 0 {
+		for iNdEx := len(m.Posts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Posts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintApi2(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *PostRenderer) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PostRenderer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PostRenderer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Post != nil {
+		{
+			size, err := m.Post.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintApi2(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *PostPageResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PostPageResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PostPageResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Renderer != nil {
+		{
+			size, err := m.Renderer.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintApi2(dAtA, i, uint64(size))
+		}
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1089,11 +1229,6 @@ func (m *ResolveRouteResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.Renderer != 0 {
-		i = encodeVarintApi2(dAtA, i, uint64(m.Renderer))
-		i--
-		dAtA[i] = 0x8
-	}
 	return len(dAtA) - i, nil
 }
 
@@ -1152,6 +1287,12 @@ func (m *ProfileRenderer) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovApi2(uint64(l))
 	}
+	if len(m.Posts) > 0 {
+		for _, e := range m.Posts {
+			l = e.Size()
+			n += 1 + l + sovApi2(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -1177,22 +1318,7 @@ func (m *FeedGetResponse) Size() (n int) {
 	return n
 }
 
-func (m *FeedRenderer) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.Posts) > 0 {
-		for _, e := range m.Posts {
-			l = e.Size()
-			n += 1 + l + sovApi2(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *FeedRenderer_Post) Size() (n int) {
+func (m *Post) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1228,6 +1354,47 @@ func (m *FeedRenderer_Post) Size() (n int) {
 	}
 	l = len(m.AuthorUrl)
 	if l > 0 {
+		n += 1 + l + sovApi2(uint64(l))
+	}
+	return n
+}
+
+func (m *FeedRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Posts) > 0 {
+		for _, e := range m.Posts {
+			l = e.Size()
+			n += 1 + l + sovApi2(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *PostRenderer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Post != nil {
+		l = m.Post.Size()
+		n += 1 + l + sovApi2(uint64(l))
+	}
+	return n
+}
+
+func (m *PostPageResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Renderer != nil {
+		l = m.Renderer.Size()
 		n += 1 + l + sovApi2(uint64(l))
 	}
 	return n
@@ -1285,9 +1452,6 @@ func (m *ResolveRouteResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Renderer != 0 {
-		n += 1 + sovApi2(uint64(m.Renderer))
-	}
 	return n
 }
 
@@ -1596,6 +1760,40 @@ func (m *ProfileRenderer) Unmarshal(dAtA []byte) error {
 			}
 			m.Avatar = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Posts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowApi2
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthApi2
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Posts = append(m.Posts, &Post{})
+			if err := m.Posts[len(m.Posts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipApi2(dAtA[iNdEx:])
@@ -1762,94 +1960,7 @@ func (m *FeedGetResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *FeedRenderer) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowApi2
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: FeedRenderer: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: FeedRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Posts", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApi2
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthApi2
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthApi2
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Posts = append(m.Posts, &FeedRenderer_Post{})
-			if err := m.Posts[len(m.Posts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipApi2(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthApi2
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthApi2
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *FeedRenderer_Post) Unmarshal(dAtA []byte) error {
+func (m *Post) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2133,6 +2244,271 @@ func (m *FeedRenderer_Post) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.AuthorUrl = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipApi2(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *FeedRenderer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowApi2
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FeedRenderer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FeedRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Posts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowApi2
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthApi2
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Posts = append(m.Posts, &Post{})
+			if err := m.Posts[len(m.Posts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipApi2(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PostRenderer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowApi2
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PostRenderer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PostRenderer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Post", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowApi2
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthApi2
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Post == nil {
+				m.Post = &Post{}
+			}
+			if err := m.Post.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipApi2(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PostPageResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowApi2
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PostPageResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PostPageResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Renderer", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowApi2
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthApi2
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthApi2
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Renderer == nil {
+				m.Renderer = &PostRenderer{}
+			}
+			if err := m.Renderer.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2498,25 +2874,6 @@ func (m *ResolveRouteResponse) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: ResolveRouteResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Renderer", wireType)
-			}
-			m.Renderer = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApi2
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Renderer |= Renderers(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipApi2(dAtA[iNdEx:])

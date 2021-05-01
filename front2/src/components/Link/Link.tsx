@@ -6,7 +6,7 @@ export interface Props {
     className?: string;
 }
 
-export class Link extends React.PureComponent<Props, any> {
+export class Link extends React.PureComponent<Props> {
     static contextType = GlobalContext;
 
     onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {

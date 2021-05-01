@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -18,16 +17,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
+	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	"github.com/materkov/meme9/web/pb"
 )
 
 type apiHandler func(body io.Reader, viewer *Viewer) proto.Message
-
-var apiRouter = map[string]apiHandler{
-	"meme.Feed/GetHeader": apiHandlerFeedGetHeader,
-	"meme.Posts/Add":      apiHandlerPostsAdd,
-}
 
 func apiHandlerFeedGetHeader(body io.Reader, viewer *Viewer) proto.Message {
 	return &pb.FeedGetHeaderResponse{
@@ -57,39 +52,9 @@ func apiHandlerPostsAdd(body io.Reader, viewer *Viewer) proto.Message {
 	}
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
+type routeHandler func(url string) *pb.UniversalRenderer
 
-	viewer := Viewer{}
-	accessCookie, err := r.Cookie("access_token")
-	if err == nil && accessCookie.Value != "" {
-		token, err := store.GetToken(accessCookie.Value)
-		if err == nil {
-			viewer.Token = token
-			viewer.UserID = token.UserID
-		}
-	}
-
-	method := strings.TrimPrefix(r.URL.Path, "/api/")
-	var resp proto.Message
-	if apiFunc, ok := apiRouter[method]; ok {
-		resp = apiFunc(r.Body, &viewer)
-	}
-
-	m := jsonpb.Marshaler{}
-	_ = m.Marshal(w, resp)
-}
-
-type routeHandler func(url string) (pb.Renderers, proto.Message)
-
-var router = map[*regexp.Regexp]routeHandler{
-	regexp.MustCompile(`/`):              handleIndex,
-	regexp.MustCompile(`/login`):         handleLogin,
-	regexp.MustCompile(`/profile/(\d+)`): handleProfile,
-}
-
-func handleIndex(_ string) (pb.Renderers, proto.Message) {
+func handleIndex(_ string) *pb.UniversalRenderer {
 	postIds, err := store.GetFeed()
 	log.Printf("%v %s", postIds, err)
 
@@ -101,7 +66,7 @@ func handleIndex(_ string) (pb.Renderers, proto.Message) {
 		postsMap[post.ID] = post
 	}
 
-	postsWrapped := make([]*pb.FeedRenderer_Post, 0)
+	postsWrapped := make([]*pb.Post, 0)
 	for _, postID := range postIds {
 		post := postsMap[postID]
 		if post == nil {
@@ -110,7 +75,7 @@ func handleIndex(_ string) (pb.Renderers, proto.Message) {
 
 		dateDisplay := time.Unix(int64(post.Date), 0).Format("2 Jan 2006 15:04")
 
-		postsWrapped = append(postsWrapped, &pb.FeedRenderer_Post{
+		postsWrapped = append(postsWrapped, &pb.Post{
 			Id:           strconv.Itoa(post.ID),
 			AuthorUrl:    fmt.Sprintf("/profile/%d", post.ID),
 			AuthorId:     strconv.Itoa(post.UserID),
@@ -122,69 +87,89 @@ func handleIndex(_ string) (pb.Renderers, proto.Message) {
 		})
 	}
 
-	return pb.Renderers_FEED, &pb.FeedGetResponse{
-		Renderer: &pb.FeedRenderer{
+	return &pb.UniversalRenderer{
+		Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
 			Posts: postsWrapped,
-		},
+		}},
 	}
 }
 
-func handleLogin(_ string) (pb.Renderers, proto.Message) {
+func handleLogin(_ string) *pb.UniversalRenderer {
 	requestScheme := "http"
 	requestHost := "localhost:8000"
 	vkAppID := 7260220
 	redirectURL := url.QueryEscape(fmt.Sprintf("%s://%s/vk-callback", requestScheme, requestHost))
 	vkURL := fmt.Sprintf("https://oauth.vk.com/authorize?client_id=%d&response_type=code&redirect_uri=%s", vkAppID, redirectURL)
 
-	return pb.Renderers_LOGIN, &pb.LoginPageResponse{
-		Renderer: &pb.LoginPageRenderer{
+	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_LoginPageRenderer{
+		LoginPageRenderer: &pb.LoginPageRenderer{
 			AuthUrl: vkURL,
 			Text:    "Войти через ВК",
 		},
-	}
+	}}
 }
 
-func handleProfile(url string) (pb.Renderers, proto.Message) {
+func handleProfile(url string) *pb.UniversalRenderer {
 	req := &pb.ProfileGetRequest{
 		Id: strings.TrimPrefix(url, "/profile/"),
 	}
 
-	return pb.Renderers_PROFILE, &pb.ProfileGetResponse{
-		Renderer: &pb.ProfileRenderer{
-			Id:     req.Id,
-			Name:   fmt.Sprintf("Maks Materkov #%s", req.Id),
-			Avatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
-		},
+	userID, _ := strconv.Atoi(req.Id)
+	postIds, _ := store.GetPostsByUser(userID)
+	posts, _ := store.GetPosts(postIds)
+	postsMap := map[int]*Post{}
+	for _, post := range posts {
+		postsMap[post.ID] = post
 	}
+
+	var postsWrapped []*pb.Post
+	for _, postID := range postIds {
+		post := postsMap[postID]
+		if post == nil {
+			continue
+		}
+
+		postsWrapped = append(postsWrapped, &pb.Post{
+			Id:           strconv.Itoa(post.ID),
+			AuthorId:     strconv.Itoa(post.UserID),
+			AuthorAvatar: "",
+			AuthorName:   "",
+			AuthorUrl:    fmt.Sprintf("/profile/%d", post.UserID),
+			DateDisplay:  "qwer",
+			Text:         post.Text,
+			ImageUrl:     "",
+		})
+	}
+
+	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_ProfileRenderer{ProfileRenderer: &pb.ProfileRenderer{
+		Id:     req.Id,
+		Name:   fmt.Sprintf("Maks Materkov #%s", req.Id),
+		Avatar: "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
+		Posts:  postsWrapped,
+	}}}
 }
 
-func handleRoute(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Content-Type", "application/json")
+func handlePostPage(url string) *pb.UniversalRenderer {
+	postIDStr := strings.TrimPrefix(url, "/posts/")
+	postID, _ := strconv.Atoi(postIDStr)
 
-	urlAddress := r.URL.Query().Get("url")
+	posts, _ := store.GetPosts([]int{postID})
+	post := posts[0]
 
-	var component pb.Renderers
-	var data proto.Message
-
-	for route, handler := range router {
-		if route.MatchString(urlAddress) {
-			component, data = handler(urlAddress)
-			break
-		}
+	postWrapped := &pb.Post{
+		Id:           strconv.Itoa(post.ID),
+		AuthorId:     strconv.Itoa(post.UserID),
+		AuthorAvatar: "",
+		AuthorName:   "",
+		AuthorUrl:    fmt.Sprintf("/profile/%d", post.UserID),
+		DateDisplay:  "qwer",
+		Text:         post.Text,
+		ImageUrl:     "",
 	}
 
-	m := jsonpb.Marshaler{}
-	dataStr, _ := m.MarshalToString(data)
-
-	_ = json.NewEncoder(w).Encode(struct {
-		Component string          `json:"component"`
-		Data      json.RawMessage `json:"data"`
-	}{
-		Component: pb.Renderers_name[int32(component)],
-		Data:      json.RawMessage(dataStr),
-	})
+	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_PostRenderer{PostRenderer: &pb.PostRenderer{
+		Post: postWrapped,
+	}}}
 }
 
 func handleVKCallback(w http.ResponseWriter, r *http.Request) {
@@ -258,6 +243,48 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
 }
 
+func apiWrapper(next apiHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		viewer := Viewer{}
+		accessCookie, err := r.Cookie("access_token")
+		if err == nil && accessCookie.Value != "" {
+			token, err := store.GetToken(accessCookie.Value)
+			if err == nil {
+				viewer.Token = token
+				viewer.UserID = token.UserID
+			}
+		}
+
+		resp := next(r.Body, &viewer)
+
+		m := jsonpb.Marshaler{}
+		_ = m.Marshal(w, resp)
+	}
+}
+
+func routerWrapper(next routeHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Content-Type", "application/json")
+
+		data := next(r.URL.RequestURI())
+		m := jsonpb.Marshaler{}
+		dataStr, _ := m.MarshalToString(data)
+
+		_ = json.NewEncoder(w).Encode(struct {
+			//Component string          `json:"component"`
+			Data json.RawMessage `json:"data"`
+		}{
+			//Component: pb.Renderers_name[int32(component)],
+			Data: json.RawMessage(dataStr),
+		})
+	}
+}
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
@@ -271,9 +298,21 @@ func main() {
 
 	store = Store{db: db}
 
-	http.HandleFunc("/api/", handler)
-	http.HandleFunc("/router", handleRoute)
-	http.HandleFunc("/vk-callback", handleVKCallback)
+	r := mux.NewRouter()
 
+	// API
+	r.HandleFunc("/api/meme.Posts/Add", apiWrapper(apiHandlerPostsAdd))
+	r.HandleFunc("/api/meme.Feed/GetHeader", apiWrapper(apiHandlerFeedGetHeader))
+
+	// Router
+	r.HandleFunc("/", routerWrapper(handleIndex))
+	r.HandleFunc("/login", routerWrapper(handleLogin))
+	r.HandleFunc("/profile/{id}", routerWrapper(handleProfile))
+	r.HandleFunc("/posts/{id}", routerWrapper(handlePostPage))
+
+	// Other
+	r.HandleFunc("/vk-callback", handleVKCallback)
+
+	http.Handle("/", r)
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }

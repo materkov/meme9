@@ -2,10 +2,11 @@ import React from "react";
 import {resolveRoute} from "../../Router";
 import {GlobalContext} from "../../Context";
 import {Header} from "../Header/Header";
+import * as schema from "../../api/renderer";
+import {UniversalRenderer} from "../UniversalRenderer/UniversalRenderer";
 
 interface State {
-    componentName?: string;
-    data?: any;
+    data?: schema.UniversalRenderer;
 }
 
 export class Router extends React.Component<{}, State> {
@@ -18,26 +19,20 @@ export class Router extends React.Component<{}, State> {
     navigate = (route: string) => {
         window.history.pushState(null, "meme", route);
 
-        resolveRoute(route).then(([component, data]) => {
-            this.setState({
-                componentName: component,
-                data: data.renderer,
-            })
+        resolveRoute(route).then(data => {
+            this.setState({data: data})
         })
     }
 
     render() {
-        if (!this.state.componentName) {
+        if (!this.state.data) {
             return null;
         }
 
-        const Component = window.modules[this.state.componentName];
-
         return (
             <GlobalContext.Provider value={this.navigate}>
-                <Header />
-
-                {this.state.data && <Component data={this.state.data}/>}
+                <Header/>
+                <UniversalRenderer data={this.state.data}/>
             </GlobalContext.Provider>
         )
     }

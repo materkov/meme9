@@ -1,13 +1,13 @@
 import React from "react";
 import styles from "./Post.module.css";
-import {FeedRenderer_Post} from "../../../api/api2";
+import * as schema from "../../../api/api2";
 import {Link} from "../../Link/Link";
 
 export interface Props {
-    data: FeedRenderer_Post;
+    data: schema.Post;
 }
 
-export class Post extends React.Component<Props, any> {
+export class Post extends React.Component<Props> {
     render() {
         const data = this.props.data;
 

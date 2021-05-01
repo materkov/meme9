@@ -57,6 +57,16 @@ func (s *Store) GetFeed() ([]int, error) {
 	return postIds, nil
 }
 
+func (s *Store) GetPostsByUser(userID int) ([]int, error) {
+	var postIds []int
+	err := s.db.Select(&postIds, "select id from post where user_id = ? order by id desc limit 30", userID)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting post ids")
+	}
+
+	return postIds, nil
+}
+
 func (s *Store) GetPosts(ids []int) ([]*Post, error) {
 	var posts []*Post
 	err := s.db.Select(&posts, "select id, user_id, date, text, COALESCE(photo_id, 0) as photo_id from post where id in ("+s.idsStr(ids)+")")

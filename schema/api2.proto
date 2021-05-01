@@ -3,7 +3,6 @@ syntax = "proto3";
 package meme;
 option go_package = "pb";
 
-
 service Feed {
   rpc Get(FeedGetRequest) returns (FeedGetResponse);
   rpc GetHeader(FeedGetHeaderRequest) returns (FeedGetHeaderResponse);
@@ -25,6 +24,7 @@ message ProfileRenderer {
   string id = 1;
   string name = 2;
   string avatar = 3;
+  repeated Post posts = 4;
 }
 
 message FeedGetRequest {
@@ -34,28 +34,30 @@ message FeedGetResponse {
   FeedRenderer renderer = 1;
 }
 
+message Post {
+  string id = 1;
+
+  string authorId = 2;
+  string authorAvatar = 3;
+  string authorName = 4;
+  string authorUrl = 8;
+
+  string dateDisplay = 5;
+
+  string text = 6;
+  string imageUrl = 7;
+}
+
 message FeedRenderer {
-  message Post {
-    string id = 1;
-
-    string authorId = 2;
-    string authorAvatar = 3;
-    string authorName = 4;
-    string authorUrl = 8;
-
-    string dateDisplay = 5;
-
-    string text = 6;
-    string imageUrl = 7;
-  }
   repeated Post posts = 1;
 }
 
-enum Renderers {
-  UNKNOWN = 0;
-  FEED = 1;
-  PROFILE = 2;
-  LOGIN = 3;
+message PostRenderer {
+  Post post = 1;
+}
+
+message PostPageResponse {
+  PostRenderer renderer = 1;
 }
 
 message FeedGetHeaderRequest {
@@ -73,5 +75,5 @@ message HeaderRenderer {
 }
 
 message ResolveRouteResponse {
-  Renderers renderer = 1;
+  //Renderers renderer = 1;
 }
