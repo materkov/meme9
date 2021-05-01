@@ -314,8 +314,8 @@ func main() {
 	r := mux.NewRouter()
 
 	// API
-	r.HandleFunc("/api/meme.Posts/Add", apiWrapper(apiHandlerPostsAdd))
-	r.HandleFunc("/api/meme.Feed/GetHeader", apiWrapper(apiHandlerFeedGetHeader))
+	r.HandleFunc("/api/meme.Posts.Add", apiWrapper(apiHandlerPostsAdd))
+	r.HandleFunc("/api/meme.Feed.GetHeader", apiWrapper(apiHandlerFeedGetHeader))
 
 	// Router
 	r.HandleFunc("/", routerWrapper(handleIndex))

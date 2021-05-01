@@ -30,7 +30,7 @@ export class Header extends React.Component {
     }
 
     refreshData = () => {
-        api<FeedGetHeaderRequest, FeedGetHeaderResponse>("meme.Feed", "GetHeader", {}).then(r => {
+        api<FeedGetHeaderRequest, FeedGetHeaderResponse>("meme.Feed.GetHeader", {}).then(r => {
             this.setState({data: r.renderer});
         })
     }

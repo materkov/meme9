@@ -5,11 +5,7 @@ import {PostPage} from "../PostPage/PostPage";
 import {Profile} from "../Profile/Profile";
 import {Login} from "../Login/Login";
 
-export interface Props {
-    data: schema.UniversalRenderer;
-}
-
-export function UniversalRenderer(props: Props) {
+export function UniversalRenderer(props: { data: schema.UniversalRenderer }) {
     const renderer = props.data;
 
     if (renderer.feedRenderer) return <Feed data={renderer.feedRenderer}/>;
