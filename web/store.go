@@ -26,6 +26,12 @@ type Photo struct {
 	URL string
 }
 
+type Token struct {
+	ID     int    `db:"id"`
+	Token  string `db:"token"`
+	UserID int    `db:"user_id"`
+}
+
 type Store struct {
 	db *sqlx.DB
 }
@@ -72,6 +78,34 @@ func (s *Store) AddPost(post *Post) error {
 
 	postID, _ := result.LastInsertId()
 	post.ID = int(postID)
+
+	return nil
+}
+
+func (s *Store) GetByVkID(vkID int) (int, error) {
+	userID := 0
+	err := s.db.Get(&userID, "select id from user where vk_id = ?", vkID)
+	return userID, err
+}
+
+func (s *Store) GetToken(tokenStr string) (*Token, error) {
+	token := Token{}
+	err := s.db.Get(&token, "select * from token where token = ?", tokenStr)
+
+	return &token, err
+}
+
+func (s *Store) AddToken(token *Token) error {
+	result, err := s.db.Exec(
+		"insert into token(token, user_id) values (?, ?)",
+		token.Token, token.UserID,
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting token row: %w", err)
+	}
+
+	id, _ := result.LastInsertId()
+	token.ID = int(id)
 
 	return nil
 }

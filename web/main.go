@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -21,30 +22,30 @@ import (
 	"github.com/materkov/meme9/web/pb"
 )
 
-type apiHandler func(body io.Reader, viewerID int) proto.Message
+type apiHandler func(body io.Reader, viewer *Viewer) proto.Message
 
 var apiRouter = map[string]apiHandler{
 	"meme.Feed/GetHeader": apiHandlerFeedGetHeader,
 	"meme.Posts/Add":      apiHandlerPostsAdd,
 }
 
-func apiHandlerFeedGetHeader(body io.Reader, viewerID int) proto.Message {
+func apiHandlerFeedGetHeader(body io.Reader, viewer *Viewer) proto.Message {
 	return &pb.FeedGetHeaderResponse{
 		Renderer: &pb.HeaderRenderer{
-			IsAuthorized: viewerID != 0,
+			IsAuthorized: viewer.UserID != 0,
 			MainUrl:      "/",
-			UserName:     fmt.Sprintf("User %d", viewerID),
+			UserName:     fmt.Sprintf("User %d", viewer.UserID),
 			UserAvatar:   "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
 		},
 	}
 }
 
-func apiHandlerPostsAdd(body io.Reader, viewerID int) proto.Message {
+func apiHandlerPostsAdd(body io.Reader, viewer *Viewer) proto.Message {
 	req := pb.PostsAddRequest{}
 	_ = jsonpb.Unmarshal(body, &req)
 
 	post := Post{
-		UserID: viewerID,
+		UserID: viewer.UserID,
 		Date:   int(time.Now().Unix()),
 		Text:   req.Text,
 	}
@@ -52,7 +53,7 @@ func apiHandlerPostsAdd(body io.Reader, viewerID int) proto.Message {
 	_ = store.AddPost(&post)
 
 	return &pb.PostsAddResponse{
-		PostUrl: fmt.Sprintf("/profile/%d", viewerID),
+		PostUrl: fmt.Sprintf("/profile/%d", viewer.UserID),
 	}
 }
 
@@ -60,16 +61,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
-	viewerID := 0
+	viewer := Viewer{}
 	accessCookie, err := r.Cookie("access_token")
-	if err == nil {
-		viewerID, _ = strconv.Atoi(accessCookie.Value)
+	if err == nil && accessCookie.Value != "" {
+		token, err := store.GetToken(accessCookie.Value)
+		if err == nil {
+			viewer.Token = token
+			viewer.UserID = token.UserID
+		}
 	}
 
 	method := strings.TrimPrefix(r.URL.Path, "/api/")
 	var resp proto.Message
 	if apiFunc, ok := apiRouter[method]; ok {
-		resp = apiFunc(r.Body, viewerID)
+		resp = apiFunc(r.Body, &viewer)
 	}
 
 	m := jsonpb.Marshaler{}
@@ -166,6 +171,7 @@ func handleRoute(w http.ResponseWriter, r *http.Request) {
 	for route, handler := range router {
 		if route.MatchString(urlAddress) {
 			component, data = handler(urlAddress)
+			break
 		}
 	}
 
@@ -224,9 +230,26 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, err := store.GetByVkID(body.UserID)
+	if err != nil {
+		log.Printf("Error selecting by vk id: %s", err)
+		fmt.Fprintf(w, "internal error")
+		return
+	}
+
+	token := Token{
+		Token:  RandString(50),
+		UserID: userID,
+	}
+	err = store.AddToken(&token)
+	if err != nil {
+		log.Printf("error saving token: %s", err)
+		fmt.Fprintf(w, "internal error")
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
-		Value:    strconv.Itoa(body.UserID),
+		Value:    token.Token,
 		Expires:  time.Now().Add(time.Hour),
 		Path:     "/",
 		HttpOnly: true,
@@ -236,6 +259,8 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	configStr, _ := os.LookupEnv("CONFIG")
 	_ = json.Unmarshal([]byte(configStr), &config)
 
