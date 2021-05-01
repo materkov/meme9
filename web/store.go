@@ -30,6 +30,8 @@ type Store struct {
 	db *sqlx.DB
 }
 
+var store Store
+
 func (s *Store) idsStr(ids []int) string {
 	result := make([]string, len(ids))
 	for i, id := range ids {
@@ -51,10 +53,25 @@ func (s *Store) GetFeed() ([]int, error) {
 
 func (s *Store) GetPosts(ids []int) ([]*Post, error) {
 	var posts []*Post
-	err := s.db.Select(&posts, "select * from post where id in ("+s.idsStr(ids)+")")
+	err := s.db.Select(&posts, "select id, user_id, date, text, COALESCE(photo_id, 0) as photo_id from post where id in ("+s.idsStr(ids)+")")
 	if err != nil {
 		return nil, fmt.Errorf("error selecting post ids")
 	}
 
 	return posts, err
+}
+
+func (s *Store) AddPost(post *Post) error {
+	result, err := s.db.Exec(
+		"insert into post (user_id, date, text) values (?, ?, ?)",
+		post.UserID, post.Date, post.Text,
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting post row: %w", err)
+	}
+
+	postID, _ := result.LastInsertId()
+	post.ID = int(postID)
+
+	return nil
 }

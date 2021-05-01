@@ -21,35 +21,38 @@ import (
 	"github.com/materkov/meme9/web/pb"
 )
 
-type Config struct {
-	VKAppSecret string
+type apiHandler func(body io.Reader, viewerID int) proto.Message
+
+var apiRouter = map[string]apiHandler{
+	"meme.Feed/GetHeader": apiHandlerFeedGetHeader,
+	"meme.Posts/Add":      apiHandlerPostsAdd,
 }
 
-var config Config
-var store Store
+func apiHandlerFeedGetHeader(body io.Reader, viewerID int) proto.Message {
+	return &pb.FeedGetHeaderResponse{
+		Renderer: &pb.HeaderRenderer{
+			IsAuthorized: viewerID != 0,
+			MainUrl:      "/",
+			UserName:     fmt.Sprintf("User %d", viewerID),
+			UserAvatar:   "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
+		},
+	}
+}
 
-func apiHandler(method string, body io.Reader, viewerID int) proto.Message {
-	switch method {
-	case "meme.Feed/GetHeader":
-		return &pb.FeedGetHeaderResponse{
-			Renderer: &pb.HeaderRenderer{
-				IsAuthorized: viewerID != 0,
-				MainUrl:      "/",
-				UserName:     fmt.Sprintf("User %d", viewerID),
-				UserAvatar:   "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
-			},
-		}
+func apiHandlerPostsAdd(body io.Reader, viewerID int) proto.Message {
+	req := pb.PostsAddRequest{}
+	_ = jsonpb.Unmarshal(body, &req)
 
-	case "meme.Posts/Add":
-		req := pb.PostsAddRequest{}
-		_ = jsonpb.Unmarshal(body, &req)
+	post := Post{
+		UserID: viewerID,
+		Date:   int(time.Now().Unix()),
+		Text:   req.Text,
+	}
 
-		return &pb.PostsAddResponse{
-			PostUrl: "/profile/5",
-		}
+	_ = store.AddPost(&post)
 
-	default:
-		return nil
+	return &pb.PostsAddResponse{
+		PostUrl: fmt.Sprintf("/profile/%d", viewerID),
 	}
 }
 
@@ -58,14 +61,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	viewerID := 0
-
 	accessCookie, err := r.Cookie("access_token")
 	if err == nil {
 		viewerID, _ = strconv.Atoi(accessCookie.Value)
 	}
 
 	method := strings.TrimPrefix(r.URL.Path, "/api/")
-	resp := apiHandler(method, r.Body, viewerID)
+	var resp proto.Message
+	if apiFunc, ok := apiRouter[method]; ok {
+		resp = apiFunc(r.Body, viewerID)
+	}
 
 	m := jsonpb.Marshaler{}
 	_ = m.Marshal(w, resp)
@@ -151,6 +156,8 @@ func handleProfile(url string) (pb.Renderers, proto.Message) {
 func handleRoute(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Content-Type", "application/json")
+
 	urlAddress := r.URL.Query().Get("url")
 
 	var component pb.Renderers
@@ -158,7 +165,7 @@ func handleRoute(w http.ResponseWriter, r *http.Request) {
 
 	for route, handler := range router {
 		if route.MatchString(urlAddress) {
-			handler(urlAddress)
+			component, data = handler(urlAddress)
 		}
 	}
 
@@ -243,5 +250,5 @@ func main() {
 	http.HandleFunc("/router", handleRoute)
 	http.HandleFunc("/vk-callback", handleVKCallback)
 
-	http.ListenAndServe("127.0.0.1:8000", nil)
+	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
