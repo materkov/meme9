@@ -15,6 +15,7 @@ export class Header extends React.Component {
         super(props);
         this.state = {
             data: {
+                logoutUrl: "",
                 isAuthorized: false,
                 mainUrl: "/",
                 userName: "Макс",
@@ -44,6 +45,9 @@ export class Header extends React.Component {
                 <div className={styles.RightContainer}>
                     {data.isAuthorized && <div className={styles.Name}>{data.userName}</div>}
                     {data.isAuthorized && <img className={styles.Avatar} alt="" src={data.userAvatar}/>}
+                    {data.isAuthorized &&
+                    <a href={data.logoutUrl}>Выход</a>
+                    }
 
                     {!data.isAuthorized && <Link className={styles.Name} href={"/login"}>Войти</Link>}
                 </div>

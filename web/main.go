@@ -31,6 +31,7 @@ func apiHandlerFeedGetHeader(body io.Reader, viewer *Viewer) proto.Message {
 			MainUrl:      "/",
 			UserName:     fmt.Sprintf("User %d", viewer.UserID),
 			UserAvatar:   "https://sun3.43222.userapi.com/s/v1/ig2/FGgcvoXeiJaix4uHo4bx7uS1aLgIhTVVbyUqwqXYmTFwNJJJzkLdXXKOiusyXYdqExevW-VSQVytEQ1l2Q3iOSmD.jpg?size=100x0&quality=96&crop=120,33,601,601&ava=1",
+			LogoutUrl:    "http://localhost:8000/logout",
 		},
 	}
 }
@@ -243,6 +244,18 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
 }
 
+func handleLogout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    "",
+		Expires:  time.Unix(0, 0),
+		Path:     "/",
+		HttpOnly: true,
+	})
+
+	http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
+}
+
 func apiWrapper(next apiHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
@@ -312,6 +325,7 @@ func main() {
 
 	// Other
 	r.HandleFunc("/vk-callback", handleVKCallback)
+	r.HandleFunc("/logout", handleLogout)
 
 	http.Handle("/", r)
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)

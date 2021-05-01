@@ -4,73 +4,6 @@ import * as Long from "long";
 
 export const protobufPackage = "meme";
 
-export enum Renderers {
-  UNKNOWN = "UNKNOWN",
-  FEED = "FEED",
-  PROFILE = "PROFILE",
-  LOGIN = "LOGIN",
-  POST = "POST",
-  UNRECOGNIZED = "UNRECOGNIZED",
-}
-
-export function renderersFromJSON(object: any): Renderers {
-  switch (object) {
-    case 0:
-    case "UNKNOWN":
-      return Renderers.UNKNOWN;
-    case 1:
-    case "FEED":
-      return Renderers.FEED;
-    case 2:
-    case "PROFILE":
-      return Renderers.PROFILE;
-    case 3:
-    case "LOGIN":
-      return Renderers.LOGIN;
-    case 4:
-    case "POST":
-      return Renderers.POST;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return Renderers.UNRECOGNIZED;
-  }
-}
-
-export function renderersToJSON(object: Renderers): string {
-  switch (object) {
-    case Renderers.UNKNOWN:
-      return "UNKNOWN";
-    case Renderers.FEED:
-      return "FEED";
-    case Renderers.PROFILE:
-      return "PROFILE";
-    case Renderers.LOGIN:
-      return "LOGIN";
-    case Renderers.POST:
-      return "POST";
-    default:
-      return "UNKNOWN";
-  }
-}
-
-export function renderersToNumber(object: Renderers): number {
-  switch (object) {
-    case Renderers.UNKNOWN:
-      return 0;
-    case Renderers.FEED:
-      return 1;
-    case Renderers.PROFILE:
-      return 2;
-    case Renderers.LOGIN:
-      return 3;
-    case Renderers.POST:
-      return 4;
-    default:
-      return 0;
-  }
-}
-
 export interface ProfileGetRequest {
   id: string;
 }
@@ -126,11 +59,11 @@ export interface HeaderRenderer {
   userName: string;
   userAvatar: string;
   isAuthorized: boolean;
+  logoutUrl: string;
 }
 
-export interface ResolveRouteResponse {
-  renderer: Renderers;
-}
+/** Renderers renderer = 1; */
+export interface ResolveRouteResponse {}
 
 const baseProfileGetRequest: object = { id: "" };
 
@@ -930,6 +863,7 @@ const baseHeaderRenderer: object = {
   userName: "",
   userAvatar: "",
   isAuthorized: false,
+  logoutUrl: "",
 };
 
 export const HeaderRenderer = {
@@ -945,6 +879,9 @@ export const HeaderRenderer = {
     }
     if (message.isAuthorized === true) {
       writer.uint32(32).bool(message.isAuthorized);
+    }
+    if (message.logoutUrl !== "") {
+      writer.uint32(42).string(message.logoutUrl);
     }
     return writer;
   },
@@ -967,6 +904,9 @@ export const HeaderRenderer = {
           break;
         case 4:
           message.isAuthorized = reader.bool();
+          break;
+        case 5:
+          message.logoutUrl = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -998,6 +938,11 @@ export const HeaderRenderer = {
     } else {
       message.isAuthorized = false;
     }
+    if (object.logoutUrl !== undefined && object.logoutUrl !== null) {
+      message.logoutUrl = String(object.logoutUrl);
+    } else {
+      message.logoutUrl = "";
+    }
     return message;
   },
 
@@ -1008,6 +953,7 @@ export const HeaderRenderer = {
     message.userAvatar !== undefined && (obj.userAvatar = message.userAvatar);
     message.isAuthorized !== undefined &&
       (obj.isAuthorized = message.isAuthorized);
+    message.logoutUrl !== undefined && (obj.logoutUrl = message.logoutUrl);
     return obj;
   },
 
@@ -1033,20 +979,19 @@ export const HeaderRenderer = {
     } else {
       message.isAuthorized = false;
     }
+    if (object.logoutUrl !== undefined && object.logoutUrl !== null) {
+      message.logoutUrl = object.logoutUrl;
+    } else {
+      message.logoutUrl = "";
+    }
     return message;
   },
 };
 
-const baseResolveRouteResponse: object = { renderer: Renderers.UNKNOWN };
+const baseResolveRouteResponse: object = {};
 
 export const ResolveRouteResponse = {
-  encode(
-    message: ResolveRouteResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.renderer !== Renderers.UNKNOWN) {
-      writer.uint32(8).int32(renderersToNumber(message.renderer));
-    }
+  encode(_: ResolveRouteResponse, writer: Writer = Writer.create()): Writer {
     return writer;
   },
 
@@ -1057,9 +1002,6 @@ export const ResolveRouteResponse = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1:
-          message.renderer = renderersFromJSON(reader.int32());
-          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1068,30 +1010,18 @@ export const ResolveRouteResponse = {
     return message;
   },
 
-  fromJSON(object: any): ResolveRouteResponse {
+  fromJSON(_: any): ResolveRouteResponse {
     const message = { ...baseResolveRouteResponse } as ResolveRouteResponse;
-    if (object.renderer !== undefined && object.renderer !== null) {
-      message.renderer = renderersFromJSON(object.renderer);
-    } else {
-      message.renderer = Renderers.UNKNOWN;
-    }
     return message;
   },
 
-  toJSON(message: ResolveRouteResponse): unknown {
+  toJSON(_: ResolveRouteResponse): unknown {
     const obj: any = {};
-    message.renderer !== undefined &&
-      (obj.renderer = renderersToJSON(message.renderer));
     return obj;
   },
 
-  fromPartial(object: DeepPartial<ResolveRouteResponse>): ResolveRouteResponse {
+  fromPartial(_: DeepPartial<ResolveRouteResponse>): ResolveRouteResponse {
     const message = { ...baseResolveRouteResponse } as ResolveRouteResponse;
-    if (object.renderer !== undefined && object.renderer !== null) {
-      message.renderer = object.renderer;
-    } else {
-      message.renderer = Renderers.UNKNOWN;
-    }
     return message;
   },
 };

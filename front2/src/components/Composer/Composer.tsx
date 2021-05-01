@@ -11,7 +11,7 @@ interface State {
     addedPostUrl?: string;
 }
 
-export class Composer extends React.Component<null, State> {
+export class Composer extends React.Component<{}, State> {
     state: State = {
         text: '',
     };
