@@ -7,6 +7,7 @@ import {UniversalRenderer} from "../UniversalRenderer/UniversalRenderer";
 
 interface State {
     data?: schema.UniversalRenderer;
+    error?: boolean;
 }
 
 export class Router extends React.Component<{}, State> {
@@ -19,20 +20,17 @@ export class Router extends React.Component<{}, State> {
     navigate = (route: string) => {
         window.history.pushState(null, "meme", route);
 
-        resolveRoute(route).then(data => {
-            this.setState({data: data})
-        })
+        resolveRoute(route)
+            .then(data => this.setState({data: data, error: undefined}))
+            .catch(() => this.setState({data: undefined, error: true}))
     }
 
     render() {
-        if (!this.state.data) {
-            return null;
-        }
-
         return (
             <GlobalContext.Provider value={this.navigate}>
                 <Header/>
-                <UniversalRenderer data={this.state.data}/>
+                {this.state.data && <UniversalRenderer data={this.state.data}/>}
+                {this.state.error && <div>Ошибка!</div>}
             </GlobalContext.Provider>
         )
     }

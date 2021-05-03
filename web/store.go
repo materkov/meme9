@@ -24,11 +24,6 @@ type User struct {
 	VkAvatar string `db:"vk_avatar"`
 }
 
-type Photo struct {
-	ID  int
-	URL string
-}
-
 type Token struct {
 	ID     int    `db:"id"`
 	Token  string `db:"token"`
@@ -98,6 +93,10 @@ func (s *Store) AddPost(post *Post) error {
 func (s *Store) GetByVkID(vkID int) (int, error) {
 	userID := 0
 	err := s.db.Get(&userID, "select id from user where vk_id = ?", vkID)
+	if err != nil {
+		return 0, fmt.Errorf("error selecting user by vk id: %w", err)
+	}
+
 	return userID, err
 }
 
@@ -106,12 +105,19 @@ func (s *Store) UpdateNameAvatar(user *User) error {
 		"update user set name = ?, vk_avatar = ? where id = ?",
 		user.Name, user.VkAvatar, user.ID,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("error updating name and avatar: %s", err)
+	}
+
+	return nil
 }
 
 func (s *Store) GetToken(tokenStr string) (*Token, error) {
 	token := Token{}
 	err := s.db.Get(&token, "select * from token where token = ?", tokenStr)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting token row: %w", err)
+	}
 
 	return &token, err
 }
@@ -135,7 +141,7 @@ func (s *Store) GetUsers(ids []int) ([]*User, error) {
 	var users []*User
 	err := s.db.Select(&users, "select id, coalesce(name, '') as name, coalesce(vk_avatar, '') as vk_avatar, coalesce(vk_id, 0) as vk_id from user where id in ("+s.idsStr(ids)+")")
 	if err != nil {
-		return nil, fmt.Errorf("error selecting users")
+		return nil, fmt.Errorf("error selecting users: %w", err)
 	}
 
 	return users, err

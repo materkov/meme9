@@ -22,29 +22,38 @@ import (
 	"github.com/materkov/meme9/web/pb"
 )
 
-type apiHandler func(body io.Reader, viewer *Viewer) proto.Message
+type apiHandler func(body io.Reader, viewer *Viewer) (proto.Message, error)
 
-func apiHandlerFeedGetHeader(body io.Reader, viewer *Viewer) proto.Message {
+func apiHandlerFeedGetHeader(body io.Reader, viewer *Viewer) (proto.Message, error) {
 	headerRenderer := pb.HeaderRenderer{
 		MainUrl:   "/",
 		LogoutUrl: "http://localhost:8000/logout",
 	}
 
 	if viewer.UserID != 0 {
-		users, _ := store.GetUsers([]int{viewer.UserID})
-		user := users[0]
+		users, err := store.GetUsers([]int{viewer.UserID})
+		if err != nil {
+			log.Printf("Error getting user: %s", err)
+		} else if len(users) == 0 {
+			log.Printf("User %d not found", viewer.UserID)
+		} else {
+			user := users[0]
 
-		headerRenderer.IsAuthorized = true
-		headerRenderer.UserAvatar = user.VkAvatar
-		headerRenderer.UserName = user.Name
+			headerRenderer.IsAuthorized = true
+			headerRenderer.UserAvatar = user.VkAvatar
+			headerRenderer.UserName = user.Name
+		}
 	}
 
-	return &pb.FeedGetHeaderResponse{Renderer: &headerRenderer}
+	return &pb.FeedGetHeaderResponse{Renderer: &headerRenderer}, nil
 }
 
-func apiHandlerPostsAdd(body io.Reader, viewer *Viewer) proto.Message {
+func apiHandlerPostsAdd(body io.Reader, viewer *Viewer) (proto.Message, error) {
 	req := pb.PostsAddRequest{}
-	_ = jsonpb.Unmarshal(body, &req)
+	err := jsonpb.Unmarshal(body, &req)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling request: %w", err)
+	}
 
 	post := Post{
 		UserID: viewer.UserID,
@@ -52,21 +61,28 @@ func apiHandlerPostsAdd(body io.Reader, viewer *Viewer) proto.Message {
 		Text:   req.Text,
 	}
 
-	_ = store.AddPost(&post)
+	err = store.AddPost(&post)
+	if err != nil {
+		return nil, fmt.Errorf("error saving post: %w", err)
+	}
 
 	return &pb.PostsAddResponse{
 		PostUrl: fmt.Sprintf("/profile/%d", viewer.UserID),
-	}
+	}, nil
 }
 
-type routeHandler func(url string) *pb.UniversalRenderer
+type routeHandler func(url string) (*pb.UniversalRenderer, error)
 
-func handleIndex(_ string) *pb.UniversalRenderer {
+func handleIndex(_ string) (*pb.UniversalRenderer, error) {
 	postIds, err := store.GetFeed()
-	log.Printf("%v %s", postIds, err)
+	if err != nil {
+		return nil, fmt.Errorf("error getting post ids: %w", err)
+	}
 
 	posts, err := store.GetPosts(postIds)
-	log.Printf("%v %s", posts, err)
+	if err != nil {
+		return nil, fmt.Errorf("error getting post ids: %w", err)
+	}
 
 	wrappedPosts := convertPosts(posts)
 
@@ -74,10 +90,10 @@ func handleIndex(_ string) *pb.UniversalRenderer {
 		Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
 			Posts: wrappedPosts,
 		}},
-	}
+	}, nil
 }
 
-func handleLogin(_ string) *pb.UniversalRenderer {
+func handleLogin(_ string) (*pb.UniversalRenderer, error) {
 	requestScheme := "http"
 	requestHost := "localhost:8000"
 	vkAppID := 7260220
@@ -89,40 +105,60 @@ func handleLogin(_ string) *pb.UniversalRenderer {
 			AuthUrl: vkURL,
 			Text:    "Войти через ВК",
 		},
-	}}
+	}}, nil
 }
 
-func handleProfile(url string) *pb.UniversalRenderer {
+func handleProfile(url string) (*pb.UniversalRenderer, error) {
 	req := &pb.ProfileGetRequest{
 		Id: strings.TrimPrefix(url, "/users/"),
 	}
 
 	userID, _ := strconv.Atoi(req.Id)
-	postIds, _ := store.GetPostsByUser(userID)
-	posts, _ := store.GetPosts(postIds)
-	wrappedPosts := convertPosts(posts)
+	users, err := store.GetUsers([]int{userID})
+	if err != nil {
+		return nil, fmt.Errorf("error selecting user: %w", err)
+	} else if len(users) == 0 {
+		return nil, fmt.Errorf("user not found")
+	}
 
-	users, _ := store.GetUsers([]int{userID})
 	user := users[0]
+
+	postIds, err := store.GetPostsByUser(userID)
+	if err != nil {
+		log.Printf("Error selecting user posts: %s", err)
+	}
+
+	posts, err := store.GetPosts(postIds)
+	if err != nil {
+		log.Printf("Error selecting posts: %s", err)
+	}
+
+	wrappedPosts := convertPosts(posts)
 
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_ProfileRenderer{ProfileRenderer: &pb.ProfileRenderer{
 		Id:     strconv.Itoa(user.ID),
 		Name:   user.Name,
 		Avatar: user.VkAvatar,
 		Posts:  wrappedPosts,
-	}}}
+	}}}, nil
 }
 
-func handlePostPage(url string) *pb.UniversalRenderer {
+func handlePostPage(url string) (*pb.UniversalRenderer, error) {
 	postIDStr := strings.TrimPrefix(url, "/posts/")
 	postID, _ := strconv.Atoi(postIDStr)
 
-	posts, _ := store.GetPosts([]int{postID})
+	posts, err := store.GetPosts([]int{postID})
+	if err != nil {
+		return nil, fmt.Errorf("error selecting post: %s", err)
+	} else if len(posts) == 0 {
+		return nil, fmt.Errorf("post not found")
+	}
+
 	wrappedPosts := convertPosts(posts)
 
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_PostRenderer{PostRenderer: &pb.PostRenderer{
 		Post: wrappedPosts[0],
-	}}}
+	}}}, nil
 }
 
 func convertPosts(posts []*Post) []*pb.Post {
@@ -138,7 +174,10 @@ func convertPosts(posts []*Post) []*pb.Post {
 		i++
 	}
 
-	users, _ := store.GetUsers(userIds)
+	users, err := store.GetUsers(userIds)
+	if err != nil {
+		log.Printf("Error selecting users: %s", err)
+	}
 
 	usersMap := map[int]*User{}
 	for _, user := range users {
@@ -219,14 +258,27 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users, _ := store.GetUsers([]int{userID})
+	users, err := store.GetUsers([]int{userID})
+	if err != nil {
+		log.Printf("Error selecting user: %s", err)
+		fmt.Fprintf(w, "internal error")
+		return
+	} else if len(users) == 0 {
+		log.Printf("User %d not found", userID)
+		fmt.Fprintf(w, "internal error")
+		return
+	}
+
 	user := users[0]
 
 	vkName, vkAvatar, err := fetchVkData(body.UserID, body.AccessToken)
 	if err == nil {
 		user.Name = vkName
 		user.VkAvatar = vkAvatar
-		_ = store.UpdateNameAvatar(user)
+		err = store.UpdateNameAvatar(user)
+		if err != nil {
+			log.Printf("Failed saving new name&avatar: %s", err)
+		}
 	}
 
 	token := Token{
@@ -313,7 +365,18 @@ func apiWrapper(next apiHandler) http.HandlerFunc {
 			}
 		}
 
-		resp := next(r.Body, &viewer)
+		resp, err := next(r.Body, &viewer)
+		if err != nil {
+			log.Printf("Error response: %s", err)
+
+			w.WriteHeader(400)
+			_ = json.NewEncoder(w).Encode(struct {
+				Error string `json:"error"`
+			}{
+				Error: "oops, error",
+			})
+			return
+		}
 
 		m := jsonpb.Marshaler{}
 		_ = m.Marshal(w, resp)
@@ -326,15 +389,25 @@ func routerWrapper(next routeHandler) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Content-Type", "application/json")
 
-		data := next(r.URL.RequestURI())
+		data, err := next(r.URL.RequestURI())
+		if err != nil {
+			log.Printf("Error response: %s", err)
+
+			w.WriteHeader(400)
+			_ = json.NewEncoder(w).Encode(struct {
+				Error string `json:"error"`
+			}{
+				Error: "oops, error",
+			})
+			return
+		}
+
 		m := jsonpb.Marshaler{}
 		dataStr, _ := m.MarshalToString(data)
 
 		_ = json.NewEncoder(w).Encode(struct {
-			//Component string          `json:"component"`
 			Data json.RawMessage `json:"data"`
 		}{
-			//Component: pb.Renderers_name[int32(component)],
 			Data: json.RawMessage(dataStr),
 		})
 	}

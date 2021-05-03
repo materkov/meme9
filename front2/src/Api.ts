@@ -4,8 +4,18 @@ export function api<TReq, TResp>(method: string, args: TReq): Promise<TResp> {
             method: 'POST',
             credentials: 'include',
             body: JSON.stringify(args),
-        }).then(r => r.json()).then(r => {
-            resolve(r);
         })
+            .then(r => {
+                if (r.status !== 200) {
+                    reject();
+                    return
+                }
+
+                return r.json()
+            })
+            .then(r => {
+                resolve(r);
+            })
+            .catch(() => reject())
     })
 }

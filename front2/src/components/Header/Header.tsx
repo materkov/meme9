@@ -21,6 +21,8 @@ export class Header extends React.Component {
     refreshData = () => {
         api<FeedGetHeaderRequest, FeedGetHeaderResponse>("meme.Feed.GetHeader", {}).then(r => {
             this.setState({data: r.renderer});
+        }).catch(() => {
+            console.error('Failed updating header');
         })
     }
 

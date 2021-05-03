@@ -24,9 +24,14 @@ export class Composer extends React.Component<{}, State> {
         const req: PostsAddRequest = {
             text: this.state.text,
         };
-        api<PostsAddRequest, PostsAddResponse>("meme.Posts.Add", req).then(r => {
-            this.setState({addedPostUrl: r.postUrl})
-        })
+
+        api<PostsAddRequest, PostsAddResponse>("meme.Posts.Add", req)
+            .then(r => {
+                this.setState({addedPostUrl: r.postUrl})
+            })
+            .catch(() => {
+                console.error("Error saving post");
+            })
 
         this.setState({text: ''});
     };
