@@ -315,6 +315,7 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("error saving token: %s", err)
 		fmt.Fprintf(w, "internal error")
+		return
 	}
 
 	http.SetCookie(w, &http.Cookie{

@@ -3,6 +3,9 @@ export function api<TReq, TResp>(method: string, args: TReq): Promise<TResp> {
         fetch("/api/" + method, {
             method: 'POST',
             credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify(args),
         })
             .then(r => {
