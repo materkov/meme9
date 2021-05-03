@@ -38,8 +38,14 @@ module.exports = {
         extensions: ['.tsx', '.ts', '.js', '.css'],
     },
     devServer: {
+        proxy: {
+            '/api': {
+                target: 'http://localhost:8000',
+            },
+        },
         historyApiFallback: true,
         contentBase: path.join(__dirname, 'dist'),
+        publicPath: '/static',
         port: 3000
     }
 };

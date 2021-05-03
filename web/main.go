@@ -28,7 +28,7 @@ type apiHandler func(body io.Reader, viewer *Viewer) (proto.Message, error)
 func apiHandlerFeedGetHeader(body io.Reader, viewer *Viewer) (proto.Message, error) {
 	headerRenderer := pb.HeaderRenderer{
 		MainUrl:   "/",
-		LogoutUrl: "http://localhost:8000/logout",
+		LogoutUrl: "/logout",
 	}
 
 	if viewer.UserID != 0 {
@@ -82,11 +82,11 @@ func apiHandlerResolveRoute(body io.Reader, viewer *Viewer) (proto.Message, erro
 	if request.Url == "/" {
 		return handleIndex(request.Url)
 	} else if request.Url == "/login" {
-		return handleIndex(request.Url)
+		return handleLogin(request.Url, viewer)
 	} else if m, _ := regexp.MatchString(`^/users/\d+$`, request.Url); m {
 		return handleProfile(request.Url)
 	} else if m, _ := regexp.MatchString(`^/posts/\d+$`, request.Url); m {
-		return handleIndex(request.Url)
+		return handlePostPage(request.Url)
 	} else {
 		return &pb.UniversalRenderer{}, nil
 	}
@@ -114,9 +114,9 @@ func handleIndex(_ string) (*pb.UniversalRenderer, error) {
 	}, nil
 }
 
-func handleLogin(_ string) (*pb.UniversalRenderer, error) {
-	requestScheme := "http"
-	requestHost := "localhost:8000"
+func handleLogin(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
+	requestScheme := viewer.RequestScheme
+	requestHost := viewer.RequestHost
 	vkAppID := 7260220
 	redirectURL := url.QueryEscape(fmt.Sprintf("%s://%s/vk-callback", requestScheme, requestHost))
 	vkURL := fmt.Sprintf("https://oauth.vk.com/authorize?client_id=%d&response_type=code&redirect_uri=%s", vkAppID, redirectURL)
@@ -236,7 +236,12 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO
 	proxyScheme := "http"
+	if r.Header.Get("x-forwarded-proto") != "" {
+		proxyScheme = r.Header.Get("x-forwarded-proto")
+	}
+
 	vkAppID := 7260220
 
 	redirectURI := fmt.Sprintf("%s://%s%s", proxyScheme, r.Host, r.URL.EscapedPath())
@@ -320,7 +325,7 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func fetchVkData(userId int, accessToken string) (string, string, error) {
@@ -368,7 +373,7 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func apiWrapper(next apiHandler) http.HandlerFunc {
@@ -386,6 +391,13 @@ func apiWrapper(next apiHandler) http.HandlerFunc {
 				viewer.UserID = token.UserID
 			}
 		}
+
+		viewer.RequestScheme = "http"
+		if r.Header.Get("x-forwarded-proto") != "" {
+			viewer.RequestScheme = r.Header.Get("x-forwarded-proto")
+		}
+
+		viewer.RequestHost = r.Host
 
 		resp, err := next(r.Body, &viewer)
 		if err != nil {
