@@ -1,9 +1,10 @@
 import React from "react";
-import {resolveRoute} from "../../Router";
 import {GlobalContext} from "../../Context";
 import {Header} from "../Header/Header";
 import * as schema from "../../api/renderer";
+import {ResolveRouteRequest} from "../../api/renderer";
 import {UniversalRenderer} from "../UniversalRenderer/UniversalRenderer";
+import {api} from "../../Api";
 
 interface State {
     data?: schema.UniversalRenderer;
@@ -20,7 +21,7 @@ export class Router extends React.Component<{}, State> {
     navigate = (route: string) => {
         window.history.pushState(null, "meme", route);
 
-        resolveRoute(route)
+        api<ResolveRouteRequest, schema.UniversalRenderer>("meme.Utils.ResolveRoute", {url: route})
             .then(data => this.setState({data: data, error: undefined}))
             .catch(() => this.setState({data: undefined, error: true}))
     }
