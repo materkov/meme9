@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { util, configure, Writer, Reader } from "protobufjs/minimal";
+import { util, configure, Reader, Writer } from "protobufjs/minimal";
 import * as Long from "long";
 import {
   ProfileRenderer,
@@ -17,6 +17,10 @@ export interface UniversalRenderer {
   postRenderer: PostRenderer | undefined;
   headerRenderer: HeaderRenderer | undefined;
   loginPageRenderer: LoginPageRenderer | undefined;
+}
+
+export interface ResolveRouteRequest {
+  url: string;
 }
 
 const baseUniversalRenderer: object = {};
@@ -202,6 +206,88 @@ export const UniversalRenderer = {
     return message;
   },
 };
+
+const baseResolveRouteRequest: object = { url: "" };
+
+export const ResolveRouteRequest = {
+  encode(
+    message: ResolveRouteRequest,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.url !== "") {
+      writer.uint32(10).string(message.url);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): ResolveRouteRequest {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseResolveRouteRequest } as ResolveRouteRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.url = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ResolveRouteRequest {
+    const message = { ...baseResolveRouteRequest } as ResolveRouteRequest;
+    if (object.url !== undefined && object.url !== null) {
+      message.url = String(object.url);
+    } else {
+      message.url = "";
+    }
+    return message;
+  },
+
+  toJSON(message: ResolveRouteRequest): unknown {
+    const obj: any = {};
+    message.url !== undefined && (obj.url = message.url);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<ResolveRouteRequest>): ResolveRouteRequest {
+    const message = { ...baseResolveRouteRequest } as ResolveRouteRequest;
+    if (object.url !== undefined && object.url !== null) {
+      message.url = object.url;
+    } else {
+      message.url = "";
+    }
+    return message;
+  },
+};
+
+export interface Utils {
+  ResolveRoute(request: ResolveRouteRequest): Promise<UniversalRenderer>;
+}
+
+export class UtilsClientImpl implements Utils {
+  private readonly rpc: Rpc;
+  constructor(rpc: Rpc) {
+    this.rpc = rpc;
+  }
+  ResolveRoute(request: ResolveRouteRequest): Promise<UniversalRenderer> {
+    const data = ResolveRouteRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.Utils", "ResolveRoute", data);
+    return promise.then((data) => UniversalRenderer.decode(new Reader(data)));
+  }
+}
+
+interface Rpc {
+  request(
+    service: string,
+    method: string,
+    data: Uint8Array
+  ): Promise<Uint8Array>;
+}
 
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin

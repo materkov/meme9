@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -69,6 +70,26 @@ func apiHandlerPostsAdd(body io.Reader, viewer *Viewer) (proto.Message, error) {
 	return &pb.PostsAddResponse{
 		PostUrl: fmt.Sprintf("/profile/%d", viewer.UserID),
 	}, nil
+}
+
+func apiHandlerResolveRoute(body io.Reader, viewer *Viewer) (proto.Message, error) {
+	request := pb.ResolveRouteRequest{}
+	err := jsonpb.Unmarshal(body, &request)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling request: %w", err)
+	}
+
+	if request.Url == "/" {
+		return handleIndex(request.Url)
+	} else if request.Url == "/login" {
+		return handleIndex(request.Url)
+	} else if m, _ := regexp.MatchString(`^/users/\d+$`, request.Url); m {
+		return handleProfile(request.Url)
+	} else if m, _ := regexp.MatchString(`^/posts/\d+$`, request.Url); m {
+		return handleIndex(request.Url)
+	} else {
+		return &pb.UniversalRenderer{}, nil
+	}
 }
 
 type routeHandler func(url string) (*pb.UniversalRenderer, error)
@@ -354,6 +375,7 @@ func apiWrapper(next apiHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Content-Type", "application/json")
 
 		viewer := Viewer{}
 		accessCookie, err := r.Cookie("access_token")
@@ -383,36 +405,6 @@ func apiWrapper(next apiHandler) http.HandlerFunc {
 	}
 }
 
-func routerWrapper(next routeHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Content-Type", "application/json")
-
-		data, err := next(r.URL.RequestURI())
-		if err != nil {
-			log.Printf("Error response: %s", err)
-
-			w.WriteHeader(400)
-			_ = json.NewEncoder(w).Encode(struct {
-				Error string `json:"error"`
-			}{
-				Error: "oops, error",
-			})
-			return
-		}
-
-		m := jsonpb.Marshaler{}
-		dataStr, _ := m.MarshalToString(data)
-
-		_ = json.NewEncoder(w).Encode(struct {
-			Data json.RawMessage `json:"data"`
-		}{
-			Data: json.RawMessage(dataStr),
-		})
-	}
-}
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
@@ -431,12 +423,7 @@ func main() {
 	// API
 	r.HandleFunc("/api/meme.Posts.Add", apiWrapper(apiHandlerPostsAdd))
 	r.HandleFunc("/api/meme.Feed.GetHeader", apiWrapper(apiHandlerFeedGetHeader))
-
-	// Router
-	r.HandleFunc("/", routerWrapper(handleIndex))
-	r.HandleFunc("/login", routerWrapper(handleLogin))
-	r.HandleFunc("/users/{id}", routerWrapper(handleProfile))
-	r.HandleFunc("/posts/{id}", routerWrapper(handlePostPage))
+	r.HandleFunc("/api/meme.Utils.ResolveRoute", apiWrapper(apiHandlerResolveRoute))
 
 	// Other
 	r.HandleFunc("/vk-callback", handleVKCallback)

@@ -15,3 +15,11 @@ message UniversalRenderer {
     LoginPageRenderer loginPageRenderer = 5;
   }
 }
+
+service Utils {
+  rpc ResolveRoute(ResolveRouteRequest) returns (UniversalRenderer);
+}
+
+message ResolveRouteRequest {
+  string url = 1;
+}
