@@ -1,6 +1,12 @@
 import * as schema from "./api/posts";
 import {PostsAddRequest, PostsAddResponse} from "./api/posts";
-import {FeedGetHeaderRequest, FeedGetHeaderResponse} from "./api/api2";
+import {
+    FeedGetHeaderRequest,
+    FeedGetHeaderResponse,
+    RelationsFollowRequest,
+    RelationsFollowResponse,
+    RelationsUnfollowRequest, RelationsUnfollowResponse
+} from "./api/api2";
 import {ResolveRouteRequest, UniversalRenderer} from "./api/renderer";
 
 function api(method: string, args: any): Promise<any> {
@@ -57,6 +63,22 @@ export class API {
         return new Promise(((resolve, reject) => {
             api("meme.Posts.Add", PostsAddRequest.toJSON(req))
                 .then(r => resolve(PostsAddResponse.fromJSON(r)))
+                .catch(e => reject(e));
+        }))
+    }
+
+    static Relations_Follow = (req: RelationsFollowRequest): Promise<RelationsFollowResponse> => {
+        return new Promise(((resolve, reject) => {
+            api("meme.Relations.Follow", RelationsFollowRequest.toJSON(req))
+                .then(r => resolve(RelationsFollowResponse.fromJSON(r)))
+                .catch(e => reject(e));
+        }))
+    }
+
+    static Relations_Unfollow = (req: RelationsUnfollowRequest): Promise<RelationsUnfollowResponse> => {
+        return new Promise(((resolve, reject) => {
+            api("meme.Relations.Unfollow", RelationsUnfollowRequest.toJSON(req))
+                .then(r => resolve(RelationsUnfollowResponse.fromJSON(r)))
                 .catch(e => reject(e));
         }))
     }

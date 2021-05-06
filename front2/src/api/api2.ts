@@ -17,6 +17,7 @@ export interface ProfileRenderer {
   name: string;
   avatar: string;
   posts: Post[];
+  isFollowing: boolean;
 }
 
 export interface FeedGetRequest {}
@@ -69,6 +70,18 @@ export interface HeaderRenderer {
 
 /** Renderers renderer = 1; */
 export interface ResolveRouteResponse {}
+
+export interface RelationsFollowRequest {
+  userId: string;
+}
+
+export interface RelationsFollowResponse {}
+
+export interface RelationsUnfollowRequest {
+  userId: string;
+}
+
+export interface RelationsUnfollowResponse {}
 
 const baseProfileGetRequest: object = { id: "" };
 
@@ -189,7 +202,12 @@ export const ProfileGetResponse = {
   },
 };
 
-const baseProfileRenderer: object = { id: "", name: "", avatar: "" };
+const baseProfileRenderer: object = {
+  id: "",
+  name: "",
+  avatar: "",
+  isFollowing: false,
+};
 
 export const ProfileRenderer = {
   encode(message: ProfileRenderer, writer: Writer = Writer.create()): Writer {
@@ -204,6 +222,9 @@ export const ProfileRenderer = {
     }
     for (const v of message.posts) {
       Post.encode(v!, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.isFollowing === true) {
+      writer.uint32(40).bool(message.isFollowing);
     }
     return writer;
   },
@@ -227,6 +248,9 @@ export const ProfileRenderer = {
           break;
         case 4:
           message.posts.push(Post.decode(reader, reader.uint32()));
+          break;
+        case 5:
+          message.isFollowing = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -259,6 +283,11 @@ export const ProfileRenderer = {
         message.posts.push(Post.fromJSON(e));
       }
     }
+    if (object.isFollowing !== undefined && object.isFollowing !== null) {
+      message.isFollowing = Boolean(object.isFollowing);
+    } else {
+      message.isFollowing = false;
+    }
     return message;
   },
 
@@ -272,6 +301,8 @@ export const ProfileRenderer = {
     } else {
       obj.posts = [];
     }
+    message.isFollowing !== undefined &&
+      (obj.isFollowing = message.isFollowing);
     return obj;
   },
 
@@ -297,6 +328,11 @@ export const ProfileRenderer = {
       for (const e of object.posts) {
         message.posts.push(Post.fromPartial(e));
       }
+    }
+    if (object.isFollowing !== undefined && object.isFollowing !== null) {
+      message.isFollowing = object.isFollowing;
+    } else {
+      message.isFollowing = false;
     }
     return message;
   },
@@ -1103,6 +1139,233 @@ export const ResolveRouteResponse = {
   },
 };
 
+const baseRelationsFollowRequest: object = { userId: "" };
+
+export const RelationsFollowRequest = {
+  encode(
+    message: RelationsFollowRequest,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.userId !== "") {
+      writer.uint32(10).string(message.userId);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): RelationsFollowRequest {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseRelationsFollowRequest } as RelationsFollowRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.userId = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RelationsFollowRequest {
+    const message = { ...baseRelationsFollowRequest } as RelationsFollowRequest;
+    if (object.userId !== undefined && object.userId !== null) {
+      message.userId = String(object.userId);
+    } else {
+      message.userId = "";
+    }
+    return message;
+  },
+
+  toJSON(message: RelationsFollowRequest): unknown {
+    const obj: any = {};
+    message.userId !== undefined && (obj.userId = message.userId);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<RelationsFollowRequest>
+  ): RelationsFollowRequest {
+    const message = { ...baseRelationsFollowRequest } as RelationsFollowRequest;
+    if (object.userId !== undefined && object.userId !== null) {
+      message.userId = object.userId;
+    } else {
+      message.userId = "";
+    }
+    return message;
+  },
+};
+
+const baseRelationsFollowResponse: object = {};
+
+export const RelationsFollowResponse = {
+  encode(_: RelationsFollowResponse, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): RelationsFollowResponse {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseRelationsFollowResponse,
+    } as RelationsFollowResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): RelationsFollowResponse {
+    const message = {
+      ...baseRelationsFollowResponse,
+    } as RelationsFollowResponse;
+    return message;
+  },
+
+  toJSON(_: RelationsFollowResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(
+    _: DeepPartial<RelationsFollowResponse>
+  ): RelationsFollowResponse {
+    const message = {
+      ...baseRelationsFollowResponse,
+    } as RelationsFollowResponse;
+    return message;
+  },
+};
+
+const baseRelationsUnfollowRequest: object = { userId: "" };
+
+export const RelationsUnfollowRequest = {
+  encode(
+    message: RelationsUnfollowRequest,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.userId !== "") {
+      writer.uint32(10).string(message.userId);
+    }
+    return writer;
+  },
+
+  decode(
+    input: Reader | Uint8Array,
+    length?: number
+  ): RelationsUnfollowRequest {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseRelationsUnfollowRequest,
+    } as RelationsUnfollowRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.userId = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RelationsUnfollowRequest {
+    const message = {
+      ...baseRelationsUnfollowRequest,
+    } as RelationsUnfollowRequest;
+    if (object.userId !== undefined && object.userId !== null) {
+      message.userId = String(object.userId);
+    } else {
+      message.userId = "";
+    }
+    return message;
+  },
+
+  toJSON(message: RelationsUnfollowRequest): unknown {
+    const obj: any = {};
+    message.userId !== undefined && (obj.userId = message.userId);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<RelationsUnfollowRequest>
+  ): RelationsUnfollowRequest {
+    const message = {
+      ...baseRelationsUnfollowRequest,
+    } as RelationsUnfollowRequest;
+    if (object.userId !== undefined && object.userId !== null) {
+      message.userId = object.userId;
+    } else {
+      message.userId = "";
+    }
+    return message;
+  },
+};
+
+const baseRelationsUnfollowResponse: object = {};
+
+export const RelationsUnfollowResponse = {
+  encode(
+    _: RelationsUnfollowResponse,
+    writer: Writer = Writer.create()
+  ): Writer {
+    return writer;
+  },
+
+  decode(
+    input: Reader | Uint8Array,
+    length?: number
+  ): RelationsUnfollowResponse {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseRelationsUnfollowResponse,
+    } as RelationsUnfollowResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): RelationsUnfollowResponse {
+    const message = {
+      ...baseRelationsUnfollowResponse,
+    } as RelationsUnfollowResponse;
+    return message;
+  },
+
+  toJSON(_: RelationsUnfollowResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(
+    _: DeepPartial<RelationsUnfollowResponse>
+  ): RelationsUnfollowResponse {
+    const message = {
+      ...baseRelationsUnfollowResponse,
+    } as RelationsUnfollowResponse;
+    return message;
+  },
+};
+
 export interface Feed {
   Get(request: FeedGetRequest): Promise<FeedGetResponse>;
   GetHeader(request: FeedGetHeaderRequest): Promise<FeedGetHeaderResponse>;
@@ -1141,6 +1404,37 @@ export class ProfileClientImpl implements Profile {
     const data = ProfileGetRequest.encode(request).finish();
     const promise = this.rpc.request("meme.Profile", "Get", data);
     return promise.then((data) => ProfileGetResponse.decode(new Reader(data)));
+  }
+}
+
+export interface Relations {
+  Follow(request: RelationsFollowRequest): Promise<RelationsFollowResponse>;
+  Unfollow(
+    request: RelationsUnfollowRequest
+  ): Promise<RelationsUnfollowResponse>;
+}
+
+export class RelationsClientImpl implements Relations {
+  private readonly rpc: Rpc;
+  constructor(rpc: Rpc) {
+    this.rpc = rpc;
+  }
+  Follow(request: RelationsFollowRequest): Promise<RelationsFollowResponse> {
+    const data = RelationsFollowRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.Relations", "Follow", data);
+    return promise.then((data) =>
+      RelationsFollowResponse.decode(new Reader(data))
+    );
+  }
+
+  Unfollow(
+    request: RelationsUnfollowRequest
+  ): Promise<RelationsUnfollowResponse> {
+    const data = RelationsUnfollowRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.Relations", "Unfollow", data);
+    return promise.then((data) =>
+      RelationsUnfollowResponse.decode(new Reader(data))
+    );
   }
 }
 

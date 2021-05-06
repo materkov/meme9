@@ -56,9 +56,12 @@ func (s *Store) GetFeed() ([]int, error) {
 	return postIds, nil
 }
 
-func (s *Store) GetPostsByUser(userID int) ([]int, error) {
+func (s *Store) GetPostsByUsers(userIds []int) ([]int, error) {
 	var postIds []int
-	err := s.db.Select(&postIds, "select id from post where user_id = ? order by id desc limit 30", userID)
+	err := s.db.Select(
+		&postIds,
+		fmt.Sprintf("select id from post where user_id in (%s) order by id desc limit 30", s.idsStr(userIds)),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting post ids")
 	}
@@ -182,7 +185,7 @@ func (s *Store) GetLikesCount(postIds []int) (map[int]int, error) {
 
 	err := s.db.Select(
 		&rows,
-		"select post_id as post_id, count(*) as count from likes where post_id in (" + s.idsStr(postIds) + ") group by post_id",
+		"select post_id as post_id, count(*) as count from likes where post_id in ("+s.idsStr(postIds)+") group by post_id",
 	)
 	if err != nil {
 		return result, fmt.Errorf("error selecting likes count: %s", err)
@@ -212,4 +215,38 @@ func (s *Store) GetIsLiked(postIds []int, userID int) (map[int]bool, error) {
 	}
 
 	return result, nil
+}
+
+func (s *Store) GetFollowing(userID int) ([]int, error) {
+	var userIds []int
+	err := s.db.Select(&userIds, "select user2_id from followers where user1_id = ?", userID)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting followers: %w", err)
+	}
+
+	return userIds, err
+}
+
+func (s *Store) Follow(userFrom, userTo int) error {
+	_, err := s.db.Exec(
+		"insert into followers (user1_id, user2_id, follow_date) values (?, ?, ?)",
+		userFrom, userTo, time.Now().Unix(),
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting followers row: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Store) Unfollow(userFrom, userTo int) error {
+	_, err := s.db.Exec(
+		"delete from followers where user1_id = ? and user2_id = ?",
+		userFrom, userTo,
+	)
+	if err != nil {
+		return fmt.Errorf("error deleting followers row: %w", err)
+	}
+
+	return nil
 }

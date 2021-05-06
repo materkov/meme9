@@ -138,7 +138,20 @@ func apiHandlerResolveRoute(body io.Reader, viewer *Viewer) (proto.Message, erro
 type routeHandler func(url string) (*pb.UniversalRenderer, error)
 
 func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
-	postIds, err := store.GetFeed()
+	if viewer.UserID == 0 {
+		return &pb.UniversalRenderer{
+			Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{}},
+		}, nil
+	}
+
+	following, err := store.GetFollowing(viewer.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting following ids: %w", err)
+	}
+
+	following = append(following, viewer.UserID)
+
+	postIds, err := store.GetPostsByUsers(following)
 	if err != nil {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
@@ -155,6 +168,65 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 			Posts: wrappedPosts,
 		}},
 	}, nil
+}
+
+func apiHandlerRelationsFollow(body io.Reader, viewer *Viewer) (proto.Message, error) {
+	req := pb.RelationsFollowRequest{}
+	err := jsonpb.Unmarshal(body, &req)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling request: %w", err)
+	}
+
+	requestedID, _ := strconv.Atoi(req.UserId)
+	if requestedID <= 0 {
+		return nil, fmt.Errorf("incorrect follow user_id")
+	}
+
+	if viewer.UserID == 0 {
+		return nil, fmt.Errorf("need auth")
+	}
+
+	followingIds, err := store.GetFollowing(viewer.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed getting following ids: %w", err)
+	}
+
+	for _, userID := range followingIds {
+		if requestedID == userID {
+			return &pb.RelationsFollowResponse{}, nil
+		}
+	}
+
+	err = store.Follow(viewer.UserID, requestedID)
+	if err != nil {
+		return nil, fmt.Errorf("failed saving follower: %w", err)
+	}
+
+	return &pb.RelationsFollowResponse{}, nil
+}
+
+func apiHandlerRelationsUnfollow(body io.Reader, viewer *Viewer) (proto.Message, error) {
+	req := pb.RelationsUnfollowRequest{}
+	err := jsonpb.Unmarshal(body, &req)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling request: %w", err)
+	}
+
+	requestedID, _ := strconv.Atoi(req.UserId)
+	if requestedID <= 0 {
+		return nil, fmt.Errorf("incorrect follow user_id")
+	}
+
+	if viewer.UserID == 0 {
+		return nil, fmt.Errorf("need auth")
+	}
+
+	err = store.Unfollow(viewer.UserID, requestedID)
+	if err != nil {
+		return nil, fmt.Errorf("failed saving to store: %w", err)
+	}
+
+	return &pb.RelationsUnfollowResponse{}, nil
 }
 
 func handleLogin(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
@@ -187,7 +259,7 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	user := users[0]
 
-	postIds, err := store.GetPostsByUser(userID)
+	postIds, err := store.GetPostsByUsers([]int{userID})
 	if err != nil {
 		log.Printf("Error selecting user posts: %s", err)
 	}
@@ -199,11 +271,24 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	wrappedPosts := convertPosts(posts, viewer.UserID)
 
+	followingIds, err := store.GetFollowing(viewer.UserID)
+	if err != nil {
+		log.Printf("Error getting following users: %s", err)
+	}
+
+	isFollowing := false
+	for _, userID := range followingIds {
+		if userID == user.ID {
+			isFollowing = true
+		}
+	}
+
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_ProfileRenderer{ProfileRenderer: &pb.ProfileRenderer{
-		Id:     strconv.Itoa(user.ID),
-		Name:   user.Name,
-		Avatar: user.VkAvatar,
-		Posts:  wrappedPosts,
+		Id:          strconv.Itoa(user.ID),
+		Name:        user.Name,
+		Avatar:      user.VkAvatar,
+		Posts:       wrappedPosts,
+		IsFollowing: isFollowing,
 	}}}, nil
 }
 
@@ -516,6 +601,8 @@ func main() {
 	r.HandleFunc("/api/meme.Posts.ToggleLike", apiWrapper(apiHandlerPostsToggleLike))
 	r.HandleFunc("/api/meme.Feed.GetHeader", apiWrapper(apiHandlerFeedGetHeader))
 	r.HandleFunc("/api/meme.Utils.ResolveRoute", apiWrapper(apiHandlerResolveRoute))
+	r.HandleFunc("/api/meme.Relations.Follow", apiWrapper(apiHandlerRelationsFollow))
+	r.HandleFunc("/api/meme.Relations.Unfollow", apiWrapper(apiHandlerRelationsUnfollow))
 
 	// Other
 	r.HandleFunc("/vk-callback", handleVKCallback)

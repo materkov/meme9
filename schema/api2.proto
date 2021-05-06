@@ -25,6 +25,7 @@ message ProfileRenderer {
   string name = 2;
   string avatar = 3;
   repeated Post posts = 4;
+  bool isFollowing = 5;
 }
 
 message FeedGetRequest {
@@ -83,4 +84,23 @@ message HeaderRenderer {
 
 message ResolveRouteResponse {
   //Renderers renderer = 1;
+}
+
+message RelationsFollowRequest {
+  string userId = 1;
+}
+
+message RelationsFollowResponse {
+}
+
+message RelationsUnfollowRequest {
+  string userId = 1;
+}
+
+message RelationsUnfollowResponse {
+}
+
+service Relations {
+  rpc Follow(RelationsFollowRequest) returns (RelationsFollowResponse);
+  rpc Unfollow(RelationsUnfollowRequest) returns (RelationsUnfollowResponse);
 }

@@ -42,6 +42,12 @@ module.exports = {
             '/api': {
                 target: 'http://localhost:8000',
             },
+            '/vk-callback': {
+                target: 'http://localhost:8000',
+            },
+            '/logout': {
+                target: 'http://localhost:8000',
+            },
         },
         historyApiFallback: true,
         contentBase: path.join(__dirname, 'dist'),

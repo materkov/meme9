@@ -34,6 +34,7 @@ export class Router extends React.Component<{}, State> {
                                 post.likesCount++;
                                 action = ToggleLikeRequest_Action.LIKE;
                             }
+                            this.setState({data: this.state.data}); // TODO think about this hack
 
                             API.Posts_ToggleLike({
                                 action: action,
@@ -48,10 +49,27 @@ export class Router extends React.Component<{}, State> {
                         }
                     }
                 }
+            },
+            followUser: (userId: string) => {
+                if (this.state.data?.profileRenderer && this.state.data.profileRenderer.id == userId) {
+                    this.state.data.profileRenderer.isFollowing = true;
+                    this.setState({data: this.state.data});
+                }
+
+                API.Relations_Follow({userId: userId})
+                    .catch(console.error)
+            },
+            unfollowUser: (userId: string) => {
+                if (this.state.data?.profileRenderer && this.state.data.profileRenderer.id == userId) {
+                    this.state.data.profileRenderer.isFollowing = false;
+                    this.setState({data: this.state.data});
+                }
+
+                API.Relations_Unfollow({userId: userId})
+                    .catch(console.error)
             }
         }
     }
-
 
     componentDidMount() {
         this.navigate(window.location.pathname);
