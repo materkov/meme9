@@ -47,6 +47,11 @@ message Post {
 
   string text = 6;
   string imageUrl = 7;
+
+  // Likes
+  bool isLiked = 10;
+  int32 likesCount = 11;
+  bool canLike = 12;
 }
 
 message FeedRenderer {

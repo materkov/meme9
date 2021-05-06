@@ -12,6 +12,64 @@ export interface PostsAddResponse {
   postUrl: string;
 }
 
+export interface ToggleLikeRequest {
+  action: ToggleLikeRequest_Action;
+  postId: string;
+}
+
+export enum ToggleLikeRequest_Action {
+  LIKE = "LIKE",
+  UNLIKE = "UNLIKE",
+  UNRECOGNIZED = "UNRECOGNIZED",
+}
+
+export function toggleLikeRequest_ActionFromJSON(
+  object: any
+): ToggleLikeRequest_Action {
+  switch (object) {
+    case 0:
+    case "LIKE":
+      return ToggleLikeRequest_Action.LIKE;
+    case 1:
+    case "UNLIKE":
+      return ToggleLikeRequest_Action.UNLIKE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ToggleLikeRequest_Action.UNRECOGNIZED;
+  }
+}
+
+export function toggleLikeRequest_ActionToJSON(
+  object: ToggleLikeRequest_Action
+): string {
+  switch (object) {
+    case ToggleLikeRequest_Action.LIKE:
+      return "LIKE";
+    case ToggleLikeRequest_Action.UNLIKE:
+      return "UNLIKE";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+export function toggleLikeRequest_ActionToNumber(
+  object: ToggleLikeRequest_Action
+): number {
+  switch (object) {
+    case ToggleLikeRequest_Action.LIKE:
+      return 0;
+    case ToggleLikeRequest_Action.UNLIKE:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+export interface ToggleLikeResponse {
+  likesCount: number;
+}
+
 const basePostsAddRequest: object = { text: "" };
 
 export const PostsAddRequest = {
@@ -122,8 +180,143 @@ export const PostsAddResponse = {
   },
 };
 
+const baseToggleLikeRequest: object = {
+  action: ToggleLikeRequest_Action.LIKE,
+  postId: "",
+};
+
+export const ToggleLikeRequest = {
+  encode(message: ToggleLikeRequest, writer: Writer = Writer.create()): Writer {
+    if (message.action !== ToggleLikeRequest_Action.LIKE) {
+      writer.uint32(8).int32(toggleLikeRequest_ActionToNumber(message.action));
+    }
+    if (message.postId !== "") {
+      writer.uint32(18).string(message.postId);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): ToggleLikeRequest {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseToggleLikeRequest } as ToggleLikeRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.action = toggleLikeRequest_ActionFromJSON(reader.int32());
+          break;
+        case 2:
+          message.postId = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ToggleLikeRequest {
+    const message = { ...baseToggleLikeRequest } as ToggleLikeRequest;
+    if (object.action !== undefined && object.action !== null) {
+      message.action = toggleLikeRequest_ActionFromJSON(object.action);
+    } else {
+      message.action = ToggleLikeRequest_Action.LIKE;
+    }
+    if (object.postId !== undefined && object.postId !== null) {
+      message.postId = String(object.postId);
+    } else {
+      message.postId = "";
+    }
+    return message;
+  },
+
+  toJSON(message: ToggleLikeRequest): unknown {
+    const obj: any = {};
+    message.action !== undefined &&
+      (obj.action = toggleLikeRequest_ActionToJSON(message.action));
+    message.postId !== undefined && (obj.postId = message.postId);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<ToggleLikeRequest>): ToggleLikeRequest {
+    const message = { ...baseToggleLikeRequest } as ToggleLikeRequest;
+    if (object.action !== undefined && object.action !== null) {
+      message.action = object.action;
+    } else {
+      message.action = ToggleLikeRequest_Action.LIKE;
+    }
+    if (object.postId !== undefined && object.postId !== null) {
+      message.postId = object.postId;
+    } else {
+      message.postId = "";
+    }
+    return message;
+  },
+};
+
+const baseToggleLikeResponse: object = { likesCount: 0 };
+
+export const ToggleLikeResponse = {
+  encode(
+    message: ToggleLikeResponse,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.likesCount !== 0) {
+      writer.uint32(8).int32(message.likesCount);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): ToggleLikeResponse {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseToggleLikeResponse } as ToggleLikeResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.likesCount = reader.int32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ToggleLikeResponse {
+    const message = { ...baseToggleLikeResponse } as ToggleLikeResponse;
+    if (object.likesCount !== undefined && object.likesCount !== null) {
+      message.likesCount = Number(object.likesCount);
+    } else {
+      message.likesCount = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: ToggleLikeResponse): unknown {
+    const obj: any = {};
+    message.likesCount !== undefined && (obj.likesCount = message.likesCount);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<ToggleLikeResponse>): ToggleLikeResponse {
+    const message = { ...baseToggleLikeResponse } as ToggleLikeResponse;
+    if (object.likesCount !== undefined && object.likesCount !== null) {
+      message.likesCount = object.likesCount;
+    } else {
+      message.likesCount = 0;
+    }
+    return message;
+  },
+};
+
 export interface Posts {
   Add(request: PostsAddRequest): Promise<PostsAddResponse>;
+  ToggleLike(request: ToggleLikeRequest): Promise<ToggleLikeResponse>;
 }
 
 export class PostsClientImpl implements Posts {
@@ -135,6 +328,12 @@ export class PostsClientImpl implements Posts {
     const data = PostsAddRequest.encode(request).finish();
     const promise = this.rpc.request("meme.Posts", "Add", data);
     return promise.then((data) => PostsAddResponse.decode(new Reader(data)));
+  }
+
+  ToggleLike(request: ToggleLikeRequest): Promise<ToggleLikeResponse> {
+    const data = ToggleLikeRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.Posts", "ToggleLike", data);
+    return promise.then((data) => ToggleLikeResponse.decode(new Reader(data)));
   }
 }
 

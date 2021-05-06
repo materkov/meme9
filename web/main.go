@@ -72,6 +72,49 @@ func apiHandlerPostsAdd(body io.Reader, viewer *Viewer) (proto.Message, error) {
 	}, nil
 }
 
+func apiHandlerPostsToggleLike(body io.Reader, viewer *Viewer) (proto.Message, error) {
+	req := pb.ToggleLikeRequest{}
+	err := jsonpb.Unmarshal(body, &req)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling request: %w", err)
+	}
+
+	if viewer.UserID == 0 {
+		return nil, fmt.Errorf("unathorized user cannot like")
+	}
+
+	postID, _ := strconv.Atoi(req.PostId)
+
+	isLiked, err := store.GetIsLiked([]int{postID}, viewer.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting is liked: %w", err)
+	}
+
+	if req.Action == pb.ToggleLikeRequest_LIKE && !isLiked[postID] {
+		err = store.AddLike(postID, viewer.UserID)
+		if err != nil {
+			return nil, fmt.Errorf("error saving like: %w", err)
+		}
+	}
+
+	if req.Action == pb.ToggleLikeRequest_UNLIKE && isLiked[postID] {
+		err = store.DeleteLike(postID, viewer.UserID)
+		if err != nil {
+			return nil, fmt.Errorf("error deleting like: %w", err)
+		}
+	}
+
+	postLikesCount := 0
+	likesCount, err := store.GetLikesCount([]int{postID})
+	if err != nil {
+		log.Printf("Error getting likes count")
+	} else {
+		postLikesCount = likesCount[postID]
+	}
+
+	return &pb.ToggleLikeResponse{LikesCount: int32(postLikesCount)}, nil
+}
+
 func apiHandlerResolveRoute(body io.Reader, viewer *Viewer) (proto.Message, error) {
 	request := pb.ResolveRouteRequest{}
 	err := jsonpb.Unmarshal(body, &request)
@@ -80,13 +123,13 @@ func apiHandlerResolveRoute(body io.Reader, viewer *Viewer) (proto.Message, erro
 	}
 
 	if request.Url == "/" {
-		return handleIndex(request.Url)
+		return handleIndex(request.Url, viewer)
 	} else if request.Url == "/login" {
 		return handleLogin(request.Url, viewer)
 	} else if m, _ := regexp.MatchString(`^/users/\d+$`, request.Url); m {
-		return handleProfile(request.Url)
+		return handleProfile(request.Url, viewer)
 	} else if m, _ := regexp.MatchString(`^/posts/\d+$`, request.Url); m {
-		return handlePostPage(request.Url)
+		return handlePostPage(request.Url, viewer)
 	} else {
 		return &pb.UniversalRenderer{}, nil
 	}
@@ -94,7 +137,7 @@ func apiHandlerResolveRoute(body io.Reader, viewer *Viewer) (proto.Message, erro
 
 type routeHandler func(url string) (*pb.UniversalRenderer, error)
 
-func handleIndex(_ string) (*pb.UniversalRenderer, error) {
+func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	postIds, err := store.GetFeed()
 	if err != nil {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
@@ -105,7 +148,7 @@ func handleIndex(_ string) (*pb.UniversalRenderer, error) {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
 
-	wrappedPosts := convertPosts(posts)
+	wrappedPosts := convertPosts(posts, viewer.UserID)
 
 	return &pb.UniversalRenderer{
 		Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
@@ -129,7 +172,7 @@ func handleLogin(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	}}, nil
 }
 
-func handleProfile(url string) (*pb.UniversalRenderer, error) {
+func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	req := &pb.ProfileGetRequest{
 		Id: strings.TrimPrefix(url, "/users/"),
 	}
@@ -154,7 +197,7 @@ func handleProfile(url string) (*pb.UniversalRenderer, error) {
 		log.Printf("Error selecting posts: %s", err)
 	}
 
-	wrappedPosts := convertPosts(posts)
+	wrappedPosts := convertPosts(posts, viewer.UserID)
 
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_ProfileRenderer{ProfileRenderer: &pb.ProfileRenderer{
 		Id:     strconv.Itoa(user.ID),
@@ -164,7 +207,7 @@ func handleProfile(url string) (*pb.UniversalRenderer, error) {
 	}}}, nil
 }
 
-func handlePostPage(url string) (*pb.UniversalRenderer, error) {
+func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	postIDStr := strings.TrimPrefix(url, "/posts/")
 	postID, _ := strconv.Atoi(postIDStr)
 
@@ -175,14 +218,14 @@ func handlePostPage(url string) (*pb.UniversalRenderer, error) {
 		return nil, fmt.Errorf("post not found")
 	}
 
-	wrappedPosts := convertPosts(posts)
+	wrappedPosts := convertPosts(posts, viewer.UserID)
 
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_PostRenderer{PostRenderer: &pb.PostRenderer{
 		Post: wrappedPosts[0],
 	}}}, nil
 }
 
-func convertPosts(posts []*Post) []*pb.Post {
+func convertPosts(posts []*Post, viewerID int) []*pb.Post {
 	userIdsMap := map[int]bool{}
 	for _, post := range posts {
 		userIdsMap[post.UserID] = true
@@ -195,10 +238,42 @@ func convertPosts(posts []*Post) []*pb.Post {
 		i++
 	}
 
-	users, err := store.GetUsers(userIds)
-	if err != nil {
-		log.Printf("Error selecting users: %s", err)
+	postIds := make([]int, len(posts))
+	for i, post := range posts {
+		postIds[i] = post.ID
 	}
+
+	likesCountCh := make(chan map[int]int)
+	isLikedCh := make(chan map[int]bool)
+	usersCh := make(chan []*User)
+
+	go func() {
+		result, err := store.GetLikesCount(postIds)
+		if err != nil {
+			log.Printf("Error getting likes count: %s", err)
+		}
+		likesCountCh <- result
+	}()
+
+	go func() {
+		result, err := store.GetIsLiked(postIds, viewerID)
+		if err != nil {
+			log.Printf("Error getting likes count: %s", err)
+		}
+		isLikedCh <- result
+	}()
+
+	go func() {
+		result, err := store.GetUsers(userIds)
+		if err != nil {
+			log.Printf("Error selecting users: %s", err)
+		}
+		usersCh <- result
+	}()
+
+	likesCount := <-likesCountCh
+	isLiked := <-isLikedCh
+	users := <-usersCh
 
 	usersMap := map[int]*User{}
 	for _, user := range users {
@@ -215,6 +290,9 @@ func convertPosts(posts []*Post) []*pb.Post {
 			AuthorUrl:   fmt.Sprintf("/users/%d", post.UserID),
 			Text:        post.Text,
 			DateDisplay: time.Unix(int64(post.Date), 0).Format("2 Jan 2006 15:04"),
+			IsLiked:     isLiked[post.ID],
+			LikesCount:  int32(likesCount[post.ID]),
+			CanLike:     viewerID != 0,
 		}
 
 		user, ok := usersMap[post.UserID]
@@ -435,6 +513,7 @@ func main() {
 
 	// API
 	r.HandleFunc("/api/meme.Posts.Add", apiWrapper(apiHandlerPostsAdd))
+	r.HandleFunc("/api/meme.Posts.ToggleLike", apiWrapper(apiHandlerPostsToggleLike))
 	r.HandleFunc("/api/meme.Feed.GetHeader", apiWrapper(apiHandlerFeedGetHeader))
 	r.HandleFunc("/api/meme.Utils.ResolveRoute", apiWrapper(apiHandlerResolveRoute))
 

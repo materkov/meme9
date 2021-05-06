@@ -2,12 +2,41 @@ import React from "react";
 import styles from "./Post.module.css";
 import * as schema from "../../../api/api2";
 import {Link} from "../../Link/Link";
+import {Heart} from "../../../icons/Heart";
+import {HeartRed} from "../../../icons/HeartRed";
+import {GlobalStoreContext} from "../../../Context";
 
 export interface Props {
     data: schema.Post;
 }
 
-export class Post extends React.Component<Props> {
+interface State {
+    likeHovered: boolean;
+}
+
+export class Post extends React.Component<Props, State> {
+    static contextType = GlobalStoreContext;
+
+    state: State = {
+        likeHovered: false,
+    };
+
+    onLikeHover = () => {
+        this.setState({likeHovered: true});
+    }
+
+    onLikeBlur = () => {
+        this.setState({likeHovered: false});
+    }
+
+    onToggleLike = () => {
+        if (!this.props.data.canLike) {
+            //alert('Нужно авторизоваться, чтобы полайкать');
+        }
+
+        this.context.togglePostLike(this.props.data.id);
+    }
+
     render() {
         const data = this.props.data;
 
@@ -22,6 +51,15 @@ export class Post extends React.Component<Props> {
                 </div>
 
                 <div className={styles.Text}>{data.text}</div>
+                <div className={styles.LikeContainer} onMouseEnter={this.onLikeHover} onMouseLeave={this.onLikeBlur}
+                     onClick={this.onToggleLike}
+                >
+                    {(this.state.likeHovered || data.isLiked) ?
+                        <HeartRed className={styles.Like}/> :
+                        <Heart className={styles.Like}/>
+                    }
+                    <div className={styles.LikeCounter}>{data.likesCount}</div>
+                </div>
 
                 {data.imageUrl &&
                 <img className={styles.Image} alt="" src={data.imageUrl}/>

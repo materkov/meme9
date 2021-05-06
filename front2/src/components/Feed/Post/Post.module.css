@@ -37,3 +37,22 @@
 .Image {
     max-width: 100%;
 }
+
+.LikeContainer {
+    padding: 2px 0;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.Like {
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+}
+
+.LikeCounter {
+    margin-left: 5px;
+    font-weight: bold;
+    display: inline-block;
+    vertical-align: middle;
+}

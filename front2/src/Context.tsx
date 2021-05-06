@@ -2,3 +2,9 @@ import React from "react";
 
 export const GlobalContext = React.createContext((route: string) => {
 })
+
+export interface GlobalStore {
+    togglePostLike(postId: string): void;
+}
+
+export const GlobalStoreContext = React.createContext<GlobalStore | null>(null);

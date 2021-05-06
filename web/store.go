@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -145,4 +146,70 @@ func (s *Store) GetUsers(ids []int) ([]*User, error) {
 	}
 
 	return users, err
+}
+
+func (s *Store) AddLike(postID, userID int) error {
+	_, err := s.db.Exec(
+		"insert into likes(post_id, user_id, time) values (?, ?, ?)",
+		postID, userID, time.Now().Unix(),
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting like: %s", err)
+	}
+
+	return nil
+}
+
+func (s *Store) DeleteLike(postID, userID int) error {
+	_, err := s.db.Exec(
+		"delete from likes where post_id = ? and user_id = ?",
+		postID, userID,
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting like: %s", err)
+	}
+
+	return nil
+}
+
+func (s *Store) GetLikesCount(postIds []int) (map[int]int, error) {
+	result := map[int]int{}
+
+	var rows []struct {
+		PostID int `db:"post_id"`
+		Count  int `db:"count"`
+	}
+
+	err := s.db.Select(
+		&rows,
+		"select post_id as post_id, count(*) as count from likes where post_id in (" + s.idsStr(postIds) + ") group by post_id",
+	)
+	if err != nil {
+		return result, fmt.Errorf("error selecting likes count: %s", err)
+	}
+
+	for _, row := range rows {
+		result[row.PostID] = row.Count
+	}
+
+	return result, nil
+}
+
+func (s *Store) GetIsLiked(postIds []int, userID int) (map[int]bool, error) {
+	result := map[int]bool{}
+
+	var likedPosts []int
+	err := s.db.Select(
+		&likedPosts,
+		fmt.Sprintf("select post_id from likes where user_id = %d and post_id in (%s)", userID, s.idsStr(postIds)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting likes count: %s", err)
+	}
+
+	for _, postID := range likedPosts {
+		result[postID] = true
+	}
+
+	return result, nil
 }

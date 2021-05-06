@@ -1,8 +1,8 @@
 import React from "react";
 import styles from "./Header.module.css";
 import {Link} from "../Link/Link";
-import {FeedGetHeaderRequest, FeedGetHeaderResponse, HeaderRenderer} from "../../api/api2";
-import {api} from "../../Api";
+import {HeaderRenderer} from "../../api/api2";
+import {API} from "../../Api";
 
 interface State {
     data: HeaderRenderer;
@@ -19,11 +19,9 @@ export class Header extends React.Component {
     }
 
     refreshData = () => {
-        api<FeedGetHeaderRequest, FeedGetHeaderResponse>("meme.Feed.GetHeader", {}).then(r => {
-            this.setState({data: r.renderer});
-        }).catch(() => {
-            console.error('Failed updating header');
-        })
+        API.Feed_GetHeader({})
+            .then(r => this.setState({data: r.renderer}))
+            .catch(() => console.error('Failed updating header'))
     }
 
     render() {

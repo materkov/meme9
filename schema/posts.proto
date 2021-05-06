@@ -5,6 +5,7 @@ option go_package = "pb";
 
 service Posts {
   rpc Add(PostsAddRequest) returns (PostsAddResponse);
+  rpc ToggleLike(ToggleLikeRequest) returns (ToggleLikeResponse);
 }
 
 message PostsAddRequest {
@@ -13,4 +14,17 @@ message PostsAddRequest {
 
 message PostsAddResponse {
   string postUrl = 1;
+}
+
+message ToggleLikeRequest {
+  enum Action {
+    LIKE = 0;
+    UNLIKE = 1;
+  }
+  Action action = 1;
+  string postId = 2;
+}
+
+message ToggleLikeResponse {
+  int32 likesCount = 1;
 }

@@ -1,9 +1,8 @@
 import React from "react";
 import styles from "./Composer.module.css";
 import classNames from "classnames";
-import {api} from "../../Api";
-import {PostsAddRequest, PostsAddResponse} from "../../api/posts";
 import {Link} from "../Link/Link";
+import {API} from "../../Api";
 
 interface State {
     text: string;
@@ -21,17 +20,9 @@ export class Composer extends React.Component<{}, State> {
     };
 
     onSubmit = () => {
-        const req: PostsAddRequest = {
-            text: this.state.text,
-        };
-
-        api<PostsAddRequest, PostsAddResponse>("meme.Posts.Add", req)
-            .then(r => {
-                this.setState({addedPostUrl: r.postUrl})
-            })
-            .catch(() => {
-                console.error("Error saving post");
-            })
+        API.Posts_Add({text: this.state.text})
+            .then(r => this.setState({addedPostUrl: r.postUrl}))
+            .catch(() => console.error("Error saving post"))
 
         this.setState({text: ''});
     };

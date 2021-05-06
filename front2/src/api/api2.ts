@@ -35,6 +35,10 @@ export interface Post {
   dateDisplay: string;
   text: string;
   imageUrl: string;
+  /** Likes */
+  isLiked: boolean;
+  likesCount: number;
+  canLike: boolean;
 }
 
 export interface FeedRenderer {
@@ -404,6 +408,9 @@ const basePost: object = {
   dateDisplay: "",
   text: "",
   imageUrl: "",
+  isLiked: false,
+  likesCount: 0,
+  canLike: false,
 };
 
 export const Post = {
@@ -434,6 +441,15 @@ export const Post = {
     }
     if (message.imageUrl !== "") {
       writer.uint32(58).string(message.imageUrl);
+    }
+    if (message.isLiked === true) {
+      writer.uint32(80).bool(message.isLiked);
+    }
+    if (message.likesCount !== 0) {
+      writer.uint32(88).int32(message.likesCount);
+    }
+    if (message.canLike === true) {
+      writer.uint32(96).bool(message.canLike);
     }
     return writer;
   },
@@ -471,6 +487,15 @@ export const Post = {
           break;
         case 7:
           message.imageUrl = reader.string();
+          break;
+        case 10:
+          message.isLiked = reader.bool();
+          break;
+        case 11:
+          message.likesCount = reader.int32();
+          break;
+        case 12:
+          message.canLike = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -527,6 +552,21 @@ export const Post = {
     } else {
       message.imageUrl = "";
     }
+    if (object.isLiked !== undefined && object.isLiked !== null) {
+      message.isLiked = Boolean(object.isLiked);
+    } else {
+      message.isLiked = false;
+    }
+    if (object.likesCount !== undefined && object.likesCount !== null) {
+      message.likesCount = Number(object.likesCount);
+    } else {
+      message.likesCount = 0;
+    }
+    if (object.canLike !== undefined && object.canLike !== null) {
+      message.canLike = Boolean(object.canLike);
+    } else {
+      message.canLike = false;
+    }
     return message;
   },
 
@@ -543,6 +583,9 @@ export const Post = {
       (obj.dateDisplay = message.dateDisplay);
     message.text !== undefined && (obj.text = message.text);
     message.imageUrl !== undefined && (obj.imageUrl = message.imageUrl);
+    message.isLiked !== undefined && (obj.isLiked = message.isLiked);
+    message.likesCount !== undefined && (obj.likesCount = message.likesCount);
+    message.canLike !== undefined && (obj.canLike = message.canLike);
     return obj;
   },
 
@@ -592,6 +635,21 @@ export const Post = {
       message.imageUrl = object.imageUrl;
     } else {
       message.imageUrl = "";
+    }
+    if (object.isLiked !== undefined && object.isLiked !== null) {
+      message.isLiked = object.isLiked;
+    } else {
+      message.isLiked = false;
+    }
+    if (object.likesCount !== undefined && object.likesCount !== null) {
+      message.likesCount = object.likesCount;
+    } else {
+      message.likesCount = 0;
+    }
+    if (object.canLike !== undefined && object.canLike !== null) {
+      message.canLike = object.canLike;
+    } else {
+      message.canLike = false;
     }
     return message;
   },
