@@ -22,7 +22,7 @@ export class Router extends React.Component<{}, State> {
             togglePostLike: (postId: string) => {
                 if (this.state.data?.feedRenderer) {
                     for (let post of this.state.data.feedRenderer.posts) {
-                        if (post.id == postId && !post.canLike) {
+                        if (post.id == postId && post.canLike) {
                             let action: ToggleLikeRequest_Action;
 
                             if (post.isLiked) {
