@@ -32,6 +32,7 @@ export class Post extends React.Component<Props, State> {
     onToggleLike = () => {
         if (!this.props.data.canLike) {
             alert('Нужно авторизоваться, чтобы полайкать');
+            return;
         }
 
         this.context.togglePostLike(this.props.data.id);
