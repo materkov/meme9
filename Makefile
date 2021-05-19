@@ -12,11 +12,12 @@ run-proto:
 
 run-proto2:
 	mkdir -p web/pb
-	protoc --gogofaster_out=web/pb \
+	protoc --go_out=web \
 		--proto_path schema \
-		--proto_path ~/go/pkg/mod/github.com/gogo/protobuf@v1.3.1/ \
+		--twirp_out=web \
 		schema/*.proto
 
+	#find web/pb -name '*.twirp.go' -type f | xargs sed -i '' -e 's/google.golang.org\/protobuf/github.com\/gogo\/protobuf/g'
 
 build-api:
 	cd api && go build cmd/main.go

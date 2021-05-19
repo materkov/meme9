@@ -3,140 +3,22 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gogo/protobuf/jsonpb"
-	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	"github.com/materkov/meme9/web/pb"
 )
-
-type apiHandler func(body io.Reader, viewer *Viewer) (proto.Message, error)
-
-func apiHandlerFeedGetHeader(body io.Reader, viewer *Viewer) (proto.Message, error) {
-	headerRenderer := pb.HeaderRenderer{
-		MainUrl:   "/",
-		LogoutUrl: "/logout",
-	}
-
-	if viewer.UserID != 0 {
-		users, err := store.GetUsers([]int{viewer.UserID})
-		if err != nil {
-			log.Printf("Error getting user: %s", err)
-		} else if len(users) == 0 {
-			log.Printf("User %d not found", viewer.UserID)
-		} else {
-			user := users[0]
-
-			headerRenderer.IsAuthorized = true
-			headerRenderer.UserAvatar = user.VkAvatar
-			headerRenderer.UserName = user.Name
-		}
-	}
-
-	return &pb.FeedGetHeaderResponse{Renderer: &headerRenderer}, nil
-}
-
-func apiHandlerPostsAdd(body io.Reader, viewer *Viewer) (proto.Message, error) {
-	req := pb.PostsAddRequest{}
-	err := jsonpb.Unmarshal(body, &req)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling request: %w", err)
-	}
-
-	post := Post{
-		UserID: viewer.UserID,
-		Date:   int(time.Now().Unix()),
-		Text:   req.Text,
-	}
-
-	err = store.AddPost(&post)
-	if err != nil {
-		return nil, fmt.Errorf("error saving post: %w", err)
-	}
-
-	return &pb.PostsAddResponse{
-		PostUrl: fmt.Sprintf("/profile/%d", viewer.UserID),
-	}, nil
-}
-
-func apiHandlerPostsToggleLike(body io.Reader, viewer *Viewer) (proto.Message, error) {
-	req := pb.ToggleLikeRequest{}
-	err := jsonpb.Unmarshal(body, &req)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling request: %w", err)
-	}
-
-	if viewer.UserID == 0 {
-		return nil, fmt.Errorf("unathorized user cannot like")
-	}
-
-	postID, _ := strconv.Atoi(req.PostId)
-
-	isLiked, err := store.GetIsLiked([]int{postID}, viewer.UserID)
-	if err != nil {
-		return nil, fmt.Errorf("error getting is liked: %w", err)
-	}
-
-	if req.Action == pb.ToggleLikeRequest_LIKE && !isLiked[postID] {
-		err = store.AddLike(postID, viewer.UserID)
-		if err != nil {
-			return nil, fmt.Errorf("error saving like: %w", err)
-		}
-	}
-
-	if req.Action == pb.ToggleLikeRequest_UNLIKE && isLiked[postID] {
-		err = store.DeleteLike(postID, viewer.UserID)
-		if err != nil {
-			return nil, fmt.Errorf("error deleting like: %w", err)
-		}
-	}
-
-	postLikesCount := 0
-	likesCount, err := store.GetLikesCount([]int{postID})
-	if err != nil {
-		log.Printf("Error getting likes count")
-	} else {
-		postLikesCount = likesCount[postID]
-	}
-
-	return &pb.ToggleLikeResponse{LikesCount: int32(postLikesCount)}, nil
-}
-
-func apiHandlerResolveRoute(body io.Reader, viewer *Viewer) (proto.Message, error) {
-	request := pb.ResolveRouteRequest{}
-	err := jsonpb.Unmarshal(body, &request)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling request: %w", err)
-	}
-
-	if request.Url == "/" {
-		return handleIndex(request.Url, viewer)
-	} else if request.Url == "/login" {
-		return handleLogin(request.Url, viewer)
-	} else if m, _ := regexp.MatchString(`^/users/\d+$`, request.Url); m {
-		return handleProfile(request.Url, viewer)
-	} else if m, _ := regexp.MatchString(`^/posts/\d+$`, request.Url); m {
-		return handlePostPage(request.Url, viewer)
-	} else {
-		return &pb.UniversalRenderer{}, nil
-	}
-}
-
-type routeHandler func(url string) (*pb.UniversalRenderer, error)
 
 func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	if viewer.UserID == 0 {
@@ -169,105 +51,6 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 			Posts: wrappedPosts,
 		}},
 	}, nil
-}
-
-func apiHandlerRelationsFollow(body io.Reader, viewer *Viewer) (proto.Message, error) {
-	req := pb.RelationsFollowRequest{}
-	err := jsonpb.Unmarshal(body, &req)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling request: %w", err)
-	}
-
-	requestedID, _ := strconv.Atoi(req.UserId)
-	if requestedID <= 0 {
-		return nil, fmt.Errorf("incorrect follow user_id")
-	}
-
-	if viewer.UserID == 0 {
-		return nil, fmt.Errorf("need auth")
-	}
-
-	followingIds, err := store.GetFollowing(viewer.UserID)
-	if err != nil {
-		return nil, fmt.Errorf("failed getting following ids: %w", err)
-	}
-
-	for _, userID := range followingIds {
-		if requestedID == userID {
-			return &pb.RelationsFollowResponse{}, nil
-		}
-	}
-
-	err = store.Follow(viewer.UserID, requestedID)
-	if err != nil {
-		return nil, fmt.Errorf("failed saving follower: %w", err)
-	}
-
-	return &pb.RelationsFollowResponse{}, nil
-}
-
-func apiHandlerRelationsUnfollow(body io.Reader, viewer *Viewer) (proto.Message, error) {
-	req := pb.RelationsUnfollowRequest{}
-	err := jsonpb.Unmarshal(body, &req)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling request: %w", err)
-	}
-
-	requestedID, _ := strconv.Atoi(req.UserId)
-	if requestedID <= 0 {
-		return nil, fmt.Errorf("incorrect follow user_id")
-	}
-
-	if viewer.UserID == 0 {
-		return nil, fmt.Errorf("need auth")
-	}
-
-	err = store.Unfollow(viewer.UserID, requestedID)
-	if err != nil {
-		return nil, fmt.Errorf("failed saving to store: %w", err)
-	}
-
-	return &pb.RelationsUnfollowResponse{}, nil
-}
-
-func apiHandlerPostsAddComment(body io.Reader, viewer *Viewer) (proto.Message, error) {
-	req := pb.AddCommentRequest{}
-	err := jsonpb.Unmarshal(body, &req)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling request: %w", err)
-	}
-
-	if viewer.UserID == 0 {
-		return nil, fmt.Errorf("need auth")
-	}
-
-	if req.Text == "" {
-		return nil, fmt.Errorf("text is empty")
-	} else if len(req.Text) > 300 {
-		return nil, fmt.Errorf("text is too long")
-	}
-
-	postID, _ := strconv.Atoi(req.PostId)
-	posts, err := store.GetPosts([]int{postID})
-	if err != nil {
-		return nil, fmt.Errorf("error loading posts: %w", err)
-	} else if len(posts) == 0 {
-		return nil, fmt.Errorf("post not found")
-	}
-
-	comment := Comment{
-		PostID: posts[0].ID,
-		UserID: viewer.UserID,
-		Text:   req.Text,
-		Date:   int(time.Now().Unix()),
-	}
-
-	err = store.AddComment(&comment)
-	if err != nil {
-		return nil, fmt.Errorf("error saving comment: %w", err)
-	}
-
-	return &pb.AddCommentResponse{}, nil
 }
 
 func handleLogin(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
@@ -672,8 +455,8 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func apiWrapper(next apiHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func twirpWrapper(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Content-Type", "application/json")
@@ -695,22 +478,10 @@ func apiWrapper(next apiHandler) http.HandlerFunc {
 
 		viewer.RequestHost = r.Host
 
-		resp, err := next(r.Body, &viewer)
-		if err != nil {
-			log.Printf("Error response: %s", err)
+		ctx := WithViewerContext(r.Context(), &viewer)
 
-			w.WriteHeader(400)
-			_ = json.NewEncoder(w).Encode(struct {
-				Error string `json:"error"`
-			}{
-				Error: "oops, error",
-			})
-			return
-		}
-
-		m := jsonpb.Marshaler{}
-		_ = m.Marshal(w, resp)
-	}
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func main() {
@@ -728,14 +499,8 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// API
-	r.HandleFunc("/api/meme.Posts.Add", apiWrapper(apiHandlerPostsAdd))
-	r.HandleFunc("/api/meme.Posts.ToggleLike", apiWrapper(apiHandlerPostsToggleLike))
-	r.HandleFunc("/api/meme.Feed.GetHeader", apiWrapper(apiHandlerFeedGetHeader))
-	r.HandleFunc("/api/meme.Utils.ResolveRoute", apiWrapper(apiHandlerResolveRoute))
-	r.HandleFunc("/api/meme.Relations.Follow", apiWrapper(apiHandlerRelationsFollow))
-	r.HandleFunc("/api/meme.Relations.Unfollow", apiWrapper(apiHandlerRelationsUnfollow))
-	r.HandleFunc("/api/meme.Posts.AddComment", apiWrapper(apiHandlerPostsAddComment))
+	// Twirp API
+	SetupServer()
 
 	// Other
 	r.HandleFunc("/vk-callback", handleVKCallback)

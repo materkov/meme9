@@ -42,6 +42,9 @@ module.exports = {
             '/api': {
                 target: 'http://localhost:8000',
             },
+            '/twirp': {
+                target: 'http://localhost:8000',
+            },
             '/vk-callback': {
                 target: 'http://localhost:8000',
             },
