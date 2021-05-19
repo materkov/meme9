@@ -16,6 +16,9 @@ export class Store {
 
         this.refreshHeader();
         setInterval(this.refreshHeader, 60 * 1000);
+
+        // @ts-ignore
+        window.__store = this;
     }
 
     changed() {
