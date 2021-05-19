@@ -33,3 +33,6 @@ lint-all:
 	cd api && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.32.1
 	cd api && bin/golangci-lint --version
 	cd api && bin/golangci-lint run
+
+deploy:
+	cd ~/mypage && docker-compose --context=mypage up -d --build meme9-front meme9-web
