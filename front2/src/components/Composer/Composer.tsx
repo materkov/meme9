@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./Composer.module.css";
 import classNames from "classnames";
 import {Link} from "../Link/Link";
-import {API} from "../../Api";
+import {GlobalStoreContext} from "../../Context";
 
 interface State {
     text: string;
@@ -11,6 +11,8 @@ interface State {
 }
 
 export class Composer extends React.Component<{}, State> {
+    static contextType = GlobalStoreContext;
+
     state: State = {
         text: '',
     };
@@ -20,8 +22,8 @@ export class Composer extends React.Component<{}, State> {
     };
 
     onSubmit = () => {
-        API.Posts_Add({text: this.state.text})
-            .then(r => this.setState({addedPostUrl: r.postUrl}))
+        this.context.addPost(this.state.text)
+            .then((r: string) => this.setState({addedPostUrl: r}))
             .catch(() => console.error("Error saving post"))
 
         this.setState({text: ''});

@@ -1,4 +1,4 @@
-import {ToggleLikeRequest_Action} from "./api/posts";
+import {AddCommentRequest, AddCommentResponse, ToggleLikeRequest_Action} from "./api/posts";
 import {API} from "./Api";
 import * as schema from "./api/renderer";
 
@@ -82,5 +82,25 @@ export class Store {
                 this.error = true;
                 this.changed();
             })
+    }
+
+    addPost(text: string): Promise<string> {
+        return new Promise(((resolve, reject) => {
+            API.Posts_Add({text: text})
+                .then(r => resolve(r.postUrl))
+                .catch(reject)
+        }))
+    }
+
+    addComment(r: AddCommentRequest): Promise<AddCommentResponse> {
+        return new Promise(((resolve, reject) => {
+            API.Posts_AddComment(r)
+                .then(result => {
+                    this.changed();
+                    this.navigate('/posts/' + r.postId);
+                    resolve(result)
+                })
+                .catch(reject)
+        }))
     }
 }

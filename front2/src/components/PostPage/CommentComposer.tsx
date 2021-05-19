@@ -1,6 +1,5 @@
 import React from "react";
 import styles from "./CommentComposer.module.css";
-import {API} from "../../Api";
 import {CommentComposerRenderer} from "../../api/posts";
 import {GlobalStoreContext} from "../../Context";
 
@@ -15,7 +14,7 @@ export const CommentComposer = (props: { data: CommentComposerRenderer }) => {
             setIsSaving(true);
             setIsOk(false);
 
-            API.Posts_AddComment({
+            store.addComment({
                 text: text,
                 postId: props.data.postId,
             })
@@ -23,7 +22,6 @@ export const CommentComposer = (props: { data: CommentComposerRenderer }) => {
                     setIsOk(true);
                     setIsSaving(false);
                     setText('');
-                    store.navigate('/posts/' + props.data.postId);
                 })
                 .catch(() => {
                     setIsSaving(false);
