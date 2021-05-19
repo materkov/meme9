@@ -13,6 +13,9 @@ export class Store {
         this.data = schema.UniversalRenderer.fromJSON({});
         this.headerData = HeaderRenderer.fromJSON({});
         this.onChange = onChange;
+
+        this.refreshHeader();
+        setInterval(this.refreshHeader, 60 * 1000);
     }
 
     changed() {
@@ -109,7 +112,10 @@ export class Store {
 
     refreshHeader() {
         API.Feed_GetHeader({})
-            .then(r => this.headerData = HeaderRenderer.fromJSON(r.renderer))
+            .then(r => {
+                this.headerData = HeaderRenderer.fromJSON(r.renderer);
+                this.changed();
+            })
             .catch(() => console.error('Failed updating header'))
     }
 }

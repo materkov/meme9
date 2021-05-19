@@ -22,8 +22,8 @@ export class Router extends React.Component<{}, State> {
         this.state = {
             headerData: HeaderRenderer.fromJSON({}),
         }
-        this.globalStore = new Store((d: schema.UniversalRenderer) => {
-            this.setState({data: d});
+        this.globalStore = new Store((d: schema.UniversalRenderer, d2: HeaderRenderer) => {
+            this.setState({data: d, headerData: d2});
         });
     }
 
