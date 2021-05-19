@@ -15,7 +15,6 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	"github.com/materkov/meme9/web/pb"
 )
@@ -497,15 +496,16 @@ func main() {
 
 	store = Store{db: db}
 
-	r := mux.NewRouter()
-
 	// Twirp API
-	SetupServer()
+	http.Handle("/twirp/meme.Feed/", twirpWrapper(pb.NewFeedServer(&Feed{})))
+	http.Handle("/twirp/meme.Profile/", twirpWrapper(pb.NewProfileServer(&Profile{})))
+	http.Handle("/twirp/meme.Relations/", twirpWrapper(pb.NewRelationsServer(&Relations{})))
+	http.Handle("/twirp/meme.Posts/", twirpWrapper(pb.NewPostsServer(&Posts{})))
+	http.Handle("/twirp/meme.Utils/", twirpWrapper(pb.NewUtilsServer(&Utils{})))
 
 	// Other
-	r.HandleFunc("/vk-callback", handleVKCallback)
-	r.HandleFunc("/logout", handleLogout)
+	http.HandleFunc("/vk-callback", handleVKCallback)
+	http.HandleFunc("/logout", handleLogout)
 
-	http.Handle("/", r)
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }

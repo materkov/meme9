@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"regexp"
 	"strconv"
 	"time"
@@ -220,12 +219,4 @@ func (u *Utils) ResolveRoute(ctx context.Context, request *pb.ResolveRouteReques
 	} else {
 		return &pb.UniversalRenderer{}, nil
 	}
-}
-
-func SetupServer() {
-	http.Handle("/twirp/meme.Feed/", twirpWrapper(pb.NewFeedServer(&Feed{})))
-	http.Handle("/twirp/meme.Profile/", twirpWrapper(pb.NewProfileServer(&Profile{})))
-	http.Handle("/twirp/meme.Relations/", twirpWrapper(pb.NewRelationsServer(&Relations{})))
-	http.Handle("/twirp/meme.Posts/", twirpWrapper(pb.NewPostsServer(&Posts{})))
-	http.Handle("/twirp/meme.Utils/", twirpWrapper(pb.NewUtilsServer(&Utils{})))
 }
