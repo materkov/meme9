@@ -6,6 +6,7 @@ option go_package = "pb";
 service Posts {
   rpc Add(PostsAddRequest) returns (PostsAddResponse);
   rpc ToggleLike(ToggleLikeRequest) returns (ToggleLikeResponse);
+  rpc AddComment(AddCommentRequest) returns (AddCommentResponse);
 }
 
 message PostsAddRequest {
@@ -27,4 +28,17 @@ message ToggleLikeRequest {
 
 message ToggleLikeResponse {
   int32 likesCount = 1;
+}
+
+message AddCommentRequest {
+  string text = 1;
+  string postId = 2;
+}
+
+message AddCommentResponse {
+}
+
+message CommentComposerRenderer {
+  string postId = 1;
+  string placeholder = 2;
 }

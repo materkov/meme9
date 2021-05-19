@@ -56,3 +56,27 @@
     display: inline-block;
     vertical-align: middle;
 }
+
+.CommentContainer {
+    margin-left: 15px;
+    padding: 2px 0;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.CommentIcon {
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+}
+
+.CommentCounter {
+    margin-left: 5px;
+    font-weight: bold;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.TopCommentContainer {
+    margin: 5px 0;
+}

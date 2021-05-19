@@ -250,3 +250,97 @@ func (s *Store) Unfollow(userFrom, userTo int) error {
 
 	return nil
 }
+
+type Comment struct {
+	ID     int    `db:"id"`
+	PostID int    `db:"post_id"`
+	UserID int    `db:"user_id"`
+	Text   string `db:"text"`
+	Date   int    `db:"date"`
+}
+
+func (s *Store) AddComment(comment *Comment) error {
+	result, err := s.db.Exec(
+		"insert into comment(post_id, text, date, user_id) values (?, ?, ?, ?)",
+		comment.PostID, comment.Text, comment.Date, comment.UserID,
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting row: %w", err)
+	}
+
+	id, _ := result.LastInsertId()
+	comment.ID = int(id)
+
+	return nil
+}
+
+func (s *Store) GetCommentsCounts(postIds []int) (map[int]int, error) {
+	var rows []struct {
+		PostID int `db:"post_id"`
+		Count  int `db:"cnt"`
+	}
+	err := s.db.Select(
+		&rows,
+		fmt.Sprintf("select post_id, count(*) as cnt from comment where post_id in (%s) group by post_id", s.idsStr(postIds)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting comment rows: %w", err)
+	}
+
+	result := map[int]int{}
+	for _, row := range rows {
+		if row.Count > 0 {
+			result[row.PostID] = row.Count
+		}
+	}
+
+	return result, nil
+}
+
+func (s *Store) GetLatestComments(postIds []int) (map[int]int, error) {
+	var rows []struct {
+		PostID    int `db:"post_id"`
+		CommentID int `db:"comment_id"`
+	}
+	err := s.db.Select(
+		&rows,
+		fmt.Sprintf("select post_id, max(id) as comment_id from comment where post_id in (%s) group by post_id", s.idsStr(postIds)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting comment rows: %w", err)
+	}
+
+	result := map[int]int{}
+	for _, row := range rows {
+		result[row.PostID] = row.CommentID
+	}
+
+	return result, nil
+}
+
+func (s *Store) GetCommentsByPost(postID int) ([]int, error) {
+	var commentIds []int
+	err := s.db.Select(
+		&commentIds,
+		"select id from comment where post_id = ? order by id desc limit 100",
+		postID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting comment rows: %w", err)
+	}
+
+	return commentIds, err
+}
+
+func (s *Store) GetComments(ids []int) ([]*Comment, error) {
+	var comments []*Comment
+	err := s.db.Select(
+		&comments,
+		fmt.Sprintf("select * from comment where id in (%s)", s.idsStr(ids)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting comment rows: %w", err)
+	}
+
+	return comments, err
+}

@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -229,6 +230,46 @@ func apiHandlerRelationsUnfollow(body io.Reader, viewer *Viewer) (proto.Message,
 	return &pb.RelationsUnfollowResponse{}, nil
 }
 
+func apiHandlerPostsAddComment(body io.Reader, viewer *Viewer) (proto.Message, error) {
+	req := pb.AddCommentRequest{}
+	err := jsonpb.Unmarshal(body, &req)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling request: %w", err)
+	}
+
+	if viewer.UserID == 0 {
+		return nil, fmt.Errorf("need auth")
+	}
+
+	if req.Text == "" {
+		return nil, fmt.Errorf("text is empty")
+	} else if len(req.Text) > 300 {
+		return nil, fmt.Errorf("text is too long")
+	}
+
+	postID, _ := strconv.Atoi(req.PostId)
+	posts, err := store.GetPosts([]int{postID})
+	if err != nil {
+		return nil, fmt.Errorf("error loading posts: %w", err)
+	} else if len(posts) == 0 {
+		return nil, fmt.Errorf("post not found")
+	}
+
+	comment := Comment{
+		PostID: posts[0].ID,
+		UserID: viewer.UserID,
+		Text:   req.Text,
+		Date:   int(time.Now().Unix()),
+	}
+
+	err = store.AddComment(&comment)
+	if err != nil {
+		return nil, fmt.Errorf("error saving comment: %w", err)
+	}
+
+	return &pb.AddCommentResponse{}, nil
+}
+
 func handleLogin(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	requestScheme := viewer.RequestScheme
 	requestHost := viewer.RequestHost
@@ -303,10 +344,31 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		return nil, fmt.Errorf("post not found")
 	}
 
+	commentIds, err := store.GetCommentsByPost(postID)
+	if err != nil {
+		log.Printf("Error selecting comment ids: %s", err)
+	}
+
+	comments, err := store.GetComments(commentIds)
+	if err != nil {
+		log.Printf("Error selecting comments objects: %s", err)
+	}
+
+	// TODO
+	sort.Slice(comments, func(i, j int) bool {
+		return comments[i].ID > comments[j].ID
+	})
+
 	wrappedPosts := convertPosts(posts, viewer.UserID)
+	wrappedComments := convertComments(comments)
 
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_PostRenderer{PostRenderer: &pb.PostRenderer{
-		Post: wrappedPosts[0],
+		Post:     wrappedPosts[0],
+		Comments: wrappedComments,
+		Composer: &pb.CommentComposerRenderer{
+			PostId:      postIDStr,
+			Placeholder: "Напишите здесь свой комментарий...",
+		},
 	}}}, nil
 }
 
@@ -329,9 +391,6 @@ func convertPosts(posts []*Post, viewerID int) []*pb.Post {
 	}
 
 	likesCountCh := make(chan map[int]int)
-	isLikedCh := make(chan map[int]bool)
-	usersCh := make(chan []*User)
-
 	go func() {
 		result, err := store.GetLikesCount(postIds)
 		if err != nil {
@@ -340,6 +399,7 @@ func convertPosts(posts []*Post, viewerID int) []*pb.Post {
 		likesCountCh <- result
 	}()
 
+	isLikedCh := make(chan map[int]bool)
 	go func() {
 		result, err := store.GetIsLiked(postIds, viewerID)
 		if err != nil {
@@ -348,6 +408,7 @@ func convertPosts(posts []*Post, viewerID int) []*pb.Post {
 		isLikedCh <- result
 	}()
 
+	usersCh := make(chan []*User)
 	go func() {
 		result, err := store.GetUsers(userIds)
 		if err != nil {
@@ -356,9 +417,52 @@ func convertPosts(posts []*Post, viewerID int) []*pb.Post {
 		usersCh <- result
 	}()
 
+	commentCountsCh := make(chan map[int]int)
+	go func() {
+		result, err := store.GetCommentsCounts(postIds)
+		if err != nil {
+			log.Printf("Error selecting users: %s", err)
+		}
+		commentCountsCh <- result
+	}()
+
+	latestCommentsCh := make(chan map[int]*Comment)
+	go func() {
+		commentIdsMap, err := store.GetLatestComments(postIds)
+		if err != nil {
+			log.Printf("Error selecting comment ids: %s", err)
+		}
+
+		commentIds := make([]int, 0)
+		for _, commentID := range commentIdsMap {
+			commentIds = append(commentIds, commentID)
+		}
+
+		comments, err := store.GetComments(commentIds)
+		if err != nil {
+			log.Printf("[Error selecting comment objects: %s", err)
+		}
+
+		commentsMap := map[int]*Comment{}
+		for _, comment := range comments {
+			commentsMap[comment.ID] = comment
+		}
+
+		result := map[int]*Comment{}
+		for postID, commentID := range commentIdsMap {
+			if comment := commentsMap[commentID]; comment != nil {
+				result[postID] = comment
+			}
+		}
+
+		latestCommentsCh <- result
+	}()
+
 	likesCount := <-likesCountCh
 	isLiked := <-isLikedCh
 	users := <-usersCh
+	commentCounts := <-commentCountsCh
+	latestComments := <-latestCommentsCh
 
 	usersMap := map[int]*User{}
 	for _, user := range users {
@@ -367,17 +471,30 @@ func convertPosts(posts []*Post, viewerID int) []*pb.Post {
 
 	result := make([]*pb.Post, len(posts))
 	for i, post := range posts {
+		var wrappedLatestComment *pb.CommentRenderer
+		latestComment := latestComments[post.ID]
+		if latestComment != nil {
+			wrappedLatestComment = &pb.CommentRenderer{
+				Id:         strconv.Itoa(latestComment.ID),
+				Text:       latestComment.Text,
+				AuthorId:   strconv.Itoa(latestComment.UserID),
+				AuthorName: fmt.Sprintf("User #%d", latestComment.UserID), // TODO
+				AuthorUrl:  fmt.Sprintf("/users/%d", latestComment.UserID),
+			}
+		}
 
 		wrappedPost := pb.Post{
-			Id:          strconv.Itoa(post.ID),
-			Url:         fmt.Sprintf("/posts/%d", post.ID),
-			AuthorId:    strconv.Itoa(post.UserID),
-			AuthorUrl:   fmt.Sprintf("/users/%d", post.UserID),
-			Text:        post.Text,
-			DateDisplay: time.Unix(int64(post.Date), 0).Format("2 Jan 2006 15:04"),
-			IsLiked:     isLiked[post.ID],
-			LikesCount:  int32(likesCount[post.ID]),
-			CanLike:     viewerID != 0,
+			Id:            strconv.Itoa(post.ID),
+			Url:           fmt.Sprintf("/posts/%d", post.ID),
+			AuthorId:      strconv.Itoa(post.UserID),
+			AuthorUrl:     fmt.Sprintf("/users/%d", post.UserID),
+			Text:          post.Text,
+			DateDisplay:   time.Unix(int64(post.Date), 0).Format("2 Jan 2006 15:04"),
+			IsLiked:       isLiked[post.ID],
+			LikesCount:    int32(likesCount[post.ID]),
+			CanLike:       viewerID != 0,
+			CommentsCount: int32(commentCounts[post.ID]),
+			TopComment:    wrappedLatestComment,
 		}
 
 		user, ok := usersMap[post.UserID]
@@ -387,6 +504,21 @@ func convertPosts(posts []*Post, viewerID int) []*pb.Post {
 		}
 
 		result[i] = &wrappedPost
+	}
+
+	return result
+}
+
+func convertComments(comments []*Comment) []*pb.CommentRenderer {
+	result := make([]*pb.CommentRenderer, len(comments))
+	for i, comment := range comments {
+		result[i] = &pb.CommentRenderer{
+			Id:         strconv.Itoa(comment.ID),
+			Text:       comment.Text,
+			AuthorId:   strconv.Itoa(comment.UserID),
+			AuthorName: fmt.Sprintf("user %d", comment.UserID),
+			AuthorUrl:  fmt.Sprintf("/users/%d", comment.UserID),
+		}
 	}
 
 	return result
@@ -603,6 +735,7 @@ func main() {
 	r.HandleFunc("/api/meme.Utils.ResolveRoute", apiWrapper(apiHandlerResolveRoute))
 	r.HandleFunc("/api/meme.Relations.Follow", apiWrapper(apiHandlerRelationsFollow))
 	r.HandleFunc("/api/meme.Relations.Unfollow", apiWrapper(apiHandlerRelationsUnfollow))
+	r.HandleFunc("/api/meme.Posts.AddComment", apiWrapper(apiHandlerPostsAddComment))
 
 	// Other
 	r.HandleFunc("/vk-callback", handleVKCallback)

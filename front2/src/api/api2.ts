@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { util, configure, Reader, Writer } from "protobufjs/minimal";
 import * as Long from "long";
+import { CommentComposerRenderer } from "./posts";
 
 export const protobufPackage = "meme";
 
@@ -40,6 +41,17 @@ export interface Post {
   isLiked: boolean;
   likesCount: number;
   canLike: boolean;
+  /** Comments */
+  commentsCount: number;
+  topComment: CommentRenderer | undefined;
+}
+
+export interface CommentRenderer {
+  id: string;
+  text: string;
+  authorId: string;
+  authorName: string;
+  authorUrl: string;
 }
 
 export interface FeedRenderer {
@@ -48,10 +60,8 @@ export interface FeedRenderer {
 
 export interface PostRenderer {
   post: Post | undefined;
-}
-
-export interface PostPageResponse {
-  renderer: PostRenderer | undefined;
+  comments: CommentRenderer[];
+  composer: CommentComposerRenderer | undefined;
 }
 
 export interface FeedGetHeaderRequest {}
@@ -447,6 +457,7 @@ const basePost: object = {
   isLiked: false,
   likesCount: 0,
   canLike: false,
+  commentsCount: 0,
 };
 
 export const Post = {
@@ -486,6 +497,15 @@ export const Post = {
     }
     if (message.canLike === true) {
       writer.uint32(96).bool(message.canLike);
+    }
+    if (message.commentsCount !== 0) {
+      writer.uint32(104).int32(message.commentsCount);
+    }
+    if (message.topComment !== undefined) {
+      CommentRenderer.encode(
+        message.topComment,
+        writer.uint32(114).fork()
+      ).ldelim();
     }
     return writer;
   },
@@ -532,6 +552,12 @@ export const Post = {
           break;
         case 12:
           message.canLike = reader.bool();
+          break;
+        case 13:
+          message.commentsCount = reader.int32();
+          break;
+        case 14:
+          message.topComment = CommentRenderer.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -603,6 +629,16 @@ export const Post = {
     } else {
       message.canLike = false;
     }
+    if (object.commentsCount !== undefined && object.commentsCount !== null) {
+      message.commentsCount = Number(object.commentsCount);
+    } else {
+      message.commentsCount = 0;
+    }
+    if (object.topComment !== undefined && object.topComment !== null) {
+      message.topComment = CommentRenderer.fromJSON(object.topComment);
+    } else {
+      message.topComment = undefined;
+    }
     return message;
   },
 
@@ -622,6 +658,12 @@ export const Post = {
     message.isLiked !== undefined && (obj.isLiked = message.isLiked);
     message.likesCount !== undefined && (obj.likesCount = message.likesCount);
     message.canLike !== undefined && (obj.canLike = message.canLike);
+    message.commentsCount !== undefined &&
+      (obj.commentsCount = message.commentsCount);
+    message.topComment !== undefined &&
+      (obj.topComment = message.topComment
+        ? CommentRenderer.toJSON(message.topComment)
+        : undefined);
     return obj;
   },
 
@@ -686,6 +728,145 @@ export const Post = {
       message.canLike = object.canLike;
     } else {
       message.canLike = false;
+    }
+    if (object.commentsCount !== undefined && object.commentsCount !== null) {
+      message.commentsCount = object.commentsCount;
+    } else {
+      message.commentsCount = 0;
+    }
+    if (object.topComment !== undefined && object.topComment !== null) {
+      message.topComment = CommentRenderer.fromPartial(object.topComment);
+    } else {
+      message.topComment = undefined;
+    }
+    return message;
+  },
+};
+
+const baseCommentRenderer: object = {
+  id: "",
+  text: "",
+  authorId: "",
+  authorName: "",
+  authorUrl: "",
+};
+
+export const CommentRenderer = {
+  encode(message: CommentRenderer, writer: Writer = Writer.create()): Writer {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.text !== "") {
+      writer.uint32(18).string(message.text);
+    }
+    if (message.authorId !== "") {
+      writer.uint32(26).string(message.authorId);
+    }
+    if (message.authorName !== "") {
+      writer.uint32(34).string(message.authorName);
+    }
+    if (message.authorUrl !== "") {
+      writer.uint32(42).string(message.authorUrl);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): CommentRenderer {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseCommentRenderer } as CommentRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.id = reader.string();
+          break;
+        case 2:
+          message.text = reader.string();
+          break;
+        case 3:
+          message.authorId = reader.string();
+          break;
+        case 4:
+          message.authorName = reader.string();
+          break;
+        case 5:
+          message.authorUrl = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CommentRenderer {
+    const message = { ...baseCommentRenderer } as CommentRenderer;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = String(object.id);
+    } else {
+      message.id = "";
+    }
+    if (object.text !== undefined && object.text !== null) {
+      message.text = String(object.text);
+    } else {
+      message.text = "";
+    }
+    if (object.authorId !== undefined && object.authorId !== null) {
+      message.authorId = String(object.authorId);
+    } else {
+      message.authorId = "";
+    }
+    if (object.authorName !== undefined && object.authorName !== null) {
+      message.authorName = String(object.authorName);
+    } else {
+      message.authorName = "";
+    }
+    if (object.authorUrl !== undefined && object.authorUrl !== null) {
+      message.authorUrl = String(object.authorUrl);
+    } else {
+      message.authorUrl = "";
+    }
+    return message;
+  },
+
+  toJSON(message: CommentRenderer): unknown {
+    const obj: any = {};
+    message.id !== undefined && (obj.id = message.id);
+    message.text !== undefined && (obj.text = message.text);
+    message.authorId !== undefined && (obj.authorId = message.authorId);
+    message.authorName !== undefined && (obj.authorName = message.authorName);
+    message.authorUrl !== undefined && (obj.authorUrl = message.authorUrl);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<CommentRenderer>): CommentRenderer {
+    const message = { ...baseCommentRenderer } as CommentRenderer;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = "";
+    }
+    if (object.text !== undefined && object.text !== null) {
+      message.text = object.text;
+    } else {
+      message.text = "";
+    }
+    if (object.authorId !== undefined && object.authorId !== null) {
+      message.authorId = object.authorId;
+    } else {
+      message.authorId = "";
+    }
+    if (object.authorName !== undefined && object.authorName !== null) {
+      message.authorName = object.authorName;
+    } else {
+      message.authorName = "";
+    }
+    if (object.authorUrl !== undefined && object.authorUrl !== null) {
+      message.authorUrl = object.authorUrl;
+    } else {
+      message.authorUrl = "";
     }
     return message;
   },
@@ -760,6 +941,15 @@ export const PostRenderer = {
     if (message.post !== undefined) {
       Post.encode(message.post, writer.uint32(10).fork()).ldelim();
     }
+    for (const v of message.comments) {
+      CommentRenderer.encode(v!, writer.uint32(18).fork()).ldelim();
+    }
+    if (message.composer !== undefined) {
+      CommentComposerRenderer.encode(
+        message.composer,
+        writer.uint32(26).fork()
+      ).ldelim();
+    }
     return writer;
   },
 
@@ -767,11 +957,23 @@ export const PostRenderer = {
     const reader = input instanceof Reader ? input : new Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...basePostRenderer } as PostRenderer;
+    message.comments = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
           message.post = Post.decode(reader, reader.uint32());
+          break;
+        case 2:
+          message.comments.push(
+            CommentRenderer.decode(reader, reader.uint32())
+          );
+          break;
+        case 3:
+          message.composer = CommentComposerRenderer.decode(
+            reader,
+            reader.uint32()
+          );
           break;
         default:
           reader.skipType(tag & 7);
@@ -783,10 +985,21 @@ export const PostRenderer = {
 
   fromJSON(object: any): PostRenderer {
     const message = { ...basePostRenderer } as PostRenderer;
+    message.comments = [];
     if (object.post !== undefined && object.post !== null) {
       message.post = Post.fromJSON(object.post);
     } else {
       message.post = undefined;
+    }
+    if (object.comments !== undefined && object.comments !== null) {
+      for (const e of object.comments) {
+        message.comments.push(CommentRenderer.fromJSON(e));
+      }
+    }
+    if (object.composer !== undefined && object.composer !== null) {
+      message.composer = CommentComposerRenderer.fromJSON(object.composer);
+    } else {
+      message.composer = undefined;
     }
     return message;
   },
@@ -795,73 +1008,37 @@ export const PostRenderer = {
     const obj: any = {};
     message.post !== undefined &&
       (obj.post = message.post ? Post.toJSON(message.post) : undefined);
+    if (message.comments) {
+      obj.comments = message.comments.map((e) =>
+        e ? CommentRenderer.toJSON(e) : undefined
+      );
+    } else {
+      obj.comments = [];
+    }
+    message.composer !== undefined &&
+      (obj.composer = message.composer
+        ? CommentComposerRenderer.toJSON(message.composer)
+        : undefined);
     return obj;
   },
 
   fromPartial(object: DeepPartial<PostRenderer>): PostRenderer {
     const message = { ...basePostRenderer } as PostRenderer;
+    message.comments = [];
     if (object.post !== undefined && object.post !== null) {
       message.post = Post.fromPartial(object.post);
     } else {
       message.post = undefined;
     }
-    return message;
-  },
-};
-
-const basePostPageResponse: object = {};
-
-export const PostPageResponse = {
-  encode(message: PostPageResponse, writer: Writer = Writer.create()): Writer {
-    if (message.renderer !== undefined) {
-      PostRenderer.encode(message.renderer, writer.uint32(10).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(input: Reader | Uint8Array, length?: number): PostPageResponse {
-    const reader = input instanceof Reader ? input : new Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePostPageResponse } as PostPageResponse;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.renderer = PostRenderer.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
+    if (object.comments !== undefined && object.comments !== null) {
+      for (const e of object.comments) {
+        message.comments.push(CommentRenderer.fromPartial(e));
       }
     }
-    return message;
-  },
-
-  fromJSON(object: any): PostPageResponse {
-    const message = { ...basePostPageResponse } as PostPageResponse;
-    if (object.renderer !== undefined && object.renderer !== null) {
-      message.renderer = PostRenderer.fromJSON(object.renderer);
+    if (object.composer !== undefined && object.composer !== null) {
+      message.composer = CommentComposerRenderer.fromPartial(object.composer);
     } else {
-      message.renderer = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: PostPageResponse): unknown {
-    const obj: any = {};
-    message.renderer !== undefined &&
-      (obj.renderer = message.renderer
-        ? PostRenderer.toJSON(message.renderer)
-        : undefined);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<PostPageResponse>): PostPageResponse {
-    const message = { ...basePostPageResponse } as PostPageResponse;
-    if (object.renderer !== undefined && object.renderer !== null) {
-      message.renderer = PostRenderer.fromPartial(object.renderer);
-    } else {
-      message.renderer = undefined;
+      message.composer = undefined;
     }
     return message;
   },

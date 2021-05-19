@@ -3,6 +3,8 @@ syntax = "proto3";
 package meme;
 option go_package = "pb";
 
+import "posts.proto";
+
 service Feed {
   rpc Get(FeedGetRequest) returns (FeedGetResponse);
   rpc GetHeader(FeedGetHeaderRequest) returns (FeedGetHeaderResponse);
@@ -53,6 +55,19 @@ message Post {
   bool isLiked = 10;
   int32 likesCount = 11;
   bool canLike = 12;
+
+  // Comments
+  int32 commentsCount = 13;
+  CommentRenderer topComment = 14;
+}
+
+message CommentRenderer {
+  string id = 1;
+  string text = 2;
+
+  string authorId = 3;
+  string authorName = 4;
+  string authorUrl = 5;
 }
 
 message FeedRenderer {
@@ -61,10 +76,9 @@ message FeedRenderer {
 
 message PostRenderer {
   Post post = 1;
-}
 
-message PostPageResponse {
-  PostRenderer renderer = 1;
+  repeated CommentRenderer comments = 2;
+  CommentComposerRenderer composer = 3;
 }
 
 message FeedGetHeaderRequest {

@@ -5,6 +5,8 @@ import {Link} from "../../Link/Link";
 import {Heart} from "../../../icons/Heart";
 import {HeartRed} from "../../../icons/HeartRed";
 import {GlobalStoreContext} from "../../../Context";
+import {Comment as CommentIcon} from "../../../icons/Comment";
+import {Comment} from "../Comment/Comment";
 
 export interface Props {
     data: schema.Post;
@@ -52,6 +54,7 @@ export class Post extends React.Component<Props, State> {
                 </div>
 
                 <div className={styles.Text}>{data.text}</div>
+
                 <div className={styles.LikeContainer} onMouseEnter={this.onLikeHover} onMouseLeave={this.onLikeBlur}
                      onClick={this.onToggleLike}
                 >
@@ -62,10 +65,26 @@ export class Post extends React.Component<Props, State> {
                     <div className={styles.LikeCounter}>{data.likesCount}</div>
                 </div>
 
+                <Link href={data.url} className={styles.CommentContainer}>
+                    <CommentIcon className={styles.CommentIcon}/>
+                    <div className={styles.CommentCounter}>{data.commentsCount}</div>
+                </Link>
+
+                <TopComment post={data}/>
+
                 {data.imageUrl &&
                 <img className={styles.Image} alt="" src={data.imageUrl}/>
                 }
             </div>
         );
     }
+
+}
+
+const TopComment = (props: { post: schema.Post }) => {
+    if (!props.post.topComment) {
+        return null;
+    }
+
+    return <div className={styles.TopCommentContainer}><Comment data={props.post.topComment}/></div>
 }

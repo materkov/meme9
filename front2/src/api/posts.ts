@@ -70,6 +70,18 @@ export interface ToggleLikeResponse {
   likesCount: number;
 }
 
+export interface AddCommentRequest {
+  text: string;
+  postId: string;
+}
+
+export interface AddCommentResponse {}
+
+export interface CommentComposerRenderer {
+  postId: string;
+  placeholder: string;
+}
+
 const basePostsAddRequest: object = { text: "" };
 
 export const PostsAddRequest = {
@@ -314,9 +326,204 @@ export const ToggleLikeResponse = {
   },
 };
 
+const baseAddCommentRequest: object = { text: "", postId: "" };
+
+export const AddCommentRequest = {
+  encode(message: AddCommentRequest, writer: Writer = Writer.create()): Writer {
+    if (message.text !== "") {
+      writer.uint32(10).string(message.text);
+    }
+    if (message.postId !== "") {
+      writer.uint32(18).string(message.postId);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): AddCommentRequest {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseAddCommentRequest } as AddCommentRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.text = reader.string();
+          break;
+        case 2:
+          message.postId = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AddCommentRequest {
+    const message = { ...baseAddCommentRequest } as AddCommentRequest;
+    if (object.text !== undefined && object.text !== null) {
+      message.text = String(object.text);
+    } else {
+      message.text = "";
+    }
+    if (object.postId !== undefined && object.postId !== null) {
+      message.postId = String(object.postId);
+    } else {
+      message.postId = "";
+    }
+    return message;
+  },
+
+  toJSON(message: AddCommentRequest): unknown {
+    const obj: any = {};
+    message.text !== undefined && (obj.text = message.text);
+    message.postId !== undefined && (obj.postId = message.postId);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<AddCommentRequest>): AddCommentRequest {
+    const message = { ...baseAddCommentRequest } as AddCommentRequest;
+    if (object.text !== undefined && object.text !== null) {
+      message.text = object.text;
+    } else {
+      message.text = "";
+    }
+    if (object.postId !== undefined && object.postId !== null) {
+      message.postId = object.postId;
+    } else {
+      message.postId = "";
+    }
+    return message;
+  },
+};
+
+const baseAddCommentResponse: object = {};
+
+export const AddCommentResponse = {
+  encode(_: AddCommentResponse, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): AddCommentResponse {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseAddCommentResponse } as AddCommentResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): AddCommentResponse {
+    const message = { ...baseAddCommentResponse } as AddCommentResponse;
+    return message;
+  },
+
+  toJSON(_: AddCommentResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(_: DeepPartial<AddCommentResponse>): AddCommentResponse {
+    const message = { ...baseAddCommentResponse } as AddCommentResponse;
+    return message;
+  },
+};
+
+const baseCommentComposerRenderer: object = { postId: "", placeholder: "" };
+
+export const CommentComposerRenderer = {
+  encode(
+    message: CommentComposerRenderer,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.postId !== "") {
+      writer.uint32(10).string(message.postId);
+    }
+    if (message.placeholder !== "") {
+      writer.uint32(18).string(message.placeholder);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): CommentComposerRenderer {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseCommentComposerRenderer,
+    } as CommentComposerRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.postId = reader.string();
+          break;
+        case 2:
+          message.placeholder = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CommentComposerRenderer {
+    const message = {
+      ...baseCommentComposerRenderer,
+    } as CommentComposerRenderer;
+    if (object.postId !== undefined && object.postId !== null) {
+      message.postId = String(object.postId);
+    } else {
+      message.postId = "";
+    }
+    if (object.placeholder !== undefined && object.placeholder !== null) {
+      message.placeholder = String(object.placeholder);
+    } else {
+      message.placeholder = "";
+    }
+    return message;
+  },
+
+  toJSON(message: CommentComposerRenderer): unknown {
+    const obj: any = {};
+    message.postId !== undefined && (obj.postId = message.postId);
+    message.placeholder !== undefined &&
+      (obj.placeholder = message.placeholder);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<CommentComposerRenderer>
+  ): CommentComposerRenderer {
+    const message = {
+      ...baseCommentComposerRenderer,
+    } as CommentComposerRenderer;
+    if (object.postId !== undefined && object.postId !== null) {
+      message.postId = object.postId;
+    } else {
+      message.postId = "";
+    }
+    if (object.placeholder !== undefined && object.placeholder !== null) {
+      message.placeholder = object.placeholder;
+    } else {
+      message.placeholder = "";
+    }
+    return message;
+  },
+};
+
 export interface Posts {
   Add(request: PostsAddRequest): Promise<PostsAddResponse>;
   ToggleLike(request: ToggleLikeRequest): Promise<ToggleLikeResponse>;
+  AddComment(request: AddCommentRequest): Promise<AddCommentResponse>;
 }
 
 export class PostsClientImpl implements Posts {
@@ -334,6 +541,12 @@ export class PostsClientImpl implements Posts {
     const data = ToggleLikeRequest.encode(request).finish();
     const promise = this.rpc.request("meme.Posts", "ToggleLike", data);
     return promise.then((data) => ToggleLikeResponse.decode(new Reader(data)));
+  }
+
+  AddComment(request: AddCommentRequest): Promise<AddCommentResponse> {
+    const data = AddCommentRequest.encode(request).finish();
+    const promise = this.rpc.request("meme.Posts", "AddComment", data);
+    return promise.then((data) => AddCommentResponse.decode(new Reader(data)));
   }
 }
 

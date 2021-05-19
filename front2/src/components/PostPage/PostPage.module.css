@@ -1,0 +1,9 @@
+.CommentsList {
+    background: #FFFFFF;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.CommentsItem {
+    padding: 0 0 5px 0;
+}

@@ -1,5 +1,5 @@
 import * as schema from "./api/posts";
-import {PostsAddRequest, PostsAddResponse} from "./api/posts";
+import {AddCommentRequest, AddCommentResponse, PostsAddRequest, PostsAddResponse} from "./api/posts";
 import {
     FeedGetHeaderRequest,
     FeedGetHeaderResponse,
@@ -63,6 +63,14 @@ export class API {
         return new Promise(((resolve, reject) => {
             api("meme.Posts.Add", PostsAddRequest.toJSON(req))
                 .then(r => resolve(PostsAddResponse.fromJSON(r)))
+                .catch(e => reject(e));
+        }))
+    }
+
+    static Posts_AddComment = (req: AddCommentRequest): Promise<AddCommentResponse> => {
+        return new Promise(((resolve, reject) => {
+            api("meme.Posts.AddComment", AddCommentRequest.toJSON(req))
+                .then(r => resolve(AddCommentResponse.fromJSON(r)))
                 .catch(e => reject(e));
         }))
     }
