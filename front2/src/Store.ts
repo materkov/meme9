@@ -1,19 +1,22 @@
 import {AddCommentRequest, AddCommentResponse, ToggleLikeRequest_Action} from "./api/posts";
 import {API} from "./Api";
 import * as schema from "./api/renderer";
+import {HeaderRenderer} from "./api/api2";
 
 export class Store {
     data: schema.UniversalRenderer;
+    headerData: HeaderRenderer;
     error?: any;
-    onChange: (data: schema.UniversalRenderer) => void;
+    onChange: (data: schema.UniversalRenderer, data2: HeaderRenderer) => void;
 
-    constructor(onChange: (data: schema.UniversalRenderer) => void) {
+    constructor(onChange: (data: schema.UniversalRenderer, data2: HeaderRenderer) => void) {
         this.data = schema.UniversalRenderer.fromJSON({});
+        this.headerData = HeaderRenderer.fromJSON({});
         this.onChange = onChange;
     }
 
     changed() {
-        this.onChange(this.data);
+        this.onChange(this.data, this.headerData);
     }
 
     togglePostLike(postId: string) {
@@ -102,5 +105,11 @@ export class Store {
                 })
                 .catch(reject)
         }))
+    }
+
+    refreshHeader() {
+        API.Feed_GetHeader({})
+            .then(r => this.headerData = HeaderRenderer.fromJSON(r.renderer))
+            .catch(() => console.error('Failed updating header'))
     }
 }

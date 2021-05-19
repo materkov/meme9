@@ -2,30 +2,18 @@ import React from "react";
 import styles from "./Header.module.css";
 import {Link} from "../Link/Link";
 import {HeaderRenderer} from "../../api/api2";
-import {API} from "../../Api";
+import {GlobalStoreContext} from "../../Context";
 
-interface State {
-    data: HeaderRenderer;
-}
-
-export class Header extends React.Component {
-    state: State = {
-        data: HeaderRenderer.fromPartial({}),
-    };
+export class Header extends React.Component<{ data: HeaderRenderer }> {
+    static contextType = GlobalStoreContext;
 
     componentDidMount() {
-        this.refreshData();
-        setInterval(this.refreshData, 60 * 1000);
-    }
-
-    refreshData = () => {
-        API.Feed_GetHeader({})
-            .then(r => this.setState({data: r.renderer}))
-            .catch(() => console.error('Failed updating header'))
+        this.context.refreshHeader();
+        setInterval(this.context.refreshHeader, 60 * 1000);
     }
 
     render() {
-        const data = this.state.data;
+        const data = this.props.data;
 
         return (
             <div className={styles.Header}>
