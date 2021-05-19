@@ -1,5 +1,5 @@
 import React from "react";
-import {GlobalContext} from "../../Context";
+import {GlobalStoreContext} from "../../Context";
 
 export interface Props {
     href: string;
@@ -7,11 +7,11 @@ export interface Props {
 }
 
 export class Link extends React.PureComponent<Props> {
-    static contextType = GlobalContext;
+    static contextType = GlobalStoreContext;
 
     onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        this.context(this.props.href);
+        this.context.navigate(this.props.href);
     };
 
     render() {

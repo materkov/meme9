@@ -2,13 +2,13 @@ import React from "react";
 import styles from "./CommentComposer.module.css";
 import {API} from "../../Api";
 import {CommentComposerRenderer} from "../../api/posts";
-import {GlobalContext} from "../../Context";
+import {GlobalStoreContext} from "../../Context";
 
 export const CommentComposer = (props: { data: CommentComposerRenderer }) => {
     const [text, setText] = React.useState('');
     const [isOk, setIsOk] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
-    const navigate = React.useContext(GlobalContext);
+    const store = React.useContext(GlobalStoreContext);
 
     const onKeydown = (e: React.KeyboardEvent) => {
         if (e.code == "Enter" && e.metaKey) {
@@ -23,7 +23,7 @@ export const CommentComposer = (props: { data: CommentComposerRenderer }) => {
                     setIsOk(true);
                     setIsSaving(false);
                     setText('');
-                    navigate('/posts/' + props.data.postId);
+                    store.navigate('/posts/' + props.data.postId);
                 })
                 .catch(() => {
                     setIsSaving(false);

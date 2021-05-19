@@ -2,18 +2,19 @@ import React from "react";
 import {Link} from "../Link/Link";
 import * as schema from "../../api/api2";
 import {Post} from "../Feed/Post/Post";
-import {GlobalStore, GlobalStoreContext} from "../../Context";
+import {GlobalStoreContext} from "../../Context";
+import {Store} from "../../Store";
 
 export function Profile(props: { data: schema.ProfileRenderer }) {
     const data = props.data;
-    const theme = React.useContext(GlobalStoreContext) as GlobalStore;
+    const store = React.useContext(GlobalStoreContext) as Store;
 
     const onSubscribe = () => {
-        theme.followUser(data.id);
+        store.followUser(data.id);
     };
 
     const onUnsubscribe = () => {
-        theme.unfollowUser(data.id);
+        store.unfollowUser(data.id);
     };
 
     return <div>
