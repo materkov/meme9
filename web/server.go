@@ -211,18 +211,27 @@ func (p *Posts) AddComment(ctx context.Context, req *pb.AddCommentRequest) (*pb.
 type Utils struct {
 }
 
+type handler func(_ string, viewer *Viewer) (*pb.UniversalRenderer, error)
+
 func (u *Utils) ResolveRoute(ctx context.Context, request *pb.ResolveRouteRequest) (*pb.UniversalRenderer, error) {
 	viewer := GetViewerFromContext(ctx)
 
-	if request.Url == "/" {
-		return handleIndex(request.Url, viewer)
-	} else if request.Url == "/login" {
-		return handleLogin(request.Url, viewer)
-	} else if m, _ := regexp.MatchString(`^/users/\d+$`, request.Url); m {
-		return handleProfile(request.Url, viewer)
-	} else if m, _ := regexp.MatchString(`^/posts/\d+$`, request.Url); m {
-		return handlePostPage(request.Url, viewer)
-	} else {
-		return &pb.UniversalRenderer{}, nil
+	routes := map[string]handler{
+		`^/$`:      handleIndex,
+		`^/login$`: handleLogin,
+
+		`^/users/(\d+)$`: handleProfile,
+
+		`^/posts/(\d+)$`: handlePostPage,
 	}
+
+	for route, handler := range routes {
+		matched, _ := regexp.MatchString(route, request.Url)
+		if matched {
+			return handler(request.Url, viewer)
+		}
+	}
+
+	return &pb.UniversalRenderer{}, nil
+
 }

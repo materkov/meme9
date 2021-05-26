@@ -349,7 +349,7 @@ func (s *Store) GetComments(ids []int) ([]*Comment, error) {
 }
 
 func (s *Store) GenerateNextID(objectType int) (int, error) {
-	result, err := s.db.Exec("insert into objects(?) values (1)", objectType)
+	result, err := s.db.Exec("insert into objects(object_type) values (?)", objectType)
 	if err != nil {
 		return 0, fmt.Errorf("error inserting object row: %s", err)
 	}

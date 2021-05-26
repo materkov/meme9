@@ -97,7 +97,7 @@ create table user_profile
 
 create table objects
 (
-    ud int not null
+    id int not null auto_increment
         primary key,
     object_type smallint not null
 );
