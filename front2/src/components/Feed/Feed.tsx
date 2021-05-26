@@ -6,7 +6,9 @@ import styles from "./Feed.module.css";
 
 export function Feed(props: { data: schema.FeedRenderer }) {
     return <>
+        {!props.data.placeholderText &&
         <Composer/>
+        }
 
         {props.data.placeholderText &&
         <div className={styles.PlaceholderText}>{props.data.placeholderText}</div>
