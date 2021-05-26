@@ -22,7 +22,9 @@ import (
 func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	if viewer.UserID == 0 {
 		return &pb.UniversalRenderer{
-			Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{}},
+			Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
+				PlaceholderText: "Залогиньтесь, чтобы увидеть ленту.",
+			}},
 		}, nil
 	}
 

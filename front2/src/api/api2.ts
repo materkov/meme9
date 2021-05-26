@@ -56,6 +56,7 @@ export interface CommentRenderer {
 
 export interface FeedRenderer {
   posts: Post[];
+  placeholderText: string;
 }
 
 export interface PostRenderer {
@@ -872,12 +873,15 @@ export const CommentRenderer = {
   },
 };
 
-const baseFeedRenderer: object = {};
+const baseFeedRenderer: object = { placeholderText: "" };
 
 export const FeedRenderer = {
   encode(message: FeedRenderer, writer: Writer = Writer.create()): Writer {
     for (const v of message.posts) {
       Post.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.placeholderText !== "") {
+      writer.uint32(18).string(message.placeholderText);
     }
     return writer;
   },
@@ -892,6 +896,9 @@ export const FeedRenderer = {
       switch (tag >>> 3) {
         case 1:
           message.posts.push(Post.decode(reader, reader.uint32()));
+          break;
+        case 2:
+          message.placeholderText = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -909,6 +916,14 @@ export const FeedRenderer = {
         message.posts.push(Post.fromJSON(e));
       }
     }
+    if (
+      object.placeholderText !== undefined &&
+      object.placeholderText !== null
+    ) {
+      message.placeholderText = String(object.placeholderText);
+    } else {
+      message.placeholderText = "";
+    }
     return message;
   },
 
@@ -919,6 +934,8 @@ export const FeedRenderer = {
     } else {
       obj.posts = [];
     }
+    message.placeholderText !== undefined &&
+      (obj.placeholderText = message.placeholderText);
     return obj;
   },
 
@@ -929,6 +946,14 @@ export const FeedRenderer = {
       for (const e of object.posts) {
         message.posts.push(Post.fromPartial(e));
       }
+    }
+    if (
+      object.placeholderText !== undefined &&
+      object.placeholderText !== null
+    ) {
+      message.placeholderText = object.placeholderText;
+    } else {
+      message.placeholderText = "";
     }
     return message;
   },

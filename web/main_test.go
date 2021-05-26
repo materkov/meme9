@@ -46,4 +46,5 @@ func TestHandleIndex_NotAuthorized(t *testing.T) {
 	resp, err := handleIndex("", &Viewer{})
 	require.NoError(t, err)
 	require.Len(t, resp.GetFeedRenderer().Posts, 0)
+	require.NotEmpty(t, resp.GetFeedRenderer().PlaceholderText)
 }

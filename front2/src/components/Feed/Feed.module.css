@@ -1,3 +1,8 @@
 .Loader {
     margin: 0 auto;
 }
+
+.PlaceholderText {
+    padding: 10px;
+    text-align: center;
+}
