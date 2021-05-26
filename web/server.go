@@ -111,13 +111,19 @@ type Posts struct {
 func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.PostsAddResponse, error) {
 	viewer := GetViewerFromContext(ctx)
 
+	postID, err := store.GenerateNextID(ObjectTypePost)
+	if err != nil {
+		return nil, fmt.Errorf("error generating id: %w", err)
+	}
+
 	post := Post{
+		ID:     postID,
 		UserID: viewer.UserID,
 		Date:   int(time.Now().Unix()),
 		Text:   request.Text,
 	}
 
-	err := store.AddPost(&post)
+	err = store.AddPost(&post)
 	if err != nil {
 		return nil, fmt.Errorf("error saving post: %w", err)
 	}

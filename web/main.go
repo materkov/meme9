@@ -26,14 +26,14 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		}, nil
 	}
 
-	following, err := store.GetFollowing(viewer.UserID)
+	followingIds, err := store.GetFollowing(viewer.UserID)
 	if err != nil {
-		return nil, fmt.Errorf("error getting following ids: %w", err)
+		return nil, fmt.Errorf("error getting following user ids: %w", err)
 	}
 
-	following = append(following, viewer.UserID)
+	followingIds = append(followingIds, viewer.UserID)
 
-	postIds, err := store.GetPostsByUsers(following)
+	postIds, err := store.GetPostsByUsers(followingIds)
 	if err != nil {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
@@ -43,7 +43,20 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
 
-	wrappedPosts := convertPosts(posts, viewer.UserID)
+	postsMap := map[int]*Post{}
+	for _, post := range posts {
+		postsMap[post.ID] = post
+	}
+
+	var postsOrdered []*Post
+	for _, postId := range postIds {
+		post := postsMap[postId]
+		if post != nil {
+			postsOrdered = append(postsOrdered, post)
+		}
+	}
+
+	wrappedPosts := convertPosts(postsOrdered, viewer.UserID)
 
 	return &pb.UniversalRenderer{
 		Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
@@ -155,6 +168,10 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 }
 
 func convertPosts(posts []*Post, viewerID int) []*pb.Post {
+	if len(posts) == 0 {
+		return nil
+	}
+
 	userIdsMap := map[int]bool{}
 	for _, post := range posts {
 		userIdsMap[post.UserID] = true

@@ -9,6 +9,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+const (
+	ObjectTypePost  = 1
+	ObjectTypeUser  = 2
+	ObjectTypeToken = 3
+)
+
 type Post struct {
 	ID      int    `db:"id"`
 	UserID  int    `db:"user_id"`
@@ -80,16 +86,13 @@ func (s *Store) GetPosts(ids []int) ([]*Post, error) {
 }
 
 func (s *Store) AddPost(post *Post) error {
-	result, err := s.db.Exec(
-		"insert into post (user_id, date, text) values (?, ?, ?)",
-		post.UserID, post.Date, post.Text,
+	_, err := s.db.Exec(
+		"insert into post (id, user_id, date, text) values (?, ?, ?, ?)",
+		post.ID, post.UserID, post.Date, post.Text,
 	)
 	if err != nil {
 		return fmt.Errorf("error inserting post row: %w", err)
 	}
-
-	postID, _ := result.LastInsertId()
-	post.ID = int(postID)
 
 	return nil
 }
@@ -343,4 +346,14 @@ func (s *Store) GetComments(ids []int) ([]*Comment, error) {
 	}
 
 	return comments, err
+}
+
+func (s *Store) GenerateNextID(objectType int) (int, error) {
+	result, err := s.db.Exec("insert into objects(?) values (1)", objectType)
+	if err != nil {
+		return 0, fmt.Errorf("error inserting object row: %s", err)
+	}
+
+	id, _ := result.LastInsertId()
+	return int(id), err
 }

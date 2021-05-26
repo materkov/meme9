@@ -29,3 +29,6 @@ jobs:
 
       - name: build
         run: cd web && go build
+
+      - name: test
+        run: cd web && go test -v ./...
