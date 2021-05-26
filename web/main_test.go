@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"testing"
 
 	"github.com/jmoiron/sqlx"
@@ -15,10 +14,7 @@ func setupDB(t *testing.T) {
 
 	db.SetMaxOpenConns(1)
 
-	file, err := ioutil.ReadFile("/Users/m.materkov/projects/meme9/migrations/01_init.sql")
-	require.NoError(t, err)
-
-	_, err = db.Exec(string(file))
+	_, err = db.Exec(migrations)
 	require.NoError(t, err)
 
 	// TODO replace this global
