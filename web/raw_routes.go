@@ -9,6 +9,9 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/golang/protobuf/jsonpb"
+	"github.com/materkov/meme9/web/pb"
 )
 
 func handleVKCallback(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +132,14 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func handleDefault(w http.ResponseWriter, _ *http.Request) {
+func handleDefault(w http.ResponseWriter, r *http.Request) {
+	respRoute, _ := utilsSrv.ResolveRoute(r.Context(), &pb.ResolveRouteRequest{Url: r.URL.Path})
+	resp, _ := feedSrv.GetHeader(r.Context(), nil)
+
+	m := jsonpb.Marshaler{}
+	initialDataHeader, _ := m.MarshalToString(resp)
+	initialData, _ := m.MarshalToString(respRoute)
+
 	_, _ = fmt.Fprintf(w, `
 <!DOCTYPE html>
 <html lang="ru">
@@ -138,10 +148,11 @@ func handleDefault(w http.ResponseWriter, _ *http.Request) {
     <title>meme</title>
 </head>
 <body>
-<div id="root"></div>
 <script>
-    window.modules = {};
+    window.initialDataHeader = `+initialDataHeader+`;
+    window.initialData = `+initialData+`;
 </script>
+<div id="root"></div>
 <script src="/static/App.js"></script>
 </body>
 </html>

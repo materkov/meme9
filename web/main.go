@@ -212,9 +212,12 @@ func twirpWrapper(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Content-Type", "application/json")
 
-		viewer := Viewer{}
+		viewer := Viewer{
+			RequestHost:   r.Host,
+			RequestScheme: "http",
+		}
+
 		accessCookie, err := r.Cookie("access_token")
 		if err == nil && accessCookie.Value != "" {
 			token, err := store.GetToken(accessCookie.Value)
@@ -224,12 +227,9 @@ func twirpWrapper(next http.Handler) http.Handler {
 			}
 		}
 
-		viewer.RequestScheme = "http"
-		if r.Header.Get("x-forwarded-proto") != "" {
-			viewer.RequestScheme = r.Header.Get("x-forwarded-proto")
+		if r.Header.Get("x-forwarded-proto") == "https" {
+			viewer.RequestScheme = "https"
 		}
-
-		viewer.RequestHost = r.Host
 
 		ctx := WithViewerContext(r.Context(), &viewer)
 
@@ -237,23 +237,9 @@ func twirpWrapper(next http.Handler) http.Handler {
 	})
 }
 
-func rawHttpWrapper(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		viewer := Viewer{
-			RequestScheme: "http",
-			RequestHost:   r.Host,
-		}
-
-		protoHeader := r.Header.Get("x-forwarded-proto")
-		if protoHeader != "" {
-			viewer.RequestScheme = protoHeader
-		}
-
-		ctx := WithViewerContext(r.Context(), &viewer)
-
-		next.ServeHTTP(w, r.WithContext(ctx))
-	}
-}
+// TODO
+var feedSrv *Feed
+var utilsSrv *Utils
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
@@ -266,17 +252,20 @@ func main() {
 
 	store = Store{db: db}
 
+	feedSrv = &Feed{}
+	utilsSrv = &Utils{}
+
 	// Twirp API
-	http.Handle("/twirp/meme.Feed/", twirpWrapper(pb.NewFeedServer(&Feed{})))
+	http.Handle("/twirp/meme.Feed/", twirpWrapper(pb.NewFeedServer(feedSrv)))
 	http.Handle("/twirp/meme.Profile/", twirpWrapper(pb.NewProfileServer(&Profile{})))
 	http.Handle("/twirp/meme.Relations/", twirpWrapper(pb.NewRelationsServer(&Relations{})))
 	http.Handle("/twirp/meme.Posts/", twirpWrapper(pb.NewPostsServer(&Posts{})))
-	http.Handle("/twirp/meme.Utils/", twirpWrapper(pb.NewUtilsServer(&Utils{})))
+	http.Handle("/twirp/meme.Utils/", twirpWrapper(pb.NewUtilsServer(utilsSrv)))
 
 	// Other
-	http.HandleFunc("/vk-callback", rawHttpWrapper(handleVKCallback))
-	http.HandleFunc("/logout", rawHttpWrapper(handleLogout))
-	http.HandleFunc("/", handleDefault)
+	http.Handle("/vk-callback", twirpWrapper(http.HandlerFunc(handleVKCallback)))
+	http.Handle("/logout", twirpWrapper(http.HandlerFunc(handleLogout)))
+	http.Handle("/", twirpWrapper(http.HandlerFunc(handleDefault)))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }

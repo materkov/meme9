@@ -1,5 +1,9 @@
 declare module "*.module.css";
 
 interface Window {
-    //modules: { [name: string]: any };
+    // TODO replace any
+    initialDataHeader: any;
+    initialData: any;
+
+    __store: any;
 }

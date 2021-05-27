@@ -18,7 +18,7 @@ func (f *Feed) Get(ctx context.Context, request *pb.FeedGetRequest) (*pb.FeedGet
 	panic("implement me")
 }
 
-func (f *Feed) GetHeader(ctx context.Context, request *pb.FeedGetHeaderRequest) (*pb.FeedGetHeaderResponse, error) {
+func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.FeedGetHeaderResponse, error) {
 	viewer := GetViewerFromContext(ctx)
 
 	headerRenderer := pb.HeaderRenderer{
