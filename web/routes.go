@@ -154,12 +154,22 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	wrappedPosts := convertPosts(posts, viewer.UserID)
 	wrappedComments := convertComments(comments)
 
-	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_PostRenderer{PostRenderer: &pb.PostRenderer{
-		Post:     wrappedPosts[0],
-		Comments: wrappedComments,
-		Composer: &pb.CommentComposerRenderer{
+	composerPlaceholder := ""
+	var composer *pb.CommentComposerRenderer
+
+	if viewer.UserID != 0 {
+		composer = &pb.CommentComposerRenderer{
 			PostId:      postIDStr,
 			Placeholder: "Напишите здесь свой комментарий...",
-		},
+		}
+	} else {
+		composerPlaceholder = "Авторизуйтесь, чтрбы оставить комментарий."
+	}
+
+	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_PostRenderer{PostRenderer: &pb.PostRenderer{
+		Post:                wrappedPosts[0],
+		Comments:            wrappedComments,
+		Composer:            composer,
+		ComposerPlaceholder: composerPlaceholder,
 	}}}, nil
 }

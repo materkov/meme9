@@ -7,3 +7,11 @@
 .CommentsItem {
     padding: 0 0 5px 0;
 }
+
+.ComposerPlaceholder {
+    display: block;
+    padding: 15px 0;
+    border-radius: 3px;
+    background: var(--white);
+    text-align: center;
+}

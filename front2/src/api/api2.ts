@@ -63,6 +63,7 @@ export interface PostRenderer {
   post: Post | undefined;
   comments: CommentRenderer[];
   composer: CommentComposerRenderer | undefined;
+  composerPlaceholder: string;
 }
 
 export interface FeedGetHeaderRequest {}
@@ -77,6 +78,7 @@ export interface HeaderRenderer {
   userAvatar: string;
   isAuthorized: boolean;
   logoutUrl: string;
+  loginUrl: string;
 }
 
 /** Renderers renderer = 1; */
@@ -959,7 +961,7 @@ export const FeedRenderer = {
   },
 };
 
-const basePostRenderer: object = {};
+const basePostRenderer: object = { composerPlaceholder: "" };
 
 export const PostRenderer = {
   encode(message: PostRenderer, writer: Writer = Writer.create()): Writer {
@@ -974,6 +976,9 @@ export const PostRenderer = {
         message.composer,
         writer.uint32(26).fork()
       ).ldelim();
+    }
+    if (message.composerPlaceholder !== "") {
+      writer.uint32(34).string(message.composerPlaceholder);
     }
     return writer;
   },
@@ -999,6 +1004,9 @@ export const PostRenderer = {
             reader,
             reader.uint32()
           );
+          break;
+        case 4:
+          message.composerPlaceholder = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1026,6 +1034,14 @@ export const PostRenderer = {
     } else {
       message.composer = undefined;
     }
+    if (
+      object.composerPlaceholder !== undefined &&
+      object.composerPlaceholder !== null
+    ) {
+      message.composerPlaceholder = String(object.composerPlaceholder);
+    } else {
+      message.composerPlaceholder = "";
+    }
     return message;
   },
 
@@ -1044,6 +1060,8 @@ export const PostRenderer = {
       (obj.composer = message.composer
         ? CommentComposerRenderer.toJSON(message.composer)
         : undefined);
+    message.composerPlaceholder !== undefined &&
+      (obj.composerPlaceholder = message.composerPlaceholder);
     return obj;
   },
 
@@ -1064,6 +1082,14 @@ export const PostRenderer = {
       message.composer = CommentComposerRenderer.fromPartial(object.composer);
     } else {
       message.composer = undefined;
+    }
+    if (
+      object.composerPlaceholder !== undefined &&
+      object.composerPlaceholder !== null
+    ) {
+      message.composerPlaceholder = object.composerPlaceholder;
+    } else {
+      message.composerPlaceholder = "";
     }
     return message;
   },
@@ -1179,6 +1205,7 @@ const baseHeaderRenderer: object = {
   userAvatar: "",
   isAuthorized: false,
   logoutUrl: "",
+  loginUrl: "",
 };
 
 export const HeaderRenderer = {
@@ -1197,6 +1224,9 @@ export const HeaderRenderer = {
     }
     if (message.logoutUrl !== "") {
       writer.uint32(42).string(message.logoutUrl);
+    }
+    if (message.loginUrl !== "") {
+      writer.uint32(50).string(message.loginUrl);
     }
     return writer;
   },
@@ -1222,6 +1252,9 @@ export const HeaderRenderer = {
           break;
         case 5:
           message.logoutUrl = reader.string();
+          break;
+        case 6:
+          message.loginUrl = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1258,6 +1291,11 @@ export const HeaderRenderer = {
     } else {
       message.logoutUrl = "";
     }
+    if (object.loginUrl !== undefined && object.loginUrl !== null) {
+      message.loginUrl = String(object.loginUrl);
+    } else {
+      message.loginUrl = "";
+    }
     return message;
   },
 
@@ -1269,6 +1307,7 @@ export const HeaderRenderer = {
     message.isAuthorized !== undefined &&
       (obj.isAuthorized = message.isAuthorized);
     message.logoutUrl !== undefined && (obj.logoutUrl = message.logoutUrl);
+    message.loginUrl !== undefined && (obj.loginUrl = message.loginUrl);
     return obj;
   },
 
@@ -1298,6 +1337,11 @@ export const HeaderRenderer = {
       message.logoutUrl = object.logoutUrl;
     } else {
       message.logoutUrl = "";
+    }
+    if (object.loginUrl !== undefined && object.loginUrl !== null) {
+      message.loginUrl = object.loginUrl;
+    } else {
+      message.loginUrl = "";
     }
     return message;
   },

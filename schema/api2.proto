@@ -80,6 +80,7 @@ message PostRenderer {
 
   repeated CommentRenderer comments = 2;
   CommentComposerRenderer composer = 3;
+  string composerPlaceholder = 4;
 }
 
 message FeedGetHeaderRequest {
@@ -95,6 +96,7 @@ message HeaderRenderer {
   string userAvatar = 3;
   bool isAuthorized = 4;
   string logoutUrl = 5;
+  string loginUrl = 6;
 }
 
 message ResolveRouteResponse {

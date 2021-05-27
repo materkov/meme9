@@ -23,6 +23,7 @@ func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.F
 
 	headerRenderer := pb.HeaderRenderer{
 		MainUrl:   "/",
+		LoginUrl:  "/login",
 		LogoutUrl: "/logout",
 	}
 
