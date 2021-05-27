@@ -1,4 +1,5 @@
 import React from "react";
 import {Store} from "./Store";
 
-export const GlobalStoreContext = React.createContext<Store>(new Store(() => {}));
+// @ts-ignore
+export const GlobalStoreContext = React.createContext<Store>(null);
