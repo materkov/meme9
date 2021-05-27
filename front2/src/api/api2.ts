@@ -79,6 +79,7 @@ export interface HeaderRenderer {
   isAuthorized: boolean;
   logoutUrl: string;
   loginUrl: string;
+  csrfToken: string;
 }
 
 /** Renderers renderer = 1; */
@@ -1206,6 +1207,7 @@ const baseHeaderRenderer: object = {
   isAuthorized: false,
   logoutUrl: "",
   loginUrl: "",
+  csrfToken: "",
 };
 
 export const HeaderRenderer = {
@@ -1227,6 +1229,9 @@ export const HeaderRenderer = {
     }
     if (message.loginUrl !== "") {
       writer.uint32(50).string(message.loginUrl);
+    }
+    if (message.csrfToken !== "") {
+      writer.uint32(58).string(message.csrfToken);
     }
     return writer;
   },
@@ -1255,6 +1260,9 @@ export const HeaderRenderer = {
           break;
         case 6:
           message.loginUrl = reader.string();
+          break;
+        case 7:
+          message.csrfToken = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1296,6 +1304,11 @@ export const HeaderRenderer = {
     } else {
       message.loginUrl = "";
     }
+    if (object.csrfToken !== undefined && object.csrfToken !== null) {
+      message.csrfToken = String(object.csrfToken);
+    } else {
+      message.csrfToken = "";
+    }
     return message;
   },
 
@@ -1308,6 +1321,7 @@ export const HeaderRenderer = {
       (obj.isAuthorized = message.isAuthorized);
     message.logoutUrl !== undefined && (obj.logoutUrl = message.logoutUrl);
     message.loginUrl !== undefined && (obj.loginUrl = message.loginUrl);
+    message.csrfToken !== undefined && (obj.csrfToken = message.csrfToken);
     return obj;
   },
 
@@ -1342,6 +1356,11 @@ export const HeaderRenderer = {
       message.loginUrl = object.loginUrl;
     } else {
       message.loginUrl = "";
+    }
+    if (object.csrfToken !== undefined && object.csrfToken !== null) {
+      message.csrfToken = object.csrfToken;
+    } else {
+      message.csrfToken = "";
     }
     return message;
   },

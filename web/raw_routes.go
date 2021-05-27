@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/materkov/meme9/web/pb"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func handleVKCallback(w http.ResponseWriter, r *http.Request) {
@@ -136,9 +136,8 @@ func handleDefault(w http.ResponseWriter, r *http.Request) {
 	respRoute, _ := utilsSrv.ResolveRoute(r.Context(), &pb.ResolveRouteRequest{Url: r.URL.Path})
 	resp, _ := feedSrv.GetHeader(r.Context(), nil)
 
-	m := jsonpb.Marshaler{}
-	initialDataHeader, _ := m.MarshalToString(resp)
-	initialData, _ := m.MarshalToString(respRoute)
+	initialDataHeader, _ := protojson.Marshal(resp)
+	initialData, _ := protojson.Marshal(respRoute)
 
 	_, _ = fmt.Fprintf(w, `
 <!DOCTYPE html>
@@ -149,12 +148,14 @@ func handleDefault(w http.ResponseWriter, r *http.Request) {
 </head>
 <body>
 <script>
-    window.initialDataHeader = `+initialDataHeader+`;
-    window.initialData = `+initialData+`;
+    window.initialDataHeader = %s;
+    window.initialData = %s;
 </script>
 <div id="root"></div>
 <script src="/static/App.js"></script>
 </body>
 </html>
-`)
+`,
+		initialDataHeader, initialData,
+	)
 }

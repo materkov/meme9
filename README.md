@@ -15,8 +15,8 @@ FE
 
 BE
 * +Авторизация
-* CSRF
-* window.__initial_data
+* +CSRF
+* +window.__initial_data
 * +Токен нормальный, вместо VK ID
 * +Хранение данных нормальное: пост, юзер
 * +Viewer класс

@@ -97,6 +97,7 @@ message HeaderRenderer {
   bool isAuthorized = 4;
   string logoutUrl = 5;
   string loginUrl = 6;
+  string csrfToken = 7;
 }
 
 message ResolveRouteResponse {

@@ -9,6 +9,7 @@ import (
 type Config struct {
 	VKAppID     int
 	VKAppSecret string
+	CSRFKey     string
 }
 
 func (c *Config) MustLoad() {

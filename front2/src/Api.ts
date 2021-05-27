@@ -15,7 +15,9 @@ function api(method: string, args: any): Promise<any> {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Content-Type': 'application/json',
+                // TODO think about global window
+                'x-csrf-token': window.__store.headerData.csrfToken,
+                'content-type': 'application/json',
             },
             body: JSON.stringify(args),
         })

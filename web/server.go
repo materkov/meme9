@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"regexp"
@@ -18,6 +21,12 @@ func (f *Feed) Get(ctx context.Context, request *pb.FeedGetRequest) (*pb.FeedGet
 	panic("implement me")
 }
 
+func GenerateCSRFToken(token string) string {
+	mac := hmac.New(sha256.New, []byte(config.CSRFKey))
+	mac.Write([]byte(token))
+	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
+}
+
 func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.FeedGetHeaderResponse, error) {
 	viewer := GetViewerFromContext(ctx)
 
@@ -28,6 +37,8 @@ func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.F
 	}
 
 	if viewer.UserID != 0 {
+		headerRenderer.CsrfToken = GenerateCSRFToken(viewer.Token.Token)
+
 		users, err := store.GetUsers([]int{viewer.UserID})
 		if err != nil {
 			log.Printf("Error getting user: %s", err)

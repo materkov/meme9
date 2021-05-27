@@ -223,6 +223,12 @@ func twirpWrapper(next http.Handler) http.Handler {
 
 		accessCookie, err := r.Cookie("access_token")
 		if err == nil && accessCookie.Value != "" {
+			isCsrfValid := r.Header.Get("x-csrf-token") == GenerateCSRFToken(accessCookie.Value)
+			if !isCsrfValid && strings.HasPrefix(r.URL.Path, "/twirp/") {
+				fmt.Fprintf(w, "csrf error")
+				return
+			}
+
 			token, err := store.GetToken(accessCookie.Value)
 			if err == nil {
 				viewer.Token = token
