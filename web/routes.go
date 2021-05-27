@@ -51,7 +51,7 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		}
 	}
 
-	wrappedPosts := convertPosts(postsOrdered, viewer.UserID)
+	wrappedPosts := convertPosts(postsOrdered, viewer.UserID, true)
 
 	return &pb.UniversalRenderer{
 		Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
@@ -101,7 +101,7 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		log.Printf("Error selecting posts: %s", err)
 	}
 
-	wrappedPosts := convertPosts(posts, viewer.UserID)
+	wrappedPosts := convertPosts(posts, viewer.UserID, false)
 
 	followingIds, err := store.GetFollowing(viewer.UserID)
 	if err != nil {
@@ -151,7 +151,7 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		return comments[i].ID > comments[j].ID
 	})
 
-	wrappedPosts := convertPosts(posts, viewer.UserID)
+	wrappedPosts := convertPosts(posts, viewer.UserID, false)
 	wrappedComments := convertComments(comments)
 
 	composerPlaceholder := ""

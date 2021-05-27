@@ -17,7 +17,7 @@ import (
 	"github.com/materkov/meme9/web/pb"
 )
 
-func convertPosts(posts []*Post, viewerID int) []*pb.Post {
+func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.Post {
 	if len(posts) == 0 {
 		return nil
 	}
@@ -122,7 +122,7 @@ func convertPosts(posts []*Post, viewerID int) []*pb.Post {
 	for i, post := range posts {
 		var wrappedLatestComment *pb.CommentRenderer
 		latestComment := latestComments[post.ID]
-		if latestComment != nil {
+		if latestComment != nil && includeLatestComment {
 			wrappedLatestComment = &pb.CommentRenderer{
 				Id:         strconv.Itoa(latestComment.ID),
 				Text:       latestComment.Text,
