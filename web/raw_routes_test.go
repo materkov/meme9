@@ -22,7 +22,7 @@ func TestHandleVkCallback(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"response":[{"first_name": "Maks", "last_name": "Materkov", "photo_200": "https://test.com/image1"}]}`),
 	)
 
-	token, err := doVKCallback("test-code", "/test-url", &Viewer{})
+	token, err := doVKCallback("test-code", &Viewer{})
 	require.NoError(t, err)
 	require.NotEmpty(t, token)
 }
@@ -35,6 +35,6 @@ func TestHandleVkCallback_VkError(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"error": "error"}`),
 	)
 
-	_, err := doVKCallback("test-code", "/test-url", &Viewer{})
+	_, err := doVKCallback("test-code", &Viewer{})
 	require.Contains(t, err.Error(), "empty access token")
 }
