@@ -238,6 +238,24 @@ func twirpWrapper(next http.Handler) http.Handler {
 	})
 }
 
+func rawHttpWrapper(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		viewer := Viewer{
+			RequestScheme: "http",
+			RequestHost:   r.Host,
+		}
+
+		protoHeader := r.Header.Get("x-forwarded-proto")
+		if protoHeader != "" {
+			viewer.RequestScheme = protoHeader
+		}
+
+		ctx := WithViewerContext(r.Context(), &viewer)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+}
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
@@ -259,8 +277,8 @@ func main() {
 	http.Handle("/twirp/meme.Utils/", twirpWrapper(pb.NewUtilsServer(&Utils{})))
 
 	// Other
-	http.HandleFunc("/vk-callback", handleVKCallback)
-	http.HandleFunc("/logout", handleLogout)
+	http.HandleFunc("/vk-callback", rawHttpWrapper(handleVKCallback))
+	http.HandleFunc("/logout", rawHttpWrapper(handleLogout))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }

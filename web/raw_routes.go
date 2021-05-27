@@ -12,21 +12,33 @@ import (
 )
 
 func handleVKCallback(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Query().Get("code")
-	if code == "" {
-		_, _ = fmt.Fprint(w, "Empty VK code")
+	viewer := GetViewerFromContext(r.Context())
+	accessToken, err := doVKCallback(r.URL.Query().Get("code"), viewer)
+	if err != nil {
+		log.Printf("Error: %s", err)
+		_, _ = fmt.Fprint(w, "Failed to authorize")
 		return
 	}
 
-	// TODO
-	proxyScheme := "http"
-	if r.Header.Get("x-forwarded-proto") != "" {
-		proxyScheme = r.Header.Get("x-forwarded-proto")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    accessToken,
+		Expires:  time.Now().Add(time.Hour),
+		Path:     "/",
+		HttpOnly: true,
+	})
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func doVKCallback(code string, viewer *Viewer) (string, error) {
+	if code == "" {
+		return "", fmt.Errorf("empty VK code")
 	}
 
 	vkAppID := 7260220
 
-	redirectURI := fmt.Sprintf("%s://%s%s", proxyScheme, r.Host, r.URL.EscapedPath())
+	redirectURI := fmt.Sprintf("%s://%s/vk-callback", viewer.RequestScheme, viewer.RequestHost)
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
 		"client_id":     []string{strconv.Itoa(vkAppID)},
@@ -35,15 +47,13 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 		"code":          []string{code},
 	})
 	if err != nil {
-		fmt.Fprintf(w, "http vk error: %v", err)
-		return
+		return "", fmt.Errorf("http error: %w", err)
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Fprintf(w, "failed reading http body: %v", err)
-		return
+		return "", fmt.Errorf("error reading body: %w", err)
 	}
 
 	body := struct {
@@ -52,40 +62,48 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err = json.Unmarshal(bodyBytes, &body)
 	if err != nil {
-		fmt.Fprintf(w, "incorrect json: %s", bodyBytes)
-		return
+		return "", fmt.Errorf("error parsing json %s: %s", bodyBytes, err)
 	} else if body.AccessToken == "" {
-		fmt.Fprintf(w, "incorrect response: %s", bodyBytes)
-		return
+		return "", fmt.Errorf("empty access token: %s", bodyBytes)
 	}
 
 	userID, err := store.GetByVkID(body.UserID)
 	if err != nil {
-		log.Printf("Error selecting by vk id: %s", err)
-		fmt.Fprintf(w, "internal error")
-		return
+		return "", fmt.Errorf("error selecting by vk id: %w", err)
 	}
 
+	var user *User
 	users, err := store.GetUsers([]int{userID})
 	if err != nil {
-		log.Printf("Error selecting user: %s", err)
-		fmt.Fprintf(w, "internal error")
-		return
-	} else if len(users) == 0 {
-		log.Printf("User %d not found", userID)
-		fmt.Fprintf(w, "internal error")
-		return
+		return "", fmt.Errorf("error getting users: %w", err)
+	} else if len(users) == 1 {
+		user = users[0]
+	} else {
+		userID, err = store.GenerateNextID(ObjectTypeUser)
+		if err != nil {
+			return "", fmt.Errorf("error generating user id: %w", err)
+		}
+
+		user = &User{
+			ID:   userID,
+			VkID: body.UserID,
+		}
+
+		err = store.AddUserByVK(user)
+		if err != nil {
+			return "", fmt.Errorf("error saving user: %w", err)
+		}
 	}
 
-	user := users[0]
-
 	vkName, vkAvatar, err := fetchVkData(body.UserID, body.AccessToken)
-	if err == nil {
+	if err != nil {
+		log.Printf("Error getting vk data: %s", err)
+	} else {
 		user.Name = vkName
 		user.VkAvatar = vkAvatar
 		err = store.UpdateNameAvatar(user)
 		if err != nil {
-			log.Printf("Failed saving new name&avatar: %s", err)
+			return "", fmt.Errorf("failed updating name and avatar: %w", err)
 		}
 	}
 
@@ -95,20 +113,10 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	err = store.AddToken(&token)
 	if err != nil {
-		log.Printf("error saving token: %s", err)
-		fmt.Fprintf(w, "internal error")
-		return
+		return "", fmt.Errorf("failed saving token: %w", err)
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    token.Token,
-		Expires:  time.Now().Add(time.Hour),
-		Path:     "/",
-		HttpOnly: true,
-	})
-
-	http.Redirect(w, r, "/", http.StatusFound)
+	return token.Token, nil
 }
 
 func handleLogout(w http.ResponseWriter, r *http.Request) {

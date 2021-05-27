@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -100,7 +101,9 @@ func (s *Store) AddPost(post *Post) error {
 func (s *Store) GetByVkID(vkID int) (int, error) {
 	userID := 0
 	err := s.db.Get(&userID, "select id from user where vk_id = ?", vkID)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return 0, nil
+	} else if err != nil {
 		return 0, fmt.Errorf("error selecting user by vk id: %w", err)
 	}
 
@@ -152,6 +155,11 @@ func (s *Store) GetUsers(ids []int) ([]*User, error) {
 	}
 
 	return users, err
+}
+
+func (s *Store) AddUserByVK(user *User) error {
+	_, err := s.db.Exec("insert into user(id, vk_id) values (?, ?)", user.ID, user.VkID)
+	return err
 }
 
 func (s *Store) AddLike(postID, userID int) error {
