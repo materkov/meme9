@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"time"
 
@@ -258,9 +257,7 @@ func rawHttpWrapper(next http.HandlerFunc) http.HandlerFunc {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-
-	configStr, _ := os.LookupEnv("CONFIG")
-	_ = json.Unmarshal([]byte(configStr), &config)
+	config.MustLoad()
 
 	db, err := sqlx.Open("mysql", "root:root@/meme9")
 	if err != nil {

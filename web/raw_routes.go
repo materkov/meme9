@@ -36,12 +36,10 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 		return "", fmt.Errorf("empty VK code")
 	}
 
-	vkAppID := 7260220
-
 	redirectURI := fmt.Sprintf("%s://%s/vk-callback", viewer.RequestScheme, viewer.RequestHost)
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
-		"client_id":     []string{strconv.Itoa(vkAppID)},
+		"client_id":     []string{strconv.Itoa(config.VKAppID)},
 		"client_secret": []string{config.VKAppSecret},
 		"redirect_uri":  []string{redirectURI},
 		"code":          []string{code},

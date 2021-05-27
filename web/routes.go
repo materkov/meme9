@@ -64,9 +64,8 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 func handleLogin(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	requestScheme := viewer.RequestScheme
 	requestHost := viewer.RequestHost
-	vkAppID := 7260220
 	redirectURL := url.QueryEscape(fmt.Sprintf("%s://%s/vk-callback", requestScheme, requestHost))
-	vkURL := fmt.Sprintf("https://oauth.vk.com/authorize?client_id=%d&response_type=code&redirect_uri=%s", vkAppID, redirectURL)
+	vkURL := fmt.Sprintf("https://oauth.vk.com/authorize?client_id=%d&response_type=code&redirect_uri=%s", config.VKAppID, redirectURL)
 
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_LoginPageRenderer{
 		LoginPageRenderer: &pb.LoginPageRenderer{
