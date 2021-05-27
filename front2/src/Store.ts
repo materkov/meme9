@@ -11,7 +11,7 @@ export class Store {
 
     constructor(onChange: (data: schema.UniversalRenderer, data2: HeaderRenderer) => void) {
         this.onChange = onChange;
-        this.headerData = HeaderRenderer.fromJSON(window.initialData.renderer);
+        this.headerData = HeaderRenderer.fromJSON(window.initialDataHeader.renderer);
         this.data = schema.UniversalRenderer.fromJSON(window.initialData);
 
         setInterval(this.refreshHeader, 60 * 1000);
