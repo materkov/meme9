@@ -128,3 +128,22 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
+func handleDefault(w http.ResponseWriter, _ *http.Request) {
+	_, _ = fmt.Fprintf(w, `
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>meme</title>
+</head>
+<body>
+<div id="root"></div>
+<script>
+    window.modules = {};
+</script>
+<script src="/static/App.js"></script>
+</body>
+</html>
+`)
+}

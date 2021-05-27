@@ -276,6 +276,7 @@ func main() {
 	// Other
 	http.HandleFunc("/vk-callback", rawHttpWrapper(handleVKCallback))
 	http.HandleFunc("/logout", rawHttpWrapper(handleLogout))
+	http.HandleFunc("/", handleDefault)
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
