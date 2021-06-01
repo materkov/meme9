@@ -133,18 +133,11 @@ func (s *Store) GetToken(tokenStr string) (*Token, error) {
 }
 
 func (s *Store) AddToken(token *Token) error {
-	result, err := s.db.Exec(
-		"insert into token(token, user_id) values (?, ?)",
-		token.Token, token.UserID,
+	_, err := s.db.Exec(
+		"insert into token(id, token, user_id) values (?, ?, ?)",
+		token.ID, token.Token, token.UserID,
 	)
-	if err != nil {
-		return fmt.Errorf("error inserting token row: %w", err)
-	}
-
-	id, _ := result.LastInsertId()
-	token.ID = int(id)
-
-	return nil
+	return err
 }
 
 func (s *Store) GetUsers(ids []int) ([]*User, error) {

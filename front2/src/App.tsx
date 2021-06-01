@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom';
 import React from "react";
 import styles from "./App.module.css";
 import {Router} from "./components/Router/Router";
+import bridge from "@vkontakte/vk-bridge";
 
 function App() {
     return (
@@ -14,3 +15,8 @@ function App() {
 }
 
 ReactDOM.render(<App/>, document.getElementById('root'));
+
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('vk_user_id')) {
+    bridge.send("VKWebAppInit", {});
+}

@@ -108,7 +108,13 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 		}
 	}
 
+	objectID, err := store.GenerateNextID(ObjectTypePost)
+	if err != nil {
+		return "", fmt.Errorf("failed generating object id: %w", err)
+	}
+
 	token := Token{
+		ID:     objectID,
 		Token:  RandString(50),
 		UserID: userID,
 	}

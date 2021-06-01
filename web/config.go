@@ -7,9 +7,10 @@ import (
 )
 
 type Config struct {
-	VKAppID     int
-	VKAppSecret string
-	CSRFKey     string
+	VKAppID         int
+	VKAppSecret     string
+	VKMiniAppSecret string
+	CSRFKey         string
 }
 
 func (c *Config) MustLoad() {

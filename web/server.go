@@ -37,7 +37,9 @@ func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.F
 	}
 
 	if viewer.UserID != 0 {
-		headerRenderer.CsrfToken = GenerateCSRFToken(viewer.Token.Token)
+		if viewer.Token != nil {
+			headerRenderer.CsrfToken = GenerateCSRFToken(viewer.Token.Token)
+		}
 
 		users, err := store.GetUsers([]int{viewer.UserID})
 		if err != nil {

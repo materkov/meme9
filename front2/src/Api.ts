@@ -18,6 +18,7 @@ function api(method: string, args: any): Promise<any> {
                 // TODO think about global window
                 'x-csrf-token': window.__store.headerData.csrfToken,
                 'content-type': 'application/json',
+                'x-vk-auth': window.__store.vkAuth,
             },
             body: JSON.stringify(args),
         })

@@ -8,11 +8,17 @@ export class Store {
     headerData: HeaderRenderer;
     error?: any;
     onChange: (data: schema.UniversalRenderer, data2: HeaderRenderer) => void;
+    vkAuth: string;
 
     constructor(onChange: (data: schema.UniversalRenderer, data2: HeaderRenderer) => void) {
         this.onChange = onChange;
         this.headerData = HeaderRenderer.fromJSON(window.initialDataHeader.renderer);
         this.data = schema.UniversalRenderer.fromJSON(window.initialData);
+
+        this.vkAuth = window.location.href;
+        if (this.vkAuth.indexOf("vk_user_id") == -1) {
+            this.vkAuth = '';
+        }
 
         setInterval(this.refreshHeader, 60 * 1000);
 

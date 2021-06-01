@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,6 +11,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -221,6 +225,7 @@ func twirpWrapper(next http.Handler) http.Handler {
 			RequestScheme: "http",
 		}
 
+		// Try cookie auth?
 		accessCookie, err := r.Cookie("access_token")
 		if err == nil && accessCookie.Value != "" {
 			isCsrfValid := r.Header.Get("x-csrf-token") == GenerateCSRFToken(accessCookie.Value)
@@ -236,6 +241,22 @@ func twirpWrapper(next http.Handler) http.Handler {
 			}
 		}
 
+		// Try VK auth?
+		if viewer.UserID == 0 {
+			userID, err := tryVkAuth(r.URL.String())
+			if err == nil {
+				viewer.UserID = userID
+			}
+		}
+
+		// Try VK Auth from header
+		if viewer.UserID == 0 {
+			userID, err := tryVkAuth(r.Header.Get("x-vk-auth"))
+			if err == nil {
+				viewer.UserID = userID
+			}
+		}
+
 		if r.Header.Get("x-forwarded-proto") == "https" {
 			viewer.RequestScheme = "https"
 		}
@@ -244,6 +265,63 @@ func twirpWrapper(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func tryVkAuth(authUrl string) (int, error) {
+	parsedUrl, err := url.Parse(authUrl)
+	if err != nil {
+		return 0, fmt.Errorf("not vk url")
+	}
+
+	vkUserID, _ := strconv.Atoi(parsedUrl.Query().Get("vk_user_id"))
+	if vkUserID == 0 {
+		return 0, fmt.Errorf("vk_user_id not found")
+	}
+
+	keys := make([]string, 0)
+	for key := range parsedUrl.Query() {
+		if strings.HasPrefix(key, "vk_") {
+			keys = append(keys, key)
+		}
+	}
+
+	sort.Strings(keys)
+
+	for i, key := range keys {
+		keys[i] = fmt.Sprintf("%s=%s", key, parsedUrl.Query().Get(key))
+	}
+
+	signString := strings.Join(keys, "&")
+
+	mac := hmac.New(sha256.New, []byte(config.VKMiniAppSecret))
+	mac.Write([]byte(signString))
+	computedSign := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
+
+	if computedSign != parsedUrl.Query().Get("sign") {
+		return 0, fmt.Errorf("incorrect sign")
+	}
+
+	userID, err := store.GetByVkID(vkUserID)
+	if err != nil {
+		return 0, fmt.Errorf("failed getting user by vk id: %w", err)
+	} else if userID == 0 {
+		userID, err = store.GenerateNextID(ObjectTypeUser)
+		if err != nil {
+			return 0, fmt.Errorf("error generating object ID: %w", err)
+		}
+
+		user := User{
+			ID:   userID,
+			Name: fmt.Sprintf("VK User %d", vkUserID),
+			VkID: vkUserID,
+		}
+		err = store.AddUserByVK(&user)
+		if err != nil {
+			return 0, fmt.Errorf("error saving user: %w", err)
+		}
+	}
+
+	return userID, nil
 }
 
 // TODO
