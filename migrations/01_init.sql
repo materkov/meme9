@@ -40,13 +40,6 @@ create table friend
 
 
 
-create table photo
-(
-    id int auto_increment
-        primary key,
-    url varchar(500) null
-);
-
 create table post
 (
     id int auto_increment
@@ -102,3 +95,9 @@ create table objects
     object_type smallint not null
 );
 
+create table photo
+(
+    id int primary key,
+    user_id int,
+    path varchar(50)
+);

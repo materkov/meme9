@@ -6,6 +6,7 @@ export const protobufPackage = "meme";
 
 export interface PostsAddRequest {
   text: string;
+  photoId: string;
 }
 
 export interface PostsAddResponse {
@@ -82,12 +83,15 @@ export interface CommentComposerRenderer {
   placeholder: string;
 }
 
-const basePostsAddRequest: object = { text: "" };
+const basePostsAddRequest: object = { text: "", photoId: "" };
 
 export const PostsAddRequest = {
   encode(message: PostsAddRequest, writer: Writer = Writer.create()): Writer {
     if (message.text !== "") {
       writer.uint32(10).string(message.text);
+    }
+    if (message.photoId !== "") {
+      writer.uint32(18).string(message.photoId);
     }
     return writer;
   },
@@ -101,6 +105,9 @@ export const PostsAddRequest = {
       switch (tag >>> 3) {
         case 1:
           message.text = reader.string();
+          break;
+        case 2:
+          message.photoId = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -117,12 +124,18 @@ export const PostsAddRequest = {
     } else {
       message.text = "";
     }
+    if (object.photoId !== undefined && object.photoId !== null) {
+      message.photoId = String(object.photoId);
+    } else {
+      message.photoId = "";
+    }
     return message;
   },
 
   toJSON(message: PostsAddRequest): unknown {
     const obj: any = {};
     message.text !== undefined && (obj.text = message.text);
+    message.photoId !== undefined && (obj.photoId = message.photoId);
     return obj;
   },
 
@@ -132,6 +145,11 @@ export const PostsAddRequest = {
       message.text = object.text;
     } else {
       message.text = "";
+    }
+    if (object.photoId !== undefined && object.photoId !== null) {
+      message.photoId = object.photoId;
+    } else {
+      message.photoId = "";
     }
     return message;
   },

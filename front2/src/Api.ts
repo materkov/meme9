@@ -5,7 +5,8 @@ import {
     FeedGetHeaderResponse,
     RelationsFollowRequest,
     RelationsFollowResponse,
-    RelationsUnfollowRequest, RelationsUnfollowResponse
+    RelationsUnfollowRequest,
+    RelationsUnfollowResponse
 } from "./api/api2";
 import {ResolveRouteRequest, UniversalRenderer} from "./api/renderer";
 
@@ -92,5 +93,27 @@ export class API {
                 .then(r => resolve(RelationsUnfollowResponse.fromJSON(r)))
                 .catch(e => reject(e));
         }))
+    }
+
+    static Upload = (req: any): Promise<any> => {
+        return new Promise(((resolve, reject) => {
+            const body = new FormData();
+            body.append('file', req);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: body,
+            })
+                .then(r => {
+                    if (r.status !== 200) {
+                        reject();
+                        return
+                    }
+
+                    return r.json()
+                })
+                .then(resolve)
+                .catch(reject)
+        }));
     }
 }

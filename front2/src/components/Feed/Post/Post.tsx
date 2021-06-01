@@ -55,6 +55,10 @@ export class Post extends React.Component<Props, State> {
 
                 <div className={styles.Text}>{data.text}</div>
 
+                {data.imageUrl &&
+                <img className={styles.Image} alt="" src={data.imageUrl}/>
+                }
+
                 <div className={styles.LikeContainer} onMouseEnter={this.onLikeHover} onMouseLeave={this.onLikeBlur}
                      onClick={this.onToggleLike}
                 >
@@ -71,10 +75,6 @@ export class Post extends React.Component<Props, State> {
                 </Link>
 
                 <TopComment post={data}/>
-
-                {data.imageUrl &&
-                <img className={styles.Image} alt="" src={data.imageUrl}/>
-                }
             </div>
         );
     }

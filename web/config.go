@@ -11,6 +11,8 @@ type Config struct {
 	VKAppSecret     string
 	VKMiniAppSecret string
 	CSRFKey         string
+	AWSKeyID        string
+	AWSKeySecret    string
 }
 
 func (c *Config) MustLoad() {

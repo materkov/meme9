@@ -16,6 +16,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/materkov/meme9/web/pb"
@@ -35,6 +38,20 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 	i := 0
 	for userID := range userIdsMap {
 		userIds[i] = userID
+		i++
+	}
+
+	photoIdsMap := map[int]bool{}
+	for _, post := range posts {
+		if post.PhotoID != 0 {
+			photoIdsMap[post.PhotoID] = true
+		}
+	}
+
+	photoIds := make([]int, len(photoIdsMap))
+	i = 0
+	for photoID := range photoIdsMap {
+		photoIds[i] = photoID
 		i++
 	}
 
@@ -68,6 +85,15 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 			log.Printf("Error selecting users: %s", err)
 		}
 		usersCh <- result
+	}()
+
+	photosCh := make(chan []*Photo)
+	go func() {
+		result, err := store.GetPhotos(photoIds)
+		if err != nil {
+			log.Printf("Error selecting photos: %s", err)
+		}
+		photosCh <- result
 	}()
 
 	commentCountsCh := make(chan map[int]int)
@@ -116,10 +142,16 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 	users := <-usersCh
 	commentCounts := <-commentCountsCh
 	latestComments := <-latestCommentsCh
+	photos := <-photosCh
 
 	usersMap := map[int]*User{}
 	for _, user := range users {
 		usersMap[user.ID] = user
+	}
+
+	photosMap := map[int]*Photo{}
+	for _, photo := range photos {
+		photosMap[photo.ID] = photo
 	}
 
 	result := make([]*pb.Post, len(posts))
@@ -136,6 +168,14 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 			}
 		}
 
+		photoURL := ""
+		if post.PhotoID != 0 {
+			photo, ok := photosMap[post.PhotoID]
+			if ok {
+				photoURL = fmt.Sprintf("https://meme-files.s3.eu-central-1.amazonaws.com/photos/%s.jpg", photo.Path)
+			}
+		}
+
 		wrappedPost := pb.Post{
 			Id:            strconv.Itoa(post.ID),
 			Url:           fmt.Sprintf("/posts/%d", post.ID),
@@ -148,6 +188,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 			CanLike:       viewerID != 0,
 			CommentsCount: int32(commentCounts[post.ID]),
 			TopComment:    wrappedLatestComment,
+			ImageUrl:      photoURL,
 		}
 
 		user, ok := usersMap[post.UserID]
@@ -327,6 +368,7 @@ func tryVkAuth(authUrl string) (int, error) {
 // TODO
 var feedSrv *Feed
 var utilsSrv *Utils
+var awsSession *session.Session
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
@@ -338,6 +380,16 @@ func main() {
 	}
 
 	store = Store{db: db}
+
+	awsSession, err = session.NewSession(
+		&aws.Config{
+			Region:      aws.String("eu-central-1"),
+			Credentials: credentials.NewStaticCredentials(config.AWSKeyID, config.AWSKeySecret, ""),
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
 
 	feedSrv = &Feed{}
 	utilsSrv = &Utils{}
@@ -352,6 +404,7 @@ func main() {
 	// Other
 	http.Handle("/vk-callback", twirpWrapper(http.HandlerFunc(handleVKCallback)))
 	http.Handle("/logout", twirpWrapper(http.HandlerFunc(handleLogout)))
+	http.Handle("/upload", twirpWrapper(http.HandlerFunc(handleUpload)))
 	http.Handle("/", twirpWrapper(http.HandlerFunc(handleDefault)))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)

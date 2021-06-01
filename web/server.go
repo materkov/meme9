@@ -130,11 +130,27 @@ func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.Posts
 		return nil, fmt.Errorf("error generating id: %w", err)
 	}
 
+	photoID := 0
+	if request.PhotoId != "" {
+		photoID, _ = strconv.Atoi(request.PhotoId)
+		photos, err := store.GetPhotos([]int{photoID})
+		if err != nil {
+			return nil, fmt.Errorf("error getting photos: %w", err)
+		} else if len(photos) == 0 {
+			return nil, fmt.Errorf("photo not found")
+		}
+
+		if photos[0].UserID != viewer.UserID {
+			return nil, fmt.Errorf("photo from another user")
+		}
+	}
+
 	post := Post{
-		ID:     postID,
-		UserID: viewer.UserID,
-		Date:   int(time.Now().Unix()),
-		Text:   request.Text,
+		ID:      postID,
+		UserID:  viewer.UserID,
+		Date:    int(time.Now().Unix()),
+		Text:    request.Text,
+		PhotoID: photoID,
 	}
 
 	err = store.AddPost(&post)

@@ -3,11 +3,16 @@ import styles from "./Composer.module.css";
 import classNames from "classnames";
 import {Link} from "../Link/Link";
 import {GlobalStoreContext} from "../../Context";
+import {API} from "../../Api";
+import {Store} from "../../Store";
 
 interface State {
     text: string;
     isTextFocused?: boolean;
     addedPostUrl?: string;
+    uploadedPhoto?: string;
+    uploadedPhotoID: string;
+    isUploading: boolean;
 }
 
 export class Composer extends React.Component<{}, State> {
@@ -15,6 +20,8 @@ export class Composer extends React.Component<{}, State> {
 
     state: State = {
         text: '',
+        isUploading: false,
+        uploadedPhotoID: "",
     };
 
     onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -22,8 +29,12 @@ export class Composer extends React.Component<{}, State> {
     };
 
     onSubmit = () => {
-        this.context.addPost(this.state.text)
-            .then((r: string) => this.setState({addedPostUrl: r}))
+        const store = this.context as Store;
+        store.addPost({
+            text: this.state.text,
+            photoId: this.state.uploadedPhotoID,
+        })
+            .then(r => this.setState({addedPostUrl: r.postUrl}))
             .catch(() => console.error("Error saving post"))
 
         this.setState({text: ''});
@@ -35,6 +46,27 @@ export class Composer extends React.Component<{}, State> {
 
     onTextBlur = () => {
         this.setState({isTextFocused: false});
+    }
+
+    onUploadPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || !e.target.files[0]) {
+            return;
+        }
+        if (this.state.isUploading) {
+            return;
+        }
+
+        this.setState({isUploading: true});
+
+        API.Upload(e.target.files[0])
+            .then((r: any) => {
+                this.setState({
+                    uploadedPhoto: r.url,
+                    uploadedPhotoID: r.id,
+                    isUploading: false,
+                })
+            })
+            .catch(console.error)
     }
 
     render() {
@@ -52,10 +84,21 @@ export class Composer extends React.Component<{}, State> {
 
                 <div className={classNames({
                     [styles.BottomContainer]: true,
-                    [styles.BottomContainer__hidden]: !expandedState,
                 })}>
+
+                    <div className={classNames({
+                        [styles.UploadPhoto__hidden]: this.state.uploadedPhoto,
+                        [styles.UploadPhotoPreview]: !this.state.uploadedPhoto,
+                    })}>
+                        <input type="file" onChange={this.onUploadPhoto}/>
+                    </div>
+
                     <button className={styles.SubmitBtn} onClick={this.onSubmit}>Опубликовать</button>
                 </div>
+
+                {this.state.uploadedPhoto &&
+                <img className={styles.UploadPhotoPreview} src={this.state.uploadedPhoto}/>
+                }
 
                 {this.state.addedPostUrl &&
                 <Link href={this.state.addedPostUrl}>Пост добавлен</Link>

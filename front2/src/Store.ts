@@ -1,4 +1,10 @@
-import {AddCommentRequest, AddCommentResponse, ToggleLikeRequest_Action} from "./api/posts";
+import {
+    AddCommentRequest,
+    AddCommentResponse,
+    PostsAddRequest,
+    PostsAddResponse,
+    ToggleLikeRequest_Action
+} from "./api/posts";
 import {API} from "./Api";
 import * as schema from "./api/renderer";
 import {HeaderRenderer} from "./api/api2";
@@ -97,10 +103,10 @@ export class Store {
             })
     }
 
-    addPost(text: string): Promise<string> {
+    addPost(r: PostsAddRequest): Promise<PostsAddResponse> {
         return new Promise(((resolve, reject) => {
-            API.Posts_Add({text: text})
-                .then(r => resolve(r.postUrl))
+            API.Posts_Add(r)
+                .then(resolve)
                 .catch(reject)
         }))
     }

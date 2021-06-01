@@ -14,6 +14,7 @@ const (
 	ObjectTypePost  = 1
 	ObjectTypeUser  = 2
 	ObjectTypeToken = 3
+	ObjectTypePhoto = 4
 )
 
 type Post struct {
@@ -36,6 +37,12 @@ type Token struct {
 	ID     int    `db:"id"`
 	Token  string `db:"token"`
 	UserID int    `db:"user_id"`
+}
+
+type Photo struct {
+	ID     int    `db:"id"`
+	UserID int    `db:"user_id"`
+	Path   string `db:"path"`
 }
 
 type Store struct {
@@ -87,9 +94,17 @@ func (s *Store) GetPosts(ids []int) ([]*Post, error) {
 }
 
 func (s *Store) AddPost(post *Post) error {
+	photoID := sql.NullInt32{}
+	if post.PhotoID != 0 {
+		photoID = sql.NullInt32{
+			Int32: int32(post.PhotoID),
+			Valid: true,
+		}
+	}
+
 	_, err := s.db.Exec(
-		"insert into post (id, user_id, date, text) values (?, ?, ?, ?)",
-		post.ID, post.UserID, post.Date, post.Text,
+		"insert into post (id, user_id, date, text, photo_id) values (?, ?, ?, ?, ?)",
+		post.ID, post.UserID, post.Date, post.Text, photoID,
 	)
 	if err != nil {
 		return fmt.Errorf("error inserting post row: %w", err)
@@ -357,4 +372,25 @@ func (s *Store) GenerateNextID(objectType int) (int, error) {
 
 	id, _ := result.LastInsertId()
 	return int(id), err
+}
+
+func (s *Store) AddPhoto(photo *Photo) error {
+	_, err := s.db.Exec(
+		"insert into photo(id, user_id, path) values (?, ?, ?)",
+		photo.ID, photo.UserID, photo.Path,
+	)
+	return err
+}
+
+func (s *Store) GetPhotos(ids []int) ([]*Photo, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	var result []*Photo
+	err := s.db.Select(
+		&result,
+		fmt.Sprintf("select * from photo where id in (%s)", s.idsStr(ids)),
+	)
+	return result, err
 }

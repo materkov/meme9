@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/materkov/meme9/web/pb"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -108,7 +110,7 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 		}
 	}
 
-	objectID, err := store.GenerateNextID(ObjectTypePost)
+	objectID, err := store.GenerateNextID(ObjectTypeToken)
 	if err != nil {
 		return "", fmt.Errorf("failed generating object id: %w", err)
 	}
@@ -165,4 +167,54 @@ func handleDefault(w http.ResponseWriter, r *http.Request) {
 `,
 		initialDataHeader, initialData,
 	)
+}
+
+func handleUpload(w http.ResponseWriter, r *http.Request) {
+	viewer := GetViewerFromContext(r.Context())
+	if viewer.UserID == 0 {
+		fmt.Fprintf(w, "no auth")
+		return
+	}
+
+	_ = r.ParseForm()
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		fmt.Fprintf(w, "no file")
+		return
+	}
+
+	filePath := RandString(20)
+
+	uploader := s3manager.NewUploader(awsSession)
+	_, err = uploader.Upload(&s3manager.UploadInput{
+		Bucket:      aws.String("meme-files"),
+		Key:         aws.String("photos/" + filePath + ".jpg"),
+		Body:        file,
+		ACL:         aws.String("public-read"),
+		ContentType: aws.String("image/jpeg"),
+	})
+	if err != nil {
+		fmt.Fprintf(w, "cannot upload file")
+		return
+	}
+
+	objectID, err := store.GenerateNextID(ObjectTypePhoto)
+	if err != nil {
+		fmt.Fprintf(w, "cannot upload file")
+		return
+	}
+
+	photo := Photo{
+		ID:     objectID,
+		UserID: viewer.UserID,
+		Path:   filePath,
+	}
+	err = store.AddPhoto(&photo)
+	if err != nil {
+		fmt.Fprintf(w, "cannot save photo")
+		return
+	}
+
+	// TODO think aboiut schema
+	fmt.Fprintf(w, fmt.Sprintf(`{"id": "%d", "url": "https://meme-files.s3.eu-central-1.amazonaws.com/photos/%s.jpg"}`, photo.ID, filePath))
 }

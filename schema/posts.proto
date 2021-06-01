@@ -11,6 +11,7 @@ service Posts {
 
 message PostsAddRequest {
   string text = 1;
+  string photoId = 2;
 }
 
 message PostsAddResponse {

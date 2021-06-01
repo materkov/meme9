@@ -25,3 +25,11 @@
 
 .SubmitBtn {
 }
+
+.UploadPhoto__hidden {
+    display: none;
+}
+
+.UploadPhotoPreview {
+    max-width: 200px;
+}
