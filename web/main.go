@@ -266,19 +266,35 @@ func twirpWrapper(next http.Handler) http.Handler {
 			RequestScheme: "http",
 		}
 
-		// Try cookie auth?
-		accessCookie, err := r.Cookie("access_token")
-		if err == nil && accessCookie.Value != "" {
-			isCsrfValid := r.Header.Get("x-csrf-token") == GenerateCSRFToken(accessCookie.Value)
-			if !isCsrfValid && strings.HasPrefix(r.URL.Path, "/twirp/") {
-				fmt.Fprintf(w, "csrf error")
-				return
-			}
+		// Try header auth
+		if viewer.UserID == 0 {
+			authHeader := r.Header.Get("authorization")
+			if authHeader != "" {
+				authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 
-			token, err := store.GetToken(accessCookie.Value)
-			if err == nil {
-				viewer.Token = token
-				viewer.UserID = token.UserID
+				token, err := store.GetToken(authHeader)
+				if err == nil {
+					viewer.Token = token
+					viewer.UserID = token.UserID
+				}
+			}
+		}
+
+		// Try cookie auth?
+		if viewer.UserID == 0 {
+			accessCookie, err := r.Cookie("access_token")
+			if err == nil && accessCookie.Value != "" {
+				isCsrfValid := r.Header.Get("x-csrf-token") == GenerateCSRFToken(accessCookie.Value)
+				if !isCsrfValid && strings.HasPrefix(r.URL.Path, "/twirp/") {
+					fmt.Fprintf(w, "csrf error")
+					return
+				}
+
+				token, err := store.GetToken(accessCookie.Value)
+				if err == nil {
+					viewer.Token = token
+					viewer.UserID = token.UserID
+				}
 			}
 		}
 
