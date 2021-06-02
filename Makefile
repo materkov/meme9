@@ -14,7 +14,6 @@ run-proto2:
 	mkdir -p web/pb
 	protoc --go_out=web \
 		--proto_path schema \
-		--twirp_out=web \
 		schema/*.proto
 
 	#find web/pb -name '*.twirp.go' -type f | xargs sed -i '' -e 's/google.golang.org\/protobuf/github.com\/gogo\/protobuf/g'
