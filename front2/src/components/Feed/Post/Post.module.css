@@ -35,6 +35,8 @@
 }
 
 .Image {
+    margin-bottom: 5px;
+    display: block;
     max-width: 100%;
 }
 

@@ -97,7 +97,6 @@ export class API {
 
     static Upload = (file: ArrayBuffer): Promise<any> => {
         return new Promise(((resolve, reject) => {
-
             fetch('/upload', {
                 method: 'POST',
                 headers: {
