@@ -95,14 +95,15 @@ export class API {
         }))
     }
 
-    static Upload = (req: any): Promise<any> => {
+    static Upload = (file: ArrayBuffer): Promise<any> => {
         return new Promise(((resolve, reject) => {
-            const body = new FormData();
-            body.append('file', req);
 
             fetch('/upload', {
                 method: 'POST',
-                body: body,
+                headers: {
+                    'content-type': 'application/octet-stream',
+                },
+                body: file,
             })
                 .then(r => {
                     if (r.status !== 200) {
@@ -110,10 +111,10 @@ export class API {
                         return
                     }
 
-                    return r.json()
+                    return r.text()
                 })
                 .then(resolve)
-                .catch(reject)
+                .catch(reject);
         }));
     }
 }

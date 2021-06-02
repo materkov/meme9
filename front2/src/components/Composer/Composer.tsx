@@ -58,15 +58,26 @@ export class Composer extends React.Component<{}, State> {
 
         this.setState({isUploading: true});
 
-        API.Upload(e.target.files[0])
-            .then((r: any) => {
-                this.setState({
-                    uploadedPhoto: r.url,
-                    uploadedPhotoID: r.id,
-                    isUploading: false,
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(e.target.files[0]);
+        reader.onload = (e) => {
+            const file = e.target?.result as ArrayBuffer;
+            const fileBase64 = btoa(new Uint8Array(file).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+
+            this.setState({
+                uploadedPhoto: 'data:image/jpeg;base64,' + fileBase64,
+            });
+
+            API.Upload(file)
+                .then((r: any) => {
+                    this.setState({
+                        uploadedPhotoID: r,
+                        isUploading: false,
+                    })
                 })
-            })
-            .catch(console.error)
+                .catch(console.error)
+        }
+
     }
 
     render() {

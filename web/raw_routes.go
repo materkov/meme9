@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -176,20 +177,18 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = r.ParseForm()
-	file, _, err := r.FormFile("file")
-	if err != nil {
+	file, err := ioutil.ReadAll(r.Body)
+	if err != nil || len(file) == 0 {
 		fmt.Fprintf(w, "no file")
 		return
 	}
 
 	filePath := RandString(20)
 
-	uploader := s3manager.NewUploader(awsSession)
-	_, err = uploader.Upload(&s3manager.UploadInput{
+	_, err = s3manager.NewUploader(awsSession).Upload(&s3manager.UploadInput{
 		Bucket:      aws.String("meme-files"),
 		Key:         aws.String("photos/" + filePath + ".jpg"),
-		Body:        file,
+		Body:        bytes.NewReader(file),
 		ACL:         aws.String("public-read"),
 		ContentType: aws.String("image/jpeg"),
 	})
@@ -215,6 +214,5 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO think aboiut schema
-	fmt.Fprintf(w, fmt.Sprintf(`{"id": "%d", "url": "https://meme-files.s3.eu-central-1.amazonaws.com/photos/%s.jpg"}`, photo.ID, filePath))
+	fmt.Fprintf(w, fmt.Sprintf("%d", photo.ID))
 }
