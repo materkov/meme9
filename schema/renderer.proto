@@ -14,6 +14,7 @@ message UniversalRenderer {
     PostRenderer postRenderer = 3;
     HeaderRenderer headerRenderer = 4;
     LoginPageRenderer loginPageRenderer = 5;
+    SandboxRenderer sandboxRenderer = 6;
   }
 }
 
@@ -23,4 +24,7 @@ service Utils {
 
 message ResolveRouteRequest {
   string url = 1;
+}
+
+message SandboxRenderer {
 }

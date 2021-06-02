@@ -17,11 +17,14 @@ export interface UniversalRenderer {
   postRenderer: PostRenderer | undefined;
   headerRenderer: HeaderRenderer | undefined;
   loginPageRenderer: LoginPageRenderer | undefined;
+  sandboxRenderer: SandboxRenderer | undefined;
 }
 
 export interface ResolveRouteRequest {
   url: string;
 }
+
+export interface SandboxRenderer {}
 
 const baseUniversalRenderer: object = {};
 
@@ -57,6 +60,12 @@ export const UniversalRenderer = {
         writer.uint32(42).fork()
       ).ldelim();
     }
+    if (message.sandboxRenderer !== undefined) {
+      SandboxRenderer.encode(
+        message.sandboxRenderer,
+        writer.uint32(50).fork()
+      ).ldelim();
+    }
     return writer;
   },
 
@@ -87,6 +96,12 @@ export const UniversalRenderer = {
           break;
         case 5:
           message.loginPageRenderer = LoginPageRenderer.decode(
+            reader,
+            reader.uint32()
+          );
+          break;
+        case 6:
+          message.sandboxRenderer = SandboxRenderer.decode(
             reader,
             reader.uint32()
           );
@@ -136,6 +151,16 @@ export const UniversalRenderer = {
     } else {
       message.loginPageRenderer = undefined;
     }
+    if (
+      object.sandboxRenderer !== undefined &&
+      object.sandboxRenderer !== null
+    ) {
+      message.sandboxRenderer = SandboxRenderer.fromJSON(
+        object.sandboxRenderer
+      );
+    } else {
+      message.sandboxRenderer = undefined;
+    }
     return message;
   },
 
@@ -160,6 +185,10 @@ export const UniversalRenderer = {
     message.loginPageRenderer !== undefined &&
       (obj.loginPageRenderer = message.loginPageRenderer
         ? LoginPageRenderer.toJSON(message.loginPageRenderer)
+        : undefined);
+    message.sandboxRenderer !== undefined &&
+      (obj.sandboxRenderer = message.sandboxRenderer
+        ? SandboxRenderer.toJSON(message.sandboxRenderer)
         : undefined);
     return obj;
   },
@@ -202,6 +231,16 @@ export const UniversalRenderer = {
       );
     } else {
       message.loginPageRenderer = undefined;
+    }
+    if (
+      object.sandboxRenderer !== undefined &&
+      object.sandboxRenderer !== null
+    ) {
+      message.sandboxRenderer = SandboxRenderer.fromPartial(
+        object.sandboxRenderer
+      );
+    } else {
+      message.sandboxRenderer = undefined;
     }
     return message;
   },
@@ -261,6 +300,44 @@ export const ResolveRouteRequest = {
     } else {
       message.url = "";
     }
+    return message;
+  },
+};
+
+const baseSandboxRenderer: object = {};
+
+export const SandboxRenderer = {
+  encode(_: SandboxRenderer, writer: Writer = Writer.create()): Writer {
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): SandboxRenderer {
+    const reader = input instanceof Reader ? input : new Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseSandboxRenderer } as SandboxRenderer;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): SandboxRenderer {
+    const message = { ...baseSandboxRenderer } as SandboxRenderer;
+    return message;
+  },
+
+  toJSON(_: SandboxRenderer): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(_: DeepPartial<SandboxRenderer>): SandboxRenderer {
+    const message = { ...baseSandboxRenderer } as SandboxRenderer;
     return message;
   },
 };

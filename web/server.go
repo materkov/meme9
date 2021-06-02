@@ -253,6 +253,8 @@ func (u *Utils) ResolveRoute(ctx context.Context, request *pb.ResolveRouteReques
 		`^/users/(\d+)$`: handleProfile,
 
 		`^/posts/(\d+)$`: handlePostPage,
+
+		`^/sandbox$`: handleSandbox,
 	}
 
 	for route, handler := range routes {

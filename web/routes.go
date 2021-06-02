@@ -173,3 +173,8 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		ComposerPlaceholder: composerPlaceholder,
 	}}}, nil
 }
+
+// /sandbox
+func handleSandbox(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
+	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_SandboxRenderer{SandboxRenderer: &pb.SandboxRenderer{}}}, nil
+}
