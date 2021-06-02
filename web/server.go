@@ -159,7 +159,7 @@ func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.Posts
 	}
 
 	return &pb.PostsAddResponse{
-		PostUrl: fmt.Sprintf("/profile/%d", viewer.UserID),
+		PostUrl: fmt.Sprintf("/posts/%d", post.ID),
 	}, nil
 }
 
