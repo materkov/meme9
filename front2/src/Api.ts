@@ -12,7 +12,7 @@ import {ResolveRouteRequest, UniversalRenderer} from "./api/renderer";
 
 function api(method: string, args: any): Promise<any> {
     return new Promise((resolve, reject) => {
-        fetch("/twirp/" + method, {
+        fetch("/api?method=" + method, {
             method: 'POST',
             credentials: 'include',
             headers: {

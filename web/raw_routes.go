@@ -9,12 +9,14 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/materkov/meme9/web/pb"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 func handleVKCallback(w http.ResponseWriter, r *http.Request) {
@@ -215,4 +217,104 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, fmt.Sprintf("%d", photo.ID))
+}
+
+func writeAPIError(w http.ResponseWriter, err error) {
+	response := struct {
+		Error string `json:"error"`
+	}{
+		Error: err.Error(),
+	}
+	w.WriteHeader(400)
+	_ = json.NewEncoder(w).Encode(response)
+}
+
+func handleAPI(w http.ResponseWriter, req *http.Request) {
+	method := req.URL.Query().Get("method")
+	method = strings.Replace(method, "/", ".", -1)
+
+	body, err := ioutil.ReadAll(req.Body)
+	c := req.Context()
+
+	m := protojson.UnmarshalOptions{DiscardUnknown: true}
+
+	var resp proto.Message
+	switch method {
+	case "meme.Feed.GetHeader":
+		r := &pb.FeedGetHeaderRequest{}
+		err := m.Unmarshal(body, r)
+		if err != nil {
+			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+			return
+		}
+		resp, err = feedSrv.GetHeader(c, r)
+	case "meme.Profile.Get":
+		r := &pb.ProfileGetRequest{}
+		err := m.Unmarshal(body, r)
+		if err != nil {
+			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+			return
+		}
+		resp, err = profileSrv.Get(c, r)
+	case "meme.Posts.Add":
+		r := &pb.PostsAddRequest{}
+		err := m.Unmarshal(body, r)
+		if err != nil {
+			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+			return
+		}
+		resp, err = postsSrv.Add(c, r)
+	case "meme.Posts.ToggleLike":
+		r := &pb.ToggleLikeRequest{}
+		err := m.Unmarshal(body, r)
+		if err != nil {
+			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+			return
+		}
+		resp, err = postsSrv.ToggleLike(c, r)
+	case "meme.Posts.AddComment":
+		r := &pb.AddCommentRequest{}
+		err := m.Unmarshal(body, r)
+		if err != nil {
+			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+			return
+		}
+		resp, err = postsSrv.AddComment(c, r)
+	case "meme.Utils.ResolveRoute":
+		r := &pb.ResolveRouteRequest{}
+		err := m.Unmarshal(body, r)
+		if err != nil {
+			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+			return
+		}
+		resp, err = utilsSrv.ResolveRoute(c, r)
+	case "meme.Relations.Follow":
+		r := &pb.RelationsFollowRequest{}
+		err := m.Unmarshal(body, r)
+		if err != nil {
+			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+			return
+		}
+		resp, err = relationsSrv.Follow(c, r)
+	case "meme.Relations.Unfollow":
+		r := &pb.RelationsUnfollowRequest{}
+		err := m.Unmarshal(body, r)
+		if err != nil {
+			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+			return
+		}
+		resp, err = relationsSrv.Unfollow(c, r)
+	default:
+		writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+		return
+	}
+
+	if err != nil {
+		writeAPIError(w, err)
+		return
+	} else {
+		marshaller := &protojson.MarshalOptions{}
+		respBytes, _ := marshaller.Marshal(resp)
+		_, _ = w.Write(respBytes)
+	}
 }

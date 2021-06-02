@@ -254,8 +254,8 @@ func fetchVkData(userId int, accessToken string) (string, string, error) {
 	return body.Response[0].FirstName + " " + body.Response[0].LastName, body.Response[0].Photo200, nil
 }
 
-func twirpWrapper(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func twirpWrapper(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/twirp/") {
 			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -321,7 +321,7 @@ func twirpWrapper(next http.Handler) http.Handler {
 		ctx := WithViewerContext(r.Context(), &viewer)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+	}
 }
 
 func tryVkAuth(authUrl string) (int, error) {
@@ -383,6 +383,9 @@ func tryVkAuth(authUrl string) (int, error) {
 
 // TODO
 var feedSrv *Feed
+var profileSrv *Profile
+var postsSrv *Posts
+var relationsSrv *Relations
 var utilsSrv *Utils
 var awsSession *session.Session
 
@@ -409,19 +412,16 @@ func main() {
 
 	feedSrv = &Feed{}
 	utilsSrv = &Utils{}
+	profileSrv = &Profile{}
+	postsSrv = &Posts{}
+	postsSrv = &Posts{}
+	relationsSrv = &Relations{}
 
-	// Twirp API
-	http.Handle("/twirp/meme.Feed/", twirpWrapper(pb.NewFeedServer(feedSrv)))
-	http.Handle("/twirp/meme.Profile/", twirpWrapper(pb.NewProfileServer(&Profile{})))
-	http.Handle("/twirp/meme.Relations/", twirpWrapper(pb.NewRelationsServer(&Relations{})))
-	http.Handle("/twirp/meme.Posts/", twirpWrapper(pb.NewPostsServer(&Posts{})))
-	http.Handle("/twirp/meme.Utils/", twirpWrapper(pb.NewUtilsServer(utilsSrv)))
-
-	// Other
-	http.Handle("/vk-callback", twirpWrapper(http.HandlerFunc(handleVKCallback)))
-	http.Handle("/logout", twirpWrapper(http.HandlerFunc(handleLogout)))
-	http.Handle("/upload", twirpWrapper(http.HandlerFunc(handleUpload)))
-	http.Handle("/", twirpWrapper(http.HandlerFunc(handleDefault)))
+	http.Handle("/vk-callback", twirpWrapper(handleVKCallback))
+	http.Handle("/logout", twirpWrapper(handleLogout))
+	http.Handle("/upload", twirpWrapper(handleUpload))
+	http.Handle("/api", twirpWrapper(handleAPI))
+	http.Handle("/", twirpWrapper(handleDefault))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
