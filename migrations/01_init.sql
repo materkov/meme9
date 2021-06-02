@@ -101,3 +101,12 @@ create table photo
     user_id int,
     path varchar(50)
 );
+
+create table api_log
+(
+    id int auto_increment primary key,
+    user_id int,
+    method varchar(200),
+    request text,
+    response text
+);

@@ -235,6 +235,7 @@ func handleAPI(w http.ResponseWriter, req *http.Request) {
 
 	body, err := ioutil.ReadAll(req.Body)
 	c := req.Context()
+	viewer := GetViewerFromContext(c)
 
 	m := protojson.UnmarshalOptions{DiscardUnknown: true}
 
@@ -316,5 +317,7 @@ func handleAPI(w http.ResponseWriter, req *http.Request) {
 		marshaller := &protojson.MarshalOptions{}
 		respBytes, _ := marshaller.Marshal(resp)
 		_, _ = w.Write(respBytes)
+
+		_ = store.AddAPILog(viewer.UserID, method, body, respBytes)
 	}
 }
