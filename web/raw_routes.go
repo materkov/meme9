@@ -230,6 +230,8 @@ func writeAPIError(w http.ResponseWriter, err error) {
 }
 
 func handleAPI(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	method := req.URL.Query().Get("method")
 	method = strings.Replace(method, "/", ".", -1)
 
@@ -306,18 +308,18 @@ func handleAPI(w http.ResponseWriter, req *http.Request) {
 		}
 		resp, err = relationsSrv.Unfollow(c, r)
 	default:
-		writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
+		writeAPIError(w, fmt.Errorf("unknown method"))
 		return
 	}
 
 	if err != nil {
 		writeAPIError(w, err)
 		return
-	} else {
-		marshaller := &protojson.MarshalOptions{}
-		respBytes, _ := marshaller.Marshal(resp)
-		_, _ = w.Write(respBytes)
-
-		_ = store.AddAPILog(viewer.UserID, method, body, respBytes)
 	}
+
+	marshaller := &protojson.MarshalOptions{}
+	respBytes, _ := marshaller.Marshal(resp)
+	_, _ = w.Write(respBytes)
+
+	_ = store.AddAPILog(viewer.UserID, method, body, respBytes)
 }
