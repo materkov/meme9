@@ -23,7 +23,7 @@ func (f *Feed) Get(ctx context.Context, request *pb.FeedGetRequest) (*pb.FeedGet
 
 func GenerateCSRFToken(token string) string {
 	mac := hmac.New(sha256.New, []byte(config.CSRFKey))
-	mac.Write([]byte(token))
+	_, _ = mac.Write([]byte(token))
 	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
 }
 

@@ -10,10 +10,12 @@ type Viewer struct {
 	RequestScheme string
 }
 
+type viewerContextKey struct{}
+
 func GetViewerFromContext(ctx context.Context) *Viewer {
-	return ctx.Value("viewer").(*Viewer)
+	return ctx.Value(viewerContextKey{}).(*Viewer)
 }
 
 func WithViewerContext(parent context.Context, viewer *Viewer) context.Context {
-	return context.WithValue(parent, "viewer", viewer)
+	return context.WithValue(parent, viewerContextKey{}, viewer)
 }

@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -216,7 +215,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, fmt.Sprintf("%d", photo.ID))
+	_, _ = fmt.Fprint(w, strconv.Itoa(photo.ID))
 }
 
 func writeAPIError(w http.ResponseWriter, err error) {
@@ -229,87 +228,81 @@ func writeAPIError(w http.ResponseWriter, err error) {
 	_ = json.NewEncoder(w).Encode(response)
 }
 
-func handleAPI(w http.ResponseWriter, req *http.Request) {
+func handleAPI(w http.ResponseWriter, request *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	method := req.URL.Query().Get("method")
-	method = strings.Replace(method, "/", ".", -1)
+	body, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		writeAPIError(w, fmt.Errorf("failed reading body"))
+		return
+	}
 
-	body, err := ioutil.ReadAll(req.Body)
-	c := req.Context()
-	viewer := GetViewerFromContext(c)
-
+	method := request.URL.Query().Get("method")
+	ctx := request.Context()
+	viewer := GetViewerFromContext(ctx)
 	m := protojson.UnmarshalOptions{DiscardUnknown: true}
 
 	var resp proto.Message
+
 	switch method {
 	case "meme.Feed.GetHeader":
-		r := &pb.FeedGetHeaderRequest{}
-		err := m.Unmarshal(body, r)
-		if err != nil {
+		req := &pb.FeedGetHeaderRequest{}
+		if err := m.Unmarshal(body, req); err != nil {
 			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
 			return
 		}
-		resp, err = feedSrv.GetHeader(c, r)
+		resp, err = feedSrv.GetHeader(ctx, req)
 	case "meme.Profile.Get":
-		r := &pb.ProfileGetRequest{}
-		err := m.Unmarshal(body, r)
-		if err != nil {
+		req := &pb.ProfileGetRequest{}
+		if err := m.Unmarshal(body, req); err != nil {
 			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
 			return
 		}
-		resp, err = profileSrv.Get(c, r)
+		resp, err = profileSrv.Get(ctx, req)
 	case "meme.Posts.Add":
-		r := &pb.PostsAddRequest{}
-		err := m.Unmarshal(body, r)
-		if err != nil {
+		req := &pb.PostsAddRequest{}
+		if err := m.Unmarshal(body, req); err != nil {
 			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
 			return
 		}
-		resp, err = postsSrv.Add(c, r)
+		resp, err = postsSrv.Add(ctx, req)
 	case "meme.Posts.ToggleLike":
-		r := &pb.ToggleLikeRequest{}
-		err := m.Unmarshal(body, r)
-		if err != nil {
+		req := &pb.ToggleLikeRequest{}
+		if err := m.Unmarshal(body, req); err != nil {
 			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
 			return
 		}
-		resp, err = postsSrv.ToggleLike(c, r)
+		resp, err = postsSrv.ToggleLike(ctx, req)
 	case "meme.Posts.AddComment":
-		r := &pb.AddCommentRequest{}
-		err := m.Unmarshal(body, r)
-		if err != nil {
+		req := &pb.AddCommentRequest{}
+		if err := m.Unmarshal(body, req); err != nil {
 			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
 			return
 		}
-		resp, err = postsSrv.AddComment(c, r)
+		resp, err = postsSrv.AddComment(ctx, req)
 	case "meme.Utils.ResolveRoute":
-		r := &pb.ResolveRouteRequest{}
-		err := m.Unmarshal(body, r)
-		if err != nil {
+		req := &pb.ResolveRouteRequest{}
+		if err := m.Unmarshal(body, req); err != nil {
 			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
 			return
 		}
-		resp, err = utilsSrv.ResolveRoute(c, r)
+		resp, err = utilsSrv.ResolveRoute(ctx, req)
 	case "meme.Relations.Follow":
-		r := &pb.RelationsFollowRequest{}
-		err := m.Unmarshal(body, r)
-		if err != nil {
+		req := &pb.RelationsFollowRequest{}
+		if err := m.Unmarshal(body, req); err != nil {
 			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
 			return
 		}
-		resp, err = relationsSrv.Follow(c, r)
+		resp, err = relationsSrv.Follow(ctx, req)
 	case "meme.Relations.Unfollow":
-		r := &pb.RelationsUnfollowRequest{}
-		err := m.Unmarshal(body, r)
-		if err != nil {
+		req := &pb.RelationsUnfollowRequest{}
+		if err := m.Unmarshal(body, req); err != nil {
 			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
 			return
 		}
-		resp, err = relationsSrv.Unfollow(c, r)
+		resp, err = relationsSrv.Unfollow(ctx, req)
 	default:
-		writeAPIError(w, fmt.Errorf("unknown method"))
-		return
+		err = fmt.Errorf("unknown method")
 	}
 
 	if err != nil {

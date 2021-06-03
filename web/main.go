@@ -1,9 +1,6 @@
 package main
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,9 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"sort"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -254,131 +249,24 @@ func fetchVkData(userId int, accessToken string) (string, string, error) {
 	return body.Response[0].FirstName + " " + body.Response[0].LastName, body.Response[0].Photo200, nil
 }
 
-func twirpWrapper(next http.HandlerFunc) http.HandlerFunc {
+var auth *Auth
+
+func middleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/twirp/") {
-			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-		}
-
 		viewer := Viewer{
-			RequestHost:   r.Host,
-			RequestScheme: "http",
+			RequestHost: r.Host,
 		}
 
-		// Try header auth
-		if viewer.UserID == 0 {
-			authHeader := r.Header.Get("authorization")
-			if authHeader != "" {
-				authHeader = strings.TrimPrefix(authHeader, "Bearer ")
-
-				token, err := store.GetToken(authHeader)
-				if err == nil {
-					viewer.Token = token
-					viewer.UserID = token.UserID
-				}
-			}
-		}
-
-		// Try cookie auth?
-		if viewer.UserID == 0 {
-			accessCookie, err := r.Cookie("access_token")
-			if err == nil && accessCookie.Value != "" {
-				isCsrfValid := r.Header.Get("x-csrf-token") == GenerateCSRFToken(accessCookie.Value)
-				if !isCsrfValid && strings.HasPrefix(r.URL.Path, "/twirp/") {
-					fmt.Fprintf(w, "csrf error")
-					return
-				}
-
-				token, err := store.GetToken(accessCookie.Value)
-				if err == nil {
-					viewer.Token = token
-					viewer.UserID = token.UserID
-				}
-			}
-		}
-
-		// Try VK auth?
-		if viewer.UserID == 0 {
-			userID, err := tryVkAuth(r.URL.String())
-			if err == nil {
-				viewer.UserID = userID
-			}
-		}
-
-		// Try VK Auth from header
-		if viewer.UserID == 0 {
-			userID, err := tryVkAuth(r.Header.Get("x-vk-auth"))
-			if err == nil {
-				viewer.UserID = userID
-			}
-		}
-
+		viewer.RequestScheme = "http"
 		if r.Header.Get("x-forwarded-proto") == "https" {
 			viewer.RequestScheme = "https"
 		}
 
-		ctx := WithViewerContext(r.Context(), &viewer)
+		viewer.Token, viewer.UserID, _ = auth.tryAuth(r)
 
+		ctx := WithViewerContext(r.Context(), &viewer)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
-}
-
-func tryVkAuth(authUrl string) (int, error) {
-	parsedUrl, err := url.Parse(authUrl)
-	if err != nil {
-		return 0, fmt.Errorf("not vk url")
-	}
-
-	vkUserID, _ := strconv.Atoi(parsedUrl.Query().Get("vk_user_id"))
-	if vkUserID == 0 {
-		return 0, fmt.Errorf("vk_user_id not found")
-	}
-
-	keys := make([]string, 0)
-	for key := range parsedUrl.Query() {
-		if strings.HasPrefix(key, "vk_") {
-			keys = append(keys, key)
-		}
-	}
-
-	sort.Strings(keys)
-
-	for i, key := range keys {
-		keys[i] = fmt.Sprintf("%s=%s", key, parsedUrl.Query().Get(key))
-	}
-
-	signString := strings.Join(keys, "&")
-
-	mac := hmac.New(sha256.New, []byte(config.VKMiniAppSecret))
-	mac.Write([]byte(signString))
-	computedSign := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
-
-	if computedSign != parsedUrl.Query().Get("sign") {
-		return 0, fmt.Errorf("incorrect sign")
-	}
-
-	userID, err := store.GetByVkID(vkUserID)
-	if err != nil {
-		return 0, fmt.Errorf("failed getting user by vk id: %w", err)
-	} else if userID == 0 {
-		userID, err = store.GenerateNextID(ObjectTypeUser)
-		if err != nil {
-			return 0, fmt.Errorf("error generating object ID: %w", err)
-		}
-
-		user := User{
-			ID:   userID,
-			Name: fmt.Sprintf("VK User %d", vkUserID),
-			VkID: vkUserID,
-		}
-		err = store.AddUserByVK(&user)
-		if err != nil {
-			return 0, fmt.Errorf("error saving user: %w", err)
-		}
-	}
-
-	return userID, nil
 }
 
 // TODO
@@ -391,14 +279,18 @@ var awsSession *session.Session
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	config.MustLoad()
+	err := config.Load()
+	if err != nil {
+		log.Fatalf("Error loading config: %s", err)
+	}
 
 	db, err := sqlx.Open("mysql", "root:root@/meme9")
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed opening mysql connection: %s", err)
 	}
 
 	store = Store{db: db}
+	auth = &Auth{store: &store}
 
 	awsSession, err = session.NewSession(
 		&aws.Config{
@@ -407,7 +299,7 @@ func main() {
 		},
 	)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed creating AWS session: %s", err)
 	}
 
 	feedSrv = &Feed{}
@@ -417,11 +309,11 @@ func main() {
 	postsSrv = &Posts{}
 	relationsSrv = &Relations{}
 
-	http.Handle("/vk-callback", twirpWrapper(handleVKCallback))
-	http.Handle("/logout", twirpWrapper(handleLogout))
-	http.Handle("/upload", twirpWrapper(handleUpload))
-	http.Handle("/api", twirpWrapper(handleAPI))
-	http.Handle("/", twirpWrapper(handleDefault))
+	http.Handle("/vk-callback", middleware(handleVKCallback))
+	http.Handle("/logout", middleware(handleLogout))
+	http.Handle("/upload", middleware(handleUpload))
+	http.Handle("/api", middleware(handleAPI))
+	http.Handle("/", middleware(handleDefault))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }

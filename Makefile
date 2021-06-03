@@ -28,11 +28,11 @@ test-all:
 	cd api && go test -v ./...
 
 lint-all:
-	cd api && test -z $$(gofmt -l .| tee /dev/stderr)
+	cd web && test -z $$(gofmt -l . | tee /dev/stderr)
 
-	cd api && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.32.1
-	cd api && bin/golangci-lint --version
-	cd api && bin/golangci-lint run
+	cd web && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.32.1
+	cd web && bin/golangci-lint --version
+	cd web && bin/golangci-lint run
 
 deploy:
 	cd ~/mypage && docker-compose --context=mypage up -d --build meme9-front meme9-web

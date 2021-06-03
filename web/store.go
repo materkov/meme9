@@ -50,6 +50,7 @@ type Store struct {
 }
 
 var store Store
+var ErrObjectNotFound = fmt.Errorf("object not found")
 
 func (s *Store) idsStr(ids []int) string {
 	result := make([]string, len(ids))
@@ -140,7 +141,9 @@ func (s *Store) UpdateNameAvatar(user *User) error {
 func (s *Store) GetToken(tokenStr string) (*Token, error) {
 	token := Token{}
 	err := s.db.Get(&token, "select * from token where token = ?", tokenStr)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return nil, ErrObjectNotFound
+	} else if err != nil {
 		return nil, fmt.Errorf("error selecting token row: %w", err)
 	}
 
