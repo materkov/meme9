@@ -271,7 +271,6 @@ func middleware(next http.HandlerFunc) http.HandlerFunc {
 
 // TODO
 var feedSrv *Feed
-var profileSrv *Profile
 var postsSrv *Posts
 var relationsSrv *Relations
 var utilsSrv *Utils
@@ -304,7 +303,6 @@ func main() {
 
 	feedSrv = &Feed{}
 	utilsSrv = &Utils{}
-	profileSrv = &Profile{}
 	postsSrv = &Posts{}
 	postsSrv = &Posts{}
 	relationsSrv = &Relations{}

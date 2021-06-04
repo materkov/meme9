@@ -7,7 +7,7 @@ import {
 } from "./api/posts";
 import {API} from "./Api";
 import * as schema from "./api/renderer";
-import {HeaderRenderer} from "./api/api2";
+import {HeaderRenderer, Post} from "./api/api2";
 
 export class Store {
     data: schema.UniversalRenderer;
@@ -36,34 +36,53 @@ export class Store {
     }
 
     togglePostLike(postId: string) {
+        let foundPost: Post | undefined = undefined;
+
         if (this.data?.feedRenderer) {
             for (let post of this.data.feedRenderer.posts) {
                 if (post.id == postId && post.canLike) {
-                    let action: ToggleLikeRequest_Action;
-
-                    if (post.isLiked) {
-                        post.isLiked = false;
-                        post.likesCount--;
-                        action = ToggleLikeRequest_Action.UNLIKE;
-                    } else {
-                        post.isLiked = true;
-                        post.likesCount++;
-                        action = ToggleLikeRequest_Action.LIKE;
-                    }
-
-                    API.Posts_ToggleLike({
-                        action: action,
-                        postId: post.id,
-                    }).then(r => {
-                        post.likesCount = r.likesCount;
-                        this.changed();
-                    }).catch(e => {
-                        console.error(e);
-                    });
+                    foundPost = post;
                     break;
                 }
             }
         }
+        if (this.data?.profileRenderer) {
+            for (let post of this.data.profileRenderer.posts) {
+                if (post.id == postId && post.canLike) {
+                    foundPost = post;
+                    break;
+                }
+            }
+        }
+
+        if (!foundPost || !foundPost.canLike) {
+            return;
+        }
+
+        let action: ToggleLikeRequest_Action;
+
+        if (foundPost.isLiked) {
+            foundPost.isLiked = false;
+            foundPost.likesCount--;
+            action = ToggleLikeRequest_Action.UNLIKE;
+        } else {
+            foundPost.isLiked = true;
+            foundPost.likesCount++;
+            action = ToggleLikeRequest_Action.LIKE;
+        }
+        this.changed();
+
+        API.Posts_ToggleLike({
+            action: action,
+            postId: foundPost.id,
+        }).then(r => {
+            if (foundPost) {
+                foundPost.likesCount = r.likesCount;
+                this.changed();
+            }
+        }).catch(e => {
+            console.error(e);
+        });
     }
 
     followUser(userId: string) {

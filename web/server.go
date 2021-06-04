@@ -17,10 +17,6 @@ import (
 type Feed struct {
 }
 
-func (f *Feed) Get(ctx context.Context, request *pb.FeedGetRequest) (*pb.FeedGetResponse, error) {
-	panic("implement me")
-}
-
 func GenerateCSRFToken(token string) string {
 	mac := hmac.New(sha256.New, []byte(config.CSRFKey))
 	_, _ = mac.Write([]byte(token))
@@ -56,13 +52,6 @@ func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.F
 	}
 
 	return &pb.FeedGetHeaderResponse{Renderer: &headerRenderer}, nil
-}
-
-type Profile struct {
-}
-
-func (p *Profile) Get(ctx context.Context, request *pb.ProfileGetRequest) (*pb.ProfileGetResponse, error) {
-	panic("implement me")
 }
 
 type Relations struct {
@@ -241,10 +230,8 @@ func (p *Posts) AddComment(ctx context.Context, req *pb.AddCommentRequest) (*pb.
 type Utils struct {
 }
 
-type handler func(_ string, viewer *Viewer) (*pb.UniversalRenderer, error)
-
 func (u *Utils) ResolveRoute(ctx context.Context, request *pb.ResolveRouteRequest) (*pb.UniversalRenderer, error) {
-	viewer := GetViewerFromContext(ctx)
+	type handler func(_ string, viewer *Viewer) (*pb.UniversalRenderer, error)
 
 	routes := map[string]handler{
 		`^/$`:      handleIndex,
@@ -257,6 +244,8 @@ func (u *Utils) ResolveRoute(ctx context.Context, request *pb.ResolveRouteReques
 		`^/sandbox$`: handleSandbox,
 	}
 
+	viewer := GetViewerFromContext(ctx)
+
 	for route, handler := range routes {
 		matched, _ := regexp.MatchString(route, request.Url)
 		if matched {
@@ -265,5 +254,4 @@ func (u *Utils) ResolveRoute(ctx context.Context, request *pb.ResolveRouteReques
 	}
 
 	return &pb.UniversalRenderer{}, nil
-
 }

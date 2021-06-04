@@ -252,13 +252,6 @@ func handleAPI(w http.ResponseWriter, request *http.Request) {
 			return
 		}
 		resp, err = feedSrv.GetHeader(ctx, req)
-	case "meme.Profile.Get":
-		req := &pb.ProfileGetRequest{}
-		if err := m.Unmarshal(body, req); err != nil {
-			writeAPIError(w, fmt.Errorf("failed unmarshaling request"))
-			return
-		}
-		resp, err = profileSrv.Get(ctx, req)
 	case "meme.Posts.Add":
 		req := &pb.PostsAddRequest{}
 		if err := m.Unmarshal(body, req); err != nil {
