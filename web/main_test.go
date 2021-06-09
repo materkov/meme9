@@ -19,4 +19,5 @@ func setupDB(t *testing.T) {
 
 	// TODO replace this global
 	store = Store{db: db}
+	allStores = NewAllStores(db.DB)
 }
