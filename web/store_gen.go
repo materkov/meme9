@@ -7,6 +7,10 @@ type PostStore struct {
 }
 
 func (s *PostStore) Get(ids []int) ([]*Post, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
 	query := "select coalesce(id, 0), coalesce(user_id, 0), coalesce(date, 0), coalesce(text, ''), coalesce(photo_id, 0) from post where id in (" + idsStr(ids) + ")"
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -36,6 +40,10 @@ type UserStore struct {
 }
 
 func (s *UserStore) Get(ids []int) ([]*User, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
 	query := "select coalesce(id, 0), coalesce(name, ''), coalesce(avatar_id, 0), coalesce(vk_id, 0), coalesce(vk_avatar, '') from user where id in (" + idsStr(ids) + ")"
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -65,6 +73,10 @@ type TokenStore struct {
 }
 
 func (s *TokenStore) Get(ids []int) ([]*Token, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
 	query := "select coalesce(id, 0), coalesce(token, ''), coalesce(user_id, 0) from token where id in (" + idsStr(ids) + ")"
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -94,6 +106,10 @@ type PhotoStore struct {
 }
 
 func (s *PhotoStore) Get(ids []int) ([]*Photo, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
 	query := "select coalesce(id, 0), coalesce(user_id, 0), coalesce(path, '') from photo where id in (" + idsStr(ids) + ")"
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -123,6 +139,10 @@ type CommentStore struct {
 }
 
 func (s *CommentStore) Get(ids []int) ([]*Comment, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
 	query := "select coalesce(id, 0), coalesce(post_id, 0), coalesce(user_id, 0), coalesce(text, ''), coalesce(date, 0) from comment where id in (" + idsStr(ids) + ")"
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -146,19 +166,21 @@ func (s *CommentStore) Get(ids []int) ([]*Comment, error) {
 
 	return result, nil
 }
+
 type AllStores struct {
-    Post *PostStore
-    User *UserStore
-    Token *TokenStore
-    Photo *PhotoStore
-    Comment *CommentStore
+	Post    *PostStore
+	User    *UserStore
+	Token   *TokenStore
+	Photo   *PhotoStore
+	Comment *CommentStore
 }
+
 func NewAllStores(db *sql.DB) *AllStores {
-    return &AllStores {
-    Post: &PostStore{db: db},
-    User: &UserStore{db: db},
-    Token: &TokenStore{db: db},
-    Photo: &PhotoStore{db: db},
-    Comment: &CommentStore{db: db},
-    }
+	return &AllStores{
+		Post:    &PostStore{db: db},
+		User:    &UserStore{db: db},
+		Token:   &TokenStore{db: db},
+		Photo:   &PhotoStore{db: db},
+		Comment: &CommentStore{db: db},
+	}
 }

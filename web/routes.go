@@ -28,7 +28,7 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	followingIds = append(followingIds, viewer.UserID)
 
-	postIds, err := store.GetPostsByUsers(followingIds)
+	postIds, err := store.GetPostIdsByUsers(followingIds)
 	if err != nil {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
@@ -91,7 +91,7 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	user := users[0]
 
-	postIds, err := store.GetPostsByUsers([]int{userID})
+	postIds, err := store.GetPostIdsByUsers([]int{userID})
 	if err != nil {
 		log.Printf("Error selecting user posts: %s", err)
 	}
@@ -141,7 +141,7 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		log.Printf("Error selecting comment ids: %s", err)
 	}
 
-	comments, err := store.GetComments(commentIds)
+	comments, err := allStores.Comment.Get(commentIds)
 	if err != nil {
 		log.Printf("Error selecting comments objects: %s", err)
 	}

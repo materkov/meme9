@@ -84,7 +84,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	photosCh := make(chan []*Photo)
 	go func() {
-		result, err := store.GetPhotos(photoIds)
+		result, err := allStores.Photo.Get(photoIds)
 		if err != nil {
 			log.Printf("Error selecting photos: %s", err)
 		}
@@ -112,7 +112,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 			commentIds = append(commentIds, commentID)
 		}
 
-		comments, err := store.GetComments(commentIds)
+		comments, err := allStores.Comment.Get(commentIds)
 		if err != nil {
 			log.Printf("[Error selecting comment objects: %s", err)
 		}

@@ -63,17 +63,7 @@ func (s *Store) idsStr(ids []int) string {
 	return strings.Join(result, ",")
 }
 
-func (s *Store) GetFeed() ([]int, error) {
-	var postIds []int
-	err := s.db.Select(&postIds, "select id from post order by id desc limit 30")
-	if err != nil {
-		return nil, fmt.Errorf("error selecting post ids")
-	}
-
-	return postIds, nil
-}
-
-func (s *Store) GetPostsByUsers(userIds []int) ([]int, error) {
+func (s *Store) GetPostIdsByUsers(userIds []int) ([]int, error) {
 	var postIds []int
 	err := s.db.Select(
 		&postIds,
@@ -336,19 +326,6 @@ func (s *Store) GetCommentsByPost(postID int) ([]int, error) {
 	return commentIds, err
 }
 
-func (s *Store) GetComments(ids []int) ([]*Comment, error) {
-	var comments []*Comment
-	err := s.db.Select(
-		&comments,
-		fmt.Sprintf("select * from comment where id in (%s)", s.idsStr(ids)),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("error selecting comment rows: %w", err)
-	}
-
-	return comments, err
-}
-
 func (s *Store) GenerateNextID(objectType int) (int, error) {
 	result, err := s.db.Exec("insert into objects(object_type) values (?)", objectType)
 	if err != nil {
@@ -367,18 +344,6 @@ func (s *Store) AddPhoto(photo *Photo) error {
 	return err
 }
 
-func (s *Store) GetPhotos(ids []int) ([]*Photo, error) {
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
-	var result []*Photo
-	err := s.db.Select(
-		&result,
-		fmt.Sprintf("select * from photo where id in (%s)", s.idsStr(ids)),
-	)
-	return result, err
-}
 
 func (s *Store) AddAPILog(userID int, method string, request []byte, response []byte) error {
 	_, err := s.db.Exec(

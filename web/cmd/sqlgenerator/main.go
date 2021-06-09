@@ -24,6 +24,10 @@ type {{.Typename}}Store struct {
 }
 
 func (s *{{.Typename}}Store) Get(ids []int) ([]*{{.Typename}}, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
 	query := "select {{.SqlFields}} from {{.TableName}} where id in (" + idsStr(ids) + ")"
 	rows, err := s.db.Query(query)
 	if err != nil {

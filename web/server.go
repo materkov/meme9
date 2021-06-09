@@ -122,7 +122,7 @@ func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.Posts
 	photoID := 0
 	if request.PhotoId != "" {
 		photoID, _ = strconv.Atoi(request.PhotoId)
-		photos, err := store.GetPhotos([]int{photoID})
+		photos, err := allStores.Photo.Get([]int{photoID})
 		if err != nil {
 			return nil, fmt.Errorf("error getting photos: %w", err)
 		} else if len(photos) == 0 {
