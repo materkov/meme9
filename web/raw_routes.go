@@ -78,7 +78,7 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 	}
 
 	var user *User
-	users, err := store.GetUsers([]int{userID})
+	users, err := allStores.User.Get([]int{userID})
 	if err != nil {
 		return "", fmt.Errorf("error getting users: %w", err)
 	} else if len(users) == 1 {
@@ -229,6 +229,11 @@ func writeAPIError(w http.ResponseWriter, err error) {
 }
 
 func handleAPI(w http.ResponseWriter, request *http.Request) {
+	method := request.URL.Query().Get("method")
+	tracer := NewTracer("api " + method)
+	defer tracer.Stop()
+	w.Header().Set("x-request-id", fmt.Sprintf("%x", tracer.ID))
+
 	w.Header().Set("Content-Type", "application/json")
 
 	body, err := ioutil.ReadAll(request.Body)
@@ -237,7 +242,6 @@ func handleAPI(w http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	method := request.URL.Query().Get("method")
 	ctx := request.Context()
 	viewer := GetViewerFromContext(ctx)
 	m := protojson.UnmarshalOptions{DiscardUnknown: true}
@@ -307,5 +311,8 @@ func handleAPI(w http.ResponseWriter, request *http.Request) {
 	respBytes, _ := marshaller.Marshal(resp)
 	_, _ = w.Write(respBytes)
 
-	_ = store.AddAPILog(viewer.UserID, method, body, respBytes)
+	go func() {
+		defer tracer.StartChild("api log").Stop()
+		_ = store.AddAPILog(viewer.UserID, method, body, respBytes)
+	}()
 }

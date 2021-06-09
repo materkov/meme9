@@ -75,7 +75,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	usersCh := make(chan []*User)
 	go func() {
-		result, err := store.GetUsers(userIds)
+		result, err := allStores.User.Get(userIds)
 		if err != nil {
 			log.Printf("Error selecting users: %s", err)
 		}
@@ -287,6 +287,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed opening mysql connection: %s", err)
 	}
+
+	allStores = NewAllStores(db.DB)
 
 	store = Store{db: db}
 	auth = &Auth{store: &store}

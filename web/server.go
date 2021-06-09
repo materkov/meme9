@@ -37,7 +37,7 @@ func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.F
 			headerRenderer.CsrfToken = GenerateCSRFToken(viewer.Token.Token)
 		}
 
-		users, err := store.GetUsers([]int{viewer.UserID})
+		users, err := allStores.User.Get([]int{viewer.UserID})
 		if err != nil {
 			log.Printf("Error getting user: %s", err)
 		} else if len(users) == 0 {
@@ -205,7 +205,7 @@ func (p *Posts) AddComment(ctx context.Context, req *pb.AddCommentRequest) (*pb.
 	}
 
 	postID, _ := strconv.Atoi(req.PostId)
-	posts, err := store.GetPosts([]int{postID})
+	posts, err := allStores.Post.Get([]int{postID})
 	if err != nil {
 		return nil, fmt.Errorf("error loading posts: %w", err)
 	} else if len(posts) == 0 {

@@ -10,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+//go:generate go run cmd/sqlgenerator/main.go
 const (
 	ObjectTypePost  = 1
 	ObjectTypeUser  = 2
@@ -50,6 +51,7 @@ type Store struct {
 }
 
 var store Store
+var allStores *AllStores
 var ErrObjectNotFound = fmt.Errorf("object not found")
 
 func (s *Store) idsStr(ids []int) string {
@@ -82,16 +84,6 @@ func (s *Store) GetPostsByUsers(userIds []int) ([]int, error) {
 	}
 
 	return postIds, nil
-}
-
-func (s *Store) GetPosts(ids []int) ([]*Post, error) {
-	var posts []*Post
-	err := s.db.Select(&posts, "select id, user_id, date, text, COALESCE(photo_id, 0) as photo_id from post where id in ("+s.idsStr(ids)+")")
-	if err != nil {
-		return nil, fmt.Errorf("error selecting post ids")
-	}
-
-	return posts, err
 }
 
 func (s *Store) AddPost(post *Post) error {
@@ -156,16 +148,6 @@ func (s *Store) AddToken(token *Token) error {
 		token.ID, token.Token, token.UserID,
 	)
 	return err
-}
-
-func (s *Store) GetUsers(ids []int) ([]*User, error) {
-	var users []*User
-	err := s.db.Select(&users, "select id, coalesce(name, '') as name, coalesce(vk_avatar, '') as vk_avatar, coalesce(vk_id, 0) as vk_id from user where id in ("+s.idsStr(ids)+")")
-	if err != nil {
-		return nil, fmt.Errorf("error selecting users: %w", err)
-	}
-
-	return users, err
 }
 
 func (s *Store) AddUserByVK(user *User) error {

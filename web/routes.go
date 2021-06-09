@@ -33,7 +33,7 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
 
-	posts, err := store.GetPosts(postIds)
+	posts, err := allStores.Post.Get(postIds)
 	if err != nil {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
@@ -82,7 +82,7 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	}
 
 	userID, _ := strconv.Atoi(req.Id)
-	users, err := store.GetUsers([]int{userID})
+	users, err := allStores.User.Get([]int{userID})
 	if err != nil {
 		return nil, fmt.Errorf("error selecting user: %w", err)
 	} else if len(users) == 0 {
@@ -96,7 +96,7 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		log.Printf("Error selecting user posts: %s", err)
 	}
 
-	posts, err := store.GetPosts(postIds)
+	posts, err := allStores.Post.Get(postIds)
 	if err != nil {
 		log.Printf("Error selecting posts: %s", err)
 	}
@@ -129,7 +129,7 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	postIDStr := strings.TrimPrefix(url, "/posts/")
 	postID, _ := strconv.Atoi(postIDStr)
 
-	posts, err := store.GetPosts([]int{postID})
+	posts, err := allStores.Post.Get([]int{postID})
 	if err != nil {
 		return nil, fmt.Errorf("error selecting post: %s", err)
 	} else if len(posts) == 0 {
