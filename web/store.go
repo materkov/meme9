@@ -344,7 +344,6 @@ func (s *Store) AddPhoto(photo *Photo) error {
 	return err
 }
 
-
 func (s *Store) AddAPILog(userID int, method string, request []byte, response []byte) error {
 	_, err := s.db.Exec(
 		"insert into api_log(user_id, method, request, response) values (?, ?, ?, ?)",
