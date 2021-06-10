@@ -29,7 +29,7 @@ func idsStr(ids []int) string {
 func scanIdsList(db *sql.DB, query string) ([]int, error) {
 	rows, err := db.Query(query)
 	if err != nil {
-	    return nil, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -37,7 +37,7 @@ func scanIdsList(db *sql.DB, query string) ([]int, error) {
 	for rows.Next() {
 		item := 0
 		if err = rows.Scan(&item); err != nil {
-		    return nil, err
+			return nil, err
 		}
 
 		result = append(result, item)
