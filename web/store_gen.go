@@ -313,27 +313,29 @@ func (s *FollowersStore) Add(obj *Followers) error {
 	_, err := s.db.Exec(query, sql.NullInt32{Int32: int32(obj.ID), Valid: obj.ID != 0}, sql.NullInt32{Int32: int32(obj.User1ID), Valid: obj.User1ID != 0}, sql.NullInt32{Int32: int32(obj.User2ID), Valid: obj.User2ID != 0}, sql.NullInt32{Int32: int32(obj.FollowDate), Valid: obj.FollowDate != 0})
 	return err
 }
+
 type Store struct {
-    db *sql.DB
-    Post *PostStore
-    User *UserStore
-    Token *TokenStore
-    Photo *PhotoStore
-    Likes *LikesStore
-    Comment *CommentStore
-    APILog *APILogStore
-    Followers *FollowersStore
+	db        *sql.DB
+	Post      *PostStore
+	User      *UserStore
+	Token     *TokenStore
+	Photo     *PhotoStore
+	Likes     *LikesStore
+	Comment   *CommentStore
+	APILog    *APILogStore
+	Followers *FollowersStore
 }
+
 func NewStore(db *sql.DB) *Store {
-    return &Store {
-    db: db,
-    Post: &PostStore{db: db},
-    User: &UserStore{db: db},
-    Token: &TokenStore{db: db},
-    Photo: &PhotoStore{db: db},
-    Likes: &LikesStore{db: db},
-    Comment: &CommentStore{db: db},
-    APILog: &APILogStore{db: db},
-    Followers: &FollowersStore{db: db},
-    }
+	return &Store{
+		db:        db,
+		Post:      &PostStore{db: db},
+		User:      &UserStore{db: db},
+		Token:     &TokenStore{db: db},
+		Photo:     &PhotoStore{db: db},
+		Likes:     &LikesStore{db: db},
+		Comment:   &CommentStore{db: db},
+		APILog:    &APILogStore{db: db},
+		Followers: &FollowersStore{db: db},
+	}
 }
