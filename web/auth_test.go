@@ -9,7 +9,7 @@ import (
 
 func TestTryVkAuth(t *testing.T) {
 	setupDB(t)
-	auth := Auth{store: &store}
+	auth := Auth{}
 
 	// Not registered
 	userID1, err := auth.tryVkAuth("https://meme.mmaks.me/?vk_user_id=123&vk_data=15&not_vk_param=568&sign=Ee4LRaYNMC41nqNamNr1dziR5xYemmd2tAo-eAjRsNg")
@@ -51,11 +51,11 @@ func TestTryVkAuth(t *testing.T) {
 
 func TestTryCookieAuth(t *testing.T) {
 	setupDB(t)
-	auth := Auth{store: &store}
+	auth := Auth{}
 
-	require.NoError(t, store.AddToken(&Token{
+	require.NoError(t, store.Token.Add(&Token{
 		ID:     1,
-		Token:  "test-token",
+		Token:  "1-test-token",
 		UserID: 167,
 	}))
 
@@ -63,19 +63,19 @@ func TestTryCookieAuth(t *testing.T) {
 	require.NoError(t, err)
 	r.AddCookie(&http.Cookie{
 		Name:  "access_token",
-		Value: "test-token",
+		Value: "1-test-token",
 	})
 	r.Header.Set("x-csrf-token", "yERDvFm5LK747IUA/0Q1hHk3VnSVI4EeszOvK7x0/Ig=")
 
 	token, err := auth.tryCookieAuth(r)
 	require.NoError(t, err)
-	require.Equal(t, "test-token", token.Token)
+	require.Equal(t, "1-test-token", token.Token)
 	require.Equal(t, 167, token.UserID)
 }
 
 func TestTryCookieAuth_Failed(t *testing.T) {
 	setupDB(t)
-	auth := Auth{store: &store}
+	auth := Auth{}
 
 	r, err := http.NewRequest("GET", "/", nil)
 	require.NoError(t, err)
@@ -101,19 +101,19 @@ func TestTryCookieAuth_Failed(t *testing.T) {
 
 func TestTryHeaderAuth(t *testing.T) {
 	setupDB(t)
-	auth := Auth{store: &store}
+	auth := Auth{}
 
-	require.NoError(t, store.AddToken(&Token{
+	require.NoError(t, store.Token.Add(&Token{
 		ID:     1,
-		Token:  "test-token",
+		Token:  "1-test-token",
 		UserID: 12,
 	}))
 
-	token, err := auth.tryHeaderAuth("test-token")
+	token, err := auth.tryHeaderAuth("1-test-token")
 	require.NoError(t, err)
 	require.Equal(t, token.ID, 1)
 
-	token, err = auth.tryHeaderAuth("Bearer test-token")
+	token, err = auth.tryHeaderAuth("Bearer 1-test-token")
 	require.NoError(t, err)
 	require.Equal(t, token.ID, 1)
 
@@ -123,5 +123,8 @@ func TestTryHeaderAuth(t *testing.T) {
 
 	// Not found
 	_, err = auth.tryHeaderAuth("incorrect-token")
+	require.Equal(t, ErrAuthFailed, err)
+
+	_, err = auth.tryHeaderAuth("1-incorrect-token")
 	require.Equal(t, ErrAuthFailed, err)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -15,7 +16,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 	"github.com/materkov/meme9/web/pb"
 )
 
@@ -57,7 +57,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	likesCountCh := make(chan map[int]int)
 	go func() {
-		result, err := store.GetLikesCount(postIds)
+		result, err := store.Likes.GetCount(postIds)
 		if err != nil {
 			log.Printf("Error getting likes count: %s", err)
 		}
@@ -66,7 +66,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	isLikedCh := make(chan map[int]bool)
 	go func() {
-		result, err := store.GetIsLiked(postIds, viewerID)
+		result, err := store.Likes.GetIsLiked(postIds, viewerID)
 		if err != nil {
 			log.Printf("Error getting likes count: %s", err)
 		}
@@ -75,7 +75,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	usersCh := make(chan []*User)
 	go func() {
-		result, err := allStores.User.Get(userIds)
+		result, err := store.User.Get(userIds)
 		if err != nil {
 			log.Printf("Error selecting users: %s", err)
 		}
@@ -84,7 +84,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	photosCh := make(chan []*Photo)
 	go func() {
-		result, err := allStores.Photo.Get(photoIds)
+		result, err := store.Photo.Get(photoIds)
 		if err != nil {
 			log.Printf("Error selecting photos: %s", err)
 		}
@@ -93,7 +93,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	commentCountsCh := make(chan map[int]int)
 	go func() {
-		result, err := store.GetCommentsCounts(postIds)
+		result, err := store.Comment.GetCommentsCounts(postIds)
 		if err != nil {
 			log.Printf("Error selecting users: %s", err)
 		}
@@ -102,7 +102,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	latestCommentsCh := make(chan map[int]*Comment)
 	go func() {
-		commentIdsMap, err := store.GetLatestComments(postIds)
+		commentIdsMap, err := store.Comment.GetLatest(postIds)
 		if err != nil {
 			log.Printf("Error selecting comment ids: %s", err)
 		}
@@ -112,7 +112,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 			commentIds = append(commentIds, commentID)
 		}
 
-		comments, err := allStores.Comment.Get(commentIds)
+		comments, err := store.Comment.Get(commentIds)
 		if err != nil {
 			log.Printf("[Error selecting comment objects: %s", err)
 		}
@@ -283,15 +283,14 @@ func main() {
 		log.Fatalf("Error loading config: %s", err)
 	}
 
-	db, err := sqlx.Open("mysql", "root:root@/meme9")
+	db, err := sql.Open("mysql", "root:root@/meme9")
 	if err != nil {
 		log.Fatalf("failed opening mysql connection: %s", err)
 	}
 
-	allStores = NewAllStores(db.DB)
+	store = NewStore(db)
 
-	store = Store{db: db}
-	auth = &Auth{store: &store}
+	auth = &Auth{store: store}
 
 	awsSession, err = session.NewSession(
 		&aws.Config{

@@ -21,19 +21,19 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		}, nil
 	}
 
-	followingIds, err := store.GetFollowing(viewer.UserID)
+	followingIds, err := store.Followers.GetFollowing(viewer.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting following user ids: %w", err)
 	}
 
 	followingIds = append(followingIds, viewer.UserID)
 
-	postIds, err := store.GetPostIdsByUsers(followingIds)
+	postIds, err := store.Post.GetByUsers(followingIds)
 	if err != nil {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
 
-	posts, err := allStores.Post.Get(postIds)
+	posts, err := store.Post.Get(postIds)
 	if err != nil {
 		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
@@ -82,7 +82,7 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	}
 
 	userID, _ := strconv.Atoi(req.Id)
-	users, err := allStores.User.Get([]int{userID})
+	users, err := store.User.Get([]int{userID})
 	if err != nil {
 		return nil, fmt.Errorf("error selecting user: %w", err)
 	} else if len(users) == 0 {
@@ -91,19 +91,19 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	user := users[0]
 
-	postIds, err := store.GetPostIdsByUsers([]int{userID})
+	postIds, err := store.Post.GetByUsers([]int{userID})
 	if err != nil {
 		log.Printf("Error selecting user posts: %s", err)
 	}
 
-	posts, err := allStores.Post.Get(postIds)
+	posts, err := store.Post.Get(postIds)
 	if err != nil {
 		log.Printf("Error selecting posts: %s", err)
 	}
 
 	wrappedPosts := convertPosts(posts, viewer.UserID, false)
 
-	followingIds, err := store.GetFollowing(viewer.UserID)
+	followingIds, err := store.Followers.GetFollowing(viewer.UserID)
 	if err != nil {
 		log.Printf("Error getting following users: %s", err)
 	}
@@ -129,19 +129,19 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	postIDStr := strings.TrimPrefix(url, "/posts/")
 	postID, _ := strconv.Atoi(postIDStr)
 
-	posts, err := allStores.Post.Get([]int{postID})
+	posts, err := store.Post.Get([]int{postID})
 	if err != nil {
 		return nil, fmt.Errorf("error selecting post: %s", err)
 	} else if len(posts) == 0 {
 		return nil, fmt.Errorf("post not found")
 	}
 
-	commentIds, err := store.GetCommentsByPost(postID)
+	commentIds, err := store.Comment.GetByPost(postID)
 	if err != nil {
 		log.Printf("Error selecting comment ids: %s", err)
 	}
 
-	comments, err := allStores.Comment.Get(commentIds)
+	comments, err := store.Comment.Get(commentIds)
 	if err != nil {
 		log.Printf("Error selecting comments objects: %s", err)
 	}

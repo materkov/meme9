@@ -37,7 +37,7 @@ func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.F
 			headerRenderer.CsrfToken = GenerateCSRFToken(viewer.Token.Token)
 		}
 
-		users, err := allStores.User.Get([]int{viewer.UserID})
+		users, err := store.User.Get([]int{viewer.UserID})
 		if err != nil {
 			log.Printf("Error getting user: %s", err)
 		} else if len(users) == 0 {
@@ -69,7 +69,7 @@ func (r *Relations) Follow(ctx context.Context, req *pb.RelationsFollowRequest) 
 		return nil, fmt.Errorf("need auth")
 	}
 
-	followingIds, err := store.GetFollowing(viewer.UserID)
+	followingIds, err := store.Followers.GetFollowing(viewer.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}
@@ -80,7 +80,17 @@ func (r *Relations) Follow(ctx context.Context, req *pb.RelationsFollowRequest) 
 		}
 	}
 
-	err = store.Follow(viewer.UserID, requestedID)
+	objectID, err := store.GenerateNextID(ObjectTypeFollower)
+	if err != nil {
+		return nil, fmt.Errorf("error generating object id: %w", err)
+	}
+
+	err = store.Followers.Add(&Followers{
+		ID:         objectID,
+		User1ID:    viewer.UserID,
+		User2ID:    requestedID,
+		FollowDate: int(time.Now().Unix()),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed saving follower: %w", err)
 	}
@@ -100,7 +110,7 @@ func (r *Relations) Unfollow(ctx context.Context, req *pb.RelationsUnfollowReque
 		return nil, fmt.Errorf("need auth")
 	}
 
-	err := store.Unfollow(viewer.UserID, requestedID)
+	err := store.Followers.Unfollow(viewer.UserID, requestedID)
 	if err != nil {
 		return nil, fmt.Errorf("failed saving to store: %w", err)
 	}
@@ -122,7 +132,7 @@ func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.Posts
 	photoID := 0
 	if request.PhotoId != "" {
 		photoID, _ = strconv.Atoi(request.PhotoId)
-		photos, err := allStores.Photo.Get([]int{photoID})
+		photos, err := store.Photo.Get([]int{photoID})
 		if err != nil {
 			return nil, fmt.Errorf("error getting photos: %w", err)
 		} else if len(photos) == 0 {
@@ -142,7 +152,7 @@ func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.Posts
 		PhotoID: photoID,
 	}
 
-	err = store.AddPost(&post)
+	err = store.Post.Add(&post)
 	if err != nil {
 		return nil, fmt.Errorf("error saving post: %w", err)
 	}
@@ -161,27 +171,37 @@ func (p *Posts) ToggleLike(ctx context.Context, req *pb.ToggleLikeRequest) (*pb.
 
 	postID, _ := strconv.Atoi(req.PostId)
 
-	isLiked, err := store.GetIsLiked([]int{postID}, viewer.UserID)
+	isLiked, err := store.Likes.GetIsLiked([]int{postID}, viewer.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting is liked: %w", err)
 	}
 
 	if req.Action == pb.ToggleLikeRequest_LIKE && !isLiked[postID] {
-		err = store.AddLike(postID, viewer.UserID)
+		objectID, err := store.GenerateNextID(ObjectTypeLike)
+		if err != nil {
+			return nil, fmt.Errorf("error generating object id: %w", err)
+		}
+
+		err = store.Likes.Add(&Likes{
+			ID:     objectID,
+			PostID: postID,
+			UserID: viewer.UserID,
+			Time:   int(time.Now().Unix()),
+		})
 		if err != nil {
 			return nil, fmt.Errorf("error saving like: %w", err)
 		}
 	}
 
 	if req.Action == pb.ToggleLikeRequest_UNLIKE && isLiked[postID] {
-		err = store.DeleteLike(postID, viewer.UserID)
+		err = store.Likes.Delete(postID, viewer.UserID)
 		if err != nil {
 			return nil, fmt.Errorf("error deleting like: %w", err)
 		}
 	}
 
 	postLikesCount := 0
-	likesCount, err := store.GetLikesCount([]int{postID})
+	likesCount, err := store.Likes.GetCount([]int{postID})
 	if err != nil {
 		log.Printf("Error getting likes count")
 	} else {
@@ -205,21 +225,27 @@ func (p *Posts) AddComment(ctx context.Context, req *pb.AddCommentRequest) (*pb.
 	}
 
 	postID, _ := strconv.Atoi(req.PostId)
-	posts, err := allStores.Post.Get([]int{postID})
+	posts, err := store.Post.Get([]int{postID})
 	if err != nil {
 		return nil, fmt.Errorf("error loading posts: %w", err)
 	} else if len(posts) == 0 {
 		return nil, fmt.Errorf("post not found")
 	}
 
+	objectID, err := store.GenerateNextID(ObjectTypeComment)
+	if err != nil {
+		return nil, fmt.Errorf("error generating object id: %w", err)
+	}
+
 	comment := Comment{
+		ID:     objectID,
 		PostID: posts[0].ID,
 		UserID: viewer.UserID,
 		Text:   req.Text,
 		Date:   int(time.Now().Unix()),
 	}
 
-	err = store.AddComment(&comment)
+	err = store.Comment.Add(&comment)
 	if err != nil {
 		return nil, fmt.Errorf("error saving comment: %w", err)
 	}

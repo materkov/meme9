@@ -102,7 +102,7 @@ create table photo
     path varchar(50)
 );
 
-create table api_log
+create table apilog
 (
     id int auto_increment primary key,
     user_id int,

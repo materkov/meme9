@@ -1,21 +1,21 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
 //go:generate go run cmd/sqlgenerator/main.go
 const (
-	ObjectTypePost  = 1
-	ObjectTypeUser  = 2
-	ObjectTypeToken = 3
-	ObjectTypePhoto = 4
+	ObjectTypePost     = 1
+	ObjectTypeUser     = 2
+	ObjectTypeToken    = 3
+	ObjectTypePhoto    = 4
+	ObjectTypeLike     = 5
+	ObjectTypeComment  = 6
+	ObjectTypeAPILog   = 7
+	ObjectTypeFollower = 8
 )
 
 type Post struct {
@@ -40,75 +40,51 @@ type Token struct {
 	UserID int    `db:"user_id"`
 }
 
+func GetIdFromToken(token string) int {
+	parts := strings.Split(token, "-")
+	if len(parts) < 2 {
+		return 0
+	}
+	tokenID, _ := strconv.Atoi(parts[0])
+	if tokenID <= 0 {
+		return 0
+	}
+
+	return tokenID
+}
+
 type Photo struct {
 	ID     int    `db:"id"`
 	UserID int    `db:"user_id"`
 	Path   string `db:"path"`
 }
 
-type Store struct {
-	db *sqlx.DB
+type Likes struct {
+	ID     int `db:"id"`
+	PostID int `db:"post_id"`
+	UserID int `db:"user_id"`
+	Time   int `db:"time"`
 }
 
-var store Store
-var allStores *AllStores
-var ErrObjectNotFound = fmt.Errorf("object not found")
+var store *Store
 
-func (s *Store) idsStr(ids []int) string {
-	result := make([]string, len(ids))
-	for i, id := range ids {
-		result[i] = strconv.Itoa(id)
-	}
-
-	return strings.Join(result, ",")
+func (s *PostStore) GetByUsers(userIds []int) ([]int, error) {
+	postIds, err := scanIdsList(s.db, fmt.Sprintf("select id from post where user_id in (%s) order by id desc limit 30", idsStr(userIds)))
+	return postIds, err
 }
 
-func (s *Store) GetPostIdsByUsers(userIds []int) ([]int, error) {
-	var postIds []int
-	err := s.db.Select(
-		&postIds,
-		fmt.Sprintf("select id from post where user_id in (%s) order by id desc limit 30", s.idsStr(userIds)),
-	)
+func (s *UserStore) GetByVkID(vkID int) (int, error) {
+	userIds, err := scanIdsList(s.db, "select id from user where vk_id = "+strconv.Itoa(vkID))
 	if err != nil {
-		return nil, fmt.Errorf("error selecting post ids")
-	}
-
-	return postIds, nil
-}
-
-func (s *Store) AddPost(post *Post) error {
-	photoID := sql.NullInt32{}
-	if post.PhotoID != 0 {
-		photoID = sql.NullInt32{
-			Int32: int32(post.PhotoID),
-			Valid: true,
-		}
-	}
-
-	_, err := s.db.Exec(
-		"insert into post (id, user_id, date, text, photo_id) values (?, ?, ?, ?, ?)",
-		post.ID, post.UserID, post.Date, post.Text, photoID,
-	)
-	if err != nil {
-		return fmt.Errorf("error inserting post row: %w", err)
-	}
-
-	return nil
-}
-
-func (s *Store) GetByVkID(vkID int) (int, error) {
-	userID := 0
-	err := s.db.Get(&userID, "select id from user where vk_id = ?", vkID)
-	if err == sql.ErrNoRows {
+		return 0, err
+	} else if len(userIds) == 0 {
 		return 0, nil
-	} else if err != nil {
-		return 0, fmt.Errorf("error selecting user by vk id: %w", err)
+	} else {
+		return userIds[0], err
 	}
-
-	return userID, err
 }
 
-func (s *Store) UpdateNameAvatar(user *User) error {
+func (s *UserStore) UpdateNameAvatar(user *User) error {
 	_, err := s.db.Exec(
 		"update user set name = ?, vk_avatar = ? where id = ?",
 		user.Name, user.VkAvatar, user.ID,
@@ -120,120 +96,62 @@ func (s *Store) UpdateNameAvatar(user *User) error {
 	return nil
 }
 
-func (s *Store) GetToken(tokenStr string) (*Token, error) {
-	token := Token{}
-	err := s.db.Get(&token, "select * from token where token = ?", tokenStr)
-	if err == sql.ErrNoRows {
-		return nil, ErrObjectNotFound
-	} else if err != nil {
-		return nil, fmt.Errorf("error selecting token row: %w", err)
-	}
-
-	return &token, err
-}
-
-func (s *Store) AddToken(token *Token) error {
-	_, err := s.db.Exec(
-		"insert into token(id, token, user_id) values (?, ?, ?)",
-		token.ID, token.Token, token.UserID,
-	)
-	return err
-}
-
-func (s *Store) AddUserByVK(user *User) error {
-	_, err := s.db.Exec("insert into user(id, vk_id) values (?, ?)", user.ID, user.VkID)
-	return err
-}
-
-func (s *Store) AddLike(postID, userID int) error {
-	_, err := s.db.Exec(
-		"insert into likes(post_id, user_id, time) values (?, ?, ?)",
-		postID, userID, time.Now().Unix(),
-	)
-	if err != nil {
-		return fmt.Errorf("error inserting like: %s", err)
-	}
-
-	return nil
-}
-
-func (s *Store) DeleteLike(postID, userID int) error {
+func (s *LikesStore) Delete(postID, userID int) error {
 	_, err := s.db.Exec(
 		"delete from likes where post_id = ? and user_id = ?",
 		postID, userID,
 	)
-	if err != nil {
-		return fmt.Errorf("error inserting like: %s", err)
-	}
-
-	return nil
+	return err
 }
 
-func (s *Store) GetLikesCount(postIds []int) (map[int]int, error) {
-	result := map[int]int{}
-
-	var rows []struct {
-		PostID int `db:"post_id"`
-		Count  int `db:"count"`
-	}
-
-	err := s.db.Select(
-		&rows,
-		"select post_id as post_id, count(*) as count from likes where post_id in ("+s.idsStr(postIds)+") group by post_id",
-	)
+func (s *LikesStore) GetCount(postIds []int) (map[int]int, error) {
+	rows, err := s.db.Query("select post_id, count(*) from likes where post_id in (" + idsStr(postIds) + ") group by post_id")
 	if err != nil {
-		return result, fmt.Errorf("error selecting likes count: %s", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := map[int]int{}
+	postID, count := 0, 0
+	for rows.Next() {
+		err := rows.Scan(&postID, &count)
+		if err != nil {
+			return nil, err
+		}
+
+		result[postID] = count
 	}
 
-	for _, row := range rows {
-		result[row.PostID] = row.Count
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *Store) GetIsLiked(postIds []int, userID int) (map[int]bool, error) {
+func (s *LikesStore) GetIsLiked(postIds []int, userID int) (map[int]bool, error) {
 	result := map[int]bool{}
 
-	var likedPosts []int
-	err := s.db.Select(
-		&likedPosts,
-		fmt.Sprintf("select post_id from likes where user_id = %d and post_id in (%s)", userID, s.idsStr(postIds)),
+	postIds, err := scanIdsList(
+		s.db,
+		fmt.Sprintf("select post_id from likes where user_id = %d and post_id in (%s)", userID, idsStr(postIds)),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error selecting likes count: %s", err)
+		return nil, err
 	}
 
-	for _, postID := range likedPosts {
+	for _, postID := range postIds {
 		result[postID] = true
 	}
 
 	return result, nil
 }
 
-func (s *Store) GetFollowing(userID int) ([]int, error) {
-	var userIds []int
-	err := s.db.Select(&userIds, "select user2_id from followers where user1_id = ?", userID)
-	if err != nil {
-		return nil, fmt.Errorf("error selecting followers: %w", err)
-	}
-
-	return userIds, err
+func (s *FollowersStore) GetFollowing(userID int) ([]int, error) {
+	return scanIdsList(s.db, "select user2_id from followers where user1_id = "+strconv.Itoa(userID))
 }
 
-func (s *Store) Follow(userFrom, userTo int) error {
-	_, err := s.db.Exec(
-		"insert into followers (user1_id, user2_id, follow_date) values (?, ?, ?)",
-		userFrom, userTo, time.Now().Unix(),
-	)
-	if err != nil {
-		return fmt.Errorf("error inserting followers row: %w", err)
-	}
-
-	return nil
-}
-
-func (s *Store) Unfollow(userFrom, userTo int) error {
+func (s *FollowersStore) Unfollow(userFrom, userTo int) error {
 	_, err := s.db.Exec(
 		"delete from followers where user1_id = ? and user2_id = ?",
 		userFrom, userTo,
@@ -253,77 +171,60 @@ type Comment struct {
 	Date   int    `db:"date"`
 }
 
-func (s *Store) AddComment(comment *Comment) error {
-	result, err := s.db.Exec(
-		"insert into comment(post_id, text, date, user_id) values (?, ?, ?, ?)",
-		comment.PostID, comment.Text, comment.Date, comment.UserID,
-	)
+func (s *CommentStore) GetCommentsCounts(postIds []int) (map[int]int, error) {
+	rows, err := s.db.Query(fmt.Sprintf("select post_id, count(*) as cnt from comment where post_id in (%s) group by post_id", idsStr(postIds)))
 	if err != nil {
-		return fmt.Errorf("error inserting row: %w", err)
+		return nil, err
 	}
-
-	id, _ := result.LastInsertId()
-	comment.ID = int(id)
-
-	return nil
-}
-
-func (s *Store) GetCommentsCounts(postIds []int) (map[int]int, error) {
-	var rows []struct {
-		PostID int `db:"post_id"`
-		Count  int `db:"cnt"`
-	}
-	err := s.db.Select(
-		&rows,
-		fmt.Sprintf("select post_id, count(*) as cnt from comment where post_id in (%s) group by post_id", s.idsStr(postIds)),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("error selecting comment rows: %w", err)
-	}
+	defer rows.Close()
 
 	result := map[int]int{}
-	for _, row := range rows {
-		if row.Count > 0 {
-			result[row.PostID] = row.Count
+	postID, count := 0, 0
+	for rows.Next() {
+		err = rows.Scan(&postID, &count)
+		if err != nil {
+			return nil, err
+		}
+
+		if count > 0 {
+			result[postID] = count
 		}
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return result, nil
 }
 
-func (s *Store) GetLatestComments(postIds []int) (map[int]int, error) {
-	var rows []struct {
-		PostID    int `db:"post_id"`
-		CommentID int `db:"comment_id"`
-	}
-	err := s.db.Select(
-		&rows,
-		fmt.Sprintf("select post_id, max(id) as comment_id from comment where post_id in (%s) group by post_id", s.idsStr(postIds)),
-	)
+func (s *CommentStore) GetLatest(postIds []int) (map[int]int, error) {
+	rows, err := s.db.Query(fmt.Sprintf("select post_id, max(id) from comment where post_id in (%s) group by post_id", idsStr(postIds)))
 	if err != nil {
-		return nil, fmt.Errorf("error selecting comment rows: %w", err)
+		return nil, err
 	}
+	defer rows.Close()
 
 	result := map[int]int{}
-	for _, row := range rows {
-		result[row.PostID] = row.CommentID
+	postID, commentID := 0, 0
+	for rows.Next() {
+		err = rows.Scan(&postID, &commentID)
+		if err != nil {
+			return nil, err
+		}
+
+		result[postID] = commentID
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *Store) GetCommentsByPost(postID int) ([]int, error) {
-	var commentIds []int
-	err := s.db.Select(
-		&commentIds,
-		"select id from comment where post_id = ? order by id desc limit 100",
-		postID,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("error selecting comment rows: %w", err)
-	}
-
-	return commentIds, err
+func (s *CommentStore) GetByPost(postID int) ([]int, error) {
+	return scanIdsList(s.db, "select id from comment where post_id = "+strconv.Itoa(postID)+" order by id desc limit 100")
 }
 
 func (s *Store) GenerateNextID(objectType int) (int, error) {
@@ -336,18 +237,17 @@ func (s *Store) GenerateNextID(objectType int) (int, error) {
 	return int(id), err
 }
 
-func (s *Store) AddPhoto(photo *Photo) error {
-	_, err := s.db.Exec(
-		"insert into photo(id, user_id, path) values (?, ?, ?)",
-		photo.ID, photo.UserID, photo.Path,
-	)
-	return err
+type APILog struct {
+	ID       int    `db:"id"`
+	UserID   int    `db:"user_id"`
+	Method   string `db:"method"`
+	Request  string `db:"request"`
+	Response string `db:"response"`
 }
 
-func (s *Store) AddAPILog(userID int, method string, request []byte, response []byte) error {
-	_, err := s.db.Exec(
-		"insert into api_log(user_id, method, request, response) values (?, ?, ?, ?)",
-		userID, method, request, response,
-	)
-	return err
+type Followers struct {
+	ID         int `db:"id"`
+	User1ID    int `db:"user1_id"`
+	User2ID    int `db:"user2_id"`
+	FollowDate int `db:"follow_date"`
 }

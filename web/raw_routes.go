@@ -72,13 +72,13 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 		return "", fmt.Errorf("empty access token: %s", bodyBytes)
 	}
 
-	userID, err := store.GetByVkID(body.UserID)
+	userID, err := store.User.GetByVkID(body.UserID)
 	if err != nil {
 		return "", fmt.Errorf("error selecting by vk id: %w", err)
 	}
 
 	var user *User
-	users, err := allStores.User.Get([]int{userID})
+	users, err := store.User.Get([]int{userID})
 	if err != nil {
 		return "", fmt.Errorf("error getting users: %w", err)
 	} else if len(users) == 1 {
@@ -94,7 +94,7 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 			VkID: body.UserID,
 		}
 
-		err = store.AddUserByVK(user)
+		err = store.User.Add(user)
 		if err != nil {
 			return "", fmt.Errorf("error saving user: %w", err)
 		}
@@ -106,7 +106,7 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 	} else {
 		user.Name = vkName
 		user.VkAvatar = vkAvatar
-		err = store.UpdateNameAvatar(user)
+		err = store.User.UpdateNameAvatar(user)
 		if err != nil {
 			return "", fmt.Errorf("failed updating name and avatar: %w", err)
 		}
@@ -119,10 +119,10 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 
 	token := Token{
 		ID:     objectID,
-		Token:  RandString(50),
+		Token:  fmt.Sprintf("%d-%s", objectID, RandString(40)),
 		UserID: userID,
 	}
-	err = store.AddToken(&token)
+	err = store.Token.Add(&token)
 	if err != nil {
 		return "", fmt.Errorf("failed saving token: %w", err)
 	}
@@ -209,7 +209,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		UserID: viewer.UserID,
 		Path:   filePath,
 	}
-	err = store.AddPhoto(&photo)
+	err = store.Photo.Add(&photo)
 	if err != nil {
 		fmt.Fprintf(w, "cannot save photo")
 		return
@@ -311,8 +311,17 @@ func handleAPI(w http.ResponseWriter, request *http.Request) {
 	respBytes, _ := marshaller.Marshal(resp)
 	_, _ = w.Write(respBytes)
 
-	go func() {
-		defer tracer.StartChild("api log").Stop()
-		_ = store.AddAPILog(viewer.UserID, method, body, respBytes)
-	}()
+	defer tracer.StartChild("api log").Stop()
+	objectID, err := store.GenerateNextID(ObjectTypeAPILog)
+	if err != nil {
+		return
+	}
+
+	_ = store.APILog.Add(&APILog{
+		ID:       objectID,
+		UserID:   viewer.UserID,
+		Method:   method,
+		Request:  string(body),
+		Response: string(respBytes),
+	})
 }

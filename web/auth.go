@@ -56,7 +56,7 @@ func (a *Auth) tryVkAuth(authUrl string) (int, error) {
 		return 0, ErrAuthFailed
 	}
 
-	userID, err := store.GetByVkID(vkUserID)
+	userID, err := store.User.GetByVkID(vkUserID)
 	if err != nil {
 		return 0, fmt.Errorf("failed getting user by vk id: %w", err)
 	} else if userID != 0 {
@@ -74,7 +74,7 @@ func (a *Auth) tryVkAuth(authUrl string) (int, error) {
 		Name: fmt.Sprintf("VK User %d", vkUserID),
 		VkID: vkUserID,
 	}
-	err = store.AddUserByVK(&user)
+	err = store.User.Add(&user)
 	if err != nil {
 		return 0, fmt.Errorf("error saving user: %w", err)
 	}
@@ -108,14 +108,23 @@ func (a *Auth) tryHeaderAuth(authHeader string) (*Token, error) {
 }
 
 func (a *Auth) tryTokenAuth(tokenStr string) (*Token, error) {
-	token, err := store.GetToken(tokenStr)
-	if err == ErrObjectNotFound {
+	tokenID := GetIdFromToken(tokenStr)
+	if tokenID == 0 {
 		return nil, ErrAuthFailed
-	} else if err != nil {
+	}
+	tokens, err := store.Token.Get([]int{tokenID})
+	if err != nil {
 		return nil, fmt.Errorf("error selecting token: %w", err)
 	}
 
-	return token, nil
+	if len(tokens) == 0 {
+		return nil, ErrAuthFailed
+	}
+	if tokens[0].Token != tokenStr {
+		return nil, ErrAuthFailed
+	}
+
+	return tokens[0], nil
 }
 
 func (a *Auth) tryAuth(r *http.Request) (*Token, int, error) {

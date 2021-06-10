@@ -9,11 +9,16 @@ import (
 func TestHandleIndex(t *testing.T) {
 	setupDB(t)
 
-	require.NoError(t, store.Follow(10, 11))
+	require.NoError(t, store.Followers.Add(&Followers{
+		ID:         1,
+		User1ID:    10,
+		User2ID:    11,
+		FollowDate: 1,
+	}))
 
-	require.NoError(t, store.AddPost(&Post{ID: 1, UserID: 10}))
-	require.NoError(t, store.AddPost(&Post{ID: 2, UserID: 11}))
-	require.NoError(t, store.AddPost(&Post{ID: 3, UserID: 12}))
+	require.NoError(t, store.Post.Add(&Post{ID: 1, UserID: 10}))
+	require.NoError(t, store.Post.Add(&Post{ID: 2, UserID: 11}))
+	require.NoError(t, store.Post.Add(&Post{ID: 3, UserID: 12}))
 
 	resp, err := handleIndex("", &Viewer{UserID: 10})
 	require.NoError(t, err)
