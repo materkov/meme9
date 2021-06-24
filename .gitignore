@@ -2,5 +2,5 @@
 front/node_modules
 front/dist/*.js
 front/dist/*.LICENSE.txt
-front2/node_modules
+front/node_modules
 web/config.json
