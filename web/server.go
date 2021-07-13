@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/materkov/meme9/web/pb"
+	store2 "github.com/materkov/meme9/web/store"
 )
 
 type Feed struct {
@@ -171,44 +172,33 @@ func (p *Posts) ToggleLike(ctx context.Context, req *pb.ToggleLikeRequest) (*pb.
 
 	postID, _ := strconv.Atoi(req.PostId)
 
-	isLiked, err := store.Likes.GetIsLiked([]int{postID}, viewer.UserID)
+	data, err := objectStore.AssocGet(postID, store2.Assoc_Liked, viewer.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting is liked: %w", err)
 	}
 
-	if req.Action == pb.ToggleLikeRequest_LIKE && !isLiked[postID] {
-		objectID, err := store.GenerateNextID(ObjectTypeLike)
-		if err != nil {
-			return nil, fmt.Errorf("error generating object id: %w", err)
-		}
+	isLiked := data != nil && data.Liked != nil
 
-		err = store.Likes.Add(&Likes{
-			ID:     objectID,
-			PostID: postID,
-			UserID: viewer.UserID,
-			Time:   int(time.Now().Unix()),
-		})
+	if req.Action == pb.ToggleLikeRequest_LIKE && !isLiked {
+		err = objectStore.AssocAdd(postID, viewer.UserID, store2.Assoc_Liked, &store2.StoredAssoc{Liked: &store2.Liked{}})
 		if err != nil {
 			return nil, fmt.Errorf("error saving like: %w", err)
 		}
 	}
 
-	if req.Action == pb.ToggleLikeRequest_UNLIKE && isLiked[postID] {
-		err = store.Likes.Delete(postID, viewer.UserID)
+	if req.Action == pb.ToggleLikeRequest_UNLIKE && isLiked {
+		err = objectStore.AssocDelete(postID, viewer.UserID, store2.Assoc_Liked)
 		if err != nil {
 			return nil, fmt.Errorf("error deleting like: %w", err)
 		}
 	}
 
-	postLikesCount := 0
-	likesCount, err := store.Likes.GetCount([]int{postID})
+	likesCount, err := objectStore.AssocCount(postID, store2.Assoc_Liked)
 	if err != nil {
 		log.Printf("Error getting likes count")
-	} else {
-		postLikesCount = likesCount[postID]
 	}
 
-	return &pb.ToggleLikeResponse{LikesCount: int32(postLikesCount)}, nil
+	return &pb.ToggleLikeResponse{LikesCount: int32(likesCount)}, nil
 }
 
 func (p *Posts) AddComment(ctx context.Context, req *pb.AddCommentRequest) (*pb.AddCommentResponse, error) {

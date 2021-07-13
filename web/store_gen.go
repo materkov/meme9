@@ -121,45 +121,6 @@ func (s *TokenStore) Add(obj *Token) error {
 	return err
 }
 
-type LikesStore struct {
-	db *sql.DB
-}
-
-func (s *LikesStore) Get(ids []int) ([]*Likes, error) {
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
-	query := "select coalesce(id, 0), coalesce(post_id, 0), coalesce(user_id, 0), coalesce(time, 0) from likes where id in (" + idsStr(ids) + ")"
-	rows, err := s.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	result := make([]*Likes, 0)
-	for rows.Next() {
-		obj := Likes{}
-		err := rows.Scan(&obj.ID, &obj.PostID, &obj.UserID, &obj.Time)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, &obj)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *LikesStore) Add(obj *Likes) error {
-	query := "insert into likes(id, post_id, user_id, time) values (?, ?, ?, ?)"
-	_, err := s.db.Exec(query, sql.NullInt32{Int32: int32(obj.ID), Valid: obj.ID != 0}, sql.NullInt32{Int32: int32(obj.PostID), Valid: obj.PostID != 0}, sql.NullInt32{Int32: int32(obj.UserID), Valid: obj.UserID != 0}, sql.NullInt32{Int32: int32(obj.Time), Valid: obj.Time != 0})
-	return err
-}
-
 type CommentStore struct {
 	db *sql.DB
 }
@@ -283,7 +244,7 @@ type Store struct {
 	User      *UserStore
 	Token     *TokenStore
 	//Photo     *PhotoStore
-	Likes     *LikesStore
+	//Likes     *LikesStore
 	Comment   *CommentStore
 	APILog    *APILogStore
 	Followers *FollowersStore
@@ -296,7 +257,7 @@ func NewStore(db *sql.DB) *Store {
 		User:      &UserStore{db: db},
 		Token:     &TokenStore{db: db},
 		//Photo:     &PhotoStore{db: db},
-		Likes:     &LikesStore{db: db},
+		//Likes:     &LikesStore{db: db},
 		Comment:   &CommentStore{db: db},
 		APILog:    &APILogStore{db: db},
 		Followers: &FollowersStore{db: db},

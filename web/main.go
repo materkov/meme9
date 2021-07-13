@@ -58,19 +58,32 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	likesCountCh := make(chan map[int]int)
 	go func() {
-		result, err := store.Likes.GetCount(postIds)
-		if err != nil {
-			log.Printf("Error getting likes count: %s", err)
+		result := map[int]int{}
+		for _, postID := range postIds {
+			count, err := objectStore.AssocCount(postID, store2.Assoc_Liked)
+			if err != nil {
+				log.Printf("Error getting likes count: %s", err)
+			} else {
+				result[postID] = count
+			}
 		}
 		likesCountCh <- result
 	}()
 
 	isLikedCh := make(chan map[int]bool)
 	go func() {
-		result, err := store.Likes.GetIsLiked(postIds, viewerID)
-		if err != nil {
-			log.Printf("Error getting likes count: %s", err)
+		result := map[int]bool{}
+		for _, postId := range postIds {
+			data, err := objectStore.AssocGet(postId, store2.Assoc_Liked, viewerID)
+			if err != nil {
+				log.Printf("Error getting is Liked: %s", err)
+				continue
+			}
+			if data != nil && data.Liked != nil {
+				result[postId] = true
+			}
 		}
+
 		isLikedCh <- result
 	}()
 

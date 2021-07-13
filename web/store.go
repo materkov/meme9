@@ -94,57 +94,6 @@ func (s *UserStore) UpdateNameAvatar(user *User) error {
 	return nil
 }
 
-func (s *LikesStore) Delete(postID, userID int) error {
-	_, err := s.db.Exec(
-		"delete from likes where post_id = ? and user_id = ?",
-		postID, userID,
-	)
-	return err
-}
-
-func (s *LikesStore) GetCount(postIds []int) (map[int]int, error) {
-	rows, err := s.db.Query("select post_id, count(*) from likes where post_id in (" + idsStr(postIds) + ") group by post_id")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	result := map[int]int{}
-	postID, count := 0, 0
-	for rows.Next() {
-		err := rows.Scan(&postID, &count)
-		if err != nil {
-			return nil, err
-		}
-
-		result[postID] = count
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *LikesStore) GetIsLiked(postIds []int, userID int) (map[int]bool, error) {
-	result := map[int]bool{}
-
-	postIds, err := scanIdsList(
-		s.db,
-		fmt.Sprintf("select post_id from likes where user_id = %d and post_id in (%s)", userID, idsStr(postIds)),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, postID := range postIds {
-		result[postID] = true
-	}
-
-	return result, nil
-}
-
 func (s *FollowersStore) GetFollowing(userID int) ([]int, error) {
 	return scanIdsList(s.db, "select user2_id from followers where user1_id = "+strconv.Itoa(userID))
 }
