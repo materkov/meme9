@@ -1,6 +1,8 @@
 package main
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type PostStore struct {
 	db *sql.DB
@@ -116,45 +118,6 @@ func (s *TokenStore) Get(ids []int) ([]*Token, error) {
 func (s *TokenStore) Add(obj *Token) error {
 	query := "insert into token(id, token, user_id) values (?, ?, ?)"
 	_, err := s.db.Exec(query, sql.NullInt32{Int32: int32(obj.ID), Valid: obj.ID != 0}, sql.NullString{String: obj.Token, Valid: obj.Token != ""}, sql.NullInt32{Int32: int32(obj.UserID), Valid: obj.UserID != 0})
-	return err
-}
-
-type PhotoStore struct {
-	db *sql.DB
-}
-
-func (s *PhotoStore) Get(ids []int) ([]*Photo, error) {
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
-	query := "select coalesce(id, 0), coalesce(user_id, 0), coalesce(path, '') from photo where id in (" + idsStr(ids) + ")"
-	rows, err := s.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	result := make([]*Photo, 0)
-	for rows.Next() {
-		obj := Photo{}
-		err := rows.Scan(&obj.ID, &obj.UserID, &obj.Path)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, &obj)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *PhotoStore) Add(obj *Photo) error {
-	query := "insert into photo(id, user_id, path) values (?, ?, ?)"
-	_, err := s.db.Exec(query, sql.NullInt32{Int32: int32(obj.ID), Valid: obj.ID != 0}, sql.NullInt32{Int32: int32(obj.UserID), Valid: obj.UserID != 0}, sql.NullString{String: obj.Path, Valid: obj.Path != ""})
 	return err
 }
 
@@ -319,7 +282,7 @@ type Store struct {
 	Post      *PostStore
 	User      *UserStore
 	Token     *TokenStore
-	Photo     *PhotoStore
+	//Photo     *PhotoStore
 	Likes     *LikesStore
 	Comment   *CommentStore
 	APILog    *APILogStore
@@ -332,7 +295,7 @@ func NewStore(db *sql.DB) *Store {
 		Post:      &PostStore{db: db},
 		User:      &UserStore{db: db},
 		Token:     &TokenStore{db: db},
-		Photo:     &PhotoStore{db: db},
+		//Photo:     &PhotoStore{db: db},
 		Likes:     &LikesStore{db: db},
 		Comment:   &CommentStore{db: db},
 		APILog:    &APILogStore{db: db},

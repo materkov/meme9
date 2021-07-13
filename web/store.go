@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	storeAlias "github.com/materkov/meme9/web/store"
 )
 
 //go:generate go run cmd/sqlgenerator/main.go
@@ -53,11 +55,6 @@ func GetIdFromToken(token string) int {
 	return tokenID
 }
 
-type Photo struct {
-	ID     int    `db:"id"`
-	UserID int    `db:"user_id"`
-	Path   string `db:"path"`
-}
 
 type Likes struct {
 	ID     int `db:"id"`
@@ -66,6 +63,7 @@ type Likes struct {
 	Time   int `db:"time"`
 }
 
+var objectStore *storeAlias.ObjectStore
 var store *Store
 
 func (s *PostStore) GetByUsers(userIds []int) ([]int, error) {

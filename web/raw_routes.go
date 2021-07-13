@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/materkov/meme9/web/pb"
+	store2 "github.com/materkov/meme9/web/store"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -204,18 +205,19 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	photo := Photo{
+	photo := store2.Photo{
 		ID:     objectID,
 		UserID: viewer.UserID,
 		Path:   filePath,
 	}
-	err = store.Photo.Add(&photo)
+
+	err = objectStore.ObjAdd(&store2.StoredObject{ID: photo.ID, Photo: &photo})
 	if err != nil {
 		fmt.Fprintf(w, "cannot save photo")
 		return
 	}
 
-	_, _ = fmt.Fprint(w, strconv.Itoa(photo.ID))
+	_, _ = fmt.Fprintf(w, "%d", photo.ID)
 }
 
 func writeAPIError(w http.ResponseWriter, err error) {

@@ -4,3 +4,5 @@ front/dist/*.js
 front/dist/*.LICENSE.txt
 front/node_modules
 web/config.json
+mongotest
+pythontest

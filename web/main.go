@@ -17,6 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/materkov/meme9/web/pb"
+	store2 "github.com/materkov/meme9/web/store"
 )
 
 func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.Post {
@@ -82,14 +83,21 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 		usersCh <- result
 	}()
 
-	photosCh := make(chan []*Photo)
+	/*photosCh := make(chan []*store2.Photo)
 	go func() {
-		result, err := store.Photo.Get(photoIds)
+		result, err := objectStore.ObjGetMany(photoIds)
 		if err != nil {
 			log.Printf("Error selecting photos: %s", err)
 		}
-		photosCh <- result
-	}()
+
+		photos := make([]*store2.Photo, 0)
+		for _, object := range result {
+			if object.Photo != nil {
+				photos = append(photos, object.Photo)
+			}
+		}
+		photosCh <- photos
+	}()*/
 
 	commentCountsCh := make(chan map[int]int)
 	go func() {
@@ -137,17 +145,17 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 	users := <-usersCh
 	commentCounts := <-commentCountsCh
 	latestComments := <-latestCommentsCh
-	photos := <-photosCh
+	//photos := <-photosCh
 
 	usersMap := map[int]*User{}
 	for _, user := range users {
 		usersMap[user.ID] = user
 	}
 
-	photosMap := map[int]*Photo{}
-	for _, photo := range photos {
-		photosMap[photo.ID] = photo
-	}
+	//photosMap := map[int]*store2.Photo{}
+	//for _, photo := range photos {
+	//	photosMap[photo.ID] = photo
+	//}
 
 	result := make([]*pb.Post, len(posts))
 	for i, post := range posts {
@@ -165,9 +173,11 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 		photoURL := ""
 		if post.PhotoID != 0 {
-			photo, ok := photosMap[post.PhotoID]
-			if ok {
-				photoURL = fmt.Sprintf("https://meme-files.s3.eu-central-1.amazonaws.com/photos/%s.jpg", photo.Path)
+			photo, err := objectStore.ObjGet(post.PhotoID)
+			if err != nil || photo == nil || photo.Photo == nil {
+				log.Printf("failed getting photo: %s", err)
+			} else {
+				photoURL = fmt.Sprintf("https://meme-files.s3.eu-central-1.amazonaws.com/photos/%s.jpg", photo.Photo.Path)
 			}
 		}
 
@@ -289,6 +299,7 @@ func main() {
 	}
 
 	store = NewStore(db)
+	objectStore = store2.NewObjectStore(db)
 
 	auth = &Auth{store: store}
 
