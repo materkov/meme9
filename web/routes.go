@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/materkov/meme9/web/pb"
-	store2 "github.com/materkov/meme9/web/store"
+	"github.com/materkov/meme9/web/store"
 )
 
 // /
@@ -22,7 +22,7 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		}, nil
 	}
 
-	assocs, err := objectStore.AssocRange(viewer.UserID, store2.Assoc_Following, 1000)
+	assocs, err := objectStore.AssocRange(viewer.UserID, store.Assoc_Following, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}
@@ -34,30 +34,36 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	followingIds = append(followingIds, viewer.UserID)
 
-	postIds, err := store.Post.GetByUsers(followingIds)
-	if err != nil {
-		return nil, fmt.Errorf("error getting post ids: %w", err)
-	}
+	postIds := make([]int, 0)
+	for _, userID := range followingIds {
+		assocs, err := objectStore.AssocRange(userID, store.AssocPosted, 30)
+		if err != nil {
+		    return nil, fmt.Errorf("error getting assocs: %w", err)
+		}
 
-	posts, err := store.Post.Get(postIds)
-	if err != nil {
-		return nil, fmt.Errorf("error getting post ids: %w", err)
-	}
-
-	postsMap := map[int]*Post{}
-	for _, post := range posts {
-		postsMap[post.ID] = post
-	}
-
-	var postsOrdered []*Post
-	for _, postId := range postIds {
-		post := postsMap[postId]
-		if post != nil {
-			postsOrdered = append(postsOrdered, post)
+		for _, assoc := range assocs {
+			postIds = append(postIds, assoc.Posted.ID2)
 		}
 	}
 
-	wrappedPosts := convertPosts(postsOrdered, viewer.UserID, true)
+	sort.Slice(postIds, func(i, j int) bool {
+		return postIds[i] > postIds[j]
+	})
+
+	posts := make([]*store.Post, 0)
+	for _, postId := range postIds {
+		obj, err := objectStore.ObjGet(postId)
+		if err != nil {
+			log.Printf("error selcting post: %s", err)
+			continue
+		} else if obj == nil || obj.Post == nil {
+			continue
+		}
+
+		posts = append(posts, obj.Post)
+	}
+
+	wrappedPosts := convertPosts(posts, viewer.UserID, true)
 
 	return &pb.UniversalRenderer{
 		Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
@@ -88,28 +94,36 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	}
 
 	userID, _ := strconv.Atoi(req.Id)
-	users, err := store.User.Get([]int{userID})
+	obj, err := objectStore.ObjGet(userID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting user: %w", err)
-	} else if len(users) == 0 {
+	} else if obj == nil || obj.User == nil {
 		return nil, fmt.Errorf("user not found")
 	}
 
-	user := users[0]
+	user := obj.User
 
-	postIds, err := store.Post.GetByUsers([]int{userID})
+	assocs, err := objectStore.AssocRange(userID, store.AssocPosted, 50)
 	if err != nil {
 		log.Printf("Error selecting user posts: %s", err)
 	}
 
-	posts, err := store.Post.Get(postIds)
-	if err != nil {
-		log.Printf("Error selecting posts: %s", err)
+	posts := make([]*store.Post, 0)
+	for _, assoc := range assocs {
+		obj, err := objectStore.ObjGet(assoc.Posted.ID2)
+		if err != nil {
+			log.Printf("Error selecting post: %s", err)
+			continue
+		} else if obj == nil || obj.Post == nil {
+			continue
+		}
+
+		posts = append(posts, obj.Post)
 	}
 
 	wrappedPosts := convertPosts(posts, viewer.UserID, false)
 
-	assocs, err := objectStore.AssocRange(viewer.UserID, store2.Assoc_Following, 1000)
+	assocs, err = objectStore.AssocRange(viewer.UserID, store.Assoc_Following, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}
@@ -140,14 +154,14 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	postIDStr := strings.TrimPrefix(url, "/posts/")
 	postID, _ := strconv.Atoi(postIDStr)
 
-	posts, err := store.Post.Get([]int{postID})
+	obj, err := objectStore.ObjGet(postID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting post: %s", err)
-	} else if len(posts) == 0 {
+	} else if obj == nil || obj.Post == nil {
 		return nil, fmt.Errorf("post not found")
 	}
 
-	assocs, err := objectStore.AssocRange(postID, store2.Assoc_Commended, 100)
+	assocs, err := objectStore.AssocRange(postID, store.Assoc_Commended, 100)
 	if err != nil {
 		log.Printf("Error selecting comment ids: %s", err)
 	}
@@ -157,7 +171,7 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		commentIds[i] = assoc.Commented.ID2
 	}
 
-	var comments []*store2.Comment
+	var comments []*store.Comment
 	for _, commentID := range commentIds {
 		obj, err := objectStore.ObjGet(commentID)
 		if err != nil || obj == nil || obj.Comment == nil {
@@ -173,7 +187,7 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		return comments[i].ID > comments[j].ID
 	})
 
-	wrappedPosts := convertPosts(posts, viewer.UserID, false)
+	wrappedPosts := convertPosts([]*store.Post{obj.Post}, viewer.UserID, false)
 	wrappedComments := convertComments(comments)
 
 	composerPlaceholder := ""

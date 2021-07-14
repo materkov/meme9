@@ -17,10 +17,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/materkov/meme9/web/pb"
-	store2 "github.com/materkov/meme9/web/store"
+	"github.com/materkov/meme9/web/store"
 )
 
-func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.Post {
+func convertPosts(posts []*store.Post, viewerID int, includeLatestComment bool) []*pb.Post {
 	if len(posts) == 0 {
 		return nil
 	}
@@ -60,7 +60,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 	go func() {
 		result := map[int]int{}
 		for _, postID := range postIds {
-			count, err := objectStore.AssocCount(postID, store2.Assoc_Liked)
+			count, err := objectStore.AssocCount(postID, store.Assoc_Liked)
 			if err != nil {
 				log.Printf("Error getting likes count: %s", err)
 			} else {
@@ -74,7 +74,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 	go func() {
 		result := map[int]bool{}
 		for _, postId := range postIds {
-			data, err := objectStore.AssocGet(postId, store2.Assoc_Liked, viewerID)
+			data, err := objectStore.AssocGet(postId, store.Assoc_Liked, viewerID)
 			if err != nil {
 				log.Printf("Error getting is Liked: %s", err)
 				continue
@@ -87,12 +87,22 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 		isLikedCh <- result
 	}()
 
-	usersCh := make(chan []*User)
+	usersCh := make(chan []*store.User)
 	go func() {
-		result, err := store.User.Get(userIds)
-		if err != nil {
-			log.Printf("Error selecting users: %s", err)
+		result := make([]*store.User, 0)
+		for _, id := range userIds {
+			obj, err := objectStore.ObjGet(id)
+			if err != nil {
+				log.Printf("Error selecting users: %s", err)
+				continue
+			} else if obj == nil || obj.User == nil {
+				log.Printf("User not %d found", id)
+				continue
+			}
+
+			result = append(result, obj.User)
 		}
+
 		usersCh <- result
 	}()
 
@@ -116,7 +126,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 	go func() {
 		result := map[int]int{}
 		for _, postId := range postIds {
-			count, err := objectStore.AssocCount(postId, store2.Assoc_Commended)
+			count, err := objectStore.AssocCount(postId, store.Assoc_Commended)
 			if err != nil {
 				log.Printf("Error selecting users: %s", err)
 			} else {
@@ -127,13 +137,13 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 		commentCountsCh <- result
 	}()
 
-	latestCommentsCh := make(chan map[int]*store2.Comment)
+	latestCommentsCh := make(chan map[int]*store.Comment)
 	go func() {
 		commentIds := make([]int, 0)
 		postLatestComments := map[int]int{}
 
 		for _, postID := range postIds {
-			assocs, err := objectStore.AssocRange(postID, store2.Assoc_Commended, 1)
+			assocs, err := objectStore.AssocRange(postID, store.Assoc_Commended, 1)
 			if err != nil {
 				log.Printf("Error selecting comment ids: %s", err)
 				continue
@@ -145,7 +155,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 			}
 		}
 
-		commentsMap := map[int]*store2.Comment{}
+		commentsMap := map[int]*store.Comment{}
 		for _, commentID := range commentIds {
 			obj, err := objectStore.ObjGet(commentID)
 			if err != nil {
@@ -161,7 +171,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 			commentsMap[obj.Comment.ID] = obj.Comment
 		}
 
-		result := map[int]*store2.Comment{}
+		result := map[int]*store.Comment{}
 		for postID, commentID := range postLatestComments {
 			if comment := commentsMap[commentID]; comment != nil {
 				result[postID] = comment
@@ -178,7 +188,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 	latestComments := <-latestCommentsCh
 	//photos := <-photosCh
 
-	usersMap := map[int]*User{}
+	usersMap := map[int]*store.User{}
 	for _, user := range users {
 		usersMap[user.ID] = user
 	}
@@ -239,7 +249,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 	return result
 }
 
-func convertComments(comments []*store2.Comment) []*pb.CommentRenderer {
+func convertComments(comments []*store.Comment) []*pb.CommentRenderer {
 	result := make([]*pb.CommentRenderer, len(comments))
 	for i, comment := range comments {
 		result[i] = &pb.CommentRenderer{
@@ -329,10 +339,9 @@ func main() {
 		log.Fatalf("failed opening mysql connection: %s", err)
 	}
 
-	store = NewStore(db)
-	objectStore = store2.NewObjectStore(db)
+	objectStore = store.NewObjectStore(db)
 
-	auth = &Auth{store: store}
+	auth = &Auth{}
 
 	awsSession, err = session.NewSession(
 		&aws.Config{

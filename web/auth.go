@@ -10,6 +10,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/materkov/meme9/web/store"
 )
 
 var (
@@ -18,7 +20,6 @@ var (
 )
 
 type Auth struct {
-	store *Store
 }
 
 func (a *Auth) tryVkAuth(authUrl string) (int, error) {
@@ -56,33 +57,46 @@ func (a *Auth) tryVkAuth(authUrl string) (int, error) {
 		return 0, ErrAuthFailed
 	}
 
-	userID, err := store.User.GetByVkID(vkUserID)
+	assocType := store.Assoc_VK_ID + strconv.Itoa(vkUserID)
+	assocs, err := objectStore.AssocRange(0, assocType, 1)
 	if err != nil {
-		return 0, fmt.Errorf("failed getting user by vk id: %w", err)
-	} else if userID != 0 {
-		return userID, nil
+		return 0, fmt.Errorf("failed getting assoc: %w", err)
+	}
+
+	if len(assocs) > 0 {
+		return assocs[0].VkID.ID2, nil
 	}
 
 	// New user
-	userID, err = store.GenerateNextID(ObjectTypeUser)
+	userID, err := objectStore.GenerateNextID()
 	if err != nil {
 		return 0, fmt.Errorf("error generating object ID: %w", err)
 	}
 
-	user := User{
+	user := store.User{
 		ID:   userID,
 		Name: fmt.Sprintf("VK User %d", vkUserID),
 		VkID: vkUserID,
 	}
-	err = store.User.Add(&user)
+
+	err = objectStore.ObjAdd(&store.StoredObject{ID: userID, User: &user})
 	if err != nil {
 		return 0, fmt.Errorf("error saving user: %w", err)
+	}
+
+	err = objectStore.AssocAdd(0, userID, assocType, &store.StoredAssoc{VkID: &store.VkID{
+		ID1:  0,
+		ID2:  userID,
+		Type: assocType,
+	}})
+	if err != nil {
+		return 0, fmt.Errorf("error saving assoc: %w", err)
 	}
 
 	return userID, nil
 }
 
-func (a *Auth) tryCookieAuth(r *http.Request) (*Token, error) {
+func (a *Auth) tryCookieAuth(r *http.Request) (*store.Token, error) {
 	accessCookie, err := r.Cookie("access_token")
 	if err != nil || accessCookie.Value == "" {
 		return nil, ErrNotApplicable
@@ -98,7 +112,7 @@ func (a *Auth) tryCookieAuth(r *http.Request) (*Token, error) {
 	return a.tryTokenAuth(accessCookie.Value)
 }
 
-func (a *Auth) tryHeaderAuth(authHeader string) (*Token, error) {
+func (a *Auth) tryHeaderAuth(authHeader string) (*store.Token, error) {
 	authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 	if authHeader == "" {
 		return nil, ErrNotApplicable
@@ -107,27 +121,28 @@ func (a *Auth) tryHeaderAuth(authHeader string) (*Token, error) {
 	return a.tryTokenAuth(authHeader)
 }
 
-func (a *Auth) tryTokenAuth(tokenStr string) (*Token, error) {
-	tokenID := GetIdFromToken(tokenStr)
+func (a *Auth) tryTokenAuth(tokenStr string) (*store.Token, error) {
+	tokenID := store.GetIdFromToken(tokenStr)
 	if tokenID == 0 {
 		return nil, ErrAuthFailed
 	}
-	tokens, err := store.Token.Get([]int{tokenID})
+
+	obj, err := objectStore.ObjGet(tokenID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting token: %w", err)
 	}
 
-	if len(tokens) == 0 {
+	if obj == nil || obj.Token == nil {
 		return nil, ErrAuthFailed
 	}
-	if tokens[0].Token != tokenStr {
+	if obj.Token.Token != tokenStr {
 		return nil, ErrAuthFailed
 	}
 
-	return tokens[0], nil
+	return obj.Token, nil
 }
 
-func (a *Auth) tryAuth(r *http.Request) (*Token, int, error) {
+func (a *Auth) tryAuth(r *http.Request) (*store.Token, int, error) {
 	token, err := a.tryHeaderAuth(r.Header.Get("authorization"))
 	if err == nil {
 		return token, token.UserID, err

@@ -14,7 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/materkov/meme9/web/pb"
-	store2 "github.com/materkov/meme9/web/store"
+	"github.com/materkov/meme9/web/store"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -73,31 +73,49 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 		return "", fmt.Errorf("empty access token: %s", bodyBytes)
 	}
 
-	userID, err := store.User.GetByVkID(body.UserID)
+	assocType := store.Assoc_VK_ID + strconv.Itoa(body.UserID)
+	assocs, err := objectStore.AssocRange(0, assocType, 1)
 	if err != nil {
 		return "", fmt.Errorf("error selecting by vk id: %w", err)
 	}
 
-	var user *User
-	users, err := store.User.Get([]int{userID})
-	if err != nil {
-		return "", fmt.Errorf("error getting users: %w", err)
-	} else if len(users) == 1 {
-		user = users[0]
+	userID := 0
+	var user *store.User
+	if len(assocs) > 0 {
+		userID = assocs[0].VkID.ID2
+		obj, err := objectStore.ObjGet(userID)
+		if err != nil {
+			return "", fmt.Errorf("error getting users: %w", err)
+		} else if obj == nil || obj.User == nil {
+			return "", fmt.Errorf("nil or not user object")
+		}
+
+		user = obj.User
 	} else {
-		userID, err = store.GenerateNextID(ObjectTypeUser)
+		userID, err = objectStore.GenerateNextID()
 		if err != nil {
 			return "", fmt.Errorf("error generating user id: %w", err)
 		}
 
-		user = &User{
-			ID:   userID,
-			VkID: body.UserID,
+		user = &store.User{
+			ID: userID,
 		}
 
-		err = store.User.Add(user)
+		err = objectStore.ObjAdd(&store.StoredObject{ID: userID, User: &store.User{
+			ID: userID,
+		}})
 		if err != nil {
-			return "", fmt.Errorf("error saving user: %w", err)
+			return "", fmt.Errorf("error saving obj: %w", err)
+		}
+
+		assocType := store.Assoc_VK_ID + strconv.Itoa(body.UserID)
+		err = objectStore.AssocAdd(0, userID, assocType, &store.StoredAssoc{VkID: &store.VkID{
+			ID1:  0,
+			ID2:  userID,
+			Type: assocType,
+		}})
+		if err != nil {
+			return "", fmt.Errorf("error saving assoc: %w", err)
 		}
 	}
 
@@ -107,28 +125,28 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 	} else {
 		user.Name = vkName
 		user.VkAvatar = vkAvatar
-		err = store.User.UpdateNameAvatar(user)
+		err = objectStore.ObjUpdate(&store.StoredObject{ID: user.ID, User: user})
 		if err != nil {
 			return "", fmt.Errorf("failed updating name and avatar: %w", err)
 		}
 	}
 
-	objectID, err := store.GenerateNextID(ObjectTypeToken)
+	objectID, err := objectStore.GenerateNextID()
 	if err != nil {
 		return "", fmt.Errorf("failed generating object id: %w", err)
 	}
 
-	token := Token{
+	token := fmt.Sprintf("%d-%s", objectID, RandString(40))
+	err = objectStore.ObjAdd(&store.StoredObject{ID: objectID, Token: &store.Token{
 		ID:     objectID,
-		Token:  fmt.Sprintf("%d-%s", objectID, RandString(40)),
+		Token:  token,
 		UserID: userID,
-	}
-	err = store.Token.Add(&token)
+	}})
 	if err != nil {
 		return "", fmt.Errorf("failed saving token: %w", err)
 	}
 
-	return token.Token, nil
+	return token, nil
 }
 
 func handleLogout(w http.ResponseWriter, r *http.Request) {
@@ -199,19 +217,19 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	objectID, err := store.GenerateNextID(ObjectTypePhoto)
+	objectID, err := objectStore.GenerateNextID()
 	if err != nil {
 		fmt.Fprintf(w, "cannot upload file")
 		return
 	}
 
-	photo := store2.Photo{
+	photo := store.Photo{
 		ID:     objectID,
 		UserID: viewer.UserID,
 		Path:   filePath,
 	}
 
-	err = objectStore.ObjAdd(&store2.StoredObject{ID: photo.ID, Photo: &photo})
+	err = objectStore.ObjAdd(&store.StoredObject{ID: photo.ID, Photo: &photo})
 	if err != nil {
 		fmt.Fprintf(w, "cannot save photo")
 		return
@@ -314,16 +332,19 @@ func handleAPI(w http.ResponseWriter, request *http.Request) {
 	_, _ = w.Write(respBytes)
 
 	defer tracer.StartChild("api log").Stop()
-	objectID, err := store.GenerateNextID(ObjectTypeAPILog)
+	objectID, err := objectStore.GenerateNextID()
 	if err != nil {
 		return
 	}
 
-	_ = store.APILog.Add(&APILog{
+	err = objectStore.ObjAdd(&store.StoredObject{ID: objectID, APILog: &store.APILog{
 		ID:       objectID,
 		UserID:   viewer.UserID,
 		Method:   method,
 		Request:  string(body),
 		Response: string(respBytes),
-	})
+	}})
+	if err != nil {
+		log.Printf("Error saving api logs: %s", err)
+	}
 }

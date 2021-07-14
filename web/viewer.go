@@ -1,9 +1,13 @@
 package main
 
-import "context"
+import (
+	"context"
+
+	"github.com/materkov/meme9/web/store"
+)
 
 type Viewer struct {
-	Token  *Token
+	Token  *store.Token
 	UserID int
 
 	RequestHost   string

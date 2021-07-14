@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/materkov/meme9/web/pb"
-	store2 "github.com/materkov/meme9/web/store"
+	"github.com/materkov/meme9/web/store"
 )
 
 type Feed struct {
@@ -38,13 +38,13 @@ func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.F
 			headerRenderer.CsrfToken = GenerateCSRFToken(viewer.Token.Token)
 		}
 
-		users, err := store.User.Get([]int{viewer.UserID})
+		obj, err := objectStore.ObjGet(viewer.UserID)
 		if err != nil {
 			log.Printf("Error getting user: %s", err)
-		} else if len(users) == 0 {
+		} else if obj == nil || obj.User == nil {
 			log.Printf("User %d not found", viewer.UserID)
 		} else {
-			user := users[0]
+			user := obj.User
 
 			headerRenderer.IsAuthorized = true
 			headerRenderer.UserAvatar = user.VkAvatar
@@ -70,7 +70,7 @@ func (r *Relations) Follow(ctx context.Context, req *pb.RelationsFollowRequest) 
 		return nil, fmt.Errorf("need auth")
 	}
 
-	assocs, err := objectStore.AssocRange(viewer.UserID, store2.Assoc_Following, 1000)
+	assocs, err := objectStore.AssocRange(viewer.UserID, store.Assoc_Following, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}
@@ -86,10 +86,10 @@ func (r *Relations) Follow(ctx context.Context, req *pb.RelationsFollowRequest) 
 		}
 	}
 
-	err = objectStore.AssocAdd(viewer.UserID, requestedID, store2.Assoc_Following, &store2.StoredAssoc{Following: &store2.Following{
+	err = objectStore.AssocAdd(viewer.UserID, requestedID, store.Assoc_Following, &store.StoredAssoc{Following: &store.Following{
 		ID1:  viewer.UserID,
 		ID2:  requestedID,
-		Type: store2.Assoc_Liked,
+		Type: store.Assoc_Liked,
 	}})
 	if err != nil {
 		return nil, fmt.Errorf("failed saving assoc: %w", err)
@@ -110,7 +110,7 @@ func (r *Relations) Unfollow(ctx context.Context, req *pb.RelationsUnfollowReque
 		return nil, fmt.Errorf("need auth")
 	}
 
-	err := objectStore.AssocDelete(viewer.UserID, requestedID, store2.Assoc_Following)
+	err := objectStore.AssocDelete(viewer.UserID, requestedID, store.Assoc_Following)
 	if err != nil {
 		return nil, fmt.Errorf("failed deleting assoc: %w", err)
 	}
@@ -124,7 +124,7 @@ type Posts struct {
 func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.PostsAddResponse, error) {
 	viewer := GetViewerFromContext(ctx)
 
-	postID, err := store.GenerateNextID(ObjectTypePost)
+	postID, err := objectStore.GenerateNextID()
 	if err != nil {
 		return nil, fmt.Errorf("error generating id: %w", err)
 	}
@@ -144,7 +144,7 @@ func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.Posts
 		}
 	}
 
-	post := Post{
+	post := store.Post{
 		ID:      postID,
 		UserID:  viewer.UserID,
 		Date:    int(time.Now().Unix()),
@@ -152,9 +152,18 @@ func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.Posts
 		PhotoID: photoID,
 	}
 
-	err = store.Post.Add(&post)
+	err = objectStore.ObjAdd(&store.StoredObject{ID: postID, Post: &post})
 	if err != nil {
 		return nil, fmt.Errorf("error saving post: %w", err)
+	}
+
+	err = objectStore.AssocAdd(viewer.UserID, postID, store.AssocPosted, &store.StoredAssoc{Posted: &store.Posted{
+		ID1:  viewer.UserID,
+		ID2:  postID,
+		Type: store.AssocPosted,
+	}})
+	if err != nil {
+		return nil, fmt.Errorf("error saving assoc: %w", err)
 	}
 
 	return &pb.PostsAddResponse{
@@ -171,7 +180,7 @@ func (p *Posts) ToggleLike(ctx context.Context, req *pb.ToggleLikeRequest) (*pb.
 
 	postID, _ := strconv.Atoi(req.PostId)
 
-	data, err := objectStore.AssocGet(postID, store2.Assoc_Liked, viewer.UserID)
+	data, err := objectStore.AssocGet(postID, store.Assoc_Liked, viewer.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting is liked: %w", err)
 	}
@@ -179,10 +188,10 @@ func (p *Posts) ToggleLike(ctx context.Context, req *pb.ToggleLikeRequest) (*pb.
 	isLiked := data != nil && data.Liked != nil
 
 	if req.Action == pb.ToggleLikeRequest_LIKE && !isLiked {
-		err = objectStore.AssocAdd(postID, viewer.UserID, store2.Assoc_Liked, &store2.StoredAssoc{Liked: &store2.Liked{
+		err = objectStore.AssocAdd(postID, viewer.UserID, store.Assoc_Liked, &store.StoredAssoc{Liked: &store.Liked{
 			ID1:  postID,
 			ID2:  viewer.UserID,
-			Type: store2.Assoc_Liked,
+			Type: store.Assoc_Liked,
 		}})
 		if err != nil {
 			return nil, fmt.Errorf("error saving like: %w", err)
@@ -190,13 +199,13 @@ func (p *Posts) ToggleLike(ctx context.Context, req *pb.ToggleLikeRequest) (*pb.
 	}
 
 	if req.Action == pb.ToggleLikeRequest_UNLIKE && isLiked {
-		err = objectStore.AssocDelete(postID, viewer.UserID, store2.Assoc_Liked)
+		err = objectStore.AssocDelete(postID, viewer.UserID, store.Assoc_Liked)
 		if err != nil {
 			return nil, fmt.Errorf("error deleting like: %w", err)
 		}
 	}
 
-	likesCount, err := objectStore.AssocCount(postID, store2.Assoc_Liked)
+	likesCount, err := objectStore.AssocCount(postID, store.Assoc_Liked)
 	if err != nil {
 		log.Printf("Error getting likes count")
 	}
@@ -218,35 +227,35 @@ func (p *Posts) AddComment(ctx context.Context, req *pb.AddCommentRequest) (*pb.
 	}
 
 	postID, _ := strconv.Atoi(req.PostId)
-	posts, err := store.Post.Get([]int{postID})
+	obj, err := objectStore.ObjGet(postID)
 	if err != nil {
 		return nil, fmt.Errorf("error loading posts: %w", err)
-	} else if len(posts) == 0 {
+	} else if obj == nil || obj.Post == nil {
 		return nil, fmt.Errorf("post not found")
 	}
 
-	objectID, err := store.GenerateNextID(ObjectTypeComment)
+	objectID, err := objectStore.GenerateNextID()
 	if err != nil {
 		return nil, fmt.Errorf("error generating object id: %w", err)
 	}
 
-	comment := store2.Comment{
+	comment := store.Comment{
 		ID:     objectID,
-		PostID: posts[0].ID,
+		PostID: obj.Post.ID,
 		UserID: viewer.UserID,
 		Text:   req.Text,
 		Date:   int(time.Now().Unix()),
 	}
 
-	err = objectStore.ObjAdd(&store2.StoredObject{ID: objectID, Comment: &comment})
+	err = objectStore.ObjAdd(&store.StoredObject{ID: objectID, Comment: &comment})
 	if err != nil {
 		return nil, fmt.Errorf("error saving comment: %w", err)
 	}
 
-	err = objectStore.AssocAdd(comment.PostID, comment.ID, store2.Assoc_Commended, &store2.StoredAssoc{Commented: &store2.Commented{
+	err = objectStore.AssocAdd(comment.PostID, comment.ID, store.Assoc_Commended, &store.StoredAssoc{Commented: &store.Commented{
 		ID1:  comment.PostID,
 		ID2:  comment.ID,
-		Type: store2.Assoc_Commended,
+		Type: store.Assoc_Commended,
 	}})
 	if err != nil {
 		return nil, fmt.Errorf("error saving assoc: %w", err)

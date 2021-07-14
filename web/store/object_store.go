@@ -50,7 +50,21 @@ func (o *ObjectStore) ObjAdd(object *StoredObject) error {
 	return nil
 }
 
-func (o *ObjectStore) AssocAdd(id1, id2, assocType int, data *StoredAssoc) error {
+func (o *ObjectStore) ObjUpdate(object *StoredObject) error {
+	objectBytes, err := json.Marshal(object)
+	if err != nil {
+		return fmt.Errorf("error marshaling object: %w", err)
+	}
+
+	_, err = o.db.Exec("update object set data = ? where id = ?", objectBytes, object.ID)
+	if err != nil {
+		return fmt.Errorf("error saving to mysql: %w", err)
+	}
+
+	return nil
+}
+
+func (o *ObjectStore) AssocAdd(id1, id2 int, assocType string, data *StoredAssoc) error {
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
 		return fmt.Errorf("error marshaling data: %w", err)
@@ -64,16 +78,16 @@ func (o *ObjectStore) AssocAdd(id1, id2, assocType int, data *StoredAssoc) error
 	return nil
 }
 
-func (o *ObjectStore) AssocCount(id, assocType int) (int, error) {
-	log.Printf("[INFO] AssocCount %d --(%d)--> COUNT()", id, assocType)
+func (o *ObjectStore) AssocCount(id int, assocType string) (int, error) {
+	log.Printf("[INFO] AssocCount %d --(%s)--> COUNT()", id, assocType)
 
 	cnt := 0
 	err := o.db.QueryRow("select count(*) from assoc where id1 = ? and type = ?", id, assocType).Scan(&cnt)
 	return cnt, err
 }
 
-func (o *ObjectStore) AssocDelete(id1, id2, assocType int) error {
-	log.Printf("[INFO] AssocDelete %d --(%d)--> %d", id1, assocType, id2)
+func (o *ObjectStore) AssocDelete(id1, id2 int, assocType string) error {
+	log.Printf("[INFO] AssocDelete %d --(%s)--> %d", id1, assocType, id2)
 
 	_, err := o.db.Exec("delete from assoc where id1 = ? and id2 = ? and type = ?", id1, id2, assocType)
 	if err != nil {
@@ -83,8 +97,8 @@ func (o *ObjectStore) AssocDelete(id1, id2, assocType int) error {
 	return nil
 }
 
-func (o *ObjectStore) AssocGet(id1, assocType, id2 int) (*StoredAssoc, error) {
-	log.Printf("[INFO] AssocGet %d --(%d)--> %d", id1, assocType, id2)
+func (o *ObjectStore) AssocGet(id1 int, assocType string, id2 int) (*StoredAssoc, error) {
+	log.Printf("[INFO] AssocGet %d --(%s)--> %d", id1, assocType, id2)
 
 	var data []byte
 	err := o.db.QueryRow("select data from assoc where id1 = ? and id2 = ? and type = ?", id1, id2, assocType).Scan(&data)
@@ -103,7 +117,7 @@ func (o *ObjectStore) AssocGet(id1, assocType, id2 int) (*StoredAssoc, error) {
 	return assoc, nil
 }
 
-func (o *ObjectStore) AssocRange(id1, assocType int, limit int) ([]*StoredAssoc, error) {
+func (o *ObjectStore) AssocRange(id1 int, assocType string, limit int) ([]*StoredAssoc, error) {
 	rows, err := o.db.Query("select data from assoc where id1 = ? and type = ? order by id desc limit ?", id1, assocType, limit)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting rows: %w", err)
@@ -133,4 +147,14 @@ func (o *ObjectStore) AssocRange(id1, assocType int, limit int) ([]*StoredAssoc,
 	}
 
 	return result, nil
+}
+
+func (o *ObjectStore) GenerateNextID() (int, error) {
+	result, err := o.db.Exec("insert into objects(object_type) values (0)")
+	if err != nil {
+		return 0, fmt.Errorf("error inserting object row: %s", err)
+	}
+
+	id, _ := result.LastInsertId()
+	return int(id), err
 }
