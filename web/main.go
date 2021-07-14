@@ -114,37 +114,55 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 
 	commentCountsCh := make(chan map[int]int)
 	go func() {
-		result, err := store.Comment.GetCommentsCounts(postIds)
-		if err != nil {
-			log.Printf("Error selecting users: %s", err)
+		result := map[int]int{}
+		for _, postId := range postIds {
+			count, err := objectStore.AssocCount(postId, store2.Assoc_Commended)
+			if err != nil {
+				log.Printf("Error selecting users: %s", err)
+			} else {
+				result[postId] = count
+			}
 		}
+
 		commentCountsCh <- result
 	}()
 
-	latestCommentsCh := make(chan map[int]*Comment)
+	latestCommentsCh := make(chan map[int]*store2.Comment)
 	go func() {
-		commentIdsMap, err := store.Comment.GetLatest(postIds)
-		if err != nil {
-			log.Printf("Error selecting comment ids: %s", err)
-		}
-
 		commentIds := make([]int, 0)
-		for _, commentID := range commentIdsMap {
-			commentIds = append(commentIds, commentID)
+		postLatestComments := map[int]int{}
+
+		for _, postID := range postIds {
+			assocs, err := objectStore.AssocRange(postID, store2.Assoc_Commended, 1)
+			if err != nil {
+				log.Printf("Error selecting comment ids: %s", err)
+				continue
+			}
+
+			if len(assocs) > 0 {
+				commentIds = append(commentIds, assocs[0].Commented.ID2)
+				postLatestComments[postID] = assocs[0].Commented.ID2
+			}
 		}
 
-		comments, err := store.Comment.Get(commentIds)
-		if err != nil {
-			log.Printf("[Error selecting comment objects: %s", err)
+		commentsMap := map[int]*store2.Comment{}
+		for _, commentID := range commentIds {
+			obj, err := objectStore.ObjGet(commentID)
+			if err != nil {
+				log.Printf("[Error selecting comment objects: %s", err)
+				continue
+			}
+
+			if obj == nil || obj.Comment == nil {
+				log.Printf("[Error selecting comment objects: empty")
+				continue
+			}
+
+			commentsMap[obj.Comment.ID] = obj.Comment
 		}
 
-		commentsMap := map[int]*Comment{}
-		for _, comment := range comments {
-			commentsMap[comment.ID] = comment
-		}
-
-		result := map[int]*Comment{}
-		for postID, commentID := range commentIdsMap {
+		result := map[int]*store2.Comment{}
+		for postID, commentID := range postLatestComments {
 			if comment := commentsMap[commentID]; comment != nil {
 				result[postID] = comment
 			}
@@ -221,7 +239,7 @@ func convertPosts(posts []*Post, viewerID int, includeLatestComment bool) []*pb.
 	return result
 }
 
-func convertComments(comments []*Comment) []*pb.CommentRenderer {
+func convertComments(comments []*store2.Comment) []*pb.CommentRenderer {
 	result := make([]*pb.CommentRenderer, len(comments))
 	for i, comment := range comments {
 		result[i] = &pb.CommentRenderer{

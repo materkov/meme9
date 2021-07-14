@@ -94,86 +94,6 @@ func (s *UserStore) UpdateNameAvatar(user *User) error {
 	return nil
 }
 
-func (s *FollowersStore) GetFollowing(userID int) ([]int, error) {
-	return scanIdsList(s.db, "select user2_id from followers where user1_id = "+strconv.Itoa(userID))
-}
-
-func (s *FollowersStore) Unfollow(userFrom, userTo int) error {
-	_, err := s.db.Exec(
-		"delete from followers where user1_id = ? and user2_id = ?",
-		userFrom, userTo,
-	)
-	if err != nil {
-		return fmt.Errorf("error deleting followers row: %w", err)
-	}
-
-	return nil
-}
-
-type Comment struct {
-	ID     int    `db:"id"`
-	PostID int    `db:"post_id"`
-	UserID int    `db:"user_id"`
-	Text   string `db:"text"`
-	Date   int    `db:"date"`
-}
-
-func (s *CommentStore) GetCommentsCounts(postIds []int) (map[int]int, error) {
-	rows, err := s.db.Query(fmt.Sprintf("select post_id, count(*) as cnt from comment where post_id in (%s) group by post_id", idsStr(postIds)))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	result := map[int]int{}
-	postID, count := 0, 0
-	for rows.Next() {
-		err = rows.Scan(&postID, &count)
-		if err != nil {
-			return nil, err
-		}
-
-		if count > 0 {
-			result[postID] = count
-		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *CommentStore) GetLatest(postIds []int) (map[int]int, error) {
-	rows, err := s.db.Query(fmt.Sprintf("select post_id, max(id) from comment where post_id in (%s) group by post_id", idsStr(postIds)))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	result := map[int]int{}
-	postID, commentID := 0, 0
-	for rows.Next() {
-		err = rows.Scan(&postID, &commentID)
-		if err != nil {
-			return nil, err
-		}
-
-		result[postID] = commentID
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *CommentStore) GetByPost(postID int) ([]int, error) {
-	return scanIdsList(s.db, "select id from comment where post_id = "+strconv.Itoa(postID)+" order by id desc limit 100")
-}
-
 func (s *Store) GenerateNextID(objectType int) (int, error) {
 	result, err := s.db.Exec("insert into objects(object_type) values (?)", objectType)
 	if err != nil {
@@ -190,11 +110,4 @@ type APILog struct {
 	Method   string `db:"method"`
 	Request  string `db:"request"`
 	Response string `db:"response"`
-}
-
-type Followers struct {
-	ID         int `db:"id"`
-	User1ID    int `db:"user1_id"`
-	User2ID    int `db:"user2_id"`
-	FollowDate int `db:"follow_date"`
 }

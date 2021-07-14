@@ -1,9 +1,10 @@
 package store
 
 type StoredObject struct {
-	ID     int
-	APILog *APILog
-	Photo  *Photo
+	ID      int
+	APILog  *APILog
+	Photo   *Photo
+	Comment *Comment
 }
 
 type APILog struct {
@@ -23,4 +24,12 @@ type Photo struct {
 type User struct {
 	ID   int
 	VkID int
+}
+
+type Comment struct {
+	ID     int
+	PostID int
+	UserID int
+	Text   string
+	Date   int
 }

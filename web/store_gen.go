@@ -121,45 +121,6 @@ func (s *TokenStore) Add(obj *Token) error {
 	return err
 }
 
-type CommentStore struct {
-	db *sql.DB
-}
-
-func (s *CommentStore) Get(ids []int) ([]*Comment, error) {
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
-	query := "select coalesce(id, 0), coalesce(post_id, 0), coalesce(user_id, 0), coalesce(text, ''), coalesce(date, 0) from comment where id in (" + idsStr(ids) + ")"
-	rows, err := s.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	result := make([]*Comment, 0)
-	for rows.Next() {
-		obj := Comment{}
-		err := rows.Scan(&obj.ID, &obj.PostID, &obj.UserID, &obj.Text, &obj.Date)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, &obj)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *CommentStore) Add(obj *Comment) error {
-	query := "insert into comment(id, post_id, user_id, text, date) values (?, ?, ?, ?, ?)"
-	_, err := s.db.Exec(query, sql.NullInt32{Int32: int32(obj.ID), Valid: obj.ID != 0}, sql.NullInt32{Int32: int32(obj.PostID), Valid: obj.PostID != 0}, sql.NullInt32{Int32: int32(obj.UserID), Valid: obj.UserID != 0}, sql.NullString{String: obj.Text, Valid: obj.Text != ""}, sql.NullInt32{Int32: int32(obj.Date), Valid: obj.Date != 0})
-	return err
-}
-
 type APILogStore struct {
 	db *sql.DB
 }
@@ -199,45 +160,6 @@ func (s *APILogStore) Add(obj *APILog) error {
 	return err
 }
 
-type FollowersStore struct {
-	db *sql.DB
-}
-
-func (s *FollowersStore) Get(ids []int) ([]*Followers, error) {
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
-	query := "select coalesce(id, 0), coalesce(user1_id, 0), coalesce(user2_id, 0), coalesce(follow_date, 0) from followers where id in (" + idsStr(ids) + ")"
-	rows, err := s.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	result := make([]*Followers, 0)
-	for rows.Next() {
-		obj := Followers{}
-		err := rows.Scan(&obj.ID, &obj.User1ID, &obj.User2ID, &obj.FollowDate)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, &obj)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *FollowersStore) Add(obj *Followers) error {
-	query := "insert into followers(id, user1_id, user2_id, follow_date) values (?, ?, ?, ?)"
-	_, err := s.db.Exec(query, sql.NullInt32{Int32: int32(obj.ID), Valid: obj.ID != 0}, sql.NullInt32{Int32: int32(obj.User1ID), Valid: obj.User1ID != 0}, sql.NullInt32{Int32: int32(obj.User2ID), Valid: obj.User2ID != 0}, sql.NullInt32{Int32: int32(obj.FollowDate), Valid: obj.FollowDate != 0})
-	return err
-}
-
 type Store struct {
 	db        *sql.DB
 	Post      *PostStore
@@ -245,9 +167,9 @@ type Store struct {
 	Token     *TokenStore
 	//Photo     *PhotoStore
 	//Likes     *LikesStore
-	Comment   *CommentStore
+	//Comment   *CommentStore
 	APILog    *APILogStore
-	Followers *FollowersStore
+	//Followers *FollowersStore
 }
 
 func NewStore(db *sql.DB) *Store {
@@ -258,8 +180,8 @@ func NewStore(db *sql.DB) *Store {
 		Token:     &TokenStore{db: db},
 		//Photo:     &PhotoStore{db: db},
 		//Likes:     &LikesStore{db: db},
-		Comment:   &CommentStore{db: db},
+		//Comment:   &CommentStore{db: db},
 		APILog:    &APILogStore{db: db},
-		Followers: &FollowersStore{db: db},
+		//Followers: &FollowersStore{db: db},
 	}
 }

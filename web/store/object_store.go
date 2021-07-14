@@ -97,8 +97,40 @@ func (o *ObjectStore) AssocGet(id1, assocType, id2 int) (*StoredAssoc, error) {
 	assoc := &StoredAssoc{}
 	err = json.Unmarshal(data, &assoc)
 	if err != nil {
-	    return nil, fmt.Errorf("error unmarshaling object: %w", err)
+		return nil, fmt.Errorf("error unmarshaling object: %w", err)
 	}
 
 	return assoc, nil
+}
+
+func (o *ObjectStore) AssocRange(id1, assocType int, limit int) ([]*StoredAssoc, error) {
+	rows, err := o.db.Query("select data from assoc where id1 = ? and type = ? order by id desc limit ?", id1, assocType, limit)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting rows: %w", err)
+	}
+	defer rows.Close()
+
+	result := make([]*StoredAssoc, 0)
+	for rows.Next() {
+		var data []byte
+		err = rows.Scan(&data)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		obj := &StoredAssoc{}
+		err = json.Unmarshal(data, obj)
+		if err != nil {
+			return nil, fmt.Errorf("error umarshaling assoc: %w", err)
+		}
+
+		result = append(result, obj)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("error after scanning rows: %w", err)
+	}
+
+	return result, nil
 }

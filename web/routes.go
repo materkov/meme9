@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/materkov/meme9/web/pb"
+	store2 "github.com/materkov/meme9/web/store"
 )
 
 // /
@@ -21,9 +22,14 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		}, nil
 	}
 
-	followingIds, err := store.Followers.GetFollowing(viewer.UserID)
+	assocs, err := objectStore.AssocRange(viewer.UserID, store2.Assoc_Following, 1000)
 	if err != nil {
-		return nil, fmt.Errorf("error getting following user ids: %w", err)
+		return nil, fmt.Errorf("failed getting following ids: %w", err)
+	}
+
+	followingIds := make([]int, len(assocs))
+	for i, assoc := range assocs {
+		followingIds[i] = assoc.Following.ID2
 	}
 
 	followingIds = append(followingIds, viewer.UserID)
@@ -103,9 +109,14 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	wrappedPosts := convertPosts(posts, viewer.UserID, false)
 
-	followingIds, err := store.Followers.GetFollowing(viewer.UserID)
+	assocs, err := objectStore.AssocRange(viewer.UserID, store2.Assoc_Following, 1000)
 	if err != nil {
-		log.Printf("Error getting following users: %s", err)
+		return nil, fmt.Errorf("failed getting following ids: %w", err)
+	}
+
+	followingIds := make([]int, len(assocs))
+	for i, assoc := range assocs {
+		followingIds[i] = assoc.Following.ID2
 	}
 
 	isFollowing := false
@@ -136,14 +147,25 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		return nil, fmt.Errorf("post not found")
 	}
 
-	commentIds, err := store.Comment.GetByPost(postID)
+	assocs, err := objectStore.AssocRange(postID, store2.Assoc_Commended, 100)
 	if err != nil {
 		log.Printf("Error selecting comment ids: %s", err)
 	}
 
-	comments, err := store.Comment.Get(commentIds)
-	if err != nil {
-		log.Printf("Error selecting comments objects: %s", err)
+	commentIds := make([]int, len(assocs))
+	for i, assoc := range assocs {
+		commentIds[i] = assoc.Commented.ID2
+	}
+
+	var comments []*store2.Comment
+	for _, commentID := range commentIds {
+		obj, err := objectStore.ObjGet(commentID)
+		if err != nil || obj == nil || obj.Comment == nil {
+			log.Printf("Error selecting comments objects: %s", err)
+			continue
+		}
+
+		comments = append(comments, obj.Comment)
 	}
 
 	// TODO
