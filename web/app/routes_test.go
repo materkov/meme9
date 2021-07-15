@@ -1,8 +1,9 @@
-package main
+package app
 
 import (
 	"testing"
 
+	"github.com/materkov/meme9/web/store"
 	"github.com/stretchr/testify/require"
 )
 

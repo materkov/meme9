@@ -1,9 +1,10 @@
-package main
+package app
 
 import (
 	"net/http"
 	"testing"
 
+	"github.com/materkov/meme9/web/store"
 	"github.com/stretchr/testify/require"
 )
 
