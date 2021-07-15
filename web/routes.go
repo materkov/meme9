@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/url"
@@ -13,7 +14,7 @@ import (
 )
 
 // /
-func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
+func handleIndex(ctx context.Context, _ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	if viewer.UserID == 0 {
 		return &pb.UniversalRenderer{
 			Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
@@ -22,7 +23,7 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		}, nil
 	}
 
-	assocs, err := objectStore.AssocRange(viewer.UserID, store.Assoc_Following, 1000)
+	assocs, err := objectStore.AssocRange(ctx, viewer.UserID, store.Assoc_Following, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}
@@ -36,7 +37,7 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	postIds := make([]int, 0)
 	for _, userID := range followingIds {
-		assocs, err := objectStore.AssocRange(userID, store.AssocPosted, 30)
+		assocs, err := objectStore.AssocRange(ctx, userID, store.AssocPosted, 30)
 		if err != nil {
 		    return nil, fmt.Errorf("error getting assocs: %w", err)
 		}
@@ -52,7 +53,7 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	posts := make([]*store.Post, 0)
 	for _, postId := range postIds {
-		obj, err := objectStore.ObjGet(postId)
+		obj, err := objectStore.ObjGet(ctx, postId)
 		if err != nil {
 			log.Printf("error selcting post: %s", err)
 			continue
@@ -63,7 +64,7 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		posts = append(posts, obj.Post)
 	}
 
-	wrappedPosts := convertPosts(posts, viewer.UserID, true)
+	wrappedPosts := convertPosts(ctx, posts, viewer.UserID, true)
 
 	return &pb.UniversalRenderer{
 		Renderer: &pb.UniversalRenderer_FeedRenderer{FeedRenderer: &pb.FeedRenderer{
@@ -73,7 +74,7 @@ func handleIndex(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 }
 
 // /login
-func handleLogin(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
+func handleLogin(ctx context.Context, _ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	requestScheme := viewer.RequestScheme
 	requestHost := viewer.RequestHost
 	redirectURL := url.QueryEscape(fmt.Sprintf("%s://%s/vk-callback", requestScheme, requestHost))
@@ -88,13 +89,13 @@ func handleLogin(_ string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 }
 
 // /users/{id}
-func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
+func handleProfile(ctx context.Context, url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	req := &pb.ProfileGetRequest{
 		Id: strings.TrimPrefix(url, "/users/"),
 	}
 
 	userID, _ := strconv.Atoi(req.Id)
-	obj, err := objectStore.ObjGet(userID)
+	obj, err := objectStore.ObjGet(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting user: %w", err)
 	} else if obj == nil || obj.User == nil {
@@ -103,14 +104,14 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	user := obj.User
 
-	assocs, err := objectStore.AssocRange(userID, store.AssocPosted, 50)
+	assocs, err := objectStore.AssocRange(ctx, userID, store.AssocPosted, 50)
 	if err != nil {
 		log.Printf("Error selecting user posts: %s", err)
 	}
 
 	posts := make([]*store.Post, 0)
 	for _, assoc := range assocs {
-		obj, err := objectStore.ObjGet(assoc.Posted.ID2)
+		obj, err := objectStore.ObjGet(ctx, assoc.Posted.ID2)
 		if err != nil {
 			log.Printf("Error selecting post: %s", err)
 			continue
@@ -121,9 +122,9 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		posts = append(posts, obj.Post)
 	}
 
-	wrappedPosts := convertPosts(posts, viewer.UserID, false)
+	wrappedPosts := convertPosts(ctx, posts, viewer.UserID, false)
 
-	assocs, err = objectStore.AssocRange(viewer.UserID, store.Assoc_Following, 1000)
+	assocs, err = objectStore.AssocRange(ctx,viewer.UserID, store.Assoc_Following, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}
@@ -150,18 +151,18 @@ func handleProfile(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 }
 
 // /posts/{id}
-func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
+func handlePostPage(ctx context.Context, url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	postIDStr := strings.TrimPrefix(url, "/posts/")
 	postID, _ := strconv.Atoi(postIDStr)
 
-	obj, err := objectStore.ObjGet(postID)
+	obj, err := objectStore.ObjGet(ctx, postID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting post: %s", err)
 	} else if obj == nil || obj.Post == nil {
 		return nil, fmt.Errorf("post not found")
 	}
 
-	assocs, err := objectStore.AssocRange(postID, store.Assoc_Commended, 100)
+	assocs, err := objectStore.AssocRange(ctx, postID, store.Assoc_Commended, 100)
 	if err != nil {
 		log.Printf("Error selecting comment ids: %s", err)
 	}
@@ -173,7 +174,7 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 
 	var comments []*store.Comment
 	for _, commentID := range commentIds {
-		obj, err := objectStore.ObjGet(commentID)
+		obj, err := objectStore.ObjGet(ctx, commentID)
 		if err != nil || obj == nil || obj.Comment == nil {
 			log.Printf("Error selecting comments objects: %s", err)
 			continue
@@ -187,7 +188,7 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 		return comments[i].ID > comments[j].ID
 	})
 
-	wrappedPosts := convertPosts([]*store.Post{obj.Post}, viewer.UserID, false)
+	wrappedPosts := convertPosts(ctx, []*store.Post{obj.Post}, viewer.UserID, false)
 	wrappedComments := convertComments(comments)
 
 	composerPlaceholder := ""
@@ -211,6 +212,6 @@ func handlePostPage(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 }
 
 // /sandbox
-func handleSandbox(url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
+func handleSandbox(ctx context.Context, url string, viewer *Viewer) (*pb.UniversalRenderer, error) {
 	return &pb.UniversalRenderer{Renderer: &pb.UniversalRenderer_SandboxRenderer{SandboxRenderer: &pb.SandboxRenderer{}}}, nil
 }

@@ -1,11 +1,16 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
+	"time"
+
+	"github.com/materkov/meme9/web/tracer"
 )
 
 type ObjectStore struct {
@@ -16,7 +21,28 @@ func NewObjectStore(db *sql.DB) *ObjectStore {
 	return &ObjectStore{db: db}
 }
 
-func (o *ObjectStore) ObjGet(id int) (*StoredObject, error) {
+func childSpan(ctx context.Context, name string, tags map[string]string) func() {
+	currentSpan, ok := ctx.Value("currentSpan").(int)
+	if !ok {
+		return func() {}
+	}
+
+	childTracer := &tracer.Tracer{
+		Started: time.Now(),
+		Name:    name,
+		TraceID: currentSpan,
+		ID:      rand.Int(),
+		Tags:    tags,
+	}
+
+	return func() { childTracer.Stop() }
+}
+
+func (o *ObjectStore) ObjGet(ctx context.Context, id int) (*StoredObject, error) {
+	defer childSpan(ctx, "ObjGet", map[string]string{
+		"id": strconv.Itoa(id),
+	})()
+
 	log.Printf("[INFO] ObjGet: id %d", id)
 
 	var data []byte
@@ -78,7 +104,11 @@ func (o *ObjectStore) AssocAdd(id1, id2 int, assocType string, data *StoredAssoc
 	return nil
 }
 
-func (o *ObjectStore) AssocCount(id int, assocType string) (int, error) {
+func (o *ObjectStore) AssocCount(ctx context.Context, id int, assocType string) (int, error) {
+	defer childSpan(ctx, "AssocCount", map[string]string{
+		"id":   strconv.Itoa(id),
+		"type": assocType,
+	})()
 	log.Printf("[INFO] AssocCount %d --(%s)--> COUNT()", id, assocType)
 
 	cnt := 0
@@ -97,7 +127,13 @@ func (o *ObjectStore) AssocDelete(id1, id2 int, assocType string) error {
 	return nil
 }
 
-func (o *ObjectStore) AssocGet(id1 int, assocType string, id2 int) (*StoredAssoc, error) {
+func (o *ObjectStore) AssocGet(ctx context.Context, id1 int, assocType string, id2 int) (*StoredAssoc, error) {
+	defer childSpan(ctx, "AssocGet", map[string]string{
+		"id1":  strconv.Itoa(id1),
+		"id2":  strconv.Itoa(id2),
+		"type": assocType,
+	})()
+
 	log.Printf("[INFO] AssocGet %d --(%s)--> %d", id1, assocType, id2)
 
 	var data []byte
@@ -117,7 +153,12 @@ func (o *ObjectStore) AssocGet(id1 int, assocType string, id2 int) (*StoredAssoc
 	return assoc, nil
 }
 
-func (o *ObjectStore) AssocRange(id1 int, assocType string, limit int) ([]*StoredAssoc, error) {
+func (o *ObjectStore) AssocRange(ctx context.Context, id1 int, assocType string, limit int) ([]*StoredAssoc, error) {
+	defer childSpan(ctx, "AssocRange", map[string]string{
+		"id1":  strconv.Itoa(id1),
+		"type": assocType,
+	})()
+
 	rows, err := o.db.Query("select data from assoc where id1 = ? and type = ? order by id desc limit ?", id1, assocType, limit)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting rows: %w", err)
@@ -150,7 +191,7 @@ func (o *ObjectStore) AssocRange(id1 int, assocType string, limit int) ([]*Store
 }
 
 func (o *ObjectStore) GenerateNextID() (int, error) {
-	result, err := o.db.Exec("insert into objects(object_type) values (0)")
+	result, err := o.db.Exec("insert into ids() values ()")
 	if err != nil {
 		return 0, fmt.Errorf("error inserting object row: %s", err)
 	}

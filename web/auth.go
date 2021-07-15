@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -22,7 +23,7 @@ var (
 type Auth struct {
 }
 
-func (a *Auth) tryVkAuth(authUrl string) (int, error) {
+func (a *Auth) tryVkAuth(ctx context.Context, authUrl string) (int, error) {
 	parsedUrl, err := url.Parse(authUrl)
 	if err != nil || authUrl == "" {
 		return 0, ErrNotApplicable
@@ -58,7 +59,7 @@ func (a *Auth) tryVkAuth(authUrl string) (int, error) {
 	}
 
 	assocType := store.Assoc_VK_ID + strconv.Itoa(vkUserID)
-	assocs, err := objectStore.AssocRange(0, assocType, 1)
+	assocs, err := objectStore.AssocRange(ctx, 0, assocType, 1)
 	if err != nil {
 		return 0, fmt.Errorf("failed getting assoc: %w", err)
 	}
@@ -109,25 +110,25 @@ func (a *Auth) tryCookieAuth(r *http.Request) (*store.Token, error) {
 		return nil, ErrAuthFailed
 	}
 
-	return a.tryTokenAuth(accessCookie.Value)
+	return a.tryTokenAuth(r.Context(), accessCookie.Value)
 }
 
-func (a *Auth) tryHeaderAuth(authHeader string) (*store.Token, error) {
+func (a *Auth) tryHeaderAuth(ctx context.Context, authHeader string) (*store.Token, error) {
 	authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 	if authHeader == "" {
 		return nil, ErrNotApplicable
 	}
 
-	return a.tryTokenAuth(authHeader)
+	return a.tryTokenAuth(ctx, authHeader)
 }
 
-func (a *Auth) tryTokenAuth(tokenStr string) (*store.Token, error) {
+func (a *Auth) tryTokenAuth(ctx context.Context, tokenStr string) (*store.Token, error) {
 	tokenID := store.GetIdFromToken(tokenStr)
 	if tokenID == 0 {
 		return nil, ErrAuthFailed
 	}
 
-	obj, err := objectStore.ObjGet(tokenID)
+	obj, err := objectStore.ObjGet(ctx, tokenID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting token: %w", err)
 	}
@@ -143,7 +144,7 @@ func (a *Auth) tryTokenAuth(tokenStr string) (*store.Token, error) {
 }
 
 func (a *Auth) tryAuth(r *http.Request) (*store.Token, int, error) {
-	token, err := a.tryHeaderAuth(r.Header.Get("authorization"))
+	token, err := a.tryHeaderAuth(r.Context(), r.Header.Get("authorization"))
 	if err == nil {
 		return token, token.UserID, err
 	}
@@ -153,12 +154,12 @@ func (a *Auth) tryAuth(r *http.Request) (*store.Token, int, error) {
 		return token, token.UserID, err
 	}
 
-	userID, err := a.tryVkAuth(r.URL.String())
+	userID, err := a.tryVkAuth(r.Context(), r.URL.String())
 	if err == nil {
 		return nil, userID, err
 	}
 
-	userID, err = a.tryVkAuth(r.Header.Get("x-vk-auth"))
+	userID, err = a.tryVkAuth(r.Context(), r.Header.Get("x-vk-auth"))
 	if err == nil {
 		return nil, userID, err
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -15,13 +16,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/materkov/meme9/web/pb"
 	"github.com/materkov/meme9/web/store"
+	tracer2 "github.com/materkov/meme9/web/tracer"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
 func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 	viewer := GetViewerFromContext(r.Context())
-	accessToken, err := doVKCallback(r.URL.Query().Get("code"), viewer)
+	accessToken, err := doVKCallback(r.Context(), r.URL.Query().Get("code"), viewer)
 	if err != nil {
 		log.Printf("Error: %s", err)
 		_, _ = fmt.Fprint(w, "Failed to authorize")
@@ -39,7 +41,7 @@ func handleVKCallback(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func doVKCallback(code string, viewer *Viewer) (string, error) {
+func doVKCallback(ctx context.Context, code string, viewer *Viewer) (string, error) {
 	if code == "" {
 		return "", fmt.Errorf("empty VK code")
 	}
@@ -74,7 +76,7 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 	}
 
 	assocType := store.Assoc_VK_ID + strconv.Itoa(body.UserID)
-	assocs, err := objectStore.AssocRange(0, assocType, 1)
+	assocs, err := objectStore.AssocRange(ctx, 0, assocType, 1)
 	if err != nil {
 		return "", fmt.Errorf("error selecting by vk id: %w", err)
 	}
@@ -83,7 +85,7 @@ func doVKCallback(code string, viewer *Viewer) (string, error) {
 	var user *store.User
 	if len(assocs) > 0 {
 		userID = assocs[0].VkID.ID2
-		obj, err := objectStore.ObjGet(userID)
+		obj, err := objectStore.ObjGet(ctx, userID)
 		if err != nil {
 			return "", fmt.Errorf("error getting users: %w", err)
 		} else if obj == nil || obj.User == nil {
@@ -250,7 +252,7 @@ func writeAPIError(w http.ResponseWriter, err error) {
 
 func handleAPI(w http.ResponseWriter, request *http.Request) {
 	method := request.URL.Query().Get("method")
-	tracer := NewTracer("api " + method)
+	tracer := tracer2.NewTracer("api " + method)
 	defer tracer.Stop()
 	w.Header().Set("x-request-id", fmt.Sprintf("%x", tracer.ID))
 
@@ -263,6 +265,7 @@ func handleAPI(w http.ResponseWriter, request *http.Request) {
 	}
 
 	ctx := request.Context()
+	ctx = context.WithValue(ctx, "currentSpan", tracer.ID)
 	viewer := GetViewerFromContext(ctx)
 	m := protojson.UnmarshalOptions{DiscardUnknown: true}
 

@@ -38,7 +38,7 @@ func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.F
 			headerRenderer.CsrfToken = GenerateCSRFToken(viewer.Token.Token)
 		}
 
-		obj, err := objectStore.ObjGet(viewer.UserID)
+		obj, err := objectStore.ObjGet(ctx, viewer.UserID)
 		if err != nil {
 			log.Printf("Error getting user: %s", err)
 		} else if obj == nil || obj.User == nil {
@@ -70,7 +70,7 @@ func (r *Relations) Follow(ctx context.Context, req *pb.RelationsFollowRequest) 
 		return nil, fmt.Errorf("need auth")
 	}
 
-	assocs, err := objectStore.AssocRange(viewer.UserID, store.Assoc_Following, 1000)
+	assocs, err := objectStore.AssocRange(ctx, viewer.UserID, store.Assoc_Following, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}
@@ -132,7 +132,7 @@ func (p *Posts) Add(ctx context.Context, request *pb.PostsAddRequest) (*pb.Posts
 	photoID := 0
 	if request.PhotoId != "" {
 		photoID, _ = strconv.Atoi(request.PhotoId)
-		obj, err := objectStore.ObjGet(photoID)
+		obj, err := objectStore.ObjGet(ctx, photoID)
 		if obj == nil || obj.Photo == nil {
 			return nil, fmt.Errorf("photo not found")
 		} else if err != nil {
@@ -180,7 +180,7 @@ func (p *Posts) ToggleLike(ctx context.Context, req *pb.ToggleLikeRequest) (*pb.
 
 	postID, _ := strconv.Atoi(req.PostId)
 
-	data, err := objectStore.AssocGet(postID, store.Assoc_Liked, viewer.UserID)
+	data, err := objectStore.AssocGet(ctx, postID, store.Assoc_Liked, viewer.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting is liked: %w", err)
 	}
@@ -205,7 +205,7 @@ func (p *Posts) ToggleLike(ctx context.Context, req *pb.ToggleLikeRequest) (*pb.
 		}
 	}
 
-	likesCount, err := objectStore.AssocCount(postID, store.Assoc_Liked)
+	likesCount, err := objectStore.AssocCount(ctx, postID, store.Assoc_Liked)
 	if err != nil {
 		log.Printf("Error getting likes count")
 	}
@@ -227,7 +227,7 @@ func (p *Posts) AddComment(ctx context.Context, req *pb.AddCommentRequest) (*pb.
 	}
 
 	postID, _ := strconv.Atoi(req.PostId)
-	obj, err := objectStore.ObjGet(postID)
+	obj, err := objectStore.ObjGet(ctx, postID)
 	if err != nil {
 		return nil, fmt.Errorf("error loading posts: %w", err)
 	} else if obj == nil || obj.Post == nil {
@@ -268,7 +268,7 @@ type Utils struct {
 }
 
 func (u *Utils) ResolveRoute(ctx context.Context, request *pb.ResolveRouteRequest) (*pb.UniversalRenderer, error) {
-	type handler func(_ string, viewer *Viewer) (*pb.UniversalRenderer, error)
+	type handler func(ctx context.Context, _ string, viewer *Viewer) (*pb.UniversalRenderer, error)
 
 	routes := map[string]handler{
 		`^/$`:      handleIndex,
@@ -286,7 +286,7 @@ func (u *Utils) ResolveRoute(ctx context.Context, request *pb.ResolveRouteReques
 	for route, handler := range routes {
 		matched, _ := regexp.MatchString(route, request.Url)
 		if matched {
-			return handler(request.Url, viewer)
+			return handler(ctx, request.Url, viewer)
 		}
 	}
 

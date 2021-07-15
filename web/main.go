@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -20,7 +21,7 @@ import (
 	"github.com/materkov/meme9/web/store"
 )
 
-func convertPosts(posts []*store.Post, viewerID int, includeLatestComment bool) []*pb.Post {
+func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includeLatestComment bool) []*pb.Post {
 	if len(posts) == 0 {
 		return nil
 	}
@@ -60,7 +61,7 @@ func convertPosts(posts []*store.Post, viewerID int, includeLatestComment bool) 
 	go func() {
 		result := map[int]int{}
 		for _, postID := range postIds {
-			count, err := objectStore.AssocCount(postID, store.Assoc_Liked)
+			count, err := objectStore.AssocCount(ctx, postID, store.Assoc_Liked)
 			if err != nil {
 				log.Printf("Error getting likes count: %s", err)
 			} else {
@@ -74,7 +75,7 @@ func convertPosts(posts []*store.Post, viewerID int, includeLatestComment bool) 
 	go func() {
 		result := map[int]bool{}
 		for _, postId := range postIds {
-			data, err := objectStore.AssocGet(postId, store.Assoc_Liked, viewerID)
+			data, err := objectStore.AssocGet(ctx, postId, store.Assoc_Liked, viewerID)
 			if err != nil {
 				log.Printf("Error getting is Liked: %s", err)
 				continue
@@ -91,7 +92,7 @@ func convertPosts(posts []*store.Post, viewerID int, includeLatestComment bool) 
 	go func() {
 		result := make([]*store.User, 0)
 		for _, id := range userIds {
-			obj, err := objectStore.ObjGet(id)
+			obj, err := objectStore.ObjGet(ctx, id)
 			if err != nil {
 				log.Printf("Error selecting users: %s", err)
 				continue
@@ -126,7 +127,7 @@ func convertPosts(posts []*store.Post, viewerID int, includeLatestComment bool) 
 	go func() {
 		result := map[int]int{}
 		for _, postId := range postIds {
-			count, err := objectStore.AssocCount(postId, store.Assoc_Commended)
+			count, err := objectStore.AssocCount(ctx, postId, store.Assoc_Commended)
 			if err != nil {
 				log.Printf("Error selecting users: %s", err)
 			} else {
@@ -143,7 +144,7 @@ func convertPosts(posts []*store.Post, viewerID int, includeLatestComment bool) 
 		postLatestComments := map[int]int{}
 
 		for _, postID := range postIds {
-			assocs, err := objectStore.AssocRange(postID, store.Assoc_Commended, 1)
+			assocs, err := objectStore.AssocRange(ctx, postID, store.Assoc_Commended, 1)
 			if err != nil {
 				log.Printf("Error selecting comment ids: %s", err)
 				continue
@@ -157,7 +158,7 @@ func convertPosts(posts []*store.Post, viewerID int, includeLatestComment bool) 
 
 		commentsMap := map[int]*store.Comment{}
 		for _, commentID := range commentIds {
-			obj, err := objectStore.ObjGet(commentID)
+			obj, err := objectStore.ObjGet(ctx, commentID)
 			if err != nil {
 				log.Printf("[Error selecting comment objects: %s", err)
 				continue
@@ -214,7 +215,7 @@ func convertPosts(posts []*store.Post, viewerID int, includeLatestComment bool) 
 
 		photoURL := ""
 		if post.PhotoID != 0 {
-			photo, err := objectStore.ObjGet(post.PhotoID)
+			photo, err := objectStore.ObjGet(ctx, post.PhotoID)
 			if err != nil || photo == nil || photo.Photo == nil {
 				log.Printf("failed getting photo: %s", err)
 			} else {
@@ -326,6 +327,8 @@ var postsSrv *Posts
 var relationsSrv *Relations
 var utilsSrv *Utils
 var awsSession *session.Session
+
+var objectStore *store.ObjectStore
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
