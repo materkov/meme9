@@ -20,11 +20,7 @@ var (
 	ErrAuthFailed    = fmt.Errorf("auth failed")
 )
 
-type Auth struct {
-	Store *store.ObjectStore
-}
-
-func (a *Auth) tryVkAuth(ctx context.Context, authUrl string) (int, error) {
+func (a *App) tryVkAuth(ctx context.Context, authUrl string) (int, error) {
 	parsedUrl, err := url.Parse(authUrl)
 	if err != nil || authUrl == "" {
 		return 0, ErrNotApplicable
@@ -98,7 +94,7 @@ func (a *Auth) tryVkAuth(ctx context.Context, authUrl string) (int, error) {
 	return userID, nil
 }
 
-func (a *Auth) tryCookieAuth(r *http.Request) (*store.Token, error) {
+func (a *App) tryCookieAuth(r *http.Request) (*store.Token, error) {
 	accessCookie, err := r.Cookie("access_token")
 	if err != nil || accessCookie.Value == "" {
 		return nil, ErrNotApplicable
@@ -114,7 +110,7 @@ func (a *Auth) tryCookieAuth(r *http.Request) (*store.Token, error) {
 	return a.tryTokenAuth(r.Context(), accessCookie.Value)
 }
 
-func (a *Auth) tryHeaderAuth(ctx context.Context, authHeader string) (*store.Token, error) {
+func (a *App) tryHeaderAuth(ctx context.Context, authHeader string) (*store.Token, error) {
 	authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 	if authHeader == "" {
 		return nil, ErrNotApplicable
@@ -123,7 +119,7 @@ func (a *Auth) tryHeaderAuth(ctx context.Context, authHeader string) (*store.Tok
 	return a.tryTokenAuth(ctx, authHeader)
 }
 
-func (a *Auth) tryTokenAuth(ctx context.Context, tokenStr string) (*store.Token, error) {
+func (a *App) tryTokenAuth(ctx context.Context, tokenStr string) (*store.Token, error) {
 	tokenID := store.GetIdFromToken(tokenStr)
 	if tokenID == 0 {
 		return nil, ErrAuthFailed
@@ -144,7 +140,7 @@ func (a *Auth) tryTokenAuth(ctx context.Context, tokenStr string) (*store.Token,
 	return obj.Token, nil
 }
 
-func (a *Auth) TryAuth(r *http.Request) (*store.Token, int, error) {
+func (a *App) TryAuth(r *http.Request) (*store.Token, int, error) {
 	token, err := a.tryHeaderAuth(r.Context(), r.Header.Get("authorization"))
 	if err == nil {
 		return token, token.UserID, err

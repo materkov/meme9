@@ -28,11 +28,15 @@ func main() {
 	app.ObjectStore = store.NewObjectStore(db)
 
 	app.Main()
+	appInstance := &app.App{
+		Store: app.ObjectStore,
+	}
 
 	httpSrv := &httpserver.HttpServer{
 		Store:    app.ObjectStore,
 		FeedSrv:  app.FeedSrv,
 		UtilsSrv: app.UtilsSrv,
+		App:      appInstance,
 	}
 	httpSrv.Serve()
 

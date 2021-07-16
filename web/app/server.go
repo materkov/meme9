@@ -15,45 +15,12 @@ import (
 	"github.com/materkov/meme9/web/store"
 )
 
-type Feed struct {
-}
-
 func GenerateCSRFToken(token string) string {
 	mac := hmac.New(sha256.New, []byte(DefaultConfig.CSRFKey))
 	_, _ = mac.Write([]byte(token))
 	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
 }
 
-func (f *Feed) GetHeader(ctx context.Context, _ *pb.FeedGetHeaderRequest) (*pb.FeedGetHeaderResponse, error) {
-	viewer := GetViewerFromContext(ctx)
-
-	headerRenderer := pb.HeaderRenderer{
-		MainUrl:   "/",
-		LoginUrl:  "/login",
-		LogoutUrl: "/logout",
-	}
-
-	if viewer.UserID != 0 {
-		if viewer.Token != nil {
-			headerRenderer.CsrfToken = GenerateCSRFToken(viewer.Token.Token)
-		}
-
-		obj, err := ObjectStore.ObjGet(ctx, viewer.UserID)
-		if err != nil {
-			log.Printf("Error getting user: %s", err)
-		} else if obj == nil || obj.User == nil {
-			log.Printf("User %d not found", viewer.UserID)
-		} else {
-			user := obj.User
-
-			headerRenderer.IsAuthorized = true
-			headerRenderer.UserAvatar = user.VkAvatar
-			headerRenderer.UserName = user.Name
-		}
-	}
-
-	return &pb.FeedGetHeaderResponse{Renderer: &headerRenderer}, nil
-}
 
 type Relations struct {
 }

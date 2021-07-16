@@ -18,7 +18,8 @@ type HttpServer struct {
 	Store    *store.ObjectStore
 	FeedSrv  *app.Feed
 	UtilsSrv *app.Utils
-	Auth     *app.Auth
+
+	App *app.App
 }
 
 func (h *HttpServer) Serve() {
@@ -42,7 +43,7 @@ func (h *HttpServer) middleware(next http.HandlerFunc) http.HandlerFunc {
 			viewer.RequestScheme = "https"
 		}
 
-		viewer.Token, viewer.UserID, _ = h.Auth.TryAuth(r)
+		viewer.Token, viewer.UserID, _ = h.App.TryAuth(r)
 
 		ctx := app.WithViewerContext(r.Context(), &viewer)
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -51,7 +52,7 @@ func (h *HttpServer) middleware(next http.HandlerFunc) http.HandlerFunc {
 
 func (h *HttpServer) handleVKCallback(w http.ResponseWriter, r *http.Request) {
 	viewer := app.GetViewerFromContext(r.Context())
-	accessToken, err := app.DoVKCallback(r.Context(), r.URL.Query().Get("code"), viewer)
+	accessToken, err := h.App.DoVKCallback(r.Context(), r.URL.Query().Get("code"), viewer)
 	if err != nil {
 		log.Printf("Error: %s", err)
 		_, _ = fmt.Fprint(w, "Failed to authorize")
@@ -94,7 +95,7 @@ func (h *HttpServer) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	photo, err := app.UploadPhoto(file, viewer.UserID)
+	photo, err := h.App.UploadPhoto(file, viewer.UserID)
 	if err != nil {
 		log.Printf("Error uploading file: %s", err)
 		fmt.Fprint(w, "error uploading file")
@@ -115,7 +116,7 @@ func (h *HttpServer) handleAPI(w http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	resp, err := app.HandleJSONRequest(ctx, method, body)
+	resp, err := h.App.HandleJSONRequest(ctx, method, body)
 	if err != nil {
 		writeAPIError(w, fmt.Errorf("failed reading body"))
 		return

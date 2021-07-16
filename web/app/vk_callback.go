@@ -13,7 +13,7 @@ import (
 	"github.com/materkov/meme9/web/store"
 )
 
-func DoVKCallback(ctx context.Context, code string, viewer *Viewer) (string, error) {
+func (a *App) DoVKCallback(ctx context.Context, code string, viewer *Viewer) (string, error) {
 	if code == "" {
 		return "", fmt.Errorf("empty VK code")
 	}
@@ -48,7 +48,7 @@ func DoVKCallback(ctx context.Context, code string, viewer *Viewer) (string, err
 	}
 
 	assocType := store.Assoc_VK_ID + strconv.Itoa(body.UserID)
-	assocs, err := ObjectStore.AssocRange(ctx, 0, assocType, 1)
+	assocs, err := a.Store.AssocRange(ctx, 0, assocType, 1)
 	if err != nil {
 		return "", fmt.Errorf("error selecting by vk id: %w", err)
 	}
@@ -57,7 +57,7 @@ func DoVKCallback(ctx context.Context, code string, viewer *Viewer) (string, err
 	var user *store.User
 	if len(assocs) > 0 {
 		userID = assocs[0].VkID.ID2
-		obj, err := ObjectStore.ObjGet(ctx, userID)
+		obj, err := a.Store.ObjGet(ctx, userID)
 		if err != nil {
 			return "", fmt.Errorf("error getting users: %w", err)
 		} else if obj == nil || obj.User == nil {
@@ -66,7 +66,7 @@ func DoVKCallback(ctx context.Context, code string, viewer *Viewer) (string, err
 
 		user = obj.User
 	} else {
-		userID, err = ObjectStore.GenerateNextID()
+		userID, err = a.Store.GenerateNextID()
 		if err != nil {
 			return "", fmt.Errorf("error generating user id: %w", err)
 		}
@@ -75,7 +75,7 @@ func DoVKCallback(ctx context.Context, code string, viewer *Viewer) (string, err
 			ID: userID,
 		}
 
-		err = ObjectStore.ObjAdd(&store.StoredObject{ID: userID, User: &store.User{
+		err = a.Store.ObjAdd(&store.StoredObject{ID: userID, User: &store.User{
 			ID: userID,
 		}})
 		if err != nil {
@@ -83,7 +83,7 @@ func DoVKCallback(ctx context.Context, code string, viewer *Viewer) (string, err
 		}
 
 		assocType := store.Assoc_VK_ID + strconv.Itoa(body.UserID)
-		err = ObjectStore.AssocAdd(0, userID, assocType, &store.StoredAssoc{VkID: &store.VkID{
+		err = a.Store.AssocAdd(0, userID, assocType, &store.StoredAssoc{VkID: &store.VkID{
 			ID1:  0,
 			ID2:  userID,
 			Type: assocType,
@@ -99,19 +99,19 @@ func DoVKCallback(ctx context.Context, code string, viewer *Viewer) (string, err
 	} else {
 		user.Name = vkName
 		user.VkAvatar = vkAvatar
-		err = ObjectStore.ObjUpdate(&store.StoredObject{ID: user.ID, User: user})
+		err = a.Store.ObjUpdate(&store.StoredObject{ID: user.ID, User: user})
 		if err != nil {
 			return "", fmt.Errorf("failed updating name and avatar: %w", err)
 		}
 	}
 
-	objectID, err := ObjectStore.GenerateNextID()
+	objectID, err := a.Store.GenerateNextID()
 	if err != nil {
 		return "", fmt.Errorf("failed generating object id: %w", err)
 	}
 
 	token := fmt.Sprintf("%d-%s", objectID, RandString(40))
-	err = ObjectStore.ObjAdd(&store.StoredObject{ID: objectID, Token: &store.Token{
+	err = a.Store.ObjAdd(&store.StoredObject{ID: objectID, Token: &store.Token{
 		ID:     objectID,
 		Token:  token,
 		UserID: userID,

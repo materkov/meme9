@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func HandleJSONRequest(ctx context.Context, method string, request []byte) ([]byte, error) {
+func (a *App) HandleJSONRequest(ctx context.Context, method string, request []byte) ([]byte, error) {
 	trc := tracer.NewTracer("api " + method)
 	defer trc.Stop()
 
@@ -78,12 +78,12 @@ func HandleJSONRequest(ctx context.Context, method string, request []byte) ([]by
 	respBytes, _ := marshaller.Marshal(resp)
 
 	defer trc.StartChild("api log").Stop()
-	objectID, err := ObjectStore.GenerateNextID()
+	objectID, err := a.Store.GenerateNextID()
 	if err != nil {
 		return respBytes, nil
 	}
 
-	err = ObjectStore.ObjAdd(&store.StoredObject{ID: objectID, APILog: &store.APILog{
+	err = a.Store.ObjAdd(&store.StoredObject{ID: objectID, APILog: &store.APILog{
 		ID:       objectID,
 		UserID:   viewer.UserID,
 		Method:   method,

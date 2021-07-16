@@ -9,7 +9,7 @@ import (
 	"github.com/materkov/meme9/web/store"
 )
 
-func UploadPhoto(file []byte, userID int) (*store.Photo, error) {
+func (a *App) UploadPhoto(file []byte, userID int) (*store.Photo, error) {
 	filePath := RandString(20)
 
 	_, err := s3manager.NewUploader(awsSession).Upload(&s3manager.UploadInput{
@@ -23,7 +23,7 @@ func UploadPhoto(file []byte, userID int) (*store.Photo, error) {
 		return nil, fmt.Errorf("cannot upload file: %w", err)
 	}
 
-	objectID, err := ObjectStore.GenerateNextID()
+	objectID, err := a.Store.GenerateNextID()
 	if err != nil {
 		return nil, fmt.Errorf("cannot generate id: %w", err)
 	}
@@ -34,7 +34,7 @@ func UploadPhoto(file []byte, userID int) (*store.Photo, error) {
 		Path:   filePath,
 	}
 
-	err = ObjectStore.ObjAdd(&store.StoredObject{ID: photo.ID, Photo: &photo})
+	err = a.Store.ObjAdd(&store.StoredObject{ID: photo.ID, Photo: &photo})
 	if err != nil {
 		return nil, fmt.Errorf("error saving object: %w",err)
 	}
