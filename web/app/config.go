@@ -23,7 +23,7 @@ func (c *Config) Load() error {
 		configStr = string(configFile)
 	}
 
-	err := json.Unmarshal([]byte(configStr), &config)
+	err := json.Unmarshal([]byte(configStr), &DefaultConfig)
 	if err != nil {
 		return fmt.Errorf("failed parsing json: %w", err)
 	}
@@ -31,4 +31,4 @@ func (c *Config) Load() error {
 	return nil
 }
 
-var config Config
+var DefaultConfig Config

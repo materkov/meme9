@@ -299,8 +299,6 @@ func fetchVkData(userId int, accessToken string) (string, string, error) {
 	return body.Response[0].FirstName + " " + body.Response[0].LastName, body.Response[0].Photo200, nil
 }
 
-var auth *Auth
-
 // TODO
 var FeedSrv *Feed
 var postsSrv *Posts
@@ -311,17 +309,11 @@ var awsSession *session.Session
 var ObjectStore *store.ObjectStore
 
 func Main() {
-	err := config.Load()
-	if err != nil {
-		log.Fatalf("Error loading config: %s", err)
-	}
-
-	auth = &Auth{}
-
+	var err error
 	awsSession, err = session.NewSession(
 		&aws.Config{
 			Region:      aws.String("eu-central-1"),
-			Credentials: credentials.NewStaticCredentials(config.AWSKeyID, config.AWSKeySecret, ""),
+			Credentials: credentials.NewStaticCredentials(DefaultConfig.AWSKeyID, DefaultConfig.AWSKeySecret, ""),
 		},
 	)
 	if err != nil {

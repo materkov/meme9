@@ -15,6 +15,11 @@ import (
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
+	err := app.DefaultConfig.Load()
+	if err != nil {
+		log.Fatalf("Error loading config: %s", err)
+	}
+
 	db, err := sql.Open("mysql", "root:root@/meme9")
 	if err != nil {
 		log.Fatalf("failed opening mysql connection: %s", err)

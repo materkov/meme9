@@ -19,7 +19,7 @@ type Feed struct {
 }
 
 func GenerateCSRFToken(token string) string {
-	mac := hmac.New(sha256.New, []byte(config.CSRFKey))
+	mac := hmac.New(sha256.New, []byte(DefaultConfig.CSRFKey))
 	_, _ = mac.Write([]byte(token))
 	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
 }

@@ -49,7 +49,7 @@ func (a *Auth) tryVkAuth(ctx context.Context, authUrl string) (int, error) {
 
 	signString := strings.Join(keys, "&")
 
-	mac := hmac.New(sha256.New, []byte(config.VKMiniAppSecret))
+	mac := hmac.New(sha256.New, []byte(DefaultConfig.VKMiniAppSecret))
 	_, _ = mac.Write([]byte(signString))
 	computedSign := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 

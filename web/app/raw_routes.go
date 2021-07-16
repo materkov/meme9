@@ -21,8 +21,8 @@ func DoVKCallback(ctx context.Context, code string, viewer *Viewer) (string, err
 	redirectURI := fmt.Sprintf("%s://%s/vk-callback", viewer.RequestScheme, viewer.RequestHost)
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
-		"client_id":     []string{strconv.Itoa(config.VKAppID)},
-		"client_secret": []string{config.VKAppSecret},
+		"client_id":     []string{strconv.Itoa(DefaultConfig.VKAppID)},
+		"client_secret": []string{DefaultConfig.VKAppSecret},
 		"redirect_uri":  []string{redirectURI},
 		"code":          []string{code},
 	})
