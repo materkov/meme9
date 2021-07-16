@@ -59,7 +59,7 @@ func (a *Auth) tryVkAuth(ctx context.Context, authUrl string) (int, error) {
 	}
 
 	assocType := store.Assoc_VK_ID + strconv.Itoa(vkUserID)
-	assocs, err := objectStore.AssocRange(ctx, 0, assocType, 1)
+	assocs, err := ObjectStore.AssocRange(ctx, 0, assocType, 1)
 	if err != nil {
 		return 0, fmt.Errorf("failed getting assoc: %w", err)
 	}
@@ -69,7 +69,7 @@ func (a *Auth) tryVkAuth(ctx context.Context, authUrl string) (int, error) {
 	}
 
 	// New user
-	userID, err := objectStore.GenerateNextID()
+	userID, err := ObjectStore.GenerateNextID()
 	if err != nil {
 		return 0, fmt.Errorf("error generating object ID: %w", err)
 	}
@@ -80,12 +80,12 @@ func (a *Auth) tryVkAuth(ctx context.Context, authUrl string) (int, error) {
 		VkID: vkUserID,
 	}
 
-	err = objectStore.ObjAdd(&store.StoredObject{ID: userID, User: &user})
+	err = ObjectStore.ObjAdd(&store.StoredObject{ID: userID, User: &user})
 	if err != nil {
 		return 0, fmt.Errorf("error saving user: %w", err)
 	}
 
-	err = objectStore.AssocAdd(0, userID, assocType, &store.StoredAssoc{VkID: &store.VkID{
+	err = ObjectStore.AssocAdd(0, userID, assocType, &store.StoredAssoc{VkID: &store.VkID{
 		ID1:  0,
 		ID2:  userID,
 		Type: assocType,
@@ -128,7 +128,7 @@ func (a *Auth) tryTokenAuth(ctx context.Context, tokenStr string) (*store.Token,
 		return nil, ErrAuthFailed
 	}
 
-	obj, err := objectStore.ObjGet(ctx, tokenID)
+	obj, err := ObjectStore.ObjGet(ctx, tokenID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting token: %w", err)
 	}
@@ -143,7 +143,7 @@ func (a *Auth) tryTokenAuth(ctx context.Context, tokenStr string) (*store.Token,
 	return obj.Token, nil
 }
 
-func (a *Auth) tryAuth(r *http.Request) (*store.Token, int, error) {
+func (a *Auth) TryAuth(r *http.Request) (*store.Token, int, error) {
 	token, err := a.tryHeaderAuth(r.Context(), r.Header.Get("authorization"))
 	if err == nil {
 		return token, token.UserID, err

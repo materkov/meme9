@@ -23,7 +23,7 @@ func handleIndex(ctx context.Context, _ string, viewer *Viewer) (*pb.UniversalRe
 		}, nil
 	}
 
-	assocs, err := objectStore.AssocRange(ctx, viewer.UserID, store.Assoc_Following, 1000)
+	assocs, err := ObjectStore.AssocRange(ctx, viewer.UserID, store.Assoc_Following, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}
@@ -37,7 +37,7 @@ func handleIndex(ctx context.Context, _ string, viewer *Viewer) (*pb.UniversalRe
 
 	postIds := make([]int, 0)
 	for _, userID := range followingIds {
-		assocs, err := objectStore.AssocRange(ctx, userID, store.AssocPosted, 30)
+		assocs, err := ObjectStore.AssocRange(ctx, userID, store.AssocPosted, 30)
 		if err != nil {
 		    return nil, fmt.Errorf("error getting assocs: %w", err)
 		}
@@ -53,7 +53,7 @@ func handleIndex(ctx context.Context, _ string, viewer *Viewer) (*pb.UniversalRe
 
 	posts := make([]*store.Post, 0)
 	for _, postId := range postIds {
-		obj, err := objectStore.ObjGet(ctx, postId)
+		obj, err := ObjectStore.ObjGet(ctx, postId)
 		if err != nil {
 			log.Printf("error selcting post: %s", err)
 			continue
@@ -95,7 +95,7 @@ func handleProfile(ctx context.Context, url string, viewer *Viewer) (*pb.Univers
 	}
 
 	userID, _ := strconv.Atoi(req.Id)
-	obj, err := objectStore.ObjGet(ctx, userID)
+	obj, err := ObjectStore.ObjGet(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting user: %w", err)
 	} else if obj == nil || obj.User == nil {
@@ -104,14 +104,14 @@ func handleProfile(ctx context.Context, url string, viewer *Viewer) (*pb.Univers
 
 	user := obj.User
 
-	assocs, err := objectStore.AssocRange(ctx, userID, store.AssocPosted, 50)
+	assocs, err := ObjectStore.AssocRange(ctx, userID, store.AssocPosted, 50)
 	if err != nil {
 		log.Printf("Error selecting user posts: %s", err)
 	}
 
 	posts := make([]*store.Post, 0)
 	for _, assoc := range assocs {
-		obj, err := objectStore.ObjGet(ctx, assoc.Posted.ID2)
+		obj, err := ObjectStore.ObjGet(ctx, assoc.Posted.ID2)
 		if err != nil {
 			log.Printf("Error selecting post: %s", err)
 			continue
@@ -124,7 +124,7 @@ func handleProfile(ctx context.Context, url string, viewer *Viewer) (*pb.Univers
 
 	wrappedPosts := convertPosts(ctx, posts, viewer.UserID, false)
 
-	assocs, err = objectStore.AssocRange(ctx,viewer.UserID, store.Assoc_Following, 1000)
+	assocs, err = ObjectStore.AssocRange(ctx,viewer.UserID, store.Assoc_Following, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}
@@ -155,14 +155,14 @@ func handlePostPage(ctx context.Context, url string, viewer *Viewer) (*pb.Univer
 	postIDStr := strings.TrimPrefix(url, "/posts/")
 	postID, _ := strconv.Atoi(postIDStr)
 
-	obj, err := objectStore.ObjGet(ctx, postID)
+	obj, err := ObjectStore.ObjGet(ctx, postID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting post: %s", err)
 	} else if obj == nil || obj.Post == nil {
 		return nil, fmt.Errorf("post not found")
 	}
 
-	assocs, err := objectStore.AssocRange(ctx, postID, store.Assoc_Commended, 100)
+	assocs, err := ObjectStore.AssocRange(ctx, postID, store.Assoc_Commended, 100)
 	if err != nil {
 		log.Printf("Error selecting comment ids: %s", err)
 	}
@@ -174,7 +174,7 @@ func handlePostPage(ctx context.Context, url string, viewer *Viewer) (*pb.Univer
 
 	var comments []*store.Comment
 	for _, commentID := range commentIds {
-		obj, err := objectStore.ObjGet(ctx, commentID)
+		obj, err := ObjectStore.ObjGet(ctx, commentID)
 		if err != nil || obj == nil || obj.Comment == nil {
 			log.Printf("Error selecting comments objects: %s", err)
 			continue

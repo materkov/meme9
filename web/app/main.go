@@ -2,12 +2,10 @@ package app
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -61,7 +59,7 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 	go func() {
 		result := map[int]int{}
 		for _, postID := range postIds {
-			count, err := objectStore.AssocCount(ctx, postID, store.Assoc_Liked)
+			count, err := ObjectStore.AssocCount(ctx, postID, store.Assoc_Liked)
 			if err != nil {
 				log.Printf("Error getting likes count: %s", err)
 			} else {
@@ -75,7 +73,7 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 	go func() {
 		result := map[int]bool{}
 		for _, postId := range postIds {
-			data, err := objectStore.AssocGet(ctx, postId, store.Assoc_Liked, viewerID)
+			data, err := ObjectStore.AssocGet(ctx, postId, store.Assoc_Liked, viewerID)
 			if err != nil {
 				log.Printf("Error getting is Liked: %s", err)
 				continue
@@ -92,7 +90,7 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 	go func() {
 		result := make([]*store.User, 0)
 		for _, id := range userIds {
-			obj, err := objectStore.ObjGet(ctx, id)
+			obj, err := ObjectStore.ObjGet(ctx, id)
 			if err != nil {
 				log.Printf("Error selecting users: %s", err)
 				continue
@@ -109,7 +107,7 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 
 	/*photosCh := make(chan []*store2.Photo)
 	go func() {
-		result, err := objectStore.ObjGetMany(photoIds)
+		result, err := ObjectStore.ObjGetMany(photoIds)
 		if err != nil {
 			log.Printf("Error selecting photos: %s", err)
 		}
@@ -127,7 +125,7 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 	go func() {
 		result := map[int]int{}
 		for _, postId := range postIds {
-			count, err := objectStore.AssocCount(ctx, postId, store.Assoc_Commended)
+			count, err := ObjectStore.AssocCount(ctx, postId, store.Assoc_Commended)
 			if err != nil {
 				log.Printf("Error selecting users: %s", err)
 			} else {
@@ -144,7 +142,7 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 		postLatestComments := map[int]int{}
 
 		for _, postID := range postIds {
-			assocs, err := objectStore.AssocRange(ctx, postID, store.Assoc_Commended, 1)
+			assocs, err := ObjectStore.AssocRange(ctx, postID, store.Assoc_Commended, 1)
 			if err != nil {
 				log.Printf("Error selecting comment ids: %s", err)
 				continue
@@ -158,7 +156,7 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 
 		commentsMap := map[int]*store.Comment{}
 		for _, commentID := range commentIds {
-			obj, err := objectStore.ObjGet(ctx, commentID)
+			obj, err := ObjectStore.ObjGet(ctx, commentID)
 			if err != nil {
 				log.Printf("[Error selecting comment objects: %s", err)
 				continue
@@ -215,7 +213,7 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 
 		photoURL := ""
 		if post.PhotoID != 0 {
-			photo, err := objectStore.ObjGet(ctx, post.PhotoID)
+			photo, err := ObjectStore.ObjGet(ctx, post.PhotoID)
 			if err != nil || photo == nil || photo.Photo == nil {
 				log.Printf("failed getting photo: %s", err)
 			} else {
@@ -303,46 +301,20 @@ func fetchVkData(userId int, accessToken string) (string, string, error) {
 
 var auth *Auth
 
-func middleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		viewer := Viewer{
-			RequestHost: r.Host,
-		}
-
-		viewer.RequestScheme = "http"
-		if r.Header.Get("x-forwarded-proto") == "https" {
-			viewer.RequestScheme = "https"
-		}
-
-		viewer.Token, viewer.UserID, _ = auth.tryAuth(r)
-
-		ctx := WithViewerContext(r.Context(), &viewer)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	}
-}
-
 // TODO
-var feedSrv *Feed
+var FeedSrv *Feed
 var postsSrv *Posts
 var relationsSrv *Relations
-var utilsSrv *Utils
+var UtilsSrv *Utils
 var awsSession *session.Session
 
-var objectStore *store.ObjectStore
+var ObjectStore *store.ObjectStore
 
 func Main() {
-	rand.Seed(time.Now().UnixNano())
 	err := config.Load()
 	if err != nil {
 		log.Fatalf("Error loading config: %s", err)
 	}
-
-	db, err := sql.Open("mysql", "root:root@/meme9")
-	if err != nil {
-		log.Fatalf("failed opening mysql connection: %s", err)
-	}
-
-	objectStore = store.NewObjectStore(db)
 
 	auth = &Auth{}
 
@@ -356,17 +328,6 @@ func Main() {
 		log.Fatalf("Failed creating AWS session: %s", err)
 	}
 
-	feedSrv = &Feed{}
-	utilsSrv = &Utils{}
-	postsSrv = &Posts{}
 	postsSrv = &Posts{}
 	relationsSrv = &Relations{}
-
-	http.Handle("/vk-callback", middleware(handleVKCallback))
-	http.Handle("/logout", middleware(handleLogout))
-	http.Handle("/upload", middleware(handleUpload))
-	http.Handle("/api", middleware(handleAPI))
-	http.Handle("/", middleware(handleDefault))
-
-	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
