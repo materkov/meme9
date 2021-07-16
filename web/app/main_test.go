@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"testing"
 
+	"github.com/materkov/meme9/web/store"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/require"
 )
@@ -18,5 +19,5 @@ func setupDB(t *testing.T) {
 	require.NoError(t, err)
 
 	// TODO replace this global
-	store = NewAllStores(db)
+	ObjectStore = store.NewObjectStore(db)
 }

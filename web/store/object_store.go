@@ -191,7 +191,7 @@ func (o *ObjectStore) AssocRange(ctx context.Context, id1 int, assocType string,
 }
 
 func (o *ObjectStore) GenerateNextID() (int, error) {
-	result, err := o.db.Exec("insert into ids() values ()")
+	result, err := o.db.Exec("insert into ids(id) values (null)")
 	if err != nil {
 		return 0, fmt.Errorf("error inserting object row: %s", err)
 	}
