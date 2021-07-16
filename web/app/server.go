@@ -21,7 +21,6 @@ func GenerateCSRFToken(token string) string {
 	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
 }
 
-
 type Relations struct {
 }
 

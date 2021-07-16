@@ -122,4 +122,3 @@ func (a *App) DoVKCallback(ctx context.Context, code string, viewer *Viewer) (st
 
 	return token, nil
 }
-

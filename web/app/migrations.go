@@ -26,8 +26,4 @@ create table object
 	type smallint not null,
 	data json not null
 );
-
-
-
-
 `

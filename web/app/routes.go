@@ -39,7 +39,7 @@ func handleIndex(ctx context.Context, _ string, viewer *Viewer) (*pb.UniversalRe
 	for _, userID := range followingIds {
 		assocs, err := ObjectStore.AssocRange(ctx, userID, store.AssocPosted, 30)
 		if err != nil {
-		    return nil, fmt.Errorf("error getting assocs: %w", err)
+			return nil, fmt.Errorf("error getting assocs: %w", err)
 		}
 
 		for _, assoc := range assocs {
@@ -124,7 +124,7 @@ func handleProfile(ctx context.Context, url string, viewer *Viewer) (*pb.Univers
 
 	wrappedPosts := convertPosts(ctx, posts, viewer.UserID, false)
 
-	assocs, err = ObjectStore.AssocRange(ctx,viewer.UserID, store.Assoc_Following, 1000)
+	assocs, err = ObjectStore.AssocRange(ctx, viewer.UserID, store.Assoc_Following, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting following ids: %w", err)
 	}

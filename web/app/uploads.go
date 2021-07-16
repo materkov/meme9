@@ -36,7 +36,7 @@ func (a *App) UploadPhoto(file []byte, userID int) (*store.Photo, error) {
 
 	err = a.Store.ObjAdd(&store.StoredObject{ID: photo.ID, Photo: &photo})
 	if err != nil {
-		return nil, fmt.Errorf("error saving object: %w",err)
+		return nil, fmt.Errorf("error saving object: %w", err)
 	}
 
 	return &photo, nil
