@@ -32,6 +32,8 @@ func main() {
 		Store: app.ObjectStore,
 	}
 
+	app.FeedSrv = &app.Feed{App: appInstance}
+
 	httpSrv := &httpserver.HttpServer{
 		Store:    app.ObjectStore,
 		FeedSrv:  app.FeedSrv,

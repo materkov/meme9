@@ -56,11 +56,11 @@ func TestTryCookieAuth(t *testing.T) {
 	setupDB(t)
 	app := App{Store: ObjectStore}
 
-	app.Store.ObjAdd(&store.StoredObject{ID: 1, Token: &store.Token{
+	require.NoError(t, app.Store.ObjAdd(&store.StoredObject{ID: 1, Token: &store.Token{
 		ID:     1,
 		Token:  "1-test-token",
 		UserID: 167,
-	}})
+	}}))
 
 	r, err := http.NewRequest("GET", "/", nil)
 	require.NoError(t, err)

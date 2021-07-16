@@ -6,11 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"strconv"
 	"time"
 
 	"github.com/materkov/meme9/web/tracer"
+	"github.com/materkov/meme9/web/utils"
 )
 
 type ObjectStore struct {
@@ -22,7 +22,7 @@ func NewObjectStore(db *sql.DB) *ObjectStore {
 }
 
 func childSpan(ctx context.Context, name string, tags map[string]string) func() {
-	currentSpan, ok := ctx.Value("currentSpan").(int)
+	currentSpan, ok := ctx.Value(utils.RequestIdKey{}).(int)
 	if !ok {
 		return func() {}
 	}
@@ -31,7 +31,6 @@ func childSpan(ctx context.Context, name string, tags map[string]string) func() 
 		Started: time.Now(),
 		Name:    name,
 		TraceID: currentSpan,
-		ID:      rand.Int(),
 		Tags:    tags,
 	}
 
@@ -98,7 +97,7 @@ func (o *ObjectStore) AssocAdd(id1, id2 int, assocType string, data *StoredAssoc
 
 	_, err = o.db.Exec("insert into assoc(id1, id2, type, data) values (?, ?, ?, ?)", id1, id2, assocType, dataBytes)
 	if err != nil {
-		return fmt.Errorf("error saving row: %w")
+		return fmt.Errorf("error saving row: %w", err)
 	}
 
 	return nil
@@ -121,7 +120,7 @@ func (o *ObjectStore) AssocDelete(id1, id2 int, assocType string) error {
 
 	_, err := o.db.Exec("delete from assoc where id1 = ? and id2 = ? and type = ?", id1, id2, assocType)
 	if err != nil {
-		return fmt.Errorf("error saving row: %w")
+		return fmt.Errorf("error saving row: %w", err)
 	}
 
 	return nil
@@ -198,4 +197,9 @@ func (o *ObjectStore) GenerateNextID() (int, error) {
 
 	id, _ := result.LastInsertId()
 	return int(id), err
+}
+
+func (o *ObjectStore) WriteLog(reqID int, text string) error {
+	_, err := o.db.Exec("insert into log(request_id, text) values (?, ?)", reqID, text)
+	return err
 }

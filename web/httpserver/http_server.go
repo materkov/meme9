@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,6 +12,8 @@ import (
 	"github.com/materkov/meme9/web/app"
 	"github.com/materkov/meme9/web/pb"
 	"github.com/materkov/meme9/web/store"
+	"github.com/materkov/meme9/web/tracer"
+	"github.com/materkov/meme9/web/utils"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -29,6 +32,8 @@ func (h *HttpServer) Serve() {
 	http.Handle("/api", h.middleware(h.handleAPI))
 	http.Handle("/", h.middleware(h.handleDefault))
 
+	log.Printf("[INFO] Starting http server at 8000")
+
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
 
@@ -46,6 +51,18 @@ func (h *HttpServer) middleware(next http.HandlerFunc) http.HandlerFunc {
 		viewer.Token, viewer.UserID, _ = h.App.TryAuth(r)
 
 		ctx := app.WithViewerContext(r.Context(), &viewer)
+
+		trc := tracer.NewTracer("HTTP request")
+		defer trc.Stop()
+		ctx = context.WithValue(ctx, utils.RequestIdKey{}, trc.TraceID)
+
+		app.Logf(ctx, "HTTP Request: %s, user %d",
+			r.URL.RequestURI(),
+			viewer.UserID,
+		)
+
+		w.Header().Set("x-request-id", fmt.Sprintf("%x", trc.TraceID))
+
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }

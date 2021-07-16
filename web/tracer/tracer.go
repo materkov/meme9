@@ -13,7 +13,6 @@ import (
 type Tracer struct {
 	Started time.Time
 	Name    string
-	ID      int
 	TraceID int
 	Tags    map[string]string
 }
@@ -23,7 +22,6 @@ func NewTracer(name string) *Tracer {
 		Started: time.Now(),
 		Name:    name,
 		TraceID: rand.Int(),
-		ID:      rand.Int(),
 	}
 }
 
@@ -36,7 +34,6 @@ func (t *Tracer) StartChild(name string) *Tracer {
 		Started: time.Now(),
 		Name:    name,
 		TraceID: t.TraceID,
-		ID:      rand.Int(),
 	}
 }
 

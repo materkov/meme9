@@ -3,21 +3,28 @@ package app
 import (
 	"context"
 	"fmt"
-	"log"
+	"time"
 
 	"github.com/materkov/meme9/web/pb"
-	"github.com/materkov/meme9/web/store"
 	"github.com/materkov/meme9/web/tracer"
+	"github.com/materkov/meme9/web/utils"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
 func (a *App) HandleJSONRequest(ctx context.Context, method string, request []byte) ([]byte, error) {
-	trc := tracer.NewTracer("api " + method)
-	defer trc.Stop()
+	currentSpan, ok := ctx.Value(utils.RequestIdKey{}).(int)
+	if ok {
+		childTracer := &tracer.Tracer{
+			Started: time.Now(),
+			Name:    fmt.Sprintf("API %s", method),
+			TraceID: currentSpan,
+		}
+		defer childTracer.Stop()
+	}
 
-	ctx = context.WithValue(ctx, "currentSpan", trc.ID)
-	viewer := GetViewerFromContext(ctx)
+	Logf(ctx, "API %s, req: %s", method, request)
+
 	m := protojson.UnmarshalOptions{DiscardUnknown: true}
 
 	var resp proto.Message
@@ -71,28 +78,13 @@ func (a *App) HandleJSONRequest(ctx context.Context, method string, request []by
 	}
 
 	if err != nil {
+		Logf(ctx, "API error: %s", err)
 		return nil, err
 	}
 
 	marshaller := &protojson.MarshalOptions{}
 	respBytes, _ := marshaller.Marshal(resp)
-
-	defer trc.StartChild("api log").Stop()
-	objectID, err := a.Store.GenerateNextID()
-	if err != nil {
-		return respBytes, nil
-	}
-
-	err = a.Store.ObjAdd(&store.StoredObject{ID: objectID, APILog: &store.APILog{
-		ID:       objectID,
-		UserID:   viewer.UserID,
-		Method:   method,
-		Request:  string(request),
-		Response: string(respBytes),
-	}})
-	if err != nil {
-		log.Printf("Error saving api logs: %s", err)
-	}
+	Logf(ctx, "API response: %s", respBytes)
 
 	return respBytes, nil
 }
