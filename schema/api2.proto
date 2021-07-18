@@ -118,7 +118,16 @@ message RelationsUnfollowRequest {
 message RelationsUnfollowResponse {
 }
 
+message RelationsCheckRequest {
+  string userId = 1;
+}
+
+message RelationsCheckResponse {
+  bool isFollowing = 1;
+}
+
 service Relations {
   rpc Follow(RelationsFollowRequest) returns (RelationsFollowResponse);
   rpc Unfollow(RelationsUnfollowRequest) returns (RelationsUnfollowResponse);
+  rpc Check(RelationsCheckRequest) returns (RelationsCheckResponse);
 }

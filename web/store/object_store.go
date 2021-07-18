@@ -200,6 +200,6 @@ func (o *ObjectStore) GenerateNextID() (int, error) {
 }
 
 func (o *ObjectStore) WriteLog(reqID int, text string) error {
-	_, err := o.db.Exec("insert into log(request_id, text) values (?, ?)", reqID, text)
+	_, err := o.db.Exec("insert into log(time, request_id, text) values (?, ?, ?)", time.Now().Unix(), reqID, text)
 	return err
 }

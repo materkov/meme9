@@ -21,68 +21,6 @@ func GenerateCSRFToken(token string) string {
 	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
 }
 
-type Relations struct {
-}
-
-func (r *Relations) Follow(ctx context.Context, req *pb.RelationsFollowRequest) (*pb.RelationsFollowResponse, error) {
-	viewer := GetViewerFromContext(ctx)
-
-	requestedID, _ := strconv.Atoi(req.UserId)
-	if requestedID <= 0 {
-		return nil, fmt.Errorf("incorrect follow user_id")
-	}
-
-	if viewer.UserID == 0 {
-		return nil, fmt.Errorf("need auth")
-	}
-
-	assocs, err := ObjectStore.AssocRange(ctx, viewer.UserID, store.Assoc_Following, 1000)
-	if err != nil {
-		return nil, fmt.Errorf("failed getting following ids: %w", err)
-	}
-
-	followingIds := make([]int, len(assocs))
-	for i, assoc := range assocs {
-		followingIds[i] = assoc.Following.ID2
-	}
-
-	for _, userID := range followingIds {
-		if requestedID == userID {
-			return &pb.RelationsFollowResponse{}, nil
-		}
-	}
-
-	err = ObjectStore.AssocAdd(viewer.UserID, requestedID, store.Assoc_Following, &store.StoredAssoc{Following: &store.Following{
-		ID1:  viewer.UserID,
-		ID2:  requestedID,
-		Type: store.Assoc_Liked,
-	}})
-	if err != nil {
-		return nil, fmt.Errorf("failed saving assoc: %w", err)
-	}
-
-	return &pb.RelationsFollowResponse{}, nil
-}
-
-func (r *Relations) Unfollow(ctx context.Context, req *pb.RelationsUnfollowRequest) (*pb.RelationsUnfollowResponse, error) {
-	viewer := GetViewerFromContext(ctx)
-
-	requestedID, _ := strconv.Atoi(req.UserId)
-	if requestedID <= 0 {
-		return nil, fmt.Errorf("incorrect follow user_id")
-	}
-
-	if viewer.UserID == 0 {
-		return nil, fmt.Errorf("need auth")
-	}
-
-	err := ObjectStore.AssocDelete(viewer.UserID, requestedID, store.Assoc_Following)
-	if err != nil {
-		return nil, fmt.Errorf("failed deleting assoc: %w", err)
-	}
-
-	return &pb.RelationsUnfollowResponse{}, nil
-}
 
 type Posts struct {
 }
