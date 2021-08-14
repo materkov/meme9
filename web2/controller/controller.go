@@ -18,6 +18,7 @@ type Server struct {
 func (s *Server) Serve() {
 	http.HandleFunc("/feed", s.handleFeed)
 	http.HandleFunc("/posts/", s.handlePostPage)
+	http.HandleFunc("/users/", s.handleUserPage)
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
@@ -89,7 +90,41 @@ func (s *Server) handlePostPage(w http.ResponseWriter, r *http.Request) {
 		user: user,
 	}
 
-	fmt.Fprintf(w, "<html><body><h1>Feed:</h1>")
+	fmt.Fprintf(w, "<html><body><h1>Post page:</h1>")
 	fmt.Fprintf(w, "%s", renderer.Render())
 	fmt.Fprintf(w, "</body></html>")
+}
+
+func (s *Server) handleUserPage(w http.ResponseWriter, r *http.Request) {
+	started := time.Now()
+	defer func() {
+		log.Printf("Time: %d ms", time.Since(started).Milliseconds())
+	}()
+
+	userIDStr := strings.TrimLeft(r.URL.Path, "/users/")
+	userID, _ := strconv.Atoi(userIDStr)
+
+	user, err := s.Store.User.GetById(userID)
+	if err != nil {
+		fmt.Fprintf(w, "error")
+		return
+	} else if user == nil {
+		fmt.Fprintf(w, "user not found")
+		return
+	}
+
+	posts, err := s.Store.Post.GetByUser(user.ID, 50)
+	if err != nil {
+		log.Printf("Error getting user posts: %s", err)
+	}
+
+	renderer := UserPageRenderer{
+		user:  user,
+		posts: posts,
+	}
+
+	fmt.Fprintf(w, "<html><body><h1>User page:</h1>")
+	fmt.Fprintf(w, "%s", renderer.Render())
+	fmt.Fprintf(w, "</body></html>")
+
 }
