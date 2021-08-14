@@ -1,0 +1,37 @@
+type Query {
+    feed: FeedConnection
+}
+
+type FeedConnection {
+    edges: FeedEdge
+}
+
+type FeedEdge {
+    node: Post
+}
+
+type Post {
+    ID: ID
+    Text: String
+    User: User
+}
+
+type User {
+    ID: ID
+    Name: String
+}
+
+query FeedQuery {
+    feed {
+        edges {
+            node {
+                ID
+                Text
+                User {
+                    ID
+                    Name
+                }
+            }
+        }
+    }
+}
