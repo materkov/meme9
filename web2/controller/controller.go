@@ -3,13 +3,10 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/golang-jwt/jwt"
 	"github.com/materkov/meme9/web2/lib"
 	"github.com/materkov/meme9/web2/store"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -146,10 +143,7 @@ type addPostResp struct {
 	PostURL string `json:"postUrl"`
 }
 
-type MyCustomClaims struct {
-	jwt.StandardClaims
-	UserID int `json:"userId"`
-}
+
 
 func (s *Server) handleAddPost(w http.ResponseWriter, r *http.Request) {
 	started := time.Now()
@@ -163,19 +157,11 @@ func (s *Server) handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := jwt.ParseWithClaims(tokenCookie.Value, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(lib.DefaultConfig.JwtSecret), nil
-	})
-	if err != nil || !token.Valid {
+	userID, err := lib.ParseAuthToken(tokenCookie.Value)
+	if err != nil {
 		fmt.Fprintf(w, "no auth")
 		return
 	}
-	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		fmt.Fprintf(w, "no auth")
-		return
-	}
-
-	userID := token.Claims.(*MyCustomClaims).UserID
 
 	req := addPostReq{}
 	err = json.NewDecoder(r.Body).Decode(&req)
@@ -224,71 +210,23 @@ func (s *Server) handleVkAuth(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleVkAuthCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 
-	redirectURI := fmt.Sprintf("%s://%s/vk-callback", lib.DefaultConfig.RequestScheme, lib.DefaultConfig.RequestHost)
-
-	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
-		"client_id":     []string{strconv.Itoa(lib.DefaultConfig.VkAppID)},
-		"client_secret": []string{lib.DefaultConfig.VkAppSecret},
-		"redirect_uri":  []string{redirectURI},
-		"code":          []string{code},
-	})
+	vkID, err := lib.ProcessVKkCallback(code)
 	if err != nil {
-		fmt.Fprintf(w, "http error")
+		log.Printf("Error processing VK: %s", err)
+		fmt.Fprintf(w, "error")
 		return
 	}
-	defer resp.Body.Close()
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	user, err := lib.GetOrCreateUserByVkID(s.Store, vkID)
 	if err != nil {
-		fmt.Fprintf(w, "http error")
+		log.Printf("Error getting VK user: %s", err)
+		fmt.Fprintf(w, "error")
 		return
 	}
-
-	body := struct {
-		AccessToken string `json:"access_token"`
-		UserID      int    `json:"user_id"`
-	}{}
-	err = json.Unmarshal(bodyBytes, &body)
-	if err != nil {
-		fmt.Fprintf(w, "http error")
-		return
-	} else if body.AccessToken == "" {
-		fmt.Fprintf(w, "http error")
-		return
-	}
-
-	user, err := s.Store.User.GetByVkID(body.UserID)
-	if err != nil {
-		fmt.Fprintf(w, "http error")
-		return
-	}
-
-	if user == nil {
-		user = &store.User{
-			Name: fmt.Sprintf("VK User #%d", body.UserID),
-			VkID: body.UserID,
-		}
-		err := s.Store.User.Add(user)
-		if err != nil {
-			fmt.Fprintf(w, "http error")
-			return
-		}
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyCustomClaims{
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Minute * 30).Unix(),
-			Issuer:    "meme9",
-		},
-		UserID: user.ID,
-	})
-
-	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString([]byte(lib.DefaultConfig.JwtSecret))
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
-		Value:    tokenString,
+		Value:    lib.GenerateAuthToken(user.ID),
 		Path:     "/",
 		Expires:  time.Now().Add(time.Minute * 30),
 		HttpOnly: true,

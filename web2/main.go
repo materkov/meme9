@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"github.com/materkov/meme9/web2/lib"
 	"log"
+	"math/rand"
+	"time"
 
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
@@ -12,6 +14,7 @@ import (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	lib.MustParseConfig()
 
 	rdb := redis.NewClient(&redis.Options{
