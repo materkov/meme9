@@ -6,6 +6,8 @@ import (
 	"github.com/materkov/meme9/web2/store"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -15,6 +17,7 @@ type Server struct {
 
 func (s *Server) Serve() {
 	http.HandleFunc("/feed", s.handleFeed)
+	http.HandleFunc("/posts/", s.handlePostPage)
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
@@ -55,5 +58,38 @@ func (s *Server) handleFeed(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "<html><body><h1>Feed:</h1>")
 	fmt.Fprintf(w, "%s", postsHTML)
+	fmt.Fprintf(w, "</body></html>")
+}
+
+func (s *Server) handlePostPage(w http.ResponseWriter, r *http.Request) {
+	started := time.Now()
+	defer func() {
+		log.Printf("Time: %d ms", time.Since(started).Milliseconds())
+	}()
+
+	postIDStr := strings.TrimLeft(r.URL.Path, "/posts/")
+	postID, _ := strconv.Atoi(postIDStr)
+
+	post, err := s.Store.Post.GetById(postID)
+	if err != nil {
+		fmt.Fprintf(w, "error")
+		return
+	} else if post == nil {
+		fmt.Fprintf(w, "post not found")
+		return
+	}
+
+	user, err := s.Store.User.GetById(post.UserID)
+	if err != nil {
+		log.Printf("Error getting user: %s", err)
+	}
+
+	renderer := PostRenderer{
+		post: post,
+		user: user,
+	}
+
+	fmt.Fprintf(w, "<html><body><h1>Feed:</h1>")
+	fmt.Fprintf(w, "%s", renderer.Render())
 	fmt.Fprintf(w, "</body></html>")
 }

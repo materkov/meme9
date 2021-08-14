@@ -14,9 +14,9 @@ type SqlPostStore struct {
 	db *sql.DB
 }
 
-func (p *SqlPostStore) GetAll() ([]Post, error) {
+func (s *SqlPostStore) GetAll() ([]Post, error) {
 	query := "select id, text, user_id from post order by id desc limit 50"
-	rows, err := p.db.Query(query)
+	rows, err := s.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -39,4 +39,16 @@ func (p *SqlPostStore) GetAll() ([]Post, error) {
 	}
 
 	return result, err
+}
+
+func (s *SqlPostStore) GetById(id int) (*Post, error) {
+	p := Post{}
+	err := s.db.QueryRow("select id, user_id, text from post where id = ?", id).Scan(&p.ID, &p.UserID, &p.Text)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return &p, err
 }
