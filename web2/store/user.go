@@ -7,6 +7,7 @@ import (
 type User struct {
 	ID   int
 	Name string
+	VkID int
 }
 
 type SqlUserStore struct {
@@ -42,4 +43,31 @@ func (s *SqlUserStore) GetByIdMany(ids []int) (map[int]*User, error) {
 	}
 
 	return result, err
+}
+
+func (s *SqlUserStore) GetByVkID(vkID int) (*User, error) {
+	userID := 0
+	err := s.db.QueryRow("select id from user where vk_id = ?", vkID).Scan(&userID)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return s.GetById(userID)
+}
+
+func (s *SqlUserStore) Add(user *User) error {
+	result, err := s.db.Exec("insert into user(name, vk_id) values (?, ?)", user.Name, sql.NullInt32{
+		Int32: int32(user.VkID),
+		Valid: user.VkID != 0,
+	})
+	if err != nil {
+		return err
+	}
+
+	userID, _ := result.LastInsertId()
+	user.ID = int(userID)
+
+	return nil
 }

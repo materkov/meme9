@@ -3,10 +3,13 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/golang-jwt/jwt"
 	"github.com/materkov/meme9/web2/lib"
 	"github.com/materkov/meme9/web2/store"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -22,6 +25,8 @@ func (s *Server) Serve() {
 	http.HandleFunc("/users/", s.handleUserPage)
 	http.HandleFunc("/add_post", s.handleAddPost)
 	http.HandleFunc("/new_post", s.handleNewPost)
+	http.HandleFunc("/vk", s.handleVkAuth)
+	http.HandleFunc("/vk-callback", s.handleVkAuthCallback)
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
@@ -141,14 +146,39 @@ type addPostResp struct {
 	PostURL string `json:"postUrl"`
 }
 
+type MyCustomClaims struct {
+	jwt.StandardClaims
+	UserID int `json:"userId"`
+}
+
 func (s *Server) handleAddPost(w http.ResponseWriter, r *http.Request) {
 	started := time.Now()
 	defer func() {
 		log.Printf("Time: %d ms", time.Since(started).Milliseconds())
 	}()
 
+	tokenCookie, _ := r.Cookie("access_token")
+	if tokenCookie == nil || tokenCookie.Value == "" {
+		fmt.Fprintf(w, "no auth")
+		return
+	}
+
+	token, err := jwt.ParseWithClaims(tokenCookie.Value, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(lib.DefaultConfig.JwtSecret), nil
+	})
+	if err != nil || !token.Valid {
+		fmt.Fprintf(w, "no auth")
+		return
+	}
+	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		fmt.Fprintf(w, "no auth")
+		return
+	}
+
+	userID := token.Claims.(*MyCustomClaims).UserID
+
 	req := addPostReq{}
-	err := json.NewDecoder(r.Body).Decode(&req)
+	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		fmt.Fprintf(w, "err json")
 		return
@@ -164,7 +194,7 @@ func (s *Server) handleAddPost(w http.ResponseWriter, r *http.Request) {
 
 	post := store.Post{
 		Text:   req.Text,
-		UserID: 1,
+		UserID: userID,
 	}
 
 	err = s.Store.Post.Add(&post)
@@ -184,4 +214,84 @@ func (s *Server) handleAddPost(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleNewPost(w http.ResponseWriter, r *http.Request) {
 	renderer := NewPostRenderer{}
 	fmt.Fprintf(w, renderer.Render())
+}
+
+func (s *Server) handleVkAuth(w http.ResponseWriter, r *http.Request) {
+	renderer := VkAuthRenderer{}
+	fmt.Fprint(w, renderer.Render())
+}
+
+func (s *Server) handleVkAuthCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+
+	redirectURI := fmt.Sprintf("%s://%s/vk-callback", lib.DefaultConfig.RequestScheme, lib.DefaultConfig.RequestHost)
+
+	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
+		"client_id":     []string{strconv.Itoa(lib.DefaultConfig.VkAppID)},
+		"client_secret": []string{lib.DefaultConfig.VkAppSecret},
+		"redirect_uri":  []string{redirectURI},
+		"code":          []string{code},
+	})
+	if err != nil {
+		fmt.Fprintf(w, "http error")
+		return
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Fprintf(w, "http error")
+		return
+	}
+
+	body := struct {
+		AccessToken string `json:"access_token"`
+		UserID      int    `json:"user_id"`
+	}{}
+	err = json.Unmarshal(bodyBytes, &body)
+	if err != nil {
+		fmt.Fprintf(w, "http error")
+		return
+	} else if body.AccessToken == "" {
+		fmt.Fprintf(w, "http error")
+		return
+	}
+
+	user, err := s.Store.User.GetByVkID(body.UserID)
+	if err != nil {
+		fmt.Fprintf(w, "http error")
+		return
+	}
+
+	if user == nil {
+		user = &store.User{
+			Name: fmt.Sprintf("VK User #%d", body.UserID),
+			VkID: body.UserID,
+		}
+		err := s.Store.User.Add(user)
+		if err != nil {
+			fmt.Fprintf(w, "http error")
+			return
+		}
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyCustomClaims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Minute * 30).Unix(),
+			Issuer:    "meme9",
+		},
+		UserID: user.ID,
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := token.SignedString([]byte(lib.DefaultConfig.JwtSecret))
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    tokenString,
+		Path:     "/",
+		Expires:  time.Now().Add(time.Minute * 30),
+		HttpOnly: true,
+	})
+	http.Redirect(w, r, "/feed", 302)
 }

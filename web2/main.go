@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"github.com/materkov/meme9/web2/lib"
 	"log"
 
 	"github.com/go-redis/redis"
@@ -11,6 +12,8 @@ import (
 )
 
 func main() {
+	lib.MustParseConfig()
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
