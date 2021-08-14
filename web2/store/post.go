@@ -79,3 +79,15 @@ func (s *SqlPostStore) GetByUser(userID int, limit int) ([]*Post, error) {
 
 	return result, err
 }
+
+func (s *SqlPostStore) Add(post *Post) error {
+	result, err := s.db.Exec("insert into post(text, user_id) values (?, ?)", post.Text, post.UserID)
+	if err != nil {
+		return err
+	}
+
+	postID, _ := result.LastInsertId()
+	post.ID = int(postID)
+
+	return nil
+}
