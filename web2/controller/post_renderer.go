@@ -23,5 +23,5 @@ func (r PostRenderer) Render() string {
 		userName = fmt.Sprintf("User #%d", r.post.UserID)
 	}
 
-	return fmt.Sprintf("From %s:<br>%s<hr/>", userName, r.post.Text)
+	return fmt.Sprintf("From <b>%s</b>:<br>%s<hr/>", userName, r.post.Text)
 }

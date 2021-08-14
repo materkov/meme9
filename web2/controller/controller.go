@@ -2,10 +2,11 @@ package controller
 
 import (
 	"fmt"
+	"github.com/materkov/meme9/web2/lib"
+	"github.com/materkov/meme9/web2/store"
 	"log"
 	"net/http"
-
-	"github.com/materkov/meme9/web2/store"
+	"time"
 )
 
 type Server struct {
@@ -19,16 +20,34 @@ func (s *Server) Serve() {
 }
 
 func (s *Server) handleFeed(w http.ResponseWriter, r *http.Request) {
+	started := time.Now()
+	defer func() {
+		log.Printf("Time: %d ms", time.Since(started).Milliseconds())
+	}()
+
 	posts, err := s.Store.Post.GetAll()
 	if err != nil {
 		log.Printf("%s", err)
 	}
 
+	// Preload users
+	userIds := lib.IdsSet{}
+	for _, post := range posts {
+		userIds.Add(post.UserID)
+	}
+
+	users, err := s.Store.User.GetByIdMany(userIds.Get())
+	if err != nil {
+		log.Printf("Error getting users: %s", err)
+	}
+
 	postsHTML := ""
 	for _, post := range posts {
+		user := users[post.UserID]
+
 		renderer := PostRenderer{
 			post: &post,
-			user: &store.User{ID: post.UserID},
+			user: user,
 		}
 
 		postsHTML += renderer.Render()
