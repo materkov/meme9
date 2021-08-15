@@ -20541,19 +20541,23 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
 
   // src/components/App.tsx
   var App = () => {
-    const [url, setUrl] = import_react9.default.useState(window.location.hash.substr(1));
-    const [data, setData] = import_react9.default.useState(void 0);
-    import_react9.default.useEffect(() => {
-      history.pushState(null, "", "#" + url);
-      fetch("http://localhost:8000" + url).then((r) => r.json()).then((r) => {
+    const [url, setUrl] = import_react9.default.useState(window.location.pathname);
+    const [data, setData] = import_react9.default.useState(window.__initialData);
+    function navigate(url2) {
+      history.pushState(null, "", url2);
+      fetch("http://localhost:8000" + url2, {
+        headers: {
+          "x-ajax": "1"
+        }
+      }).then((r) => r.json()).then((r) => {
         setData(r);
       });
-    }, [url]);
+    }
     if (!data) {
       return /* @__PURE__ */ import_react9.default.createElement("div", null, "Loading...");
     }
     return /* @__PURE__ */ import_react9.default.createElement(UrlContext.Provider, {
-      value: { url, navigate: setUrl }
+      value: { url, navigate }
     }, "MENU:\xA0\xA0", /* @__PURE__ */ import_react9.default.createElement(Link, {
       href: "/feed"
     }, "Feed"), " | ", /* @__PURE__ */ import_react9.default.createElement(Link, {

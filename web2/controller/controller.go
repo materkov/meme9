@@ -3,9 +3,9 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/materkov/meme9/web2/types"
 	"github.com/materkov/meme9/web2/lib"
 	"github.com/materkov/meme9/web2/store"
+	"github.com/materkov/meme9/web2/types"
 	"log"
 	"net/http"
 	"net/url"
@@ -26,6 +26,8 @@ func (s *Server) Serve() {
 	http.HandleFunc("/new_post", s.routingWrapper(s.handleNewPost))
 	http.HandleFunc("/vk", s.routingWrapper(s.handleVkAuth))
 	http.HandleFunc("/vk-callback", s.handleVkAuthCallback)
+
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("../front2/dist"))))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
@@ -238,13 +240,39 @@ func (s *Server) handleVkAuth(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(types.UniversalRenderer{VkAuthRenderer: renderer})
 }
 
+const pageBegin = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My React App</title>
+</head>
+<body>
+<div id="root"></div>
+<script>
+window.__initialData = 
+`
+
+const pageEnd = `
+;</script>
+<script src="/static/index.js"></script>
+</body>
+</html>
+`
+
 func (s *Server) routingWrapper(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		//fmt.Fprintf(w, "<html><body><script>window.__initialData = ")
+		isAjax := r.Header.Get("x-ajax") == "1"
+		if !isAjax {
+			fmt.Fprintf(w, pageBegin)
+		}
+
 		next(w, r)
-		//fmt.Fprintf(w, ";</script></body></html>")
+
+		if !isAjax {
+			fmt.Fprintf(w, pageEnd)
+		}
 	}
 }
 
