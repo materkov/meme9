@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/materkov/meme9/web2/controller"
 	"github.com/materkov/meme9/web2/store"
@@ -16,14 +15,6 @@ import (
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	lib.MustParseConfig()
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
-	_, err := rdb.Ping().Result()
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	db, err := sql.Open("mysql", "root:root@/meme9")
 	if err != nil {

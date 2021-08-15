@@ -3,10 +3,12 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/materkov/meme9/web2/types"
 	"github.com/materkov/meme9/web2/lib"
 	"github.com/materkov/meme9/web2/store"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -17,12 +19,12 @@ type Server struct {
 }
 
 func (s *Server) Serve() {
-	http.HandleFunc("/feed", s.handleFeed)
-	http.HandleFunc("/posts/", s.handlePostPage)
-	http.HandleFunc("/users/", s.handleUserPage)
-	http.HandleFunc("/add_post", s.handleAddPost)
-	http.HandleFunc("/new_post", s.handleNewPost)
-	http.HandleFunc("/vk", s.handleVkAuth)
+	http.HandleFunc("/feed", s.routingWrapper(s.handleFeed))
+	http.HandleFunc("/posts/", s.routingWrapper(s.handlePostPage))
+	http.HandleFunc("/users/", s.routingWrapper(s.handleUserPage))
+	http.HandleFunc("/add_post", s.routingWrapper(s.handleAddPost))
+	http.HandleFunc("/new_post", s.routingWrapper(s.handleNewPost))
+	http.HandleFunc("/vk", s.routingWrapper(s.handleVkAuth))
 	http.HandleFunc("/vk-callback", s.handleVkAuthCallback)
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
@@ -50,21 +52,30 @@ func (s *Server) handleFeed(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error getting users: %s", err)
 	}
 
-	postsHTML := ""
-	for _, post := range posts {
-		user := users[post.UserID]
-
-		renderer := PostRenderer{
-			post: &post,
-			user: user,
-		}
-
-		postsHTML += renderer.Render()
+	renderer := &types.FeedRenderer{
+		Posts: make([]*types.PostRenderer, len(posts)),
 	}
 
-	fmt.Fprintf(w, "<html><body><h1>Feed:</h1>")
-	fmt.Fprintf(w, "%s", postsHTML)
-	fmt.Fprintf(w, "</body></html>")
+	for i, post := range posts {
+		user := users[post.UserID]
+
+		userName := fmt.Sprintf("User #%d", post.UserID)
+		if user != nil {
+			userName = user.Name
+		}
+
+		renderer.Posts[i] = &types.PostRenderer{
+			ID:         strconv.Itoa(post.ID),
+			AuthorName: userName,
+			AuthorHref: fmt.Sprintf("/users/%d", post.UserID),
+			Text:       post.Text,
+		}
+	}
+
+	data := types.UniversalRenderer{
+		FeedRenderer: renderer,
+	}
+	_ = json.NewEncoder(w).Encode(data)
 }
 
 func (s *Server) handlePostPage(w http.ResponseWriter, r *http.Request) {
@@ -90,14 +101,19 @@ func (s *Server) handlePostPage(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error getting user: %s", err)
 	}
 
-	renderer := PostRenderer{
-		post: post,
-		user: user,
+	userName := fmt.Sprintf("User #%d", post.UserID)
+	if user != nil {
+		userName = user.Name
 	}
 
-	fmt.Fprintf(w, "<html><body><h1>Post page:</h1>")
-	fmt.Fprintf(w, "%s", renderer.Render())
-	fmt.Fprintf(w, "</body></html>")
+	renderer := &types.PostRenderer{
+		ID:         strconv.Itoa(post.ID),
+		AuthorName: userName,
+		AuthorHref: fmt.Sprintf("/users/%d", post.UserID),
+		Text:       post.Text,
+	}
+
+	_ = json.NewEncoder(w).Encode(types.UniversalRenderer{PostRenderer: renderer})
 }
 
 func (s *Server) handleUserPage(w http.ResponseWriter, r *http.Request) {
@@ -123,15 +139,25 @@ func (s *Server) handleUserPage(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error getting user posts: %s", err)
 	}
 
-	renderer := UserPageRenderer{
-		user:  user,
-		posts: posts,
+	postRenderers := make([]*types.PostRenderer, len(posts))
+	for i, post := range posts {
+		postRenderers[i] = &types.PostRenderer{
+			ID:         strconv.Itoa(post.ID),
+			AuthorName: user.Name,
+			AuthorHref: fmt.Sprintf("/users/%d", user.ID),
+			Text:       post.Text,
+		}
 	}
 
-	fmt.Fprintf(w, "<html><body><h1>User page:</h1>")
-	fmt.Fprintf(w, "%s", renderer.Render())
-	fmt.Fprintf(w, "</body></html>")
+	renderer := &types.UserPageRenderer{
+		UserName: user.Name,
+		UserID:   strconv.Itoa(user.ID),
+		Posts:    postRenderers,
+	}
 
+	_ = json.NewEncoder(w).Encode(types.UniversalRenderer{
+		UserPageRenderer: renderer,
+	})
 }
 
 type addPostReq struct {
@@ -142,8 +168,6 @@ type addPostResp struct {
 	PostID  string `json:"postId"`
 	PostURL string `json:"postUrl"`
 }
-
-
 
 func (s *Server) handleAddPost(w http.ResponseWriter, r *http.Request) {
 	started := time.Now()
@@ -198,13 +222,30 @@ func (s *Server) handleAddPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleNewPost(w http.ResponseWriter, r *http.Request) {
-	renderer := NewPostRenderer{}
-	fmt.Fprintf(w, renderer.Render())
+	renderer := &types.NewPostRenderer{SendLabel: "Отправить"}
+	_ = json.NewEncoder(w).Encode(types.UniversalRenderer{NewPostRenderer: renderer})
 }
 
 func (s *Server) handleVkAuth(w http.ResponseWriter, r *http.Request) {
-	renderer := VkAuthRenderer{}
-	fmt.Fprint(w, renderer.Render())
+	requestScheme := lib.DefaultConfig.RequestScheme
+	requestHost := lib.DefaultConfig.RequestHost
+	vkAppID := lib.DefaultConfig.VkAppID
+	redirectURL := fmt.Sprintf("%s://%s/vk-callback", requestScheme, requestHost)
+	redirectURL = url.QueryEscape(redirectURL)
+	vkURL := fmt.Sprintf("https://oauth.vk.com/authorize?client_id=%d&response_type=code&redirect_uri=%s", vkAppID, redirectURL)
+
+	renderer := &types.VkAuthRenderer{URL: vkURL}
+	_ = json.NewEncoder(w).Encode(types.UniversalRenderer{VkAuthRenderer: renderer})
+}
+
+func (s *Server) routingWrapper(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		//fmt.Fprintf(w, "<html><body><script>window.__initialData = ")
+		next(w, r)
+		//fmt.Fprintf(w, ";</script></body></html>")
+	}
 }
 
 func (s *Server) handleVkAuthCallback(w http.ResponseWriter, r *http.Request) {

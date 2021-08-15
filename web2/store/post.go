@@ -14,7 +14,7 @@ type SqlPostStore struct {
 	db *sql.DB
 }
 
-func (s *SqlPostStore) GetAll() ([]Post, error) {
+func (s *SqlPostStore) GetAll() ([]*Post, error) {
 	query := "select id, text, user_id from post order by id desc limit 50"
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -22,7 +22,7 @@ func (s *SqlPostStore) GetAll() ([]Post, error) {
 	}
 	defer rows.Close()
 
-	var result []Post
+	var result []*Post
 	for rows.Next() {
 		post := Post{}
 		err := rows.Scan(&post.ID, &post.Text, &post.UserID)
@@ -30,7 +30,7 @@ func (s *SqlPostStore) GetAll() ([]Post, error) {
 			return nil, err
 		}
 
-		result = append(result, post)
+		result = append(result, &post)
 	}
 
 	err = rows.Err()

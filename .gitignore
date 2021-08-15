@@ -2,7 +2,7 @@
 front/node_modules
 front/dist/*.js
 front/dist/*.LICENSE.txt
-front/node_modules
+front2/node_modules
 web/config.json
 mongotest
 pythontest
