@@ -11,12 +11,18 @@ function api(query: QueryParams): Promise<Query> {
             origin = "http://localhost:8000";
         }
 
+        let headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+        }
+
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            headers['Authorization'] = 'Bearer ' + token;
+        }
+
         fetch(origin + "/gql", {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
-            },
+            headers: headers,
             body: JSON.stringify(query),
         })
             .then(data => data.json())
