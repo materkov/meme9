@@ -43,13 +43,14 @@ func (s *Server) handleFeed(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s", err)
 	}
 
-	// Preload users
+	// preload users
 	userIds := lib.IdsSet{}
 	for _, post := range posts {
 		userIds.Add(post.UserID)
 	}
 
-	users, err := s.Store.User.GetByIdMany(userIds.Get())
+	users, err := s.Store.Object.GetUsers(userIds.Get())
+	//users, err := s.Store.User.GetByIdMany(userIds.Get())
 	if err != nil {
 		log.Printf("Error getting users: %s", err)
 	}
@@ -89,7 +90,8 @@ func (s *Server) handlePostPage(w http.ResponseWriter, r *http.Request) {
 	postIDStr := strings.TrimLeft(r.URL.Path, "/posts/")
 	postID, _ := strconv.Atoi(postIDStr)
 
-	post, err := s.Store.Post.GetById(postID)
+	//post, err := s.Store.Post.GetById(postID)
+	post, err := s.Store.Object.GetPost(postID)
 	if err != nil {
 		fmt.Fprintf(w, "error")
 		return
@@ -98,7 +100,8 @@ func (s *Server) handlePostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.Store.User.GetById(post.UserID)
+	//user, err := s.Store.User.GetById(post.UserID)
+	user, err := s.Store.Object.GetUser(post.UserID)
 	if err != nil {
 		log.Printf("Error getting user: %s", err)
 	}
@@ -127,7 +130,8 @@ func (s *Server) handleUserPage(w http.ResponseWriter, r *http.Request) {
 	userIDStr := strings.TrimLeft(r.URL.Path, "/users/")
 	userID, _ := strconv.Atoi(userIDStr)
 
-	user, err := s.Store.User.GetById(userID)
+	//user, err := s.Store.User.GetById(userID)
+	user, err := s.Store.Object.GetUser(userID)
 	if err != nil {
 		fmt.Fprintf(w, "error")
 		return
@@ -209,7 +213,8 @@ func (s *Server) handleAddPost(w http.ResponseWriter, r *http.Request) {
 		UserID: userID,
 	}
 
-	err = s.Store.Post.Add(&post)
+	//err = s.Store.Post.Add(&post)
+	err = s.Store.Object.Add(store.ObjectTypePost, &post)
 	if err != nil {
 		log.Printf("Error adding post: %s", err)
 		fmt.Fprintf(w, "internal_error")

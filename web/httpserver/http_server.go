@@ -14,7 +14,6 @@ import (
 	"github.com/materkov/meme9/web/store"
 	"github.com/materkov/meme9/web/tracer"
 	"github.com/materkov/meme9/web/utils"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type HttpServer struct {
@@ -146,8 +145,11 @@ func (h *HttpServer) handleDefault(w http.ResponseWriter, r *http.Request) {
 	respRoute, _ := h.UtilsSrv.ResolveRoute(r.Context(), &pb.ResolveRouteRequest{Url: r.URL.Path})
 	resp, _ := h.FeedSrv.GetHeader(r.Context(), nil)
 
-	initialDataHeader, _ := protojson.Marshal(resp)
-	initialData, _ := protojson.Marshal(respRoute)
+	//initialDataHeader, _ := protojson.Marshal(resp)
+	//initialData, _ := protojson.Marshal(respRoute)
+
+	initialDataHeader, _ := json.Marshal(resp)
+	initialData, _ := json.Marshal(respRoute)
 
 	const page = `
 <!DOCTYPE html>

@@ -1,8 +1,11 @@
+.DS_Store
 .idea
 front/node_modules
 front/dist/*.js
 front/dist/*.LICENSE.txt
 front2/node_modules
+front3/node_modules
+front4/node_modules
 web/config.json
 mongotest
 pythontest

@@ -1,0 +1,17 @@
+{
+  "name": "front3",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/react": "^17.0.27",
+    "@types/react-dom": "^17.0.9",
+    "esbuild": "^0.13.4",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "scripts": {
+    "esbuild": "./node_modules/.bin/esbuild src/index.tsx --outfile=dist/index.js --watch --bundle",
+    "srv": "cd dist && php -S 127.0.0.1:8000"
+  }
+}

@@ -45,29 +45,21 @@ func (s *SqlUserStore) GetByIdMany(ids []int) (map[int]*User, error) {
 	return result, err
 }
 
-func (s *SqlUserStore) GetByVkID(vkID int) (*User, error) {
+func (s *SqlUserStore) GetByVkID(vkID int) (int, error) {
 	userID := 0
-	err := s.db.QueryRow("select id from user where vk_id = ?", vkID).Scan(&userID)
+	err := s.db.QueryRow(`select user_id from vk_id where vk_id.vk_id = $1`, vkID).Scan(&userID)
 	if err == sql.ErrNoRows {
-		return nil, nil
+		return 0, nil
 	} else if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	return s.GetById(userID)
+	return userID, nil
 }
 
 func (s *SqlUserStore) Add(user *User) error {
-	result, err := s.db.Exec("insert into user(name, vk_id) values (?, ?)", user.Name, sql.NullInt32{
+	return s.db.QueryRow("insert into \"user\"(name, vkId) values ($1, $2) returning id", user.Name, sql.NullInt32{
 		Int32: int32(user.VkID),
 		Valid: user.VkID != 0,
-	})
-	if err != nil {
-		return err
-	}
-
-	userID, _ := result.LastInsertId()
-	user.ID = int(userID)
-
-	return nil
+	}).Scan(&user.ID)
 }

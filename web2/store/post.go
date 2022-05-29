@@ -15,7 +15,7 @@ type SqlPostStore struct {
 }
 
 func (s *SqlPostStore) GetAll() ([]*Post, error) {
-	query := "select id, text, user_id from post order by id desc limit 50"
+	query := "select id from object where object_type = 1 order by id desc limit 50"
 	rows, err := s.db.Query(query)
 	if err != nil {
 		return nil, err

@@ -1,0 +1,39 @@
+<script>
+    const resp = fetch("http://127.0.0.1:8000/api", {
+        method: "POST",
+        body: `
+
+json := import("json")
+
+feed := api("GetFeed", "{}")
+response(feed)
+
+feed = json.decode(feed)
+for item in feed["posts"] {
+    post := api("GetPost", "\\"" + item + "\\"")
+    response(post)
+    post = json.decode(post)
+    response(api("GetUser", "\\"" + post["userId"] + "\\""))
+}
+
+
+`
+    })
+
+    function getChunk(reader) {
+        reader.read().then(({done, value}) => {
+            console.log(new TextDecoder().decode(value));
+            if (done) {
+                console.log("DONE");
+                return;
+            }
+
+            getChunk(reader)
+        })
+    }
+
+    resp.then((result) => {
+        const reader = result.body.getReader();
+        getChunk(reader);
+    })
+</script>

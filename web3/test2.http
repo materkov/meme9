@@ -1,0 +1,14 @@
+POST http://localhost:8000/gql
+Content-Type: application/json
+
+{
+  "mutation": {
+    "include": true,
+    "inner": {
+      "addPost": {
+        "include": true,
+        "text": "Hello world"
+      }
+    }
+  }
+}

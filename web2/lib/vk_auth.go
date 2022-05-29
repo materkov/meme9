@@ -44,20 +44,21 @@ func ProcessVKkCallback(code string) (int, error) {
 }
 
 func GetOrCreateUserByVkID(s *store.Store, vkID int) (*store.User, error) {
-	user, err := s.User.GetByVkID(vkID)
+	userID, err := s.User.GetByVkID(vkID)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting user by vk id: %w", err)
 	}
 
-	if user != nil {
-		return user, nil
+	if userID != 0 {
+		return s.Object.GetUser(userID)
 	}
 
-	user = &store.User{
+	user := &store.User{
 		Name: fmt.Sprintf("VK User #%d", vkID),
 		VkID: vkID,
 	}
-	err = s.User.Add(user)
+	err = s.Object.Add(store.ObjectTypeUser, user)
+	//err = s.User.Add(user)
 	if err != nil {
 		return nil, fmt.Errorf("error adding user by id")
 	}

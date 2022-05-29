@@ -9,5 +9,8 @@
     "esbuild": "^0.12.20",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
+  },
+  "scripts": {
+    "compile": "./node_modules/.bin/esbuild src/index.tsx --bundle --outfile=dist/index.js"
   }
 }

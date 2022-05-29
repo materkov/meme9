@@ -1,0 +1,26 @@
+POST http://localhost:8000/gql
+Content-Type: application/json
+
+{
+  "feed": {
+    "include": true,
+    "userId": 10,
+    "inner": {
+      "date": {
+        "include": true
+      },
+      "text": {
+        "include": true,
+        "maxLength": 19
+      },
+      "user": {
+        "include": true,
+        "inner": {
+          "name": {
+            "include": true
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 	"github.com/materkov/meme9/web2/controller"
 	"github.com/materkov/meme9/web2/store"
 )
@@ -16,7 +16,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	lib.MustParseConfig()
 
-	db, err := sql.Open("mysql", "root:root@/meme9")
+	db, err := sql.Open("postgres", "user=postgres password=postgres dbname=meme9 sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}

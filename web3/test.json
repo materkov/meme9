@@ -1,0 +1,20 @@
+{
+  "feed": {
+    "include": true,
+    "userId": 10,
+    "inner": {
+      "text": {
+        "include": true,
+        "maxLength": 19
+      },
+      "user": {
+        "include": true,
+        "inner": {
+          "name": {
+            "include": true
+          }
+        }
+      }
+    }
+  }
+}
