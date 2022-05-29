@@ -6,6 +6,7 @@ front/dist/*.LICENSE.txt
 front2/node_modules
 front3/node_modules
 front4/node_modules
+front4/dist/bundle*
 web/config.json
 mongotest
 pythontest

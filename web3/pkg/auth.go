@@ -23,7 +23,7 @@ func ExchangeCode(origin string, code string) (int, error) {
 	vkAppID := GlobalConfig.VKAppID
 	vkAppSecret := GlobalConfig.VKAppSecret
 
-	redirectURI := fmt.Sprintf("%s://%s/vk-callback", origin)
+	redirectURI := fmt.Sprintf("%s/vk-callback", origin)
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
 		"client_id":     []string{strconv.Itoa(vkAppID)},

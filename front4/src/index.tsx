@@ -6,7 +6,12 @@ import {Post, Query, QueryParams, User} from "./types";
 
 function api(query: QueryParams): Promise<Query> {
     return new Promise((resolve, reject) => {
-        fetch("http://127.0.0.1:8000/gql", {
+        let origin = window.location.origin;
+        if (origin == "http://localhost:3000") {
+            origin = "http://localhost:8000";
+        }
+
+        fetch(origin + "/gql", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
