@@ -90,7 +90,7 @@ function VKAuth() {
             }
         };
         api(query).then(result => {
-            setURL(result.vkAuthUrl);
+            setURL(result.vkAuthUrl || "");
         })
     })
 

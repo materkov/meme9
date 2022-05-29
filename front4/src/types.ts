@@ -1,6 +1,6 @@
 export interface Query {
-    feed: Post[];
-    vkAuthUrl: string;
+    feed?: Post[];
+    vkAuthUrl?: string;
     mutation?: Mutation;
     viewer?: User;
 }
