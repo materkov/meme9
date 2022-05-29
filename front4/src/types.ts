@@ -1,10 +1,28 @@
 export interface Query {
     feed: Post[];
+    vkAuthUrl: string;
+    mutation?: Mutation;
+    viewer?: User;
+}
+
+export interface Mutation {
+    vkAuth?: VKAuth;
+}
+
+export interface VKAuth {
+    token?: string;
 }
 
 export interface QueryParams {
     feed?: QueryFeed;
     mutation?: QueryMutation;
+    vkAuthUrl?: SimpleParams;
+    viewer?: QueryViewer;
+}
+
+export interface QueryViewer {
+    include?: boolean;
+    inner?: UserParams;
 }
 
 export interface QueryFeed {
@@ -58,9 +76,15 @@ export interface PostUser {
 
 export interface MutationParams {
     addPost?: MutationAddPost;
+    vkAuthCallback?: MutationVKAuthCallback;
 }
 
 export interface MutationAddPost {
     include?: boolean;
     text?: string;
+}
+
+export interface MutationVKAuthCallback {
+    include?: boolean;
+    url?: string;
 }

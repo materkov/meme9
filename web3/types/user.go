@@ -12,7 +12,8 @@ type User struct {
 }
 
 type UserParams struct {
-	Name simpleField `json:"name,omitempty"`
+	Include bool        `json:"include"`
+	Name    simpleField `json:"name,omitempty"`
 }
 
 func ResolveUser(id int, params UserParams) (*User, error) {

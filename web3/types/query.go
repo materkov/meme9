@@ -1,17 +1,23 @@
 package types
 
 import (
+	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/store"
 	"sort"
 )
 
 type Query struct {
-	Feed []*Post `json:"feed,omitempty"`
+	Viewer    *User     `json:"viewer,omitempty"`
+	Feed      []*Post   `json:"feed,omitempty"`
+	VkAuthURL string    `json:"vkAuthUrl,omitempty"`
+	Mutation  *Mutation `json:"mutation,omitempty"`
 }
 
 type QueryParams struct {
-	Feed     QueryFeed     `json:"feed"`
-	Mutation QueryMutation `json:"mutation"`
+	Viewer    QueryViewer   `json:"viewer"`
+	Feed      QueryFeed     `json:"feed"`
+	Mutation  QueryMutation `json:"mutation"`
+	VkAuthURL simpleField   `json:"vkAuthUrl"`
 }
 
 type QueryFeed struct {
@@ -25,14 +31,19 @@ type QueryMutation struct {
 	Inner   MutationParams `json:"inner,omitempty"`
 }
 
-func ResolveQuery(params QueryParams) (*Query, error) {
+type QueryViewer struct {
+	Include bool       `json:"include"`
+	Inner   UserParams `json:"inner"`
+}
+
+func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
 	result := &Query{}
 	var err error
 
 	if params.Feed.Include {
 		userID := params.Feed.UserID
 		if userID == 0 {
-			userID = 10
+			userID = viewer.UserID
 		}
 		userIds, _ := GlobalStore.ListGet(userID, store.ListSubscribedTo)
 		userIds = append(userIds, userID)
@@ -67,7 +78,15 @@ func ResolveQuery(params QueryParams) (*Query, error) {
 	}
 
 	if params.Mutation.Include {
-		ResolveMutation(params.Mutation.Inner)
+		result.Mutation = ResolveMutation(viewer, params.Mutation.Inner)
+	}
+
+	if params.VkAuthURL.Include {
+		result.VkAuthURL = pkg.GetRedirectURL(viewer.Origin)
+	}
+
+	if params.Viewer.Include {
+		result.Viewer, _ = ResolveUser(viewer.UserID, params.Viewer.Inner)
 	}
 
 	return result, err

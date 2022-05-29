@@ -16,6 +16,7 @@ type Object interface {
 type User struct {
 	ID   int
 	Name string
+	VkID int
 }
 
 func (u *User) ObjectID() int { return u.ID }
@@ -142,4 +143,39 @@ func (s *Store) ListAdd(object1, listType, object2 int) error {
 
 func GenerateID() int {
 	return int(time.Now().Unix())
+}
+
+const (
+	MappingVKID = 1
+)
+
+func (s *Store) GetMapping(keyType int, key string) (int, error) {
+	objectID := 0
+	err := s.DB.QueryRow("select object from mapping where `key_type` = ? and `key` = ?", keyType, key).Scan(&objectID)
+	if err == sql.ErrNoRows {
+		return 0, nil
+	} else if err != nil {
+		return 0, fmt.Errorf("error selecting mapping: %w", err)
+	}
+
+	return objectID, nil
+}
+
+func (s *Store) SaveMapping(keyType int, key string, objectID int) error {
+	_, err := s.DB.Exec("insert into mapping(key_type, key, object) values (?, ?, ?)", keyType, key, objectID)
+	if err != nil {
+		return fmt.Errorf("error saving mapping row: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Store) GetConfig() (string, error) {
+	config := ""
+	err := s.DB.QueryRow("select config from config where id = 1").Scan(&config)
+	if err != nil {
+		return "", fmt.Errorf("error selecting config: %w", err)
+	}
+
+	return config, err
 }

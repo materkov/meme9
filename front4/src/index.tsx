@@ -1,13 +1,17 @@
-import React, {ChangeEvent} from "react";
+import React, {ChangeEvent, useEffect} from "react";
 import {store} from "./store";
 import {createRoot} from "react-dom/client";
 import styles from "./index.module.css";
-import {Post, Query, QueryParams} from "./types";
+import {Post, Query, QueryParams, User} from "./types";
 
 function api(query: QueryParams): Promise<Query> {
     return new Promise((resolve, reject) => {
         fetch("http://127.0.0.1:8000/gql", {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
+            },
             body: JSON.stringify(query),
         })
             .then(data => data.json())
@@ -21,12 +25,73 @@ function api(query: QueryParams): Promise<Query> {
 }
 
 function FeedPage() {
+    const [viewer, setViewer] = React.useState<User | undefined>();
+
+    useEffect(() => {
+        if (location.pathname == "/vk-callback") {
+            const q: QueryParams = {
+                mutation: {
+                    include: true,
+                    inner: {
+                        vkAuthCallback: {
+                            include: true,
+                            url: location.href,
+                        }
+                    }
+                }
+            }
+            api(q).then(result => {
+                localStorage.setItem("authToken", result.mutation?.vkAuth?.token || '');
+            })
+            history.pushState(null, '', '/');
+        }
+
+        if (!viewer) {
+            const q: QueryParams = {
+                viewer: {
+                    include: true,
+                    inner: {
+                        name: {include: true}
+                    }
+                }
+            }
+            api(q).then(result => {
+                setViewer(result.viewer);
+            })
+        }
+    })
     return <>
+        {viewer?.id ? ('Вы авторизованы как ' + viewer.name) : ''}
+
+        <VKAuth/>
+
         <PostComposer/>
-        {store.items.feed.map(post => {
+        {store.items.feed && store.items.feed.map(post => {
             return <Post post={post} key={post.id}/>
         })}
     </>;
+}
+
+function VKAuth() {
+    const [url, setURL] = React.useState('');
+    useEffect(() => {
+        if (url) {
+            return
+        }
+
+        const query: QueryParams = {
+            vkAuthUrl: {
+                include: true
+            }
+        };
+        api(query).then(result => {
+            setURL(result.vkAuthUrl);
+        })
+    })
+
+    return <div>
+        {!url ? 'Loading ...' : <a href={url}>Авторизоваться через ВК</a>}
+    </div>
 }
 
 function Post(props: { post: Post }) {
@@ -71,7 +136,6 @@ function PostComposer() {
 const feedQuery: QueryParams = {
     feed: {
         include: true,
-        userId: 10,
         inner: {
             date: {include: true},
             text: {include: true},
