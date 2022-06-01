@@ -3,6 +3,8 @@ export interface Query {
     vkAuthUrl?: string;
     mutation?: Mutation;
     viewer?: User;
+    post?: Post;
+    user?: User;
 }
 
 export interface Mutation {
@@ -18,6 +20,20 @@ export interface QueryParams {
     mutation?: QueryMutation;
     vkAuthUrl?: SimpleParams;
     viewer?: QueryViewer;
+    user?: QueryUser;
+    post?: QueryPost;
+}
+
+export interface QueryPost {
+    include?: boolean;
+    id?: string;
+    inner?: PostParams;
+}
+
+export interface QueryUser {
+    include?: boolean;
+    id?: string;
+    inner?: UserParams;
 }
 
 export interface QueryViewer {
