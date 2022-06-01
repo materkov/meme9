@@ -7,15 +7,17 @@ export function UserPage(props: { id: string }) {
 
     useEffect(() => {
         const q: QueryParams = {
-            user: {
+            node: {
                 include: true,
                 id: props.id,
                 inner: {
-                    name: {include: true},
+                    onUser: {
+                        name: {include: true}
+                    },
                 }
             }
         }
-        api(q).then(data => setUser(data.user))
+        api(q).then(data => data.node?.type == "User" && setUser(data.node))
     }, [])
 
     return <>{user && <User user={user}/>}</>

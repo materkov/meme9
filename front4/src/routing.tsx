@@ -8,6 +8,8 @@ export function ResolveRoute(props: { url: string }) {
 
     if (url.match(/^\/$/)) {
         return <FeedPage/>
+    } else if (url.match(/^\/vk-callback/)) {
+        return <FeedPage/>
     } else if (url.match(/^\/posts\/(\w+)/)) {
         const postId = url.substr(7);
         return <PostPage id={postId}/>;

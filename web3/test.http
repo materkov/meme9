@@ -2,25 +2,21 @@ POST http://localhost:8000/gql
 Content-Type: application/json
 
 {
-  "feed": {
+  "node": {
     "include": true,
-    "userId": 10,
+    "id": "User:10",
     "inner": {
-      "date": {
-        "include": true
+      "onPost": {
+        "text": {
+          "include": true
+        }
       },
-      "text": {
-        "include": true,
-        "maxLength": 19
-      },
-      "user": {
-        "include": true,
-        "inner": {
-          "name": {
-            "include": true
-          }
+      "onUser": {
+        "name": {
+          "include": true
         }
       }
     }
   }
 }
+

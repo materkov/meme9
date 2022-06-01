@@ -4,8 +4,6 @@ import (
 	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/store"
 	"sort"
-	"strconv"
-	"strings"
 )
 
 type Query struct {
@@ -13,8 +11,7 @@ type Query struct {
 	Feed      []*Post   `json:"feed,omitempty"`
 	VkAuthURL string    `json:"vkAuthUrl,omitempty"`
 	Mutation  *Mutation `json:"mutation,omitempty"`
-	User      *User     `json:"user,omitempty"`
-	Post      *Post     `json:"post,omitempty"`
+	Node      Node      `json:"node,omitempty"`
 }
 
 type QueryParams struct {
@@ -22,8 +19,13 @@ type QueryParams struct {
 	Feed      QueryFeed     `json:"feed"`
 	Mutation  QueryMutation `json:"mutation"`
 	VkAuthURL simpleField   `json:"vkAuthUrl"`
-	User      QueryUser     `json:"user"`
-	Post      QueryPost     `json:"post"`
+	Node      QueryNode     `json:"node"`
+}
+
+type QueryNode struct {
+	Include bool       `json:"include"`
+	ID      string     `json:"id"`
+	Inner   NodeParams `json:"inner"`
 }
 
 type QueryFeed struct {
@@ -40,18 +42,6 @@ type QueryMutation struct {
 type QueryViewer struct {
 	Include bool       `json:"include"`
 	Inner   UserParams `json:"inner"`
-}
-
-type QueryUser struct {
-	Include bool       `json:"include"`
-	ID      string     `json:"id"`
-	Inner   UserParams `json:"inner"`
-}
-
-type QueryPost struct {
-	Include bool       `json:"include"`
-	ID      string     `json:"id"`
-	Inner   PostParams `json:"inner"`
 }
 
 func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
@@ -107,14 +97,8 @@ func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
 		result.Viewer, _ = ResolveUser(viewer.UserID, params.Viewer.Inner)
 	}
 
-	if params.User.Include {
-		userID, _ := strconv.Atoi(strings.TrimPrefix(params.User.ID, "User:"))
-		result.User, _ = ResolveUser(userID, params.User.Inner)
-	}
-
-	if params.Post.Include {
-		userID, _ := strconv.Atoi(strings.TrimPrefix(params.Post.ID, "Post:"))
-		result.Post, _ = ResolveGraphPost(userID, params.Post.Inner)
+	if params.Node.Include {
+		result.Node, _ = ResolveNode(params.Node.ID, params.Node.Inner)
 	}
 
 	return result, err
