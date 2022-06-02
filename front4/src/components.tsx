@@ -2,7 +2,7 @@ import React, {ChangeEvent, useEffect} from "react";
 import styles from "./index.module.css";
 import {Post, QueryParams, User} from "./types";
 import {api} from "./api";
-import {Post as PostTT} from "./postpage";
+import {Post as PostTT, PostQuery} from "./components/post";
 
 export function FeedPage() {
     const [viewer, setViewer] = React.useState<User | undefined>();
@@ -12,19 +12,9 @@ export function FeedPage() {
         const feedQuery: QueryParams = {
             feed: {
                 include: true,
-                inner: {
-                    date: {include: true},
-                    text: {include: true},
-                    user: {
-                        include: true,
-                        inner: {
-                            name: {include: true},
-                        }
-                    }
-                }
+                inner: PostQuery,
             }
         }
-
 
         api(feedQuery).then(data => {
             setFeed(data.feed);
