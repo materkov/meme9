@@ -28,10 +28,10 @@ jobs:
         uses: actions/checkout@v1
 
       - name: build
-        run: cd web4 && go build cmd
+        run: cd web3 && go build cmd
 
       #- name: linters
       #  run: make lint-all
 
-      #- name: test
-      #  run: cd web && go test -v ./...
+      - name: test
+        run: cd web3 && go test -v ./...
