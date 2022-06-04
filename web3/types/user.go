@@ -6,14 +6,21 @@ import (
 )
 
 type User struct {
-	Type string `json:"type,omitempty"`
-	ID   string `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	Type  string  `json:"type,omitempty"`
+	ID    string  `json:"id,omitempty"`
+	Name  string  `json:"name,omitempty"`
+	Posts []*Post `json:"posts,omitempty"`
 }
 
 type UserParams struct {
 	Include bool        `json:"include"`
 	Name    simpleField `json:"name,omitempty"`
+	Posts   *UserPosts  `json:"posts,omitempty"`
+}
+
+type UserPosts struct {
+	Include bool       `json:"include"`
+	Inner   PostParams `json:"inner"`
 }
 
 func ResolveUser(id int, params UserParams) (*User, error) {
@@ -34,6 +41,18 @@ func ResolveUser(id int, params UserParams) (*User, error) {
 
 	if params.Name.Include {
 		result.Name = user.Name
+	}
+
+	if params.Posts != nil && params.Posts.Include {
+		postIds, _ := GlobalStore.ListGet(user.ID, store.ListPosted)
+		for _, postID := range postIds {
+			GlobalCachedStore.Need(postID)
+		}
+
+		for _, postID := range postIds {
+			post, _ := ResolveGraphPost(postID, params.Posts.Inner)
+			result.Posts = append(result.Posts, post)
+		}
 	}
 
 	return result, nil

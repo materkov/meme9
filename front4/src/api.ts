@@ -1,4 +1,5 @@
 import {Query, QueryParams} from "./types";
+import {writeStore} from "./store";
 
 export function api(query: QueryParams): Promise<Query> {
     return new Promise((resolve, reject) => {
@@ -24,6 +25,7 @@ export function api(query: QueryParams): Promise<Query> {
             .then(data => data.json())
             .then(data => {
                 resolve(data as Query);
+                writeStore(data);
             })
             .catch(() => {
                 reject();

@@ -55,10 +55,17 @@ export interface User {
     type: "User";
     id: string;
     name?: string;
+    posts?: Post[];
 }
 
 export interface UserParams {
     name?: SimpleParams;
+    posts?: UserPosts;
+}
+
+export interface UserPosts {
+    include?: boolean;
+    inner?: PostParams;
 }
 
 export interface SimpleParams {

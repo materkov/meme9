@@ -10,10 +10,14 @@ import (
 )
 
 type Mutation struct {
+	Type   string  `json:"type"`
+	ID     string  `json:"id"`
 	VKAuth *VKAuth `json:"vkAuth,omitempty"`
 }
 
 type VKAuth struct {
+	Type  string `json:"type"`
+	ID    string `json:"id"`
 	Token string `json:"token,omitempty"`
 }
 
@@ -33,7 +37,10 @@ type MutationVKAuthCallback struct {
 }
 
 func ResolveMutation(viewer pkg.Viewer, params MutationParams) *Mutation {
-	result := &Mutation{}
+	result := &Mutation{
+		Type: "Mutation",
+		ID:   "mutation",
+	}
 
 	if params.AddPost.Include {
 		post := store.Post{

@@ -7,6 +7,8 @@ import (
 )
 
 type Query struct {
+	Type      string    `json:"type"`
+	ID        string    `json:"id"`
 	Viewer    *User     `json:"viewer,omitempty"`
 	Feed      []*Post   `json:"feed,omitempty"`
 	VkAuthURL string    `json:"vkAuthUrl,omitempty"`
@@ -45,7 +47,10 @@ type QueryViewer struct {
 }
 
 func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
-	result := &Query{}
+	result := &Query{
+		Type: "Query",
+		ID:   "query",
+	}
 	var err error
 
 	if params.Feed.Include {
