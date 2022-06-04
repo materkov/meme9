@@ -8,7 +8,6 @@ export function PostPage(props: { id: string }) {
     useEffect(() => {
         const q: QueryParams = {
             node: {
-                include: true,
                 id: props.id,
                 inner: {
                     onPost: PostQuery,

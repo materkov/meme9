@@ -1,4 +1,4 @@
-export interface Query {
+export type Query = {
     feed?: Post[];
     vkAuthUrl?: string;
     mutation?: Mutation;
@@ -6,73 +6,64 @@ export interface Query {
     node?: Node;
 }
 
-export interface Mutation {
+export type Mutation = {
     vkAuth?: VKAuth;
 }
 
-export interface VKAuth {
+export type VKAuth = {
     token?: string;
 }
 
-export interface QueryParams {
+export type QueryParams = {
     feed?: QueryFeed;
     mutation?: QueryMutation;
-    vkAuthUrl?: SimpleParams;
+    vkAuthUrl?: {};
     viewer?: QueryViewer;
     node?: QueryNode;
 }
 
-export interface QueryNode {
-    include?: boolean;
+export type QueryNode = {
     id?: string;
     inner?: NodeParams;
 }
 
-export interface NodeParams {
+export type NodeParams = {
     onPost?: PostParams;
     onUser?: UserParams;
 }
 
 export type Node = Post | User;
 
-export interface QueryViewer {
-    include?: boolean;
+export type QueryViewer = {
     inner?: UserParams;
 }
 
-export interface QueryFeed {
-    include?: boolean;
+export type QueryFeed = {
     userId?: number;
     inner?: PostParams;
 }
 
-export interface QueryMutation {
-    include?: boolean;
+export type QueryMutation = {
     inner?: MutationParams;
 }
 
-export interface User {
+export type User = {
     type: "User";
     id: string;
     name?: string;
     posts?: Post[];
 }
 
-export interface UserParams {
-    name?: SimpleParams;
+export type UserParams = {
+    name?: {};
     posts?: UserPosts;
 }
 
-export interface UserPosts {
-    include?: boolean;
+export type UserPosts = {
     inner?: PostParams;
 }
 
-export interface SimpleParams {
-    include?: boolean;
-}
-
-export interface Post {
+export type Post = {
     type: "Post";
     id: string;
     text?: string;
@@ -80,33 +71,29 @@ export interface Post {
     date?: number;
 }
 
-export interface PostParams {
-    date?: SimpleParams;
+export type PostParams = {
+    date?: {};
     text?: PostText;
     user?: PostUser;
 }
 
-export interface PostText {
-    include?: boolean;
+export type PostText = {
     maxLength?: number;
 }
 
-export interface PostUser {
-    include?: boolean;
+export type PostUser = {
     inner?: UserParams;
 }
 
-export interface MutationParams {
+export type MutationParams = {
     addPost?: MutationAddPost;
     vkAuthCallback?: MutationVKAuthCallback;
 }
 
-export interface MutationAddPost {
-    include?: boolean;
+export type MutationAddPost = {
     text?: string;
 }
 
-export interface MutationVKAuthCallback {
-    include?: boolean;
+export type MutationVKAuthCallback = {
     url?: string;
 }

@@ -11,7 +11,6 @@ export function FeedPage() {
     useEffect(() => {
         const feedQuery: QueryParams = {
             feed: {
-                include: true,
                 inner: PostQuery,
             }
         }
@@ -25,10 +24,8 @@ export function FeedPage() {
         if (location.pathname == "/vk-callback") {
             const q: QueryParams = {
                 mutation: {
-                    include: true,
                     inner: {
                         vkAuthCallback: {
-                            include: true,
                             url: location.href,
                         }
                     }
@@ -43,9 +40,8 @@ export function FeedPage() {
         if (!viewer) {
             const q: QueryParams = {
                 viewer: {
-                    include: true,
                     inner: {
-                        name: {include: true}
+                        name: {}
                     }
                 }
             }
@@ -74,9 +70,7 @@ function VKAuth() {
         }
 
         const query: QueryParams = {
-            vkAuthUrl: {
-                include: true
-            }
+            vkAuthUrl: {}
         };
         api(query).then(result => {
             setURL(result.vkAuthUrl || "");
@@ -99,10 +93,8 @@ function PostComposer() {
     const onClick = () => {
         const addPostQuery: QueryParams = {
             mutation: {
-                include: true,
                 inner: {
                     addPost: {
-                        include: true,
                         text: text,
                     }
                 }

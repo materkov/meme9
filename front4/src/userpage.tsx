@@ -16,13 +16,11 @@ export function UserPage(props: { id: string }) {
 
 export const UserPageQuery = (userId: string): QueryParams => ({
     node: {
-        include: true,
         id: userId,
         inner: {
             onUser: {
-                name: {include: true},
+                name: {},
                 posts: {
-                    include: true,
                     inner: PostQuery,
                 }
             },
@@ -36,6 +34,6 @@ export function User(props: { user: User }) {
         <hr/>
         Posts:
         <br/>
-        {props.user.posts?.map(post => <Post post={post}/>)}
+        {props.user.posts?.map(post => <Post key={post.id} post={post}/>)}
     </>
 }

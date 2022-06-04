@@ -17,33 +17,29 @@ type Query struct {
 }
 
 type QueryParams struct {
-	Viewer    QueryViewer   `json:"viewer"`
-	Feed      QueryFeed     `json:"feed"`
-	Mutation  QueryMutation `json:"mutation"`
-	VkAuthURL simpleField   `json:"vkAuthUrl"`
-	Node      QueryNode     `json:"node"`
+	Viewer    *QueryViewer   `json:"viewer"`
+	Feed      *QueryFeed     `json:"feed"`
+	Mutation  *QueryMutation `json:"mutation"`
+	VkAuthURL *simpleField   `json:"vkAuthUrl"`
+	Node      *QueryNode     `json:"node"`
 }
 
 type QueryNode struct {
-	Include bool       `json:"include"`
-	ID      string     `json:"id"`
-	Inner   NodeParams `json:"inner"`
+	ID    string     `json:"id"`
+	Inner NodeParams `json:"inner"`
 }
 
 type QueryFeed struct {
-	Include bool       `json:"include,omitempty"`
-	UserID  int        `json:"userId,omitempty"`
-	Inner   PostParams `json:"inner"`
+	UserID int        `json:"userId,omitempty"`
+	Inner  PostParams `json:"inner"`
 }
 
 type QueryMutation struct {
-	Include bool           `json:"include,omitempty"`
-	Inner   MutationParams `json:"inner,omitempty"`
+	Inner MutationParams `json:"inner,omitempty"`
 }
 
 type QueryViewer struct {
-	Include bool       `json:"include"`
-	Inner   UserParams `json:"inner"`
+	Inner UserParams `json:"inner"`
 }
 
 func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
@@ -53,7 +49,7 @@ func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
 	}
 	var err error
 
-	if params.Feed.Include {
+	if params.Feed != nil {
 		userID := params.Feed.UserID
 		if userID == 0 {
 			userID = viewer.UserID
@@ -90,19 +86,19 @@ func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
 		}
 	}
 
-	if params.Mutation.Include {
+	if params.Mutation != nil {
 		result.Mutation = ResolveMutation(viewer, params.Mutation.Inner)
 	}
 
-	if params.VkAuthURL.Include {
+	if params.VkAuthURL != nil {
 		result.VkAuthURL = pkg.GetRedirectURL(viewer.Origin)
 	}
 
-	if params.Viewer.Include {
+	if params.Viewer != nil {
 		result.Viewer, _ = ResolveUser(viewer.UserID, params.Viewer.Inner)
 	}
 
-	if params.Node.Include {
+	if params.Node != nil {
 		result.Node, _ = ResolveNode(params.Node.ID, params.Node.Inner)
 	}
 

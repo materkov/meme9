@@ -22,18 +22,16 @@ type VKAuth struct {
 }
 
 type MutationParams struct {
-	AddPost        MutationAddPost        `json:"addPost,omitempty"`
-	VKAuthCallback MutationVKAuthCallback `json:"vkAuthCallback,omitempty"`
+	AddPost        *MutationAddPost        `json:"addPost,omitempty"`
+	VKAuthCallback *MutationVKAuthCallback `json:"vkAuthCallback,omitempty"`
 }
 
 type MutationAddPost struct {
-	Include bool   `json:"include,omitempty"`
-	Text    string `json:"text,omitempty"`
+	Text string `json:"text,omitempty"`
 }
 
 type MutationVKAuthCallback struct {
-	Include bool   `json:"include,omitempty"`
-	URL     string `json:"url,omitempty"`
+	URL string `json:"url,omitempty"`
 }
 
 func ResolveMutation(viewer pkg.Viewer, params MutationParams) *Mutation {
@@ -42,7 +40,7 @@ func ResolveMutation(viewer pkg.Viewer, params MutationParams) *Mutation {
 		ID:   "mutation",
 	}
 
-	if params.AddPost.Include {
+	if params.AddPost != nil {
 		post := store.Post{
 			ID:     store.GenerateID(),
 			UserID: viewer.UserID,
@@ -64,7 +62,7 @@ func ResolveMutation(viewer pkg.Viewer, params MutationParams) *Mutation {
 		<-ch2
 	}
 
-	if params.VKAuthCallback.Include {
+	if params.VKAuthCallback != nil {
 		urlParsed, err := url.Parse(params.VKAuthCallback.URL)
 		if err != nil {
 			log.Printf("ERROR")

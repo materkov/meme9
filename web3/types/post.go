@@ -14,19 +14,17 @@ type Post struct {
 }
 
 type PostParams struct {
-	Date simpleField `json:"date"`
-	Text PostText    `json:"text"`
-	User PostUser    `json:"user"`
+	Date *simpleField `json:"date"`
+	Text *PostText    `json:"text"`
+	User *PostUser    `json:"user"`
 }
 
 type PostText struct {
-	Include   bool `json:"include,omitempty"`
-	MaxLength int  `json:"maxLength,omitempty"`
+	MaxLength int `json:"maxLength,omitempty"`
 }
 
 type PostUser struct {
-	Include bool       `json:"include"`
-	Inner   UserParams `json:"inner"`
+	Inner UserParams `json:"inner"`
 }
 
 func ResolveGraphPost(id int, params PostParams) (*Post, error) {
@@ -45,18 +43,18 @@ func ResolveGraphPost(id int, params PostParams) (*Post, error) {
 		ID:   fmt.Sprintf("Post:%d", post.ID),
 	}
 
-	if params.Text.Include {
+	if params.Text != nil {
 		result.Text = post.Text
 		if params.Text.MaxLength > 0 && len(result.Text) > params.Text.MaxLength {
 			result.Text = result.Text[:params.Text.MaxLength] + "..."
 		}
 	}
 
-	if params.User.Include {
+	if params.User != nil {
 		result.User, err = ResolveUser(post.UserID, params.User.Inner)
 	}
 
-	if params.Date.Include {
+	if params.Date != nil {
 		result.Date = post.Date
 	}
 

@@ -13,14 +13,12 @@ type User struct {
 }
 
 type UserParams struct {
-	Include bool        `json:"include"`
-	Name    simpleField `json:"name,omitempty"`
-	Posts   *UserPosts  `json:"posts,omitempty"`
+	Name  *simpleField `json:"name,omitempty"`
+	Posts *UserPosts   `json:"posts,omitempty"`
 }
 
 type UserPosts struct {
-	Include bool       `json:"include"`
-	Inner   PostParams `json:"inner"`
+	Inner PostParams `json:"inner"`
 }
 
 func ResolveUser(id int, params UserParams) (*User, error) {
@@ -39,11 +37,11 @@ func ResolveUser(id int, params UserParams) (*User, error) {
 		ID:   fmt.Sprintf("User:%d", user.ID),
 	}
 
-	if params.Name.Include {
+	if params.Name != nil {
 		result.Name = user.Name
 	}
 
-	if params.Posts != nil && params.Posts.Include {
+	if params.Posts != nil {
 		postIds, _ := GlobalStore.ListGet(user.ID, store.ListPosted)
 		for _, postID := range postIds {
 			GlobalCachedStore.Need(postID)

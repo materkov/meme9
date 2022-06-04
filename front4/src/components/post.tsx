@@ -6,12 +6,11 @@ export type PostProps = {
 }
 
 export const PostQuery: PostParams = {
-    date: {include: true},
-    text: {include: true},
+    date: {},
+    text: {},
     user: {
-        include: true,
         inner: {
-            name: {include: true},
+            name: {},
         }
     }
 }
