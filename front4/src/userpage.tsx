@@ -17,13 +17,13 @@ export function UserPage(props: { id: string }) {
 export const UserPageQuery = (userId: string): QueryParams => ({
     node: {
         include: true,
-            id: userId,
-            inner: {
+        id: userId,
+        inner: {
             onUser: {
                 name: {include: true},
                 posts: {
                     include: true,
-                        inner: PostQuery,
+                    inner: PostQuery,
                 }
             },
         }
