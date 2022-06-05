@@ -13,6 +13,8 @@ import (
 	"strings"
 )
 
+var GlobalStore *store.Store
+
 func gqlFunc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
@@ -36,13 +38,19 @@ func gqlFunc(w http.ResponseWriter, r *http.Request) {
 }
 
 func runGQL(viewer pkg.Viewer, req []byte) interface{} {
+	cachedStore := &store.CachedStore{
+		Store:    GlobalStore,
+		ObjCache: map[int]store.CachedItem{},
+		Needed:   map[int]bool{},
+	}
+
 	var errors []error
 	var fields = types.QueryParams{}
 
 	json.Unmarshal(req, &fields)
 	log.Printf("%+v", fields)
 
-	result, err := types.ResolveQuery(viewer, fields)
+	result, err := types.ResolveQuery(cachedStore, viewer, fields)
 	if err != nil {
 		errors = append(errors, err)
 	}
@@ -57,14 +65,9 @@ func main() {
 	}
 	defer db.Close()
 
-	types.GlobalStore = &store.Store{DB: db}
-	types.GlobalCachedStore = &store.CachedStore{
-		Store:    types.GlobalStore,
-		ObjCache: map[int]store.CachedItem{},
-		Needed:   map[int]bool{},
-	}
+	GlobalStore = &store.Store{DB: db}
 
-	configStr, err := types.GlobalStore.GetConfig()
+	configStr, err := GlobalStore.GetConfig()
 	if err != nil {
 		log.Fatalf("Failed reading config: %s", configStr)
 	}

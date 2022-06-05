@@ -42,7 +42,7 @@ type QueryViewer struct {
 	Inner UserParams `json:"inner"`
 }
 
-func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
+func ResolveQuery(cachedStore *store.CachedStore, viewer pkg.Viewer, params QueryParams) (*Query, error) {
 	result := &Query{
 		Type: "Query",
 		ID:   "query",
@@ -54,22 +54,22 @@ func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
 		if userID == 0 {
 			userID = viewer.UserID
 		}
-		userIds, _ := GlobalStore.ListGet(userID, store.ListSubscribedTo)
+		userIds, _ := cachedStore.Store.ListGet(userID, store.ListSubscribedTo)
 		userIds = append(userIds, userID)
 
 		var allPosts []int
 		for _, userID := range userIds {
-			postIds, _ := GlobalStore.ListGet(userID, store.ListPosted)
+			postIds, _ := cachedStore.Store.ListGet(userID, store.ListPosted)
 			allPosts = append(allPosts, postIds...)
 		}
 
 		for _, postID := range allPosts {
-			GlobalCachedStore.Need(postID)
+			cachedStore.Need(postID)
 		}
 
 		var posts []*store.Post
 		for _, postID := range allPosts {
-			obj, err := GlobalCachedStore.ObjGet(postID)
+			obj, err := cachedStore.ObjGet(postID)
 			if err == nil {
 				if post, ok := obj.(*store.Post); ok {
 					posts = append(posts, post)
@@ -81,13 +81,13 @@ func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
 		})
 
 		for _, post := range posts {
-			post, _ := ResolveGraphPost(post.ID, params.Feed.Inner)
+			post, _ := ResolveGraphPost(cachedStore, post.ID, params.Feed.Inner)
 			result.Feed = append(result.Feed, post)
 		}
 	}
 
 	if params.Mutation != nil {
-		result.Mutation = ResolveMutation(viewer, params.Mutation.Inner)
+		result.Mutation = ResolveMutation(cachedStore, viewer, params.Mutation.Inner)
 	}
 
 	if params.VkAuthURL != nil {
@@ -95,11 +95,11 @@ func ResolveQuery(viewer pkg.Viewer, params QueryParams) (*Query, error) {
 	}
 
 	if params.Viewer != nil {
-		result.Viewer, _ = ResolveUser(viewer.UserID, params.Viewer.Inner)
+		result.Viewer, _ = ResolveUser(cachedStore, viewer.UserID, params.Viewer.Inner)
 	}
 
 	if params.Node != nil {
-		result.Node, _ = ResolveNode(params.Node.ID, params.Node.Inner)
+		result.Node, _ = ResolveNode(cachedStore, params.Node.ID, params.Node.Inner)
 	}
 
 	return result, err

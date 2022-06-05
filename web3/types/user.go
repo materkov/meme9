@@ -21,8 +21,8 @@ type UserPosts struct {
 	Inner PostParams `json:"inner"`
 }
 
-func ResolveUser(id int, params UserParams) (*User, error) {
-	obj, err := GlobalCachedStore.ObjGet(id)
+func ResolveUser(cachedStore *store.CachedStore, id int, params UserParams) (*User, error) {
+	obj, err := cachedStore.ObjGet(id)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting user: %w", err)
 	}
@@ -42,13 +42,13 @@ func ResolveUser(id int, params UserParams) (*User, error) {
 	}
 
 	if params.Posts != nil {
-		postIds, _ := GlobalStore.ListGet(user.ID, store.ListPosted)
+		postIds, _ := cachedStore.Store.ListGet(user.ID, store.ListPosted)
 		for _, postID := range postIds {
-			GlobalCachedStore.Need(postID)
+			cachedStore.Need(postID)
 		}
 
 		for _, postID := range postIds {
-			post, _ := ResolveGraphPost(postID, params.Posts.Inner)
+			post, _ := ResolveGraphPost(cachedStore, postID, params.Posts.Inner)
 			result.Posts = append(result.Posts, post)
 		}
 	}

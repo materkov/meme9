@@ -34,7 +34,7 @@ type MutationVKAuthCallback struct {
 	URL string `json:"url,omitempty"`
 }
 
-func ResolveMutation(viewer pkg.Viewer, params MutationParams) *Mutation {
+func ResolveMutation(cachedStore *store.CachedStore, viewer pkg.Viewer, params MutationParams) *Mutation {
 	result := &Mutation{
 		Type: "Mutation",
 		ID:   "mutation",
@@ -51,11 +51,11 @@ func ResolveMutation(viewer pkg.Viewer, params MutationParams) *Mutation {
 		ch1 := make(chan bool)
 		ch2 := make(chan bool)
 		go func() {
-			_ = GlobalStore.ObjAdd(post.ID, store.ObjectPost, post)
+			_ = cachedStore.Store.ObjAdd(post.ID, store.ObjectPost, post)
 			ch1 <- true
 		}()
 		go func() {
-			_ = GlobalStore.ListAdd(post.UserID, store.ListPosted, post.ID)
+			_ = cachedStore.Store.ListAdd(post.UserID, store.ListPosted, post.ID)
 			ch2 <- true
 		}()
 		<-ch1
@@ -71,7 +71,7 @@ func ResolveMutation(viewer pkg.Viewer, params MutationParams) *Mutation {
 		vkID, _ := pkg.ExchangeCode(viewer.Origin, urlParsed.Query().Get("code"))
 		log.Printf("UserID %d", vkID)
 
-		userID, _ := GlobalStore.GetMapping(store.MappingVKID, strconv.Itoa(vkID))
+		userID, _ := cachedStore.Store.GetMapping(store.MappingVKID, strconv.Itoa(vkID))
 		if userID != 0 {
 			token := pkg.AuthToken{
 				IssuedAt: int(time.Now().Unix()),

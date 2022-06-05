@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"github.com/materkov/web3/store"
 	"strconv"
 	"strings"
 )
@@ -18,15 +19,15 @@ type NodeParams struct {
 	OnUser UserParams `json:"onUser,omitempty"`
 }
 
-func ResolveNode(id string, params NodeParams) (Node, error) {
+func ResolveNode(cachedStore *store.CachedStore, id string, params NodeParams) (Node, error) {
 	if strings.HasPrefix(id, "Post:") {
 		id = strings.TrimPrefix(id, "Post:")
 		idInt, _ := strconv.Atoi(id)
-		return ResolveGraphPost(idInt, params.OnPost)
+		return ResolveGraphPost(cachedStore, idInt, params.OnPost)
 	} else if strings.HasPrefix(id, "User:") {
 		id = strings.TrimPrefix(id, "User:")
 		idInt, _ := strconv.Atoi(id)
-		return ResolveUser(idInt, params.OnUser)
+		return ResolveUser(cachedStore, idInt, params.OnUser)
 	} else {
 		return nil, fmt.Errorf("incorrect id")
 	}
