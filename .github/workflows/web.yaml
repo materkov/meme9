@@ -31,7 +31,7 @@ jobs:
         run: cd web3 && go build cmd
 
       - name: gofmt
-        run: cd web3 && test -z $$(gofmt -l . | tee /dev/stderr)
+        run: cd web3 && test -z $(gofmt -l . | tee /dev/stderr)
 
       - name: linter install
         run: cd web3 && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.32.1
