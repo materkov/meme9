@@ -19,6 +19,17 @@ type User struct {
 	VkID int
 }
 
+type Config struct {
+	ID int
+
+	VKAppID     int
+	VKAppSecret string
+
+	AuthTokenSecret string
+}
+
+func (c *Config) ObjectID() int { return c.ID }
+
 func (u *User) ObjectID() int { return u.ID }
 
 type Post struct {
@@ -34,11 +45,14 @@ const (
 	ListSubscribedTo = 1
 	ListPosted       = 2
 
-	ObjectUser = 1
-	ObjectPost = 2
+	ObjectUser   = 1
+	ObjectPost   = 2
+	ObjectConfig = 3
+
+	ObjectIDConfig = 1
 )
 
-type Store struct {
+type SqlStore struct {
 	DB *sql.DB
 }
 
@@ -57,6 +71,13 @@ func parseObject(objID int, objType int, data []byte) (Object, error) {
 		}
 		obj.ID = objID
 		return &obj, nil
+	} else if objType == ObjectConfig {
+		obj := Config{}
+		if err := json.Unmarshal(data, &obj); err != nil {
+			return nil, fmt.Errorf("error unmarshaling config: %w", err)
+		}
+		obj.ID = objID
+		return &obj, nil
 	} else {
 		return nil, fmt.Errorf("unmknown type: %d", objType)
 	}
@@ -71,7 +92,7 @@ func idsList(ids []int) string {
 	return strings.Join(result, ",")
 }
 
-func (s *Store) ObjGet(ids []int) (map[int]Object, error) {
+func (s *SqlStore) ObjGet(ids []int) (map[int]Object, error) {
 	rows, err := s.DB.Query("select id, data, type from object where id in (" + idsList(ids) + ")")
 	if err != nil {
 		return nil, fmt.Errorf("error selecting rows: %w", err)
@@ -96,7 +117,7 @@ func (s *Store) ObjGet(ids []int) (map[int]Object, error) {
 	return result, nil
 }
 
-func (s *Store) ListGet(objectID int, listType int) ([]int, error) {
+func (s *SqlStore) ListGet(objectID int, listType int) ([]int, error) {
 	rows, err := s.DB.Query("select object2 from list where object1 = ? and type = ?", objectID, listType)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting list: %w", err)
@@ -117,7 +138,7 @@ func (s *Store) ListGet(objectID int, listType int) ([]int, error) {
 	return result, err
 }
 
-func (s *Store) ObjAdd(objectID int, objectType int, obj interface{}) error {
+func (s *SqlStore) ObjAdd(objectID int, objectType int, obj interface{}) error {
 	objBytes, err := json.Marshal(obj)
 	if err != nil {
 		return fmt.Errorf("error marshaling object: %w", err)
@@ -131,7 +152,7 @@ func (s *Store) ObjAdd(objectID int, objectType int, obj interface{}) error {
 	return nil
 }
 
-func (s *Store) ListAdd(object1, listType, object2 int) error {
+func (s *SqlStore) ListAdd(object1, listType, object2 int) error {
 	date := time.Now().Unix()
 	_, err := s.DB.Exec("insert into list(object1, type, object2, date) values (?, ?, ?, ?)", object1, listType, object2, date)
 	if err != nil {
@@ -149,7 +170,7 @@ const (
 	MappingVKID = 1
 )
 
-func (s *Store) GetMapping(keyType int, key string) (int, error) {
+func (s *SqlStore) GetMapping(keyType int, key string) (int, error) {
 	objectID := 0
 	err := s.DB.QueryRow("select object from mapping where `key_type` = ? and `key` = ?", keyType, key).Scan(&objectID)
 	if err == sql.ErrNoRows {
@@ -161,7 +182,7 @@ func (s *Store) GetMapping(keyType int, key string) (int, error) {
 	return objectID, nil
 }
 
-func (s *Store) SaveMapping(keyType int, key string, objectID int) error {
+func (s *SqlStore) SaveMapping(keyType int, key string, objectID int) error {
 	_, err := s.DB.Exec("insert into mapping(key_type, key, object) values (?, ?, ?)", keyType, key, objectID)
 	if err != nil {
 		return fmt.Errorf("error saving mapping row: %w", err)
@@ -170,12 +191,11 @@ func (s *Store) SaveMapping(keyType int, key string, objectID int) error {
 	return nil
 }
 
-func (s *Store) GetConfig() (string, error) {
-	config := ""
-	err := s.DB.QueryRow("select config from config where id = 1").Scan(&config)
-	if err != nil {
-		return "", fmt.Errorf("error selecting config: %w", err)
-	}
-
-	return config, err
+type Store interface {
+	ObjGet(ids []int) (map[int]Object, error)
+	ListGet(objectID int, listType int) ([]int, error)
+	ObjAdd(objectID int, objectType int, obj interface{}) error
+	ListAdd(object1, listType, object2 int) error
+	GetMapping(keyType int, key string) (int, error)
+	SaveMapping(keyType int, key string, objectID int) error
 }

@@ -1,10 +1,5 @@
 package pkg
 
-type Config struct {
-	VKAppID     int
-	VKAppSecret string
+import "github.com/materkov/web3/store"
 
-	AuthTokenSecret string
-}
-
-var GlobalConfig = Config{}
+var GlobalConfig = &store.Config{}

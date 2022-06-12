@@ -6,7 +6,7 @@ type CachedItem struct {
 }
 
 type CachedStore struct {
-	Store *Store
+	Store Store
 
 	Needed   map[int]bool
 	ObjCache map[int]CachedItem

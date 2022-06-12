@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/store"
 	"log"
@@ -10,9 +11,14 @@ import (
 )
 
 type Mutation struct {
-	Type   string  `json:"type"`
-	ID     string  `json:"id"`
-	VKAuth *VKAuth `json:"vkAuth,omitempty"`
+	Type    string   `json:"type"`
+	ID      string   `json:"id"`
+	VKAuth  *VKAuth  `json:"vkAuth,omitempty"`
+	AddPost *AddPost `json:"addPost,omitempty"`
+}
+
+type AddPost struct {
+	ID string `json:"id"`
 }
 
 type VKAuth struct {
@@ -60,6 +66,10 @@ func ResolveMutation(cachedStore *store.CachedStore, viewer pkg.Viewer, params M
 		}()
 		<-ch1
 		<-ch2
+
+		result.AddPost = &AddPost{
+			ID: fmt.Sprintf("Post:%d", post.ID),
+		}
 	}
 
 	if params.VKAuthCallback != nil {

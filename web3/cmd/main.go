@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-var GlobalStore *store.Store
+var GlobalStore store.Store
 
 func gqlFunc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -65,13 +65,18 @@ func main() {
 	}
 	defer db.Close()
 
-	GlobalStore = &store.Store{DB: db}
+	GlobalStore = &store.SqlStore{DB: db}
 
-	configStr, err := GlobalStore.GetConfig()
+	objects, err := GlobalStore.ObjGet([]int{store.ObjectIDConfig})
 	if err != nil {
-		log.Fatalf("Failed reading config: %s", configStr)
+		log.Fatalf("Failed reading config: %s", err)
 	}
-	_ = json.Unmarshal([]byte(configStr), &pkg.GlobalConfig)
+
+	config, ok := objects[store.ObjectIDConfig].(*store.Config)
+	if !ok {
+		log.Fatalf("Error parsing config")
+	}
+	pkg.GlobalConfig = config
 
 	http.HandleFunc("/gql", gqlFunc)
 
