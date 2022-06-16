@@ -1,8 +1,8 @@
 package types
 
 import (
-	"fmt"
 	"github.com/hashicorp/go-multierror"
+	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/store"
 )
 
@@ -25,7 +25,7 @@ type UserPostsConnectionFieldsEdges struct {
 
 func ResolveUserPostsConnection(st *store.CachedStore, userID int, fields *UserPostsConnectionFields) (*UserPostsConnection, error) {
 	result := &UserPostsConnection{
-		ID:   fmt.Sprintf("UserPostsConnection:%d", userID),
+		ID:   pkg.GetGlobalID(pkg.GlobalIDUserPostsConnection, userID),
 		Type: "UserPostsConnection",
 	}
 

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/store"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -21,6 +22,6 @@ func TestResolveUserPostsConnection(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 2, posts.TotalCount)
 	require.Len(t, posts.Edges, 2)
-	require.Equal(t, "Post:21", posts.Edges[0].ID)
-	require.Equal(t, "Post:20", posts.Edges[1].ID)
+	require.Equal(t, pkg.GetGlobalID(pkg.GlobalIDPost, 21), posts.Edges[0].ID)
+	require.Equal(t, pkg.GetGlobalID(pkg.GlobalIDPost, 20), posts.Edges[1].ID)
 }

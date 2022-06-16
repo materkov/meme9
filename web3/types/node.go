@@ -2,9 +2,8 @@ package types
 
 import (
 	"fmt"
+	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/store"
-	"strconv"
-	"strings"
 )
 
 type Node interface {
@@ -20,15 +19,14 @@ type NodeParams struct {
 }
 
 func ResolveNode(cachedStore *store.CachedStore, id string, params NodeParams) (Node, error) {
-	if strings.HasPrefix(id, "Post:") {
-		id = strings.TrimPrefix(id, "Post:")
-		idInt, _ := strconv.Atoi(id)
-		return ResolveGraphPost(cachedStore, idInt, params.OnPost)
-	} else if strings.HasPrefix(id, "User:") {
-		id = strings.TrimPrefix(id, "User:")
-		idInt, _ := strconv.Atoi(id)
-		return ResolveUser(cachedStore, idInt, params.OnUser)
-	} else {
+	objectType, objectID, _ := pkg.ParseGlobalID(id)
+
+	switch objectType {
+	case pkg.GlobalIDPost:
+		return ResolveGraphPost(cachedStore, objectID, params.OnPost)
+	case pkg.GlobalIDUser:
+		return ResolveUser(cachedStore, objectID, params.OnUser)
+	default:
 		return nil, fmt.Errorf("incorrect id")
 	}
 }

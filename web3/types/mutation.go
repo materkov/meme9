@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/store"
 	"log"
@@ -68,7 +67,7 @@ func ResolveMutation(cachedStore *store.CachedStore, viewer pkg.Viewer, params M
 		<-ch2
 
 		result.AddPost = &AddPost{
-			ID: fmt.Sprintf("Post:%d", post.ID),
+			ID: pkg.GetGlobalID(pkg.GlobalIDPost, post.ID),
 		}
 	}
 
