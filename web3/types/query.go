@@ -30,8 +30,8 @@ type QueryNode struct {
 }
 
 type QueryFeed struct {
-	UserID int        `json:"userId,omitempty"`
-	Inner  PostParams `json:"inner"`
+	UserID int         `json:"userId,omitempty"`
+	Inner  *PostParams `json:"inner"`
 }
 
 type QueryMutation struct {
@@ -39,7 +39,7 @@ type QueryMutation struct {
 }
 
 type QueryViewer struct {
-	Inner UserParams `json:"inner"`
+	Inner *UserParams `json:"inner"`
 }
 
 func ResolveQuery(cachedStore *store.CachedStore, viewer pkg.Viewer, params QueryParams) (*Query, error) {

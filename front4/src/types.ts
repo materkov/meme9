@@ -51,17 +51,30 @@ export type User = {
     type: "User";
     id: string;
     name?: string;
-    posts?: Post[];
+    posts?: UserPostsConnection;
 }
 
 export type UserParams = {
     name?: {};
-    posts?: UserPosts;
+    posts?: UserPostsConnectionFields;
 }
 
-export type UserPosts = {
+export type UserPostsConnectionFieldsEdges = {
     inner?: PostParams;
 }
+
+export type UserPostsConnection = {
+    id: string;
+    type: "UserPostsConnection";
+
+    totalCount?: number;
+    edges?: Post[];
+}
+
+export type UserPostsConnectionFields = {
+    totalCount?: {};
+    edges?: UserPostsConnectionFieldsEdges;
+};
 
 export type Post = {
     type: "Post";

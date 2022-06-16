@@ -23,7 +23,7 @@ func TestResolveMutation_AddPost(t *testing.T) {
 
 	require.NotEmpty(t, result.AddPost.ID)
 
-	node, err := ResolveNode(&st, result.AddPost.ID, NodeParams{OnPost: PostParams{Text: &PostText{}}})
+	node, err := ResolveNode(&st, result.AddPost.ID, NodeParams{OnPost: &PostParams{Text: &PostText{}}})
 	require.NoError(t, err)
 	require.Equal(t, result.AddPost.ID, node.(*Post).ID)
 	require.Equal(t, "hello world", node.(*Post).Text)

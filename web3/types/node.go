@@ -15,8 +15,8 @@ func (*User) IsNode() {}
 func (*Post) IsNode() {}
 
 type NodeParams struct {
-	OnPost PostParams `json:"onPost,omitempty"`
-	OnUser UserParams `json:"onUser,omitempty"`
+	OnPost *PostParams `json:"onPost,omitempty"`
+	OnUser *UserParams `json:"onUser,omitempty"`
 }
 
 func ResolveNode(cachedStore *store.CachedStore, id string, params NodeParams) (Node, error) {

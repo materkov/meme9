@@ -21,7 +21,9 @@ export const UserPageQuery = (userId: string): QueryParams => ({
             onUser: {
                 name: {},
                 posts: {
-                    inner: PostQuery,
+                    edges: {
+                        inner: PostQuery,
+                    },
                 }
             },
         }
@@ -34,6 +36,6 @@ export function User(props: { user: User }) {
         <hr/>
         Posts:
         <br/>
-        {props.user.posts?.map(post => <Post key={post.id} post={post}/>)}
+        {props.user.posts?.edges?.map(post => <Post key={post.id} post={post}/>)}
     </>
 }

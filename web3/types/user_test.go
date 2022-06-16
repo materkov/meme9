@@ -24,7 +24,7 @@ func TestResolveUser(t *testing.T) {
 		Name: "user 15 name",
 	})
 
-	user, err := ResolveUser(st, 15, UserParams{
+	user, err := ResolveUser(st, 15, &UserParams{
 		Name:  &simpleField{},
 		Posts: nil,
 	})

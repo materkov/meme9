@@ -118,7 +118,7 @@ func (s *SqlStore) ObjGet(ids []int) (map[int]Object, error) {
 }
 
 func (s *SqlStore) ListGet(objectID int, listType int) ([]int, error) {
-	rows, err := s.DB.Query("select object2 from list where object1 = ? and type = ?", objectID, listType)
+	rows, err := s.DB.Query("select object2 from list where object1 = ? and type = ? order by id desc", objectID, listType)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting list: %w", err)
 	}
@@ -162,6 +162,16 @@ func (s *SqlStore) ListAdd(object1, listType, object2 int) error {
 	return nil
 }
 
+func (s *SqlStore) ListCount(objectID, listType int) (int, error) {
+	count := 0
+	err := s.DB.QueryRow("select count(*) from list where object1 = ? and type = ?", objectID, listType).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("sql error: %w", err)
+	}
+
+	return count, nil
+}
+
 func GenerateID() int {
 	return int(time.Now().Unix())
 }
@@ -192,10 +202,13 @@ func (s *SqlStore) SaveMapping(keyType int, key string, objectID int) error {
 }
 
 type Store interface {
-	ObjGet(ids []int) (map[int]Object, error)
 	ListGet(objectID int, listType int) ([]int, error)
-	ObjAdd(objectID int, objectType int, obj interface{}) error
 	ListAdd(object1, listType, object2 int) error
+	ListCount(objectID, listType int) (int, error)
+
+	ObjGet(ids []int) (map[int]Object, error)
+	ObjAdd(objectID int, objectType int, obj interface{}) error
+
 	GetMapping(keyType int, key string) (int, error)
 	SaveMapping(keyType int, key string, objectID int) error
 }

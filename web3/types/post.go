@@ -24,10 +24,10 @@ type PostText struct {
 }
 
 type PostUser struct {
-	Inner UserParams `json:"inner"`
+	Inner *UserParams `json:"inner"`
 }
 
-func ResolveGraphPost(cachedStore *store.CachedStore, id int, params PostParams) (*Post, error) {
+func ResolveGraphPost(cachedStore *store.CachedStore, id int, params *PostParams) (*Post, error) {
 	obj, err := cachedStore.ObjGet(id)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting post: %w", err)
@@ -35,12 +35,16 @@ func ResolveGraphPost(cachedStore *store.CachedStore, id int, params PostParams)
 
 	post, ok := obj.(*store.Post)
 	if !ok {
-		return nil, fmt.Errorf("error selecting post: %w", err)
+		return nil, fmt.Errorf("post not found")
 	}
 
 	result := &Post{
 		Type: "Post",
 		ID:   fmt.Sprintf("Post:%d", post.ID),
+	}
+
+	if params == nil {
+		return result, err
 	}
 
 	if params.Text != nil {
