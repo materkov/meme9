@@ -2,10 +2,15 @@ import React from "react";
 import {PostPage} from "./postpage";
 import {UserPage} from "./userpage";
 import {FeedPage} from "./components";
+import {Page} from "./components/page";
 
 export function ResolveRoute(props: { url: string }) {
     const url = props.url;
 
+    return <Page>{doResolveRoute(url)}</Page>;
+}
+
+function doResolveRoute(url: string) {
     if (url.match(/^\/$/)) {
         return <FeedPage/>
     } else if (url.match(/^\/vk-callback/)) {
@@ -19,4 +24,5 @@ export function ResolveRoute(props: { url: string }) {
     } else {
         return <>404</>;
     }
+
 }

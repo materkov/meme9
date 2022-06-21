@@ -22,9 +22,9 @@ func ResolveNode(cachedStore *store.CachedStore, id string, params NodeParams) (
 	objectID, _ := globalid.Parse(id)
 
 	switch objectID := objectID.(type) {
-	case globalid.PostID:
+	case *globalid.PostID:
 		return ResolveGraphPost(cachedStore, objectID.PostID, params.OnPost)
-	case globalid.UserID:
+	case *globalid.UserID:
 		return ResolveUser(cachedStore, objectID.UserID, params.OnUser)
 	default:
 		return nil, fmt.Errorf("incorrect id")

@@ -34,8 +34,6 @@ export function User(props: { user: User }) {
     return <>
         Name: {props.user.name}
         <hr/>
-        Posts:
-        <br/>
         {props.user.posts?.edges?.map(post => <Post key={post.id} post={post}/>)}
     </>
 }

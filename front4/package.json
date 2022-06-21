@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "./node_modules/.bin/esbuild src/index.tsx --bundle --outfile=dist/bundle.js",
-    "watch": "./node_modules/.bin/esbuild src/index.tsx --watch --bundle --outfile=dist/bundle.js",
+    "watch": "node build.js",
     "server": "cd dist && php -S localhost:3000"
   }
 }

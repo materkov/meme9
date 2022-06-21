@@ -7,6 +7,7 @@ require("esbuild")
         logLevel: "debug",
         entryPoints: ["src/index.tsx"],
         bundle: true,
+        watch: true,
         outfile: "dist/bundle.js",
         plugins: [cssModulesPlugin()],
     })
