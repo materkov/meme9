@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-	"github.com/materkov/web3/pkg"
+	"github.com/materkov/web3/pkg/globalid"
 	"github.com/materkov/web3/store"
 )
 
@@ -32,7 +32,7 @@ func ResolveUser(cachedStore *store.CachedStore, id int, params *UserParams) (*U
 
 	result := &User{
 		Type: "User",
-		ID:   pkg.GetGlobalID(pkg.GlobalIDUser, user.ID),
+		ID:   globalid.Create(globalid.UserID{UserID: user.ID}),
 	}
 
 	if params.Name != nil {

@@ -2,7 +2,7 @@ package types
 
 import (
 	"github.com/hashicorp/go-multierror"
-	"github.com/materkov/web3/pkg"
+	"github.com/materkov/web3/pkg/globalid"
 	"github.com/materkov/web3/store"
 )
 
@@ -25,7 +25,7 @@ type UserPostsConnectionFieldsEdges struct {
 
 func ResolveUserPostsConnection(st *store.CachedStore, userID int, fields *UserPostsConnectionFields) (*UserPostsConnection, error) {
 	result := &UserPostsConnection{
-		ID:   pkg.GetGlobalID(pkg.GlobalIDUserPostsConnection, userID),
+		ID:   globalid.Create(globalid.Stub{}),
 		Type: "UserPostsConnection",
 	}
 

@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-	"github.com/materkov/web3/pkg"
+	"github.com/materkov/web3/pkg/globalid"
 	"github.com/materkov/web3/store"
 )
 
@@ -19,13 +19,13 @@ type NodeParams struct {
 }
 
 func ResolveNode(cachedStore *store.CachedStore, id string, params NodeParams) (Node, error) {
-	objectType, objectID, _ := pkg.ParseGlobalID(id)
+	objectID, _ := globalid.Parse(id)
 
-	switch objectType {
-	case pkg.GlobalIDPost:
-		return ResolveGraphPost(cachedStore, objectID, params.OnPost)
-	case pkg.GlobalIDUser:
-		return ResolveUser(cachedStore, objectID, params.OnUser)
+	switch objectID := objectID.(type) {
+	case globalid.PostID:
+		return ResolveGraphPost(cachedStore, objectID.PostID, params.OnPost)
+	case globalid.UserID:
+		return ResolveUser(cachedStore, objectID.UserID, params.OnUser)
 	default:
 		return nil, fmt.Errorf("incorrect id")
 	}

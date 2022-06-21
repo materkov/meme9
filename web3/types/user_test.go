@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/materkov/web3/pkg"
+	"github.com/materkov/web3/pkg/globalid"
 	"github.com/materkov/web3/store"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -30,6 +30,6 @@ func TestResolveUser(t *testing.T) {
 		Posts: nil,
 	})
 	require.NoError(t, err)
-	require.Equal(t, pkg.GetGlobalID(pkg.GlobalIDUser, 15), user.ID)
+	require.Equal(t, globalid.Create(globalid.UserID{ID: 15}), user.ID)
 	require.Equal(t, "user 15 name", user.Name)
 }

@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-	"github.com/materkov/web3/pkg"
+	"github.com/materkov/web3/pkg/globalid"
 	"github.com/materkov/web3/store"
 )
 
@@ -41,7 +41,7 @@ func ResolveGraphPost(cachedStore *store.CachedStore, id int, params *PostParams
 
 	result := &Post{
 		Type: "Post",
-		ID:   pkg.GetGlobalID(pkg.GlobalIDPost, post.ID),
+		ID:   globalid.Create(globalid.PostID{PostID: post.ID}),
 	}
 
 	if params == nil {
