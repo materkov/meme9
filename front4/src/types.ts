@@ -51,11 +51,13 @@ export type User = {
     type: "User";
     id: string;
     name?: string;
+    avatar?: string;
     posts?: UserPostsConnection;
 }
 
 export type UserParams = {
     name?: {};
+    avatar?: {};
     posts?: UserPostsConnectionFields;
 }
 

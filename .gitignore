@@ -10,3 +10,4 @@ front4/dist/bundle*
 web/config.json
 mongotest
 pythontest
+test.json

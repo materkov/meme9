@@ -17,6 +17,8 @@ type User struct {
 	ID   int
 	Name string
 	VkID int
+
+	AvatarFile string
 }
 
 type Config struct {
@@ -26,6 +28,9 @@ type Config struct {
 	VKAppSecret string
 
 	AuthTokenSecret string
+
+	SelectelStorageUser     string
+	SelectelStoragePassword string
 }
 
 func (c *Config) ObjectID() int { return c.ID }
@@ -152,6 +157,20 @@ func (s *SqlStore) ObjAdd(objectID int, objectType int, obj interface{}) error {
 	return nil
 }
 
+func (s *SqlStore) ObjUpdate(obj Object) error {
+	objBytes, err := json.Marshal(obj)
+	if err != nil {
+		return fmt.Errorf("error marshaling object: %w", err)
+	}
+
+	_, err = s.DB.Exec("update object SET data = ? where id = ?", objBytes, obj.ObjectID())
+	if err != nil {
+		return fmt.Errorf("error inserting db row: %w", err)
+	}
+
+	return nil
+}
+
 func (s *SqlStore) ListAdd(object1, listType, object2 int) error {
 	date := time.Now().Unix()
 	_, err := s.DB.Exec("insert into list(object1, type, object2, date) values (?, ?, ?, ?)", object1, listType, object2, date)
@@ -208,6 +227,7 @@ type Store interface {
 
 	ObjGet(ids []int) (map[int]Object, error)
 	ObjAdd(objectID int, objectType int, obj interface{}) error
+	ObjUpdate(obj Object) error
 
 	GetMapping(keyType int, key string) (int, error)
 	SaveMapping(keyType int, key string, objectID int) error

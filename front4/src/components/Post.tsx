@@ -12,6 +12,7 @@ export const PostQuery: PostParams = {
     user: {
         inner: {
             name: {},
+            avatar: {},
         }
     }
 }
@@ -25,7 +26,8 @@ export function Post(props: PostProps) {
             <div className={styles.user}>
                 <a href={"/users/" + props.post.user?.id}>
                     <img alt="" className={styles.userAvatar}
-                         src="https://avatars.githubusercontent.com/u/3899280?s=48&v=4"/>
+                         src={props.post.user?.avatar}
+                    />
                     {props.post.user?.name}
                 </a>
 

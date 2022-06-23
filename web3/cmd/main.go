@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/store"
@@ -13,12 +14,14 @@ import (
 	"strings"
 )
 
-var GlobalStore store.Store
-
 func gqlFunc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
 
 	authToken := r.Header.Get("Authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
@@ -39,7 +42,7 @@ func gqlFunc(w http.ResponseWriter, r *http.Request) {
 
 func runGQL(viewer pkg.Viewer, req []byte) interface{} {
 	cachedStore := &store.CachedStore{
-		Store:    GlobalStore,
+		Store:    pkg.GlobalStore,
 		ObjCache: map[int]store.CachedItem{},
 		Needed:   map[int]bool{},
 	}
@@ -57,6 +60,40 @@ func runGQL(viewer pkg.Viewer, req []byte) interface{} {
 	return result
 }
 
+func handleUpload(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	authTokenStr := r.Header.Get("Authorization")
+	authTokenStr = strings.TrimPrefix(authTokenStr, "Bearer ")
+
+	if authTokenStr == "" {
+		return
+	}
+
+	authToken, err := pkg.ParseAuthToken(authTokenStr)
+	if err != nil {
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return
+	}
+
+	err = pkg.UpdateAvatar(body, authToken.UserID)
+	if err != nil {
+		return
+	}
+
+	fmt.Fprintf(w, "OK")
+}
+
 func main() {
 	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/meme9")
 	if err != nil {
@@ -64,9 +101,9 @@ func main() {
 	}
 	defer db.Close()
 
-	GlobalStore = &store.SqlStore{DB: db}
+	pkg.GlobalStore = &store.SqlStore{DB: db}
 
-	objects, err := GlobalStore.ObjGet([]int{store.ObjectIDConfig})
+	objects, err := pkg.GlobalStore.ObjGet([]int{store.ObjectIDConfig})
 	if err != nil {
 		log.Fatalf("Failed reading config: %s", err)
 	}
@@ -78,6 +115,7 @@ func main() {
 	pkg.GlobalConfig = config
 
 	http.HandleFunc("/gql", gqlFunc)
+	http.HandleFunc("/upload", handleUpload)
 
 	log.Printf("Starting http server 127.0.0.1:8000")
 	http.ListenAndServe("127.0.0.1:8000", nil)
