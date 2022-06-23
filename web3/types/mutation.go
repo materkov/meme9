@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/pkg/globalid"
 	"github.com/materkov/web3/store"
@@ -47,7 +48,7 @@ func ResolveMutation(cachedStore *store.CachedStore, viewer pkg.Viewer, params M
 	}
 
 	if params.AddPost != nil {
-		post := store.Post{
+		post := &store.Post{
 			ID:     store.GenerateID(),
 			UserID: viewer.UserID,
 			Text:   params.AddPost.Text,
@@ -57,7 +58,7 @@ func ResolveMutation(cachedStore *store.CachedStore, viewer pkg.Viewer, params M
 		ch1 := make(chan bool)
 		ch2 := make(chan bool)
 		go func() {
-			_ = cachedStore.Store.ObjAdd(post.ID, store.ObjectPost, post)
+			_ = cachedStore.Store.ObjAdd(store.ObjectPost, post)
 			ch1 <- true
 		}()
 		go func() {
@@ -82,13 +83,29 @@ func ResolveMutation(cachedStore *store.CachedStore, viewer pkg.Viewer, params M
 		log.Printf("UserID %d", vkID)
 
 		userID, _ := cachedStore.Store.GetMapping(store.MappingVKID, strconv.Itoa(vkID))
-		if userID != 0 {
-			token := pkg.AuthToken{
-				IssuedAt: int(time.Now().Unix()),
-				UserID:   userID,
+		if userID == 0 {
+			user := &store.User{
+				ID:   store.GenerateID(),
+				Name: fmt.Sprintf("User #%d", vkID),
+				VkID: vkID,
 			}
-			result.VKAuth = &VKAuth{Token: token.ToString()}
+			_ = cachedStore.Store.ObjAdd(store.ObjectUser, user)
+
+			userID = user.ID
+
+			err = cachedStore.Store.SaveMapping(store.MappingVKID, strconv.Itoa(vkID), user.ID)
+			if err != nil {
+				log.Printf("erER")
+				return result
+			}
 		}
+
+		token := pkg.AuthToken{
+			IssuedAt: int(time.Now().Unix()),
+			UserID:   userID,
+		}
+		result.VKAuth = &VKAuth{Token: token.ToString()}
+
 	}
 
 	return result

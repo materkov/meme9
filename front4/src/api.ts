@@ -1,6 +1,6 @@
 import {Query, QueryParams} from "./types";
 import {writeStore} from "./store";
-d
+
 function getApiOrigin(): string {
     let origin = window.location.origin;
     if (origin == "http://localhost:3000") {

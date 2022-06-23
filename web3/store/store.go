@@ -143,13 +143,13 @@ func (s *SqlStore) ListGet(objectID int, listType int) ([]int, error) {
 	return result, err
 }
 
-func (s *SqlStore) ObjAdd(objectID int, objectType int, obj interface{}) error {
+func (s *SqlStore) ObjAdd(objectType int, obj Object) error {
 	objBytes, err := json.Marshal(obj)
 	if err != nil {
 		return fmt.Errorf("error marshaling object: %w", err)
 	}
 
-	_, err = s.DB.Exec("insert into object(id, type, data) values (?, ?, ?)", objectID, objectType, objBytes)
+	_, err = s.DB.Exec("insert into object(id, type, data) values (?, ?, ?)", obj.ObjectID(), objectType, objBytes)
 	if err != nil {
 		return fmt.Errorf("error inserting db row: %w", err)
 	}
@@ -212,7 +212,7 @@ func (s *SqlStore) GetMapping(keyType int, key string) (int, error) {
 }
 
 func (s *SqlStore) SaveMapping(keyType int, key string, objectID int) error {
-	_, err := s.DB.Exec("insert into mapping(key_type, key, object) values (?, ?, ?)", keyType, key, objectID)
+	_, err := s.DB.Exec("insert into mapping(`key_type`, `key`, object) values (?, ?, ?)", keyType, key, objectID)
 	if err != nil {
 		return fmt.Errorf("error saving mapping row: %w", err)
 	}
@@ -226,7 +226,7 @@ type Store interface {
 	ListCount(objectID, listType int) (int, error)
 
 	ObjGet(ids []int) (map[int]Object, error)
-	ObjAdd(objectID int, objectType int, obj interface{}) error
+	ObjAdd(objectType int, obj Object) error
 	ObjUpdate(obj Object) error
 
 	GetMapping(keyType int, key string) (int, error)
