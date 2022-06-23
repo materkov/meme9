@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import {Post, QueryParams, User} from "../types";
-import {Post as PostTT, PostQuery} from "./post";
+import {Post as PostTT, PostQuery} from "./Post";
 import {api} from "../api";
 import {PostComposer} from "./PostComposer";
 
