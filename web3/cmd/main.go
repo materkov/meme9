@@ -48,7 +48,6 @@ func runGQL(viewer pkg.Viewer, req []byte) interface{} {
 	var fields = types.QueryParams{}
 
 	json.Unmarshal(req, &fields)
-	log.Printf("%+v", fields)
 
 	result, err := types.ResolveQuery(cachedStore, viewer, fields)
 	if err != nil {
@@ -80,5 +79,6 @@ func main() {
 
 	http.HandleFunc("/gql", gqlFunc)
 
+	log.Printf("Starting http server 127.0.0.1:8000")
 	http.ListenAndServe("127.0.0.1:8000", nil)
 }

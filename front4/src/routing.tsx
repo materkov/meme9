@@ -1,8 +1,9 @@
 import React from "react";
-import {PostPage} from "./postpage";
-import {UserPage} from "./userpage";
-import {FeedPage} from "./components";
-import {Page} from "./components/page";
+
+import {UserPage} from "./components/UserPage";
+import {Page} from "./components/Page";
+import {Feed} from "./components/Feed";
+import {PostPage} from "./components/PostPage";
 
 export function ResolveRoute(props: { url: string }) {
     const url = props.url;
@@ -12,9 +13,9 @@ export function ResolveRoute(props: { url: string }) {
 
 function doResolveRoute(url: string) {
     if (url.match(/^\/$/)) {
-        return <FeedPage/>
+        return <Feed/>
     } else if (url.match(/^\/vk-callback/)) {
-        return <FeedPage/>
+        return <Feed/>
     } else if (url.match(/^\/posts\/(\w+)/)) {
         const postId = url.substr(7);
         return <PostPage id={postId}/>;

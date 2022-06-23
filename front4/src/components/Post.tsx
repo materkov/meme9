@@ -1,6 +1,6 @@
 import React from "react";
 import {Post, PostParams} from "../types";
-import styles from "./post.module.css";
+import styles from "./Post.module.css";
 
 export type PostProps = {
     post: Post;

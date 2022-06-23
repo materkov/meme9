@@ -1,11 +1,10 @@
 import React from "react";
-import styles from "./page.module.css";
+import styles from "./Page.module.css";
+import {Header} from "./Header";
 
 export function Page(props: { children: React.ReactNode }) {
     return <div className={styles.page}>
-        <div className={styles.header}>
-            <a href={"/"} className={styles.headerLink}>meme9</a>
-        </div>
+        <Header/>
         <div>{props.children}</div>
     </div>
 }

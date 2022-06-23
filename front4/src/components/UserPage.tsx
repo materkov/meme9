@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
-import {QueryParams, User} from "./types";
-import {api} from "./api";
-import {Post, PostQuery} from "./components/post";
+import {QueryParams, User} from "../types";
+import {api} from "../api";
+import {Post, PostQuery} from "./Post";
 
 export function UserPage(props: { id: string }) {
     const [user, setUser] = React.useState<User | undefined>();
