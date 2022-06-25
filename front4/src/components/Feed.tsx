@@ -3,20 +3,27 @@ import {Post, QueryParams, User} from "../types";
 import {Post as PostTT, PostQuery} from "./Post";
 import {api} from "../api";
 import {PostComposer} from "./PostComposer";
+import {Spinner} from "./Spinner";
 
 export function Feed() {
     const [viewer, setViewer] = React.useState<User | undefined>();
     const [feed, setFeed] = React.useState<Post[] | undefined>();
+    const [isLoaded, setIsLoaded] = React.useState(false);
 
     useEffect(() => {
         const feedQuery: QueryParams = {
             feed: {
                 inner: PostQuery,
+            },
+            viewer: {
+                inner: {},
             }
         }
 
         api(feedQuery).then(data => {
             setFeed(data.feed);
+            setViewer(data.viewer);
+            setIsLoaded(true);
         })
     }, [])
 
@@ -33,30 +40,27 @@ export function Feed() {
             }
             api(q).then(result => {
                 localStorage.setItem("authToken", result.mutation?.vkAuth?.token || '');
-            })
-            history.pushState(null, '', '/');
-        }
-
-        if (!viewer) {
-            const q: QueryParams = {
-                viewer: {
-                    inner: {
-                        name: {}
-                    }
-                }
-            }
-            api(q).then(result => {
-                setViewer(result.viewer);
+                //history.pushState(null, '', '/');
+                location.href = '/';
             })
         }
     }, [])
 
     return <>
-        <PostComposer/>
+        {!isLoaded && <Spinner/>}
 
-        {feed && feed.map(post => {
-            return <PostTT post={post} key={post.id}/>
-        })}
+        {isLoaded && <>
+            {viewer && <>
+                <PostComposer/>
+                {feed && feed.map(post => {
+                    return <PostTT post={post} key={post.id}/>
+                })}
+
+                {!feed && <div>Лента новостей пуста</div>}
+            </>}
+
+            {!viewer && <div>Авторизуйтесь, чтобы посмотреть ленту</div>}
+        </>}
     </>;
 }
 

@@ -143,6 +143,41 @@ func (s *SqlStore) ListGet(objectID int, listType int) ([]int, error) {
 	return result, err
 }
 
+type ListItem struct {
+	Object1, Object2 int
+	ListType         int
+	Date             int
+}
+
+var ErrListItemNotExists = fmt.Errorf("list item not exists")
+
+func (s *SqlStore) ListGetItem(object1, listType, object2 int) (ListItem, error) {
+	date := 0
+	err := s.DB.QueryRow("select date from list where object1 = ? and type = ? and object2 = ?", object1, listType, object2).Scan(&date)
+	if err == sql.ErrNoRows {
+		return ListItem{}, ErrListItemNotExists
+	} else if err != nil {
+		return ListItem{}, fmt.Errorf("error selecting list item: %s", err)
+	}
+
+	result := ListItem{
+		Object1:  object1,
+		Object2:  object2,
+		ListType: listType,
+		Date:     date,
+	}
+	return result, nil
+}
+
+func (s *SqlStore) ListDel(object1 int, listType, object2 int) error {
+	_, err := s.DB.Exec("delete from list where object1 = ? and type = ? and object2 = ?", object1, listType, object2)
+	if err != nil {
+		return fmt.Errorf("error deleting list row: %w", err)
+	}
+
+	return nil
+}
+
 func (s *SqlStore) ObjAdd(objectType int, obj Object) error {
 	objBytes, err := json.Marshal(obj)
 	if err != nil {
@@ -222,8 +257,10 @@ func (s *SqlStore) SaveMapping(keyType int, key string, objectID int) error {
 
 type Store interface {
 	ListGet(objectID int, listType int) ([]int, error)
+	ListGetItem(object1, listType, object2 int) (ListItem, error)
 	ListAdd(object1, listType, object2 int) error
 	ListCount(objectID, listType int) (int, error)
+	ListDel(object1 int, listType, object2 int) error
 
 	ObjGet(ids []int) (map[int]Object, error)
 	ObjAdd(objectType int, obj Object) error

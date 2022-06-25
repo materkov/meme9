@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/hashicorp/go-multierror"
+	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/pkg/globalid"
 	"github.com/materkov/web3/store"
 )
@@ -23,7 +24,7 @@ type UserPostsConnectionFieldsEdges struct {
 	Inner *PostParams `json:"inner"`
 }
 
-func ResolveUserPostsConnection(st *store.CachedStore, userID int, fields *UserPostsConnectionFields) (*UserPostsConnection, error) {
+func ResolveUserPostsConnection(st *store.CachedStore, userID int, fields *UserPostsConnectionFields, viewer *pkg.Viewer) (*UserPostsConnection, error) {
 	result := &UserPostsConnection{
 		ID:   globalid.Create(globalid.Stub{}),
 		Type: "UserPostsConnection",
@@ -51,7 +52,7 @@ func ResolveUserPostsConnection(st *store.CachedStore, userID int, fields *UserP
 		}
 
 		for _, postID := range postIds {
-			post, err := ResolveGraphPost(st, postID, fields.Edges.Inner)
+			post, err := ResolveGraphPost(st, postID, fields.Edges.Inner, viewer)
 			if err != nil {
 				errors = multierror.Append(errors, err)
 			}

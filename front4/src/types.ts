@@ -53,12 +53,14 @@ export type User = {
     name?: string;
     avatar?: string;
     posts?: UserPostsConnection;
+    isFollowing?: boolean;
 }
 
 export type UserParams = {
     name?: {};
     avatar?: {};
     posts?: UserPostsConnectionFields;
+    isFollowing?: {};
 }
 
 export type UserPostsConnectionFieldsEdges = {
@@ -103,6 +105,16 @@ export type PostUser = {
 export type MutationParams = {
     addPost?: MutationAddPost;
     vkAuthCallback?: MutationVKAuthCallback;
+    follow?: MutationFollow;
+    unfollow?: MutationUnfollow;
+}
+
+export type MutationFollow = {
+    userId?: string;
+}
+
+export type MutationUnfollow = {
+    userId?: string;
 }
 
 export type MutationAddPost = {

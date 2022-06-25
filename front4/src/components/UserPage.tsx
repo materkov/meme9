@@ -33,7 +33,8 @@ export const UserPageQuery = (userId: string): QueryParams => ({
                     edges: {
                         inner: PostQuery,
                     },
-                }
+                },
+                isFollowing: {},
             },
         }
     },
@@ -67,6 +68,41 @@ export function User(props: UserProps) {
         })
     };
 
+    const onFollow = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+
+        const q: QueryParams = {
+            mutation: {
+                inner: {
+                    follow: {
+                        userId: props.user.id,
+                    }
+                }
+            }
+        };
+        api(q).then(result => {
+            location.reload();
+        });
+    }
+
+    const onUnfollow = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+
+        const q: QueryParams = {
+            mutation: {
+                inner: {
+                    unfollow: {
+                        userId: props.user.id,
+                    }
+                }
+            }
+        };
+        api(q).then(result => {
+            location.reload();
+        });
+    }
+
+
     return <>
         Name: {props.user.name}
 
@@ -75,6 +111,14 @@ export function User(props: UserProps) {
         {props.viewer?.id === props.user.id &&
             <a className={styles.avatarUploadLabel} href={"#"} onClick={onChangeAvatar}>Сменить аватарку</a>
         }
+
+        {props.user.id != props.viewer?.id &&
+            <>
+                {props.user.isFollowing && <div>Вы подписаны. <a href={"#"} onClick={onUnfollow}>Отписаться</a></div>}
+                {!props.user.isFollowing && <div><a href={"#"} onClick={onFollow}>Подписаться</a></div>}
+            </>
+        }
+
         <hr/>
         {props.user.posts?.edges?.map(post => <Post key={post.id} post={post}/>)}
     </>

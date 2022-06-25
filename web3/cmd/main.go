@@ -26,7 +26,7 @@ func gqlFunc(w http.ResponseWriter, r *http.Request) {
 	authToken := r.Header.Get("Authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
 
-	viewer := pkg.Viewer{}
+	viewer := &pkg.Viewer{}
 	if authToken != "" {
 		authToken, err := pkg.ParseAuthToken(authToken)
 		if err == nil {
@@ -40,7 +40,7 @@ func gqlFunc(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(runGQL(viewer, body))
 }
 
-func runGQL(viewer pkg.Viewer, req []byte) interface{} {
+func runGQL(viewer *pkg.Viewer, req []byte) interface{} {
 	cachedStore := &store.CachedStore{
 		Store:    pkg.GlobalStore,
 		ObjCache: map[int]store.CachedItem{},

@@ -42,7 +42,7 @@ type QueryViewer struct {
 	Inner *UserParams `json:"inner"`
 }
 
-func ResolveQuery(cachedStore *store.CachedStore, viewer pkg.Viewer, params QueryParams) (*Query, error) {
+func ResolveQuery(cachedStore *store.CachedStore, viewer *pkg.Viewer, params QueryParams) (*Query, error) {
 	result := &Query{
 		Type: "Query",
 		ID:   "query",
@@ -81,7 +81,7 @@ func ResolveQuery(cachedStore *store.CachedStore, viewer pkg.Viewer, params Quer
 		})
 
 		for _, post := range posts {
-			post, _ := ResolveGraphPost(cachedStore, post.ID, params.Feed.Inner)
+			post, _ := ResolveGraphPost(cachedStore, post.ID, params.Feed.Inner, viewer)
 			result.Feed = append(result.Feed, post)
 		}
 	}
@@ -95,11 +95,11 @@ func ResolveQuery(cachedStore *store.CachedStore, viewer pkg.Viewer, params Quer
 	}
 
 	if params.Viewer != nil {
-		result.Viewer, _ = ResolveUser(cachedStore, viewer.UserID, params.Viewer.Inner)
+		result.Viewer, _ = ResolveUser(cachedStore, viewer.UserID, params.Viewer.Inner, viewer)
 	}
 
 	if params.Node != nil {
-		result.Node, _ = ResolveNode(cachedStore, params.Node.ID, params.Node.Inner)
+		result.Node, _ = ResolveNode(cachedStore, params.Node.ID, params.Node.Inner, viewer)
 	}
 
 	return result, err

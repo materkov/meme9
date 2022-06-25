@@ -25,11 +25,14 @@ export function Header() {
             }
         }
         api(q).then(result => {
-            if (result.viewer) {
-                setViewer(result.viewer);
-                localStorage.setItem(localStorageKey, JSON.stringify(result.viewer));
-            }
+            setViewer(result.viewer);
             setIsLoaded(true);
+
+            if (result.viewer) {
+                localStorage.setItem(localStorageKey, JSON.stringify(result.viewer));
+            } else {
+                localStorage.removeItem(localStorageKey);
+            }
         })
 
         const urlQuery: QueryParams = {
@@ -45,6 +48,7 @@ export function Header() {
 
         localStorage.removeItem(localStorageKey);
         localStorage.removeItem('authToken');
+        location.reload();
         setViewer(undefined);
     };
 

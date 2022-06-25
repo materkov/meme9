@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"github.com/materkov/web3/pkg"
 	"github.com/materkov/web3/pkg/globalid"
 	"github.com/materkov/web3/store"
 )
@@ -28,7 +29,7 @@ type PostUser struct {
 	Inner *UserParams `json:"inner"`
 }
 
-func ResolveGraphPost(cachedStore *store.CachedStore, id int, params *PostParams) (*Post, error) {
+func ResolveGraphPost(cachedStore *store.CachedStore, id int, params *PostParams, viewer *pkg.Viewer) (*Post, error) {
 	obj, err := cachedStore.ObjGet(id)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting post: %w", err)
@@ -56,7 +57,7 @@ func ResolveGraphPost(cachedStore *store.CachedStore, id int, params *PostParams
 	}
 
 	if params.User != nil {
-		result.User, err = ResolveUser(cachedStore, post.UserID, params.User.Inner)
+		result.User, err = ResolveUser(cachedStore, post.UserID, params.User.Inner, viewer)
 	}
 
 	if params.Date != nil {
