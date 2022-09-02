@@ -4,5 +4,5 @@ import {ResolveRoute} from "./routing";
 
 const root = document.getElementById('root');
 if (root) {
-    createRoot(root).render(<ResolveRoute url={location.pathname}/>);
+    createRoot(root).render(<ResolveRoute/>);
 }

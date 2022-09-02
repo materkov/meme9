@@ -1,9 +1,10 @@
 import React from "react";
-import {Post, PostParams} from "../types";
+import {PostParams} from "../types";
 import styles from "./Post.module.css";
+import {getByID} from "../store/store";
 
 export type PostProps = {
-    post: Post;
+    postId: string;
 }
 
 export const PostQuery: PostParams = {
@@ -18,25 +19,35 @@ export const PostQuery: PostParams = {
 }
 
 export function Post(props: PostProps) {
-    const date = new Date(1000 * (props.post.date || 0));
+    const post = getByID(props.postId);
+    if (post.type !== "Post") {
+        return null;
+    }
+
+    const user = getByID(post.user || "");
+    if (user.type !== "User") {
+        return null;
+    }
+
+    const date = new Date(1000 * (post.date || 0));
     const dateFormatted = date.toISOString().slice(0, 19).replace("T", " ");
 
     return (
         <div className={styles.post}>
             <div className={styles.user}>
-                <a href={"/users/" + props.post.user?.id}>
+                <a href={"/users/" + user.id}>
                     <img alt="" className={styles.userAvatar}
-                         src={props.post.user?.avatar}
+                         src={user.avatar}
                     />
-                    {props.post.user?.name}
+                    {user.name}
                 </a>
 
                 &nbsp;·&nbsp;
-                <a href={"/posts/" + props.post.id} className={styles.postLink}>{dateFormatted}</a>
+                <a href={"/posts/" + post.id} className={styles.postLink}>{dateFormatted}</a>
             </div>
 
 
-            <div className={styles.postText}>{props.post.text}</div>
+            <div className={styles.postText}>{post.text}</div>
         </div>
     )
 }

@@ -1,67 +1,52 @@
 import React, {useEffect} from "react";
-import {Post, QueryParams, User} from "../types";
-import {Post as PostTT, PostQuery} from "./Post";
-import {api} from "../api";
+import {Post as PostTT} from "./Post";
 import {PostComposer} from "./PostComposer";
 import {Spinner} from "./Spinner";
+import {getByID, getByType, storeSubscribe, storeUnsubscribe} from "../store/store";
+import {storeFeedLoad} from "../store/feed";
 
 export function Feed() {
-    const [viewer, setViewer] = React.useState<User | undefined>();
-    const [feed, setFeed] = React.useState<Post[] | undefined>();
+    const [viewerId, setViewerId] = React.useState("");
+    const [postIds, setPostIds] = React.useState<string[]>([]);
     const [isLoaded, setIsLoaded] = React.useState(false);
 
     useEffect(() => {
-        const feedQuery: QueryParams = {
-            feed: {
-                inner: PostQuery,
-            },
-            viewer: {
-                inner: {},
-            }
-        }
+        storeFeedLoad();
 
-        api(feedQuery).then(data => {
-            setFeed(data.feed);
-            setViewer(data.viewer);
-            setIsLoaded(true);
-        })
-    }, [])
+        const callback = () => {
+            const q = getByID("query");
+            if (q && q.type == "Query") {
+                setViewerId(q.viewer || "");
 
-    useEffect(() => {
-        if (location.pathname == "/vk-callback") {
-            const q: QueryParams = {
-                mutation: {
-                    inner: {
-                        vkAuthCallback: {
-                            url: location.href,
-                        }
-                    }
+                const feedObj = getByType("Feed");
+                if (feedObj && feedObj.type == "Feed") {
+                    setPostIds(feedObj.feed);
+
+                    setIsLoaded(true);
                 }
             }
-            api(q).then(result => {
-                localStorage.setItem("authToken", result.mutation?.vkAuth?.token || '');
-                //history.pushState(null, '', '/');
-                location.href = '/';
-            })
+
         }
-    }, [])
+
+        storeSubscribe(callback)
+
+        return () => storeUnsubscribe(callback)
+    })
+
+    if (!isLoaded) {
+        return <Spinner/>
+    }
 
     return <>
-        {!isLoaded && <Spinner/>}
+        {viewerId && <>
+            <PostComposer/>
+            {postIds.map(postId => {
+                return <PostTT postId={postId} key={postId}/>
+            })}
 
-        {isLoaded && <>
-            {viewer && <>
-                <PostComposer/>
-                {feed && feed.map(post => {
-                    return <PostTT post={post} key={post.id}/>
-                })}
-
-                {!feed && <div>Лента новостей пуста</div>}
-            </>}
-
-            {!viewer && <div>Авторизуйтесь, чтобы посмотреть ленту</div>}
+            {!postIds && <div>Лента новостей пуста</div>}
         </>}
+
+        {!viewerId && <div>Авторизуйтесь, чтобы посмотреть ленту</div>}
     </>;
 }
-
-

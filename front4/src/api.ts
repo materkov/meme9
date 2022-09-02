@@ -1,5 +1,5 @@
 import {Query, QueryParams} from "./types";
-import {writeStore} from "./store";
+import {writeStore} from "./store/store";
 
 function getApiOrigin(): string {
     let origin = window.location.origin;

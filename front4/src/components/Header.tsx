@@ -1,67 +1,69 @@
 import styles from "./Header.module.css";
 import React, {useEffect} from "react";
-import {QueryParams, User} from "../types";
+import {QueryParams} from "../types";
 import {api} from "../api";
-
-const localStorageKey = 'authUser';
+import {getByID, getByType, storeOnChanged, storeSubscribe, storeUnsubscribe} from "../store/store";
+import {getViewer, getVkAuthUrl} from "../store/viewer";
 
 export function Header() {
     const [authURL, setAuthURL] = React.useState('');
-    const [isLoaded, setIsLoaded] = React.useState(false);
-    const [viewer, setViewer] = React.useState<User | undefined>();
+    const [viewerName, setViewerName] = React.useState("");
+    const [viewerId, setViewerId] = React.useState("");
 
     useEffect(() => {
-        const authUser = localStorage.getItem(localStorageKey);
-        if (authUser) {
-            setViewer(JSON.parse(authUser));
-            setIsLoaded(true);
-        }
+        const cb = () => {
+            const viewer = getByType("Query");
+            if (viewer && viewer.type == "Query" && viewerId != viewer.viewer) {
+                setViewerId(viewer.viewer || "");
+                getViewer();
 
-        const q: QueryParams = {
-            viewer: {
-                inner: {
-                    name: {}
+                const q: QueryParams = {
+                    viewer: {
+                        inner: {
+                            name: {}
+                        }
+                    }
                 }
+                api(q).then(result => {
+                    // @ts-ignore
+                    setViewerName(result.viewer.name);
+                })
             }
+
+            const vkAuthUrl = getByType("VkAuthURL");
+            if (vkAuthUrl && vkAuthUrl.type == "VkAuthURL") {
+                setAuthURL(vkAuthUrl.url || "");
+            }
+
         }
-        api(q).then(result => {
-            setViewer(result.viewer);
-            setIsLoaded(true);
+        storeSubscribe(cb);
 
-            if (result.viewer) {
-                localStorage.setItem(localStorageKey, JSON.stringify(result.viewer));
-            } else {
-                localStorage.removeItem(localStorageKey);
-            }
-        })
+        getVkAuthUrl();
 
-        const urlQuery: QueryParams = {
-            vkAuthUrl: {}
-        };
-        api(urlQuery).then(result => {
-            setAuthURL(result.vkAuthUrl || "");
-        })
+        return () => storeUnsubscribe(cb);
     }, []);
 
     const onExit = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
-        localStorage.removeItem(localStorageKey);
-        localStorage.removeItem('authToken');
-        location.reload();
-        setViewer(undefined);
+        const token = getByType("CurrentRoute");
+        if (token && token.type == "CurrentRoute") {
+            setViewerName("");
+            setViewerId("");
+
+            localStorage.removeItem("authToken");
+
+            token.url = "/";
+            storeOnChanged();
+        }
     };
 
     return (
         <div className={styles.header}>
             <a href={"/"} className={styles.headerLink}>meme9</a>
 
-            {isLoaded &&
-                <>
-                    {viewer && <div>{viewer.name} | <a href={"#"} onClick={onExit}>Выйти</a></div>}
-                    {!viewer && <a href={authURL}>Войти</a>}
-                </>
-            }
+            {viewerId && <div>{viewerName} | <a href={"#"} onClick={onExit}>Выйти</a></div>}
+            {!viewerId && <a href={authURL}>Войти</a>}
         </div>
     )
 }

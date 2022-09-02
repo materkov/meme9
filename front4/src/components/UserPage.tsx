@@ -3,23 +3,47 @@ import {QueryParams, User} from "../types";
 import {api, apiUpload} from "../api";
 import {Post, PostQuery} from "./Post";
 import styles from "./UserPage.module.css";
+import {getByID} from "../store/store";
 
 export function UserPage(props: { id: string }) {
-    const [user, setUser] = React.useState<User | undefined>();
-    const [viewer, setViewer] = React.useState<User | undefined>();
+    const [loaded, setLoaded] = React.useState<boolean>(false);
 
     useEffect(() => {
         const query = UserPageQuery(props.id);
         api(query).then(data => {
+            // @ts-ignore
+            window.store = {
+                query: {
+                    type: "Query",
+                    // @ts-ignore
+                    viewer: data.viewer.id,
+                }
+            };
+
             if (data.node?.type == "User") {
-                setUser(data.node)
+                const postIds = [];
+                // @ts-ignore
+                window.store[data.node.id] = data.node;
+                for (let post of data.node.posts?.edges || []) {
+                    // @ts-ignore
+                    window.store[post.id] = post;
+                    // @ts-ignore
+                    window.store[post.id].user =window.store[post.id].user.id;
+                    // @ts-ignore
+                    postIds.push(post.id);
+                }
+                // @ts-ignore
+                window.store[data.node.id].posts.edges = postIds;
             }
 
-            setViewer(data.viewer);
+            //setViewer(data.viewer);
+            // @ts-ignore
+            //window.store[data.viewer.id] = data.viewer;
+            setLoaded(true);
         })
     }, [])
 
-    return <>{user && <User user={user} viewer={viewer}/>}</>
+    return <>{loaded && <User userId={props.id}/>}</>
 }
 
 export const UserPageQuery = (userId: string): QueryParams => ({
@@ -44,8 +68,7 @@ export const UserPageQuery = (userId: string): QueryParams => ({
 })
 
 export type UserProps = {
-    user: User;
-    viewer?: User;
+    userId: string;
 };
 
 export function User(props: UserProps) {
@@ -75,7 +98,7 @@ export function User(props: UserProps) {
             mutation: {
                 inner: {
                     follow: {
-                        userId: props.user.id,
+                        userId: props.userId,
                     }
                 }
             }
@@ -92,7 +115,7 @@ export function User(props: UserProps) {
             mutation: {
                 inner: {
                     unfollow: {
-                        userId: props.user.id,
+                        userId: props.userId,
                     }
                 }
             }
@@ -102,24 +125,35 @@ export function User(props: UserProps) {
         });
     }
 
+    const user = getByID(props.userId);
+    if (user.type !== "User") {
+        return null;
+    }
+
+    const q = getByID("query");
+    if (q.type !== "Query") {
+        return null;
+    }
+
+    const viewerId = q.viewer;
 
     return <>
-        Name: {props.user.name}
+        Name: {user.name}
 
         <input type="file" className={styles.avatarInput} ref={avatarInputRef} onChange={onAvatarSelected}/>
 
-        {props.viewer?.id === props.user.id &&
+        {viewerId === user.id &&
             <a className={styles.avatarUploadLabel} href={"#"} onClick={onChangeAvatar}>Сменить аватарку</a>
         }
 
-        {props.user.id != props.viewer?.id &&
+        {user.id != viewerId &&
             <>
-                {props.user.isFollowing && <div>Вы подписаны. <a href={"#"} onClick={onUnfollow}>Отписаться</a></div>}
-                {!props.user.isFollowing && <div><a href={"#"} onClick={onFollow}>Подписаться</a></div>}
+                {user.isFollowing && <div>Вы подписаны. <a href={"#"} onClick={onUnfollow}>Отписаться</a></div>}
+                {!user.isFollowing && <div><a href={"#"} onClick={onFollow}>Подписаться</a></div>}
             </>
         }
 
         <hr/>
-        {props.user.posts?.edges?.map(post => <Post key={post.id} post={post}/>)}
+        {user.posts?.edges?.map(postId => <Post key={postId} postId={postId}/>)}
     </>
 }

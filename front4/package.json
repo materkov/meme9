@@ -17,6 +17,7 @@
   "scripts": {
     "build": "node build-prod.js",
     "watch": "node build.js",
-    "server": "cd dist && php -S localhost:3000"
+    "server": "cd dist && php -S localhost:3000",
+    "tunnel": "cd ~/mypage && bash tunnel.sh"
   }
 }

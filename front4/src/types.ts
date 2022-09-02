@@ -1,9 +1,17 @@
 export type Query = {
-    feed?: Post[];
+    type: "Query";
+    id: string;
+    feed?: string;
     vkAuthUrl?: string;
     mutation?: Mutation;
-    viewer?: User;
+    viewer?: string;
     node?: Node;
+}
+
+export type Feed = {
+    type: "Feed";
+    id: string;
+    feed: string[];
 }
 
 export type Mutation = {
@@ -72,7 +80,7 @@ export type UserPostsConnection = {
     type: "UserPostsConnection";
 
     totalCount?: number;
-    edges?: Post[];
+    edges?: string[];
 }
 
 export type UserPostsConnectionFields = {
@@ -84,7 +92,7 @@ export type Post = {
     type: "Post";
     id: string;
     text?: string;
-    user?: User;
+    user?: string;
     date?: number;
 }
 
@@ -122,5 +130,29 @@ export type MutationAddPost = {
 }
 
 export type MutationVKAuthCallback = {
+    url?: string;
+}
+
+export type CurrentRoute = {
+    id: string;
+    type: "CurrentRoute";
+    url: string;
+}
+
+export type Viewer = {
+    id: string;
+    type: "Viewer";
+    userId?: string;
+}
+
+export type AuthToken = {
+    id: string;
+    type: "AuthToken";
+    token?: string;
+}
+
+export type VkAuthURL = {
+    id: string;
+    type: "VkAuthURL";
     url?: string;
 }

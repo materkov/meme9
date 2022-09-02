@@ -7,6 +7,7 @@ front2/node_modules
 front3/node_modules
 front4/node_modules
 front4/dist/bundle*
+front5/node_modules
 web/config.json
 mongotest
 pythontest
