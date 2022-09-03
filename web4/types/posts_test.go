@@ -23,7 +23,7 @@ func TestPosts_CRUD(t *testing.T) {
 	req := &postsAddRequest{
 		Text: "test post",
 	}
-	postID, err := postsAdd(req, 161)
+	postID, err := postsAdd(req, &Viewer{UserID: 161})
 	require.NoError(t, err)
 	require.NotEmpty(t, postID)
 
@@ -38,12 +38,19 @@ func TestPosts_CRUD(t *testing.T) {
 	require.Equal(t, strconv.Itoa(postID+1), respList[1].ID)
 }
 
+func TestPosts_AddErrors(t *testing.T) {
+	setupRedis(t)
+
+	_, err := postsAdd(&postsAddRequest{}, &Viewer{UserID: 0})
+	require.ErrorContains(t, err, "zero viewer")
+}
+
 func TestPosts_Feed(t *testing.T) {
 	setupRedis(t)
 
-	post1, err1 := postsAdd(&postsAddRequest{}, 15)
-	post2, err2 := postsAdd(&postsAddRequest{}, 16)
-	post3, err3 := postsAdd(&postsAddRequest{}, 16)
+	post1, err1 := postsAdd(&postsAddRequest{}, &Viewer{UserID: 15})
+	post2, err2 := postsAdd(&postsAddRequest{}, &Viewer{UserID: 16})
+	post3, err3 := postsAdd(&postsAddRequest{}, &Viewer{UserID: 16})
 
 	require.NoError(t, err1)
 	require.NoError(t, err2)

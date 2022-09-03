@@ -54,12 +54,16 @@ func postsList(ids []int) []*Post {
 	return results
 }
 
-func postsAdd(req *postsAddRequest, viewerID int) (int, error) {
+func postsAdd(req *postsAddRequest, viewer *Viewer) (int, error) {
+	if viewer.UserID == 0 {
+		return 0, fmt.Errorf("zero viewer")
+	}
+
 	postID := nextID()
 
 	post := store.Post{
 		ID:     postID,
-		UserID: viewerID,
+		UserID: viewer.UserID,
 		Text:   req.Text,
 	}
 	postBytes, err := json.Marshal(post)

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"net/http"
-	"strconv"
+	"strings"
 	"time"
 )
 
@@ -39,10 +39,6 @@ func saveObject(id int, obj interface{}) error {
 
 func DoHandle() {
 	// CRUD words: insert, delete, update, list
-	//db, err := sql.Open("mysql", "root:root@/meme9")
-	//if err != nil {
-	//	log.Fatalf("mysql error: %s", err)
-	//}
 
 	redisClient = redis.NewClient(&redis.Options{})
 
@@ -54,8 +50,17 @@ func DoHandle() {
 			return
 		}
 
+		authToken := r.Header.Get("authorization")
+		authToken = strings.TrimPrefix(authToken, "Bearer ")
+		userID, _ := authCheckToken(authToken)
+
+		viewer := Viewer{
+			UserID: userID,
+			Origin: r.Header.Get("origin"),
+		}
+
 		time.Sleep(time.Second * 1)
-		resp := Browse(r.URL.Query().Get("url"))
+		resp := Browse(r.URL.Query().Get("url"), &viewer)
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 	http.HandleFunc("/posts.insert", func(w http.ResponseWriter, r *http.Request) {
@@ -66,12 +71,19 @@ func DoHandle() {
 			return
 		}
 
-		userID, _ := strconv.Atoi(r.Header.Get("authorization"))
+		authToken := r.Header.Get("authorization")
+		authToken = strings.TrimPrefix(authToken, "Bearer ")
+		userID, _ := authCheckToken(authToken)
+
+		viewer := Viewer{
+			UserID: userID,
+			Origin: r.Header.Get("origin"),
+		}
 
 		req := postsAddRequest{}
 		json.NewDecoder(r.Body).Decode(&req)
 
-		resp := addPost(&req, userID)
+		resp := addPost(&req, &viewer)
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 

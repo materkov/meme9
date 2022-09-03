@@ -6,3 +6,9 @@ type Config struct {
 }
 
 var DefaultConfig = Config{}
+
+type Viewer struct {
+	UserID int
+
+	Origin string
+}

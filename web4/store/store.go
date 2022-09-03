@@ -14,3 +14,10 @@ type User struct {
 	Name      string
 	LastPosts []int
 }
+
+type AuthToken struct {
+	ID     int
+	UserID int
+	Token  string
+	Date   int
+}

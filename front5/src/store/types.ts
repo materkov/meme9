@@ -40,8 +40,14 @@ export type BrowseResult = {
     feed?: Feed;
     userPage?: UserPage;
     postPage?: PostPage;
+    vkCallback?: VKCallback;
 }
 
 export type AddPostResponse = {
     post: Post;
+}
+
+export type VKCallback = {
+    userId: string;
+    authToken: string;
 }

@@ -8,12 +8,12 @@ import {useCustomEventListener} from "react-custom-events";
 const dataCache: { [key: string]: BrowseResult } = {};
 
 export function Router() {
-    const [url, setUrl] = React.useState(location.pathname);
+    const [url, setUrl] = React.useState(location.pathname + location.search);
     const [data, setData] = useState<BrowseResult>();
 
     useEffect(() => {
         document.addEventListener('urlChanged', () => {
-            setUrl(location.pathname);
+            setUrl(location.pathname + location.search);
         });
     }, []);
 
@@ -38,7 +38,7 @@ export function Router() {
                 method: 'POST',
                 body: JSON.stringify({text: post.text}),
                 headers: {
-                    'authorization': localStorage.getItem('userId') || "",
+                    'authorization': localStorage.getItem('authToken') || "",
                 }
             })
                 .then(r => r.json())
@@ -84,11 +84,20 @@ export function Router() {
             }
         }
 
-        fetch("http://localhost:8000/browse?url=" + url)
+        fetch("http://localhost:8000/browse?url=" + encodeURIComponent(url), {
+            method: 'GET',
+            headers: {
+                'authorization': localStorage.getItem('authToken') || "",
+            }
+        })
             .then(r => r.json())
-            .then((r) => {
+            .then((r: BrowseResult) => {
                 setData(r);
                 dataCache[url] = r;
+
+                if (r.vkCallback) {
+                    localStorage.setItem("authToken", r.vkCallback.authToken);
+                }
             })
     }, [url]);
 

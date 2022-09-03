@@ -137,21 +137,32 @@ type AddPostResult struct {
 	Post *Post `json:"post,omitempty"`
 }
 
-func addPost(req *postsAddRequest, viewerID int) *AddPostResult {
-	postID, _ := postsAdd(req, viewerID)
+func addPost(req *postsAddRequest, viewer *Viewer) *AddPostResult {
+	postID, _ := postsAdd(req, viewer)
 	post := postsList([]int{postID})[0]
 	return &AddPostResult{Post: post}
 }
 
 type BrowseResult struct {
-	Feed     *Feed     `json:"feed,omitempty"`
-	UserPage *UserPage `json:"userPage,omitempty"`
-	PostPage *PostPage `json:"postPage,omitempty"`
+	UserID string `json:"userId,omitempty"`
+
+	Feed       *Feed       `json:"feed,omitempty"`
+	UserPage   *UserPage   `json:"userPage,omitempty"`
+	PostPage   *PostPage   `json:"postPage,omitempty"`
+	VkCallback *VkCallback `json:"vkCallback,omitempty"`
 }
 
-func Browse(url string) *BrowseResult {
+type VkCallback struct {
+	UserID    string `json:"userId,omitempty"`
+	AuthToken string `json:"authToken,omitempty"`
+}
+
+func Browse(url string, viewer *Viewer) *BrowseResult {
 	if url == "/" {
-		return &BrowseResult{Feed: feedPage()}
+		return &BrowseResult{
+			UserID: strconv.Itoa(viewer.UserID),
+			Feed:   feedPage(),
+		}
 	}
 
 	if strings.HasPrefix(url, "/posts/") {
@@ -164,6 +175,20 @@ func Browse(url string) *BrowseResult {
 		postIDStr := strings.TrimPrefix(url, "/users/")
 		postID, _ := strconv.Atoi(postIDStr)
 		return &BrowseResult{UserPage: userPage(postID)}
+	}
+
+	if strings.HasPrefix(url, "/vk-callback") {
+		code := strings.TrimPrefix(url, "/vk-callback?code=")
+		vkID, _ := authExchangeCode("http://localhost:3000", code)
+		if vkID != 0 {
+			userID, _ := usersGetOrCreateByVKID(vkID)
+			token, _ := authCreateToken(userID)
+
+			return &BrowseResult{VkCallback: &VkCallback{
+				UserID:    strconv.Itoa(userID),
+				AuthToken: token,
+			}}
+		}
 	}
 
 	return &BrowseResult{}
