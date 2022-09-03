@@ -1,6 +1,6 @@
 import React from "react";
 import {Link} from "./Link";
-import {Post, User} from "../store2/types";
+import {Post, User} from "../store/types";
 
 export function ComponentPost(props: { post: Post, from?: User }) {
     const post = props.post;

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Feed} from "./Feed";
 import {PostPage} from "./PostPage";
 import {UserPage} from "./UserPage";
-import {BrowseResult, Post} from "../store2/types";
+import {BrowseResult, Post} from "../store/types";
 import {useCustomEventListener} from "react-custom-events";
 
 const dataCache: { [key: string]: BrowseResult } = {};

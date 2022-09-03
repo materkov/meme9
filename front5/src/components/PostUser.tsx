@@ -1,5 +1,5 @@
 import React from "react";
-import {User} from "../store2/types";
+import {User} from "../store/types";
 import {Link} from "./Link";
 
 export function PostUser(props: { user: User }) {

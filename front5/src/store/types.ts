@@ -1,57 +1,43 @@
-export type Post = {
-    id: string;
-    text?: string;
-    date?: number;
-    user?: User;
+export type Composer = {}
+
+export type Feed = {
+    posts?: string[];
+    nodes?: Nodes;
+    route?: string;
 }
 
-export type PostsListRequest = {
-    id: string[];
-    fields: string;
+export type Nodes = {
+    posts?: Post[];
+    users?: User[];
 }
 
-export type PostsListResponse = {
-    items: Post[];
+export type PostPage = {
+    pagePost?: string;
+    nodes?: Nodes;
 }
 
-export const PostsListRequest = (req: PostsListRequest): Operation => ({
-    method: "posts.list",
-    params: req,
-})
-
-export type FeedListRequest = {
-    fields: string;
+export type UserPage = {
+    pageUser?: string;
+    posts?: string[];
+    notFound?: boolean;
+    nodes?: Nodes;
 }
-
-export type FeedListResponse = {
-    items: Post[];
-}
-
-export const FeedList = (req: FeedListRequest): Operation => ({
-    method: "feed.list",
-    params: req,
-})
 
 export type User = {
     id: string;
     name?: string;
+    href?: string;
 }
 
-export type UsersListRequest = {
-    id: string[];
-    fields: string;
+export type Post = {
+    id: string;
+    fromId?: string;
+    text?: string;
+    detailsURL?: string;
 }
 
-export type UsersListResponse = {
-    items: User[];
-}
-
-export const UsersList = (req: UsersListRequest): Operation => ({
-    method: "users.list",
-    params: req,
-})
-
-type Operation = {
-    method: string;
-    params: any;
+export type BrowseResult = {
+    feed?: Feed;
+    userPage?: UserPage;
+    postPage?: PostPage;
 }

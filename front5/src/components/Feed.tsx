@@ -1,7 +1,7 @@
 import React from "react";
 import {ComponentPost} from "./Post";
 import {Composer} from "./Composer";
-import {Feed as FeedRenderer, Post, User} from "../store2/types";
+import {Feed as FeedRenderer, Post, User} from "../store/types";
 
 export function Feed(props: { data: FeedRenderer }) {
     const postIds = props.data.posts || [];

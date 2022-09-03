@@ -105,14 +105,14 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 		usersCh <- result
 	}()
 
-	/*photosCh := make(chan []*store2.Photo)
+	/*photosCh := make(chan []*store.Photo)
 	go func() {
 		result, err := ObjectStore.ObjGetMany(photoIds)
 		if err != nil {
 			log.Printf("Error selecting photos: %s", err)
 		}
 
-		photos := make([]*store2.Photo, 0)
+		photos := make([]*store.Photo, 0)
 		for _, object := range result {
 			if object.Photo != nil {
 				photos = append(photos, object.Photo)
@@ -192,7 +192,7 @@ func convertPosts(ctx context.Context, posts []*store.Post, viewerID int, includ
 		usersMap[user.ID] = user
 	}
 
-	//photosMap := map[int]*store2.Photo{}
+	//photosMap := map[int]*store.Photo{}
 	//for _, photo := range photos {
 	//	photosMap[photo.ID] = photo
 	//}

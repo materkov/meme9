@@ -1,6 +1,6 @@
 import React from "react";
 import {PostUser} from "./PostUser";
-import {Post, User, UserPage as UserPageRenderer} from "../store2/types";
+import {Post, User, UserPage as UserPageRenderer} from "../store/types";
 import {ComponentPost} from "./Post";
 
 export function UserPage(props: { data: UserPageRenderer }) {
