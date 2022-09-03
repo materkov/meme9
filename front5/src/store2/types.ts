@@ -1,8 +1,9 @@
 export type Composer = {}
 
 export type Feed = {
-    posts: string[];
+    posts?: string[];
     nodes?: Nodes;
+    route?: string;
 }
 
 export type Nodes = {
@@ -11,29 +12,28 @@ export type Nodes = {
 }
 
 export type PostPage = {
-    pagePost: string;
+    pagePost?: string;
     nodes?: Nodes;
 }
 
 export type UserPage = {
-    pageUser: string;
-    posts: string[];
+    pageUser?: string;
+    posts?: string[];
     notFound?: boolean;
     nodes?: Nodes;
 }
 
 export type User = {
     id: string;
-    name: string;
-    href: string;
+    name?: string;
+    href?: string;
 }
 
 export type Post = {
     id: string;
-    fromHref: string;
-    fromName: string;
-    text: string;
-    detailsURL: string;
+    fromId?: string;
+    text?: string;
+    detailsURL?: string;
 }
 
 export type BrowseResult = {

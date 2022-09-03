@@ -1,16 +1,18 @@
 import React from "react";
 import {Link} from "./Link";
-import {Post} from "../store2/types";
+import {Post, User} from "../store2/types";
 
-export function ComponentPost(props: { post: Post }) {
+export function ComponentPost(props: { post: Post, from?: User }) {
     const post = props.post;
 
     return (
         <div>
             From:
-            <Link href={post.fromHref}>
-                {post.fromName}
-            </Link>
+            {props.from &&
+                <Link href={props.from.href}>
+                    {props.from.name}
+                </Link>
+            }
 
             {post.text}
             <button>Update name</button>

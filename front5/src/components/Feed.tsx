@@ -1,21 +1,28 @@
 import React from "react";
 import {ComponentPost} from "./Post";
 import {Composer} from "./Composer";
-import {Feed as FeedRenderer, Post} from "../store2/types";
+import {Feed as FeedRenderer, Post, User} from "../store2/types";
 
 export function Feed(props: { data: FeedRenderer }) {
-    const postIds = props.data.posts;
+    const postIds = props.data.posts || [];
 
-    let posts = [];
+    let posts: Array<{ post: Post, user: User }> = [];
     for (let postId of postIds) {
         const post = props.data.nodes?.posts?.find(item => item.id === postId);
-        if (post) {
-            posts.push(post);
+        if (!post) {
+            continue;
         }
+
+        const user = props.data.nodes?.users?.find(item => item.id == post.fromId);
+        if (!user) {
+            continue;
+        }
+
+        posts.push({post, user});
     }
 
     return <>
         <Composer/>
-        {posts.map(post => <ComponentPost post={post} key={post.id}/>)}
+        {posts.map(({post, user}) => <ComponentPost post={post} from={user} key={post.id}/>)}
     </>
 }

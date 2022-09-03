@@ -1,14 +1,14 @@
 import React from "react";
 import styles from "./Composer.module.css";
-import {useMutation} from "@tanstack/react-query";
-import {addPostMutation} from "../store/addPostMutation";
+import {emitCustomEvent} from "react-custom-events";
 
 export function Composer() {
     const [text, setText] = React.useState('');
-    const addPostReq = useMutation(addPostMutation(text))
 
     const onSubmit = () => {
-        addPostReq.mutate();
+        emitCustomEvent('postCreated', {
+            text: text,
+        })
         setText('');
     }
 

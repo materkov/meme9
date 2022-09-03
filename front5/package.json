@@ -13,6 +13,7 @@
     "immer": "^9.0.15",
     "moize": "^6.1.1",
     "react": "^18.2.0",
+    "react-custom-events": "^1.1.1",
     "react-dom": "^18.2.0",
     "react-query": "^4.0.0"
   },
@@ -20,9 +21,11 @@
     "build": "node build-prod.js",
     "watch": "node build.js",
     "server": "cd dist && php -S localhost:3000",
-    "tunnel": "cd ~/mypage && bash tunnel.sh"
+    "tunnel": "cd ~/mypage && bash tunnel.sh",
+    "types": "./node_modules/.bin/quicktype --src ../web4/types/data_api.go --lang typescript --out src/store2/types2.ts"
   },
   "devDependencies": {
-    "esbuild-css-modules-plugin": "^2.5.1"
+    "esbuild-css-modules-plugin": "^2.5.1",
+    "quicktype": "^15.0.261"
   }
 }

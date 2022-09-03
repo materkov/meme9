@@ -2,9 +2,10 @@ import React, {useEffect, useState} from "react";
 import {Feed} from "./Feed";
 import {PostPage} from "./PostPage";
 import {UserPage} from "./UserPage";
-import {BrowseResult} from "../store2/types";
+import {BrowseResult, Post} from "../store2/types";
+import {useCustomEventListener} from "react-custom-events";
 
-const dataCache: {[key: string]: BrowseResult} = {};
+const dataCache: { [key: string]: BrowseResult } = {};
 
 export function Router() {
     const [url, setUrl] = React.useState(location.pathname);
@@ -16,6 +17,32 @@ export function Router() {
         });
     }, []);
 
+    useCustomEventListener('postCreated', (e) => {
+        if (data && data.feed) {
+            const dataCopy = JSON.parse(JSON.stringify(data));
+
+            const post: Post = {
+                id: "1111",
+                fromId: "50",
+                // @ts-ignore
+                text: e.text,
+                detailsURL: "/posts/1111",
+            }
+            dataCopy.feed.nodes?.posts?.push(post);
+
+            dataCopy.feed.posts = ["1111", ...data.feed.posts || []];
+            setData(dataCopy);
+
+            fetch("http://localhost:8000/posts.insert", {
+                method: 'POST',
+                body: JSON.stringify({text: post.text})
+            })
+                .then(r => r.json())
+                .then((r) => {
+                })
+        }
+    })
+
     useEffect(() => {
         if (dataCache[url]) {
             setData(dataCache[url]);
@@ -24,17 +51,12 @@ export function Router() {
 
         // Some preload
         if (data && data.feed && url.startsWith("/posts/")) {
-            const post = data.feed.nodes?.posts?.find(p => p.id == url.substring(7));
-            if (post) {
-                setData({
-                    postPage: {
-                        pagePost: url.substring(7),
-                        nodes: {
-                            posts: [post]
-                        }
-                    }
-                })
-            }
+            setData({
+                postPage: {
+                    pagePost: url.substring(7),
+                    nodes: data.feed.nodes,
+                }
+            })
         }
 
         if (data && data.feed && url.startsWith("/users/")) {
@@ -54,7 +76,7 @@ export function Router() {
 
         fetch("http://localhost:8000/browse?url=" + url)
             .then(r => r.json())
-            .then((r: BrowseResult) => {
+            .then((r) => {
                 setData(r);
                 dataCache[url] = r;
             })

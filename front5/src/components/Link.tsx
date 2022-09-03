@@ -1,6 +1,6 @@
 import React, {MouseEvent, ReactNode} from "react";
 
-export function Link(props: { href: string, children: ReactNode }) {
+export function Link(props: { href?: string, children: ReactNode }) {
     const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
