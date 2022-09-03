@@ -41,3 +41,7 @@ export type BrowseResult = {
     userPage?: UserPage;
     postPage?: PostPage;
 }
+
+export type AddPostResponse = {
+    post: Post;
+}

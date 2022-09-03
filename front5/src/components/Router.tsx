@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Feed} from "./Feed";
 import {PostPage} from "./PostPage";
 import {UserPage} from "./UserPage";
-import {BrowseResult, Post} from "../store/types";
+import {AddPostResponse, BrowseResult, Post} from "../store/types";
 import {useCustomEventListener} from "react-custom-events";
 
 const dataCache: { [key: string]: BrowseResult } = {};
@@ -19,26 +19,36 @@ export function Router() {
 
     useCustomEventListener('postCreated', (e) => {
         if (data && data.feed) {
+            const clientId = '__client_' + Math.random();
             const dataCopy = JSON.parse(JSON.stringify(data));
 
             const post: Post = {
-                id: "1111",
-                fromId: "50",
+                id: clientId,
+                fromId: "324825265",
                 // @ts-ignore
                 text: e.text,
                 detailsURL: "/posts/1111",
             }
             dataCopy.feed.nodes?.posts?.push(post);
 
-            dataCopy.feed.posts = ["1111", ...data.feed.posts || []];
+            dataCopy.feed.posts = [clientId, ...data.feed.posts || []];
             setData(dataCopy);
 
             fetch("http://localhost:8000/posts.insert", {
                 method: 'POST',
-                body: JSON.stringify({text: post.text})
+                body: JSON.stringify({text: post.text}),
+                headers: {
+                    'authorization': localStorage.getItem('userId') || "",
+                }
             })
                 .then(r => r.json())
-                .then((r) => {
+                .then((r: AddPostResponse) => {
+                    fetch("http://localhost:8000/browse?url=" + url)
+                        .then(r => r.json())
+                        .then((r) => {
+                            setData(r);
+                            dataCache[url] = r;
+                        })
                 })
         }
     })

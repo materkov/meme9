@@ -8,7 +8,8 @@ type Post struct {
 }
 
 type User struct {
-	ID int
+	ID   int
+	VkID int
 
 	Name      string
 	LastPosts []int

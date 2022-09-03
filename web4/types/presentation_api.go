@@ -1,14 +1,10 @@
 package types
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
 	"github.com/materkov/meme9/web4/store"
 	"log"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type Composer struct {
@@ -48,44 +44,31 @@ type Nodes struct {
 }
 
 func feedPage() *Feed {
-	postIdsStr, err := redisClient.LRange(context.Background(), "feed", 0, 10).Result()
+	postIds, err := postsGetFeed()
 	if err != nil {
-		log.Printf("ERR")
-		return &Feed{}
+		log.Printf("Error getting feed: %s", err)
 	}
 
-	postIds := make([]int, len(postIdsStr))
-	for i, id := range postIdsStr {
-		postIds[i], _ = strconv.Atoi(id)
-	}
-
-	userIds := map[string]bool{}
 	posts := postsList(postIds)
-	for _, post := range posts {
-		userIds[post.FromID] = true
-	}
+	users := usersList(getUsersFromPosts(posts))
 
-	userIdsList := make([]int, 0)
-	for userIdStr := range userIds {
-		userID, _ := strconv.Atoi(userIdStr)
-		if userID > 0 {
-			userIdsList = append(userIdsList, userID)
-		}
+	postIdsStr := make([]string, len(postIds))
+	for i, postID := range postIds {
+		postIdsStr[i] = strconv.Itoa(postID)
 	}
 
 	return &Feed{
 		//Route: RouteFeed,
 		Posts: postIdsStr,
 		Nodes: &Nodes{
-			Posts: postsList(postIds),
-			Users: usersList(userIdsList),
+			Posts: posts,
+			Users: users,
 		},
 	}
 }
 
-func postPage(id int) *PostPage {
+func getUsersFromPosts(posts []*Post) []int {
 	userIds := map[string]bool{}
-	posts := postsList([]int{id})
 	for _, post := range posts {
 		userIds[post.FromID] = true
 	}
@@ -98,12 +81,19 @@ func postPage(id int) *PostPage {
 		}
 	}
 
+	return userIdsList
+}
+
+func postPage(id int) *PostPage {
+	posts := postsList([]int{id})
+	users := usersList(getUsersFromPosts(posts))
+
 	return &PostPage{
 		Route:    RoutePostsId,
 		PagePost: strconv.Itoa(id),
 		Nodes: &Nodes{
 			Posts: posts,
-			Users: usersList(userIdsList),
+			Users: users,
 		},
 	}
 }
@@ -118,53 +108,45 @@ func userPage(id int) *UserPage {
 		return result
 	}
 
-	var postIds []string
-	for _, post := range user.LastPosts {
-		postIds = append(postIds, strconv.Itoa(post))
+	postIds, err := postsGetFeedByUsers([]int{user.ID})
+	if err != nil {
+		log.Printf("Error getting user feed: %s", err)
+	}
+
+	postIdsStr := make([]string, len(postIds))
+	for i, postID := range postIds {
+		postIdsStr[i] = strconv.Itoa(postID)
 	}
 
 	return &UserPage{
 		Route:    RouteUserPage,
 		PageUser: strconv.Itoa(user.ID),
-		Posts:    postIds,
+		Posts:    postIdsStr,
 		Nodes: &Nodes{
 			Users: usersList([]int{id}),
-			Posts: postsList(user.LastPosts),
+			Posts: postsList(postIds),
 		},
 	}
 }
 
-type AddPostRequest struct {
+type postsAddRequest struct {
 	Text string `json:"text"`
 }
 
 type AddPostResult struct {
+	Post *Post `json:"post,omitempty"`
 }
 
-func addPost(req *AddPostRequest) *AddPostResult {
-	postID := int(time.Now().Unix())
-
-	post := store.Post{
-		ID:     postID,
-		UserID: 324825265,
-		Text:   req.Text,
-	}
-	postBytes, _ := json.Marshal(post)
-
-	err := redisClient.Set(context.Background(), fmt.Sprintf("node:%d", postID), postBytes, 0)
-	log.Printf("%s", err)
-
-	r2 := redisClient.LPush(context.Background(), "feed", post.ID)
-	log.Printf("%s", r2)
-
-	return &AddPostResult{}
+func addPost(req *postsAddRequest, viewerID int) *AddPostResult {
+	postID, _ := postsAdd(req, viewerID)
+	post := postsList([]int{postID})[0]
+	return &AddPostResult{Post: post}
 }
 
 type BrowseResult struct {
-	Feed     *Feed          `json:"feed,omitempty"`
-	UserPage *UserPage      `json:"userPage,omitempty"`
-	PostPage *PostPage      `json:"postPage,omitempty"`
-	AddPost  *AddPostResult `json:"addPost,omitempty"`
+	Feed     *Feed     `json:"feed,omitempty"`
+	UserPage *UserPage `json:"userPage,omitempty"`
+	PostPage *PostPage `json:"postPage,omitempty"`
 }
 
 func Browse(url string) *BrowseResult {

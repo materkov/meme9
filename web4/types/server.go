@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -22,6 +23,20 @@ func getObject(id int, obj interface{}) error {
 	return json.Unmarshal(objBytes, obj)
 }
 
+func saveObject(id int, obj interface{}) error {
+	objBytes, err := json.Marshal(obj)
+	if err != nil {
+		return err
+	}
+
+	_, err = redisClient.Set(context.Background(), fmt.Sprintf("node:%d", id), objBytes, 0).Result()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func DoHandle() {
 	// CRUD words: insert, delete, update, list
 	//db, err := sql.Open("mysql", "root:root@/meme9")
@@ -33,6 +48,11 @@ func DoHandle() {
 
 	http.HandleFunc("/browse", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "authorization, content-type")
+
+		if r.Method == "OPTIONS" {
+			return
+		}
 
 		time.Sleep(time.Second * 1)
 		resp := Browse(r.URL.Query().Get("url"))
@@ -40,11 +60,18 @@ func DoHandle() {
 	})
 	http.HandleFunc("/posts.insert", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "authorization, content-type")
 
-		req := AddPostRequest{}
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		userID, _ := strconv.Atoi(r.Header.Get("authorization"))
+
+		req := postsAddRequest{}
 		json.NewDecoder(r.Body).Decode(&req)
 
-		resp := addPost(&req)
+		resp := addPost(&req, userID)
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 

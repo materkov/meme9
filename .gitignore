@@ -11,6 +11,7 @@ front5/node_modules
 front5/dist/index.js
 front5/dist/bundle.js
 web/config.json
+web5/config.json
 mongotest
 pythontest
 test.json
