@@ -4,8 +4,6 @@ import {Composer} from "./Composer";
 import {Feed as FeedRenderer, Post} from "../store2/types";
 
 export function Feed(props: { data: FeedRenderer }) {
-
-    props.data.nodes?.posts?.reduce(function(map, post) {});
     const postIds = props.data.posts;
 
     let posts = [];

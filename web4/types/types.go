@@ -7,22 +7,34 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Composer struct {
 }
 
+type Route string
+
+const (
+	RoutePostsId  Route = "PostPage"
+	RouteFeed     Route = "Feed"
+	RouteUserPage Route = "UserPage"
+)
+
 type Feed struct {
+	Route Route    `json:"route,omitempty"`
 	Posts []string `json:"posts,omitempty"`
 	Nodes *Nodes   `json:"nodes,omitempty"`
 }
 
 type PostPage struct {
+	Route    Route  `json:"route,omitempty"`
 	PagePost string `json:"pagePost,omitempty"`
 	Nodes    *Nodes `json:"nodes,omitempty"`
 }
 
 type UserPage struct {
+	Route    Route    `json:"route,omitempty"`
 	PageUser string   `json:"pageUser,omitempty"`
 	NotFound bool     `json:"notFound,omitempty"`
 	Nodes    *Nodes   `json:"nodes,omitempty"`
@@ -92,6 +104,7 @@ func wrapPostsList(postIds []int) []*Post {
 		wrappedPost := &Post{
 			ID:         strconv.Itoa(post.ID),
 			FromHref:   fmt.Sprintf("/users/%d", post.UserID),
+			FromID:     strconv.Itoa(post.UserID),
 			Text:       post.Text,
 			DetailsURL: fmt.Sprintf("/posts/%d", post.ID),
 		}
@@ -108,18 +121,36 @@ func wrapPostsList(postIds []int) []*Post {
 
 func feedPage() *Feed {
 	postIds := []int{101, 100}
+
+	userIds := map[string]bool{}
+	posts := wrapPostsList(postIds)
+	for _, post := range posts {
+		userIds[post.FromID] = true
+	}
+
+	userIdsList := make([]int, 0)
+	for userIdStr := range userIds {
+		userID, _ := strconv.Atoi(userIdStr)
+		if userID > 0 {
+			userIdsList = append(userIdsList, userID)
+		}
+	}
+
 	return &Feed{
+		Route: RouteFeed,
 		Posts: []string{
 			"101", "100",
 		},
 		Nodes: &Nodes{
 			Posts: wrapPostsList(postIds),
+			Users: wrapUsers(userIdsList),
 		},
 	}
 }
 
 func postPage(id int) *PostPage {
 	return &PostPage{
+		Route:    RoutePostsId,
 		PagePost: strconv.Itoa(id),
 		Nodes: &Nodes{
 			Posts: wrapPostsList([]int{id}),
@@ -130,6 +161,7 @@ func postPage(id int) *PostPage {
 type Post struct {
 	ID       string `json:"id,omitempty"`
 	FromHref string `json:"fromHref"`
+	FromID   string `json:"fromId,omitempty"`
 	FromName string `json:"fromName"`
 
 	Text       string `json:"text"`
@@ -192,6 +224,7 @@ func DoHandle() {
 	http.HandleFunc("/browse", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
+		time.Sleep(time.Second * 2)
 		resp := Browse(r.URL.Query().Get("url"))
 		_ = json.NewEncoder(w).Encode(resp)
 	})

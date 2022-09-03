@@ -4,6 +4,8 @@ import {PostPage} from "./PostPage";
 import {UserPage} from "./UserPage";
 import {BrowseResult} from "../store2/types";
 
+const dataCache: {[key: string]: BrowseResult} = {};
+
 export function Router() {
     const [url, setUrl] = React.useState(location.pathname);
     const [data, setData] = useState<BrowseResult>();
@@ -15,10 +17,46 @@ export function Router() {
     }, []);
 
     useEffect(() => {
+        if (dataCache[url]) {
+            setData(dataCache[url]);
+            return;
+        }
+
+        // Some preload
+        if (data && data.feed && url.startsWith("/posts/")) {
+            const post = data.feed.nodes?.posts?.find(p => p.id == url.substring(7));
+            if (post) {
+                setData({
+                    postPage: {
+                        pagePost: url.substring(7),
+                        nodes: {
+                            posts: [post]
+                        }
+                    }
+                })
+            }
+        }
+
+        if (data && data.feed && url.startsWith("/users/")) {
+            const user = data.feed.nodes?.users?.find(p => p.id == url.substring(7));
+            if (user) {
+                setData({
+                    userPage: {
+                        posts: [],
+                        pageUser: url.substring(7),
+                        nodes: {
+                            users: [user]
+                        }
+                    }
+                })
+            }
+        }
+
         fetch("http://localhost:8000/browse?url=" + url)
             .then(r => r.json())
             .then((r: BrowseResult) => {
                 setData(r);
+                dataCache[url] = r;
             })
     }, [url]);
 

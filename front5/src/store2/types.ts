@@ -18,7 +18,7 @@ export type PostPage = {
 export type UserPage = {
     pageUser: string;
     posts: string[];
-    notFound: boolean;
+    notFound?: boolean;
     nodes?: Nodes;
 }
 
