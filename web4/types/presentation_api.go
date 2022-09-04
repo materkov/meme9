@@ -1,8 +1,7 @@
 package types
 
 import (
-	"github.com/materkov/meme9/web4/store"
-	"log"
+	"encoding/json"
 	"strconv"
 	"strings"
 )
@@ -18,53 +17,9 @@ const (
 	RouteUserPage Route = "UserPage"
 )
 
-type Feed struct {
-	Route Route    `json:"route,omitempty"`
-	Posts []string `json:"posts,omitempty"`
-	Nodes *Nodes   `json:"nodes,omitempty"`
-}
-
-type PostPage struct {
-	Route    Route  `json:"route,omitempty"`
-	PagePost string `json:"pagePost,omitempty"`
-	Nodes    *Nodes `json:"nodes,omitempty"`
-}
-
-type UserPage struct {
-	Route    Route    `json:"route,omitempty"`
-	PageUser string   `json:"pageUser,omitempty"`
-	NotFound bool     `json:"notFound,omitempty"`
-	Nodes    *Nodes   `json:"nodes,omitempty"`
-	Posts    []string `json:"posts,omitempty"`
-}
-
 type Nodes struct {
 	Users []*User `json:"users,omitempty"`
 	Posts []*Post `json:"posts,omitempty"`
-}
-
-func feedPage() *Feed {
-	postIds, err := postsGetFeed()
-	if err != nil {
-		log.Printf("Error getting feed: %s", err)
-	}
-
-	posts := postsList(postIds)
-	users := usersList(getUsersFromPosts(posts))
-
-	postIdsStr := make([]string, len(postIds))
-	for i, postID := range postIds {
-		postIdsStr[i] = strconv.Itoa(postID)
-	}
-
-	return &Feed{
-		//Route: RouteFeed,
-		Posts: postIdsStr,
-		Nodes: &Nodes{
-			Posts: posts,
-			Users: users,
-		},
-	}
 }
 
 func getUsersFromPosts(posts []*Post) []int {
@@ -84,112 +39,48 @@ func getUsersFromPosts(posts []*Post) []int {
 	return userIdsList
 }
 
-func postPage(id int) *PostPage {
-	posts := postsList([]int{id})
-	users := usersList(getUsersFromPosts(posts))
-
-	return &PostPage{
-		Route:    RoutePostsId,
-		PagePost: strconv.Itoa(id),
-		Nodes: &Nodes{
-			Posts: posts,
-			Users: users,
-		},
-	}
-}
-
-func userPage(id int) *UserPage {
-	result := &UserPage{}
-
-	user := &store.User{}
-	err := getObject(id, &user)
-	if err != nil {
-		result.NotFound = true
-		return result
-	}
-
-	postIds, err := postsGetFeedByUsers([]int{user.ID})
-	if err != nil {
-		log.Printf("Error getting user feed: %s", err)
-	}
-
-	postIdsStr := make([]string, len(postIds))
-	for i, postID := range postIds {
-		postIdsStr[i] = strconv.Itoa(postID)
-	}
-
-	return &UserPage{
-		Route:    RouteUserPage,
-		PageUser: strconv.Itoa(user.ID),
-		Posts:    postIdsStr,
-		Nodes: &Nodes{
-			Users: usersList([]int{id}),
-			Posts: postsList(postIds),
-		},
-	}
-}
-
-type postsAddRequest struct {
-	Text string `json:"text"`
-}
-
-type AddPostResult struct {
-	Post *Post `json:"post,omitempty"`
-}
-
-func addPost(req *postsAddRequest, viewer *Viewer) *AddPostResult {
-	postID, _ := postsAdd(req, viewer)
-	post := postsList([]int{postID})[0]
-	return &AddPostResult{Post: post}
-}
-
 type BrowseResult struct {
 	UserID string `json:"userId,omitempty"`
 
-	Feed       *Feed       `json:"feed,omitempty"`
-	UserPage   *UserPage   `json:"userPage,omitempty"`
-	PostPage   *PostPage   `json:"postPage,omitempty"`
-	VkCallback *VkCallback `json:"vkCallback,omitempty"`
+	Feed       *FeedResponse       `json:"feed,omitempty"`
+	UserPage   *UserPageResponse   `json:"userPage,omitempty"`
+	PostPage   *PostPageResponse   `json:"postPage,omitempty"`
+	VkCallback *VkCallbackResponse `json:"vkCallback,omitempty"`
+	AddPost    *AddPostResponse    `json:"addPost,omitempty"`
 }
 
-type VkCallback struct {
-	UserID    string `json:"userId,omitempty"`
-	AuthToken string `json:"authToken,omitempty"`
-}
+func Browse(url string, q string, viewer *Viewer) *BrowseResult {
+	result := &BrowseResult{
+		UserID: strconv.Itoa(viewer.UserID),
+	}
 
-func Browse(url string, viewer *Viewer) *BrowseResult {
 	if url == "/" {
-		return &BrowseResult{
-			UserID: strconv.Itoa(viewer.UserID),
-			Feed:   feedPage(),
-		}
+		result.Feed, _ = Feed(&FeedRequest{})
 	}
 
 	if strings.HasPrefix(url, "/posts/") {
 		postIDStr := strings.TrimPrefix(url, "/posts/")
-		postID, _ := strconv.Atoi(postIDStr)
-		return &BrowseResult{PostPage: postPage(postID)}
+		result.PostPage, _ = PostPage(&PostPageRequest{PostID: postIDStr})
 	}
 
 	if strings.HasPrefix(url, "/users/") {
-		postIDStr := strings.TrimPrefix(url, "/users/")
-		postID, _ := strconv.Atoi(postIDStr)
-		return &BrowseResult{UserPage: userPage(postID)}
+		userIDStr := strings.TrimPrefix(url, "/users/")
+		result.UserPage, _ = UserPage(&UserPageRequest{UserID: userIDStr})
 	}
 
 	if strings.HasPrefix(url, "/vk-callback") {
 		code := strings.TrimPrefix(url, "/vk-callback?code=")
-		vkID, _ := authExchangeCode("http://localhost:3000", code)
-		if vkID != 0 {
-			userID, _ := usersGetOrCreateByVKID(vkID)
-			token, _ := authCreateToken(userID)
-
-			return &BrowseResult{VkCallback: &VkCallback{
-				UserID:    strconv.Itoa(userID),
-				AuthToken: token,
-			}}
-		}
+		result.VkCallback, _ = VkCallback(&VkCallbackRequest{Code: code})
 	}
 
-	return &BrowseResult{}
+	if strings.HasPrefix(url, "/posts/add") {
+		req := &AddPostRequest{}
+		_ = json.Unmarshal([]byte(q), req)
+		result.AddPost, _ = AddPost(req, viewer)
+	}
+
+	return result
 }
+
+// Queries: PostPage, UserPage, Feed, VkCallback, AddPost
+// Routing: с бека надо ответить, какой компонент показать и какие пропсы на нем

@@ -34,9 +34,7 @@ export function Router() {
             dataCopy.feed.posts = [clientId, ...data.feed.posts || []];
             setData(dataCopy);
 
-            fetch("http://localhost:8000/posts.insert", {
-                method: 'POST',
-                body: JSON.stringify({text: post.text}),
+            fetch("http://localhost:8000/browse?url=/posts/add&q=" + encodeURIComponent(JSON.stringify({text: post.text})), {
                 headers: {
                     'authorization': localStorage.getItem('authToken') || "",
                 }

@@ -60,7 +60,7 @@ func DoHandle() {
 		}
 
 		time.Sleep(time.Second * 1)
-		resp := Browse(r.URL.Query().Get("url"), &viewer)
+		resp := Browse(r.URL.Query().Get("url"), r.URL.Query().Get("q"), &viewer)
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 	http.HandleFunc("/posts.insert", func(w http.ResponseWriter, r *http.Request) {
@@ -80,10 +80,10 @@ func DoHandle() {
 			Origin: r.Header.Get("origin"),
 		}
 
-		req := postsAddRequest{}
+		req := AddPostRequest{}
 		json.NewDecoder(r.Body).Decode(&req)
 
-		resp := addPost(&req, &viewer)
+		resp, _ := AddPost(&req, &viewer)
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 
