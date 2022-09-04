@@ -1,0 +1,15 @@
+.UserName {
+    display: inline-block;
+    position: relative;
+}
+
+.UserNamePopup {
+    background: #eeeeee;
+    position: absolute;
+    bottom: 20px;
+    width: 300px;
+}
+
+.UserNamePopup__hidden {
+    display: none;
+}

@@ -1,22 +1,21 @@
 import React from "react";
 import {Link} from "./Link";
 import {Post, User} from "../store/types";
+import {PostUser} from "./PostUser";
 
 export function ComponentPost(props: { post: Post, from?: User }) {
     const post = props.post;
 
     return (
         <div>
-            From:
-            {props.from &&
-                <Link href={props.from.href}>
-                    {props.from.name}
-                </Link>
-            }
+            {props.from && <PostUser user={props.from}/>}<br/>
 
             {post.text}
-            <button>Update name</button>
+            <br/>
             <Link href={post.detailsURL}>Детали</Link>
+            <br/>
+            <br/>
+            <br/>
         </div>
     )
 }

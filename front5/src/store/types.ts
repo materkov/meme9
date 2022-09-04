@@ -37,10 +37,10 @@ export type Post = {
 }
 
 export type BrowseResult = {
-    feed?: Feed;
-    userPage?: UserPage;
-    postPage?: PostPage;
     vkCallback?: VKCallback;
+
+    componentName?: string;
+    componentData?: any;
 }
 
 export type AddPostResponse = {

@@ -42,11 +42,11 @@ func getUsersFromPosts(posts []*Post) []int {
 type BrowseResult struct {
 	UserID string `json:"userId,omitempty"`
 
-	Feed       *FeedResponse       `json:"feed,omitempty"`
-	UserPage   *UserPageResponse   `json:"userPage,omitempty"`
-	PostPage   *PostPageResponse   `json:"postPage,omitempty"`
 	VkCallback *VkCallbackResponse `json:"vkCallback,omitempty"`
 	AddPost    *AddPostResponse    `json:"addPost,omitempty"`
+
+	ComponentName string      `json:"componentName"`
+	ComponentData interface{} `json:"componentData"`
 }
 
 func Browse(url string, q string, viewer *Viewer) *BrowseResult {
@@ -55,17 +55,20 @@ func Browse(url string, q string, viewer *Viewer) *BrowseResult {
 	}
 
 	if url == "/" {
-		result.Feed, _ = Feed(&FeedRequest{})
+		result.ComponentName = "Feed"
+		result.ComponentData, _ = Feed(&FeedRequest{})
 	}
 
 	if strings.HasPrefix(url, "/posts/") {
 		postIDStr := strings.TrimPrefix(url, "/posts/")
-		result.PostPage, _ = PostPage(&PostPageRequest{PostID: postIDStr})
+		result.ComponentName = "PostPage"
+		result.ComponentData, _ = PostPage(&PostPageRequest{PostID: postIDStr})
 	}
 
 	if strings.HasPrefix(url, "/users/") {
 		userIDStr := strings.TrimPrefix(url, "/users/")
-		result.UserPage, _ = UserPage(&UserPageRequest{UserID: userIDStr})
+		result.ComponentName = "UserPage"
+		result.ComponentData, _ = UserPage(&UserPageRequest{UserID: userIDStr})
 	}
 
 	if strings.HasPrefix(url, "/vk-callback") {

@@ -1,11 +1,17 @@
 import React, {useEffect, useState} from "react";
+import {AddPostResponse, BrowseResult, Post} from "../store/types";
+import {useCustomEventListener} from "react-custom-events";
 import {Feed} from "./Feed";
 import {PostPage} from "./PostPage";
 import {UserPage} from "./UserPage";
-import {AddPostResponse, BrowseResult, Post} from "../store/types";
-import {useCustomEventListener} from "react-custom-events";
 
 const dataCache: { [key: string]: BrowseResult } = {};
+
+const components: { [key: string]: any } = {
+    "Feed": Feed,
+    "PostPage": PostPage,
+    "UserPage": UserPage,
+};
 
 export function Router() {
     const [url, setUrl] = React.useState(location.pathname + location.search);
@@ -16,7 +22,7 @@ export function Router() {
     })
 
     useCustomEventListener('postCreated', (e) => {
-        if (data && data.feed) {
+        if (data && data.componentName == "Feed") {
             const clientId = '__client_' + Math.random();
             const dataCopy = JSON.parse(JSON.stringify(data));
 
@@ -27,9 +33,9 @@ export function Router() {
                 text: e.text,
                 detailsURL: "/posts/1111",
             }
-            dataCopy.feed.nodes?.posts?.push(post);
+            dataCopy.componentData.nodes?.posts?.push(post);
 
-            dataCopy.feed.posts = [clientId, ...data.feed.posts || []];
+            dataCopy.componentData.posts = [clientId, ...data.componentData.posts || []];
             setData(dataCopy);
 
             fetch("http://localhost:8000/browse?url=/posts/add&q=" + encodeURIComponent(JSON.stringify({text: post.text})), {
@@ -56,20 +62,22 @@ export function Router() {
         }
 
         // Some preload
-        if (data && data.feed && url.startsWith("/posts/")) {
+        if (data && data.componentName == "Feed" && url.startsWith("/posts/")) {
             setData({
-                postPage: {
+                componentName: "PostPage",
+                componentData: {
                     pagePost: url.substring(7),
-                    nodes: data.feed.nodes,
-                }
+                    nodes: data.componentData.nodes,
+                },
             })
         }
 
-        if (data && data.feed && url.startsWith("/users/")) {
-            const user = data.feed.nodes?.users?.find(p => p.id == url.substring(7));
+        if (data && data.componentName == "Feed" && url.startsWith("/users/")) {
+            const user = data.componentData.nodes?.users?.find(p => p.id == url.substring(7));
             if (user) {
                 setData({
-                    userPage: {
+                    componentName: "UserPage",
+                    componentData: {
                         posts: [],
                         pageUser: url.substring(7),
                         nodes: {
@@ -97,10 +105,14 @@ export function Router() {
             })
     }, [url]);
 
-    if (!data) return null;
-    if (data.feed) return <Feed data={data.feed}/>
-    if (data.postPage) return <PostPage data={data.postPage}/>;
-    if (data.userPage) return <UserPage data={data.userPage}/>;
+    if (!data || !data.componentName) {
+        return null;
+    }
 
-    return <>404 page</>;
+    const C = components[data.componentName];
+    if (!C) {
+        return <>404 page</>;
+    }
+
+    return <C data={data.componentData}/>
 }
