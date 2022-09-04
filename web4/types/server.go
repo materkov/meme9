@@ -7,7 +7,6 @@ import (
 	"github.com/go-redis/redis/v9"
 	"net/http"
 	"strings"
-	"time"
 )
 
 var redisClient *redis.Client
@@ -59,31 +58,7 @@ func DoHandle() {
 			Origin: r.Header.Get("origin"),
 		}
 
-		time.Sleep(time.Second * 1)
 		resp := Browse(r.URL.Query().Get("url"), r.URL.Query().Get("q"), &viewer)
-		_ = json.NewEncoder(w).Encode(resp)
-	})
-	http.HandleFunc("/posts.insert", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "authorization, content-type")
-
-		if r.Method == "OPTIONS" {
-			return
-		}
-
-		authToken := r.Header.Get("authorization")
-		authToken = strings.TrimPrefix(authToken, "Bearer ")
-		userID, _ := authCheckToken(authToken)
-
-		viewer := Viewer{
-			UserID: userID,
-			Origin: r.Header.Get("origin"),
-		}
-
-		req := AddPostRequest{}
-		json.NewDecoder(r.Body).Decode(&req)
-
-		resp, _ := AddPost(&req, &viewer)
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 

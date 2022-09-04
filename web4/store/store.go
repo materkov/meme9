@@ -11,8 +11,7 @@ type User struct {
 	ID   int
 	VkID int
 
-	Name      string
-	LastPosts []int
+	Name string
 }
 
 type AuthToken struct {

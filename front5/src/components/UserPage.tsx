@@ -6,7 +6,7 @@ import {ComponentPost} from "./Post";
 export function UserPage(props: { data: UserPageRenderer }) {
     const user = props.data.nodes?.users?.find(item => item.id == props.data.pageUser);
 
-    const posts: Array<[Post, User]> = [];
+    const posts: Array<[Post, User?]> = [];
     for (let postID of props.data.posts || []) {
         const post = props.data.nodes?.posts?.find(post => post.id == postID);
         if (!post) {
@@ -14,9 +14,6 @@ export function UserPage(props: { data: UserPageRenderer }) {
         }
 
         const user = props.data.nodes?.users?.find(item => item.id == post.fromId);
-        if (!user) {
-            continue;
-        }
 
         posts.push([post, user]);
     }

@@ -11,11 +11,9 @@ export function Router() {
     const [url, setUrl] = React.useState(location.pathname + location.search);
     const [data, setData] = useState<BrowseResult>();
 
-    useEffect(() => {
-        document.addEventListener('urlChanged', () => {
-            setUrl(location.pathname + location.search);
-        });
-    }, []);
+    useCustomEventListener('urlChanged', () => {
+        setUrl(location.pathname + location.search);
+    })
 
     useCustomEventListener('postCreated', (e) => {
         if (data && data.feed) {
