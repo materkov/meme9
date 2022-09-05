@@ -11,25 +11,16 @@ type PostPageRequest struct {
 	PostID string `json:"postId,omitempty"`
 }
 
-type PostPageResponse struct {
-	Route    Route  `json:"route,omitempty"`
-	PagePost string `json:"pagePost,omitempty"`
-	Nodes    *Nodes `json:"nodes,omitempty"`
-}
-
-func PostPage(req *PostPageRequest) (*PostPageResponse, error) {
+func PostPage(req *PostPageRequest) ([]interface{}, error) {
 	postID, _ := strconv.Atoi(req.PostID)
 
 	posts := postsList([]int{postID})
-	users := usersList(getUsersFromPosts(posts))
+	users := getUsersFromPosts(posts)
+	usersList(users)
 
-	return &PostPageResponse{
-		Route:    RoutePostsId,
-		PagePost: req.PostID,
-		Nodes: &Nodes{
-			Posts: posts,
-			Users: users,
-		},
+	return []interface{}{
+		req.PostID,
+		posts[0],
 	}, nil
 }
 
@@ -37,15 +28,7 @@ type UserPageRequest struct {
 	UserID string `json:"userId,omitempty"`
 }
 
-type UserPageResponse struct {
-	Route    Route    `json:"route,omitempty"`
-	PageUser string   `json:"pageUser,omitempty"`
-	NotFound bool     `json:"notFound,omitempty"`
-	Nodes    *Nodes   `json:"nodes,omitempty"`
-	Posts    []string `json:"posts,omitempty"`
-}
-
-func UserPage(req *UserPageRequest) (*UserPageResponse, error) {
+func UserPage(req *UserPageRequest) ([]interface{}, error) {
 	userID, _ := strconv.Atoi(req.UserID)
 	if userID <= 0 {
 		return nil, fmt.Errorf("user not found")
@@ -67,14 +50,12 @@ func UserPage(req *UserPageRequest) (*UserPageResponse, error) {
 		postIdsStr[i] = strconv.Itoa(postID)
 	}
 
-	return &UserPageResponse{
-		Route:    RouteUserPage,
-		PageUser: strconv.Itoa(user.ID),
-		Posts:    postIdsStr,
-		Nodes: &Nodes{
-			Users: usersList([]int{userID}),
-			Posts: postsList(postIds),
-		},
+	users := []*User{{ID: strconv.Itoa(userID)}}
+	usersList(users)
+
+	return []interface{}{
+		users[0],
+		postsList(postIds),
 	}, nil
 }
 
@@ -126,31 +107,22 @@ func AddPost(req *AddPostRequest, viewer *Viewer) (*AddPostResponse, error) {
 type FeedRequest struct {
 }
 
-type FeedResponse struct {
-	Route Route    `json:"route,omitempty"`
-	Posts []string `json:"posts,omitempty"`
-	Nodes *Nodes   `json:"nodes,omitempty"`
-}
-
-func Feed(req *FeedRequest) (*FeedResponse, error) {
+func Feed(req *FeedRequest) ([]interface{}, error) {
 	postIds, err := postsGetFeed()
 	if err != nil {
 		log.Printf("Error getting feed: %s", err)
 	}
 
 	posts := postsList(postIds)
-	users := usersList(getUsersFromPosts(posts))
+	users := getUsersFromPosts(posts)
+	usersList(users)
 
 	postIdsStr := make([]string, len(postIds))
 	for i, postID := range postIds {
 		postIdsStr[i] = strconv.Itoa(postID)
 	}
 
-	return &FeedResponse{
-		Posts: postIdsStr,
-		Nodes: &Nodes{
-			Posts: posts,
-			Users: users,
-		},
+	return []interface{}{
+		posts,
 	}, nil
 }

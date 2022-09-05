@@ -1,27 +1,18 @@
 export type Composer = {}
 
-export type Feed = {
-    posts?: string[];
-    nodes?: Nodes;
-    route?: string;
-}
+export type Feed = [
+    posts: Post[],
+]
 
-export type Nodes = {
-    posts?: Post[];
-    users?: User[];
-}
+export type PostPage = [
+    pagePost: string,
+    post: Post,
+]
 
-export type PostPage = {
-    pagePost?: string;
-    nodes?: Nodes;
-}
-
-export type UserPage = {
-    pageUser?: string;
-    posts?: string[];
-    notFound?: boolean;
-    nodes?: Nodes;
-}
+export type UserPage = [
+    user: User,
+    posts: Post[],
+]
 
 export type User = {
     id: string;
@@ -32,6 +23,7 @@ export type User = {
 export type Post = {
     id: string;
     fromId?: string;
+    from?: User;
     text?: string;
     detailsURL?: string;
 }

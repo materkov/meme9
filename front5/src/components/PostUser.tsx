@@ -1,5 +1,5 @@
 import React from "react";
-import {BrowseResult, User, UserPage} from "../store/types";
+import {BrowseResult, Post, User} from "../store/types";
 import {Link} from "./Link";
 import styles from "./PostUser.module.css";
 
@@ -26,10 +26,10 @@ export function PostUser(props: { user: User }) {
 
     let userDetails = '...LOADING...';
     if (userData && userData.componentData) {
-        const pageUser = userData.componentData as UserPage;
-        const userObject = pageUser.nodes?.users?.find(item => item.id == pageUser.pageUser);
+        const userObject = userData.componentData[0] as User;
+        const userPosts = userData.componentData[1] as Post[];
         if (userObject) {
-            userDetails = "Name: " + userObject.name + ", posts: " + pageUser.posts?.length;
+            userDetails = "Name: " + userObject.name + ", posts: " + userPosts?.length;
         }
     }
 

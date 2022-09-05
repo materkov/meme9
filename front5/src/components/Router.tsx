@@ -65,25 +65,28 @@ export function Router() {
         if (data && data.componentName == "Feed" && url.startsWith("/posts/")) {
             setData({
                 componentName: "PostPage",
-                componentData: {
-                    pagePost: url.substring(7),
-                    nodes: data.componentData.nodes,
-                },
+                componentData: [
+                    url.substring(7),
+                    data.componentData[0].find((post: any) => post.id == url.substring(7)),
+                ],
             })
         }
 
         if (data && data.componentName == "Feed" && url.startsWith("/users/")) {
-            const user = data.componentData.nodes?.users?.find((p: User) => p.id == url.substring(7));
+            let user: any = null;
+            for (let post of data.componentData[0]) {
+                if (post.from.id == url.substring(7)) {
+                    user = post.from;
+                }
+            }
+
             if (user) {
                 setData({
                     componentName: "UserPage",
-                    componentData: {
-                        posts: [],
-                        pageUser: url.substring(7),
-                        nodes: {
-                            users: [user]
-                        }
-                    }
+                    componentData: [
+                        user,
+                        [],
+                    ]
                 })
             }
         }

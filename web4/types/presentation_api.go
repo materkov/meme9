@@ -9,31 +9,17 @@ import (
 type Composer struct {
 }
 
-type Route string
-
-const (
-	RoutePostsId  Route = "PostPage"
-	RouteFeed     Route = "Feed"
-	RouteUserPage Route = "UserPage"
-)
-
-type Nodes struct {
-	Users []*User `json:"users,omitempty"`
-	Posts []*Post `json:"posts,omitempty"`
-}
-
-func getUsersFromPosts(posts []*Post) []int {
+func getUsersFromPosts(posts []*Post) []*User {
 	userIds := map[string]bool{}
 	for _, post := range posts {
 		userIds[post.FromID] = true
 	}
 
-	userIdsList := make([]int, 0)
+	userIdsList := make([]*User, 0)
+	idx := 0
 	for userIdStr := range userIds {
-		userID, _ := strconv.Atoi(userIdStr)
-		if userID > 0 {
-			userIdsList = append(userIdsList, userID)
-		}
+		userIdsList[idx] = &User{ID: userIdStr}
+		idx++
 	}
 
 	return userIdsList

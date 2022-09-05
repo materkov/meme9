@@ -3,15 +3,13 @@ import React from "react";
 import {PostPage as PostPageRenderer} from "../store/types";
 
 export function PostPage(props: { data: PostPageRenderer }) {
-    const post = props.data.nodes?.posts?.find(item => item.id == props.data.pagePost);
+    const post = props.data[1];
     if (!post) {
         return null;
     }
 
-    const user = props.data.nodes?.users?.find(item => item.id == post.fromId);
-
     return <>
-        <ComponentPost post={post} from={user}/>
+        <ComponentPost post={post}/>
     </>
 
 }

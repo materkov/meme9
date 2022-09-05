@@ -15,6 +15,7 @@ import (
 type Post struct {
 	ID     string `json:"id,omitempty"`
 	FromID string `json:"fromId,omitempty"`
+	From   *User  `json:"from,omitempty"`
 
 	Text       string `json:"text"`
 	DetailsURL string `json:"detailsURL"`
@@ -35,6 +36,7 @@ func postsList(ids []int) []*Post {
 	}
 
 	results := make([]*Post, len(ids))
+	var usersPtr []*User
 	for i, postID := range ids {
 		result := &Post{
 			ID:         strconv.Itoa(postID),
@@ -48,8 +50,13 @@ func postsList(ids []int) []*Post {
 		}
 
 		result.FromID = strconv.Itoa(post.UserID)
+		result.From = &User{ID: strconv.Itoa(post.UserID)}
 		result.Text = post.Text
+
+		usersPtr = append(usersPtr, result.From)
 	}
+
+	usersList(usersPtr)
 
 	return results
 }

@@ -14,33 +14,27 @@ type User struct {
 	Href string `json:"href,omitempty"`
 }
 
-func usersList(ids []int) []*User {
-	usersMap := map[int]store.User{}
-	for _, postID := range ids {
+func usersList(users []*User) {
+	usersMap := map[string]store.User{}
+	for _, user := range users {
+		userID, _ := strconv.Atoi(user.ID)
 		obj := store.User{}
-		err := getObject(postID, &obj)
+		err := getObject(userID, &obj)
 		if err == nil {
-			usersMap[obj.ID] = obj
+			usersMap[user.ID] = obj
 		}
 	}
 
-	results := make([]*User, len(ids))
-	for i, userID := range ids {
-		result := &User{
-			ID:   strconv.Itoa(userID),
-			Href: fmt.Sprintf("/users/%d", userID),
-		}
-		results[i] = result
+	for _, user := range users {
+		user.Href = fmt.Sprintf("/users/%s", user.ID)
 
-		user, ok := usersMap[userID]
+		stUser, ok := usersMap[user.ID]
 		if !ok {
 			continue
 		}
 
-		result.Name = user.Name
+		user.Name = stUser.Name
 	}
-
-	return results
 }
 
 func usersAdd(vkID int) (int, error) {
