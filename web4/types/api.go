@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"github.com/materkov/meme9/web4/store"
 	"log"
 	"strconv"
 )
@@ -34,28 +33,32 @@ func UserPage(req *UserPageRequest) ([]interface{}, error) {
 		return nil, fmt.Errorf("user not found")
 	}
 
-	user := &store.User{}
-	err := getObject(userID, &user)
-	if err != nil {
-		return nil, fmt.Errorf("user not found")
-	}
+	var posts []*Post
+	chPosts := make(chan bool)
+	go func() {
+		postIds, err := postsGetFeedByUsers([]int{userID})
+		if err != nil {
+			log.Printf("Error getting user feed: %s", err)
+		}
 
-	postIds, err := postsGetFeedByUsers([]int{user.ID})
-	if err != nil {
-		log.Printf("Error getting user feed: %s", err)
-	}
+		posts = postsList(postIds)
+		chPosts <- true
+	}()
 
-	postIdsStr := make([]string, len(postIds))
-	for i, postID := range postIds {
-		postIdsStr[i] = strconv.Itoa(postID)
-	}
+	var users []*User
+	chUser := make(chan bool)
+	go func() {
+		users = []*User{{ID: strconv.Itoa(userID)}}
+		usersList(users)
+		chUser <- true
+	}()
 
-	users := []*User{{ID: strconv.Itoa(userID)}}
-	usersList(users)
+	<-chPosts
+	<-chUser
 
 	return []interface{}{
 		users[0],
-		postsList(postIds),
+		posts,
 	}, nil
 }
 
@@ -114,13 +117,9 @@ func Feed(req *FeedRequest) ([]interface{}, error) {
 	}
 
 	posts := postsList(postIds)
+
 	users := getUsersFromPosts(posts)
 	usersList(users)
-
-	postIdsStr := make([]string, len(postIds))
-	for i, postID := range postIds {
-		postIdsStr[i] = strconv.Itoa(postID)
-	}
 
 	return []interface{}{
 		posts,
