@@ -1,0 +1,15 @@
+.userName {
+    display: inline-block;
+    position: relative;
+}
+
+.userNamePopup {
+    background: #eeeeee;
+    position: absolute;
+    bottom: 20px;
+    width: 300px;
+}
+
+.userNamePopup__hidden {
+    display: none;
+}

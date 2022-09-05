@@ -1,15 +1,16 @@
 import React from "react";
 import {BrowseResult, User, UserPage} from "../store/types";
 import {Link} from "./Link";
+import styles from "./PostUser.module.css";
 
 export function PostUser(props: { user: User }) {
     const [isVisible, setIsVisible] = React.useState(false);
     const [userData, setUserData] = React.useState<BrowseResult>();
     const [isUserLoaded, setIsUserLoaded] = React.useState(false);
 
-    let className = "UserNamePopup";
+    let className = styles.userNamePopup;
     if (!isVisible) {
-        className += " UserNamePopup__hidden";
+        className += " " + styles.userNamePopup__hidden;
     }
 
     const onMouseEnter = () => {
@@ -33,7 +34,7 @@ export function PostUser(props: { user: User }) {
     }
 
     return (
-        <div className="UserName"
+        <div className={styles.userName}
              onMouseEnter={onMouseEnter}
              onMouseLeave={() => setIsVisible(false)}
         >

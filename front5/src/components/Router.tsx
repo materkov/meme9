@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {AddPostResponse, BrowseResult, Post} from "../store/types";
+import {AddPostResponse, BrowseResult, Post, User} from "../store/types";
 import {useCustomEventListener} from "react-custom-events";
 import {Feed} from "./Feed";
 import {PostPage} from "./PostPage";
@@ -73,7 +73,7 @@ export function Router() {
         }
 
         if (data && data.componentName == "Feed" && url.startsWith("/users/")) {
-            const user = data.componentData.nodes?.users?.find(p => p.id == url.substring(7));
+            const user = data.componentData.nodes?.users?.find((p: User) => p.id == url.substring(7));
             if (user) {
                 setData({
                     componentName: "UserPage",

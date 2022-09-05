@@ -9,6 +9,8 @@ require("esbuild")
         bundle: true,
         watch: true,
         outfile: "dist/bundle.js",
-        plugins: [cssModulesPlugin()],
+        plugins: [cssModulesPlugin({
+            localsConvention: 'camelCase',
+        })],
     })
     .catch(() => process.exit(1));
