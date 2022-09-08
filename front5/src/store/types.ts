@@ -24,6 +24,7 @@ export type Post = {
     id: string;
     fromId?: string;
     from?: User;
+    date?: string;
     text?: string;
     detailsURL?: string;
 }

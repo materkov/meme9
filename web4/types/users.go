@@ -30,6 +30,7 @@ func usersList(users []*User) {
 
 		stUser, ok := usersMap[user.ID]
 		if !ok {
+			user.Name = fmt.Sprintf("User #%s", user.ID)
 			continue
 		}
 

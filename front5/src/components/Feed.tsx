@@ -8,9 +8,6 @@ export function Feed(props: { data: FeedRenderer }) {
 
     return <>
         <Composer/>
-        <br/>
-        <a href="https://oauth.vk.com/authorize?client_id=7260220&response_type=code&redirect_uri=http://localhost:3000/vk-callback">Авторизация</a>
-        <br/>
         {posts.map(post => <ComponentPost post={post} key={post.id}/>)}
     </>
 }

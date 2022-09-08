@@ -125,3 +125,18 @@ func Feed(req *FeedRequest) ([]interface{}, error) {
 		posts,
 	}, nil
 }
+
+type ViewerRequest struct {
+}
+
+func RViewer(req *ViewerRequest, viewer *Viewer) ([]interface{}, error) {
+	var user *User
+	if viewer.UserID != 0 {
+		user = &User{ID: strconv.Itoa(viewer.UserID)}
+		usersList([]*User{user})
+	}
+
+	return []interface{}{
+		user,
+	}, nil
+}

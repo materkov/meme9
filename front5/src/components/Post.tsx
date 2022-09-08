@@ -1,21 +1,15 @@
 import React from "react";
-import {Link} from "./Link";
-import {Post, User} from "../store/types";
+import {Post} from "../store/types";
 import {PostUser} from "./PostUser";
+import styles from "./Post.module.css";
 
 export function ComponentPost(props: { post: Post }) {
     const post = props.post;
 
     return (
-        <div>
-            {post.from && <PostUser user={post.from}/>}<br/>
-
-            {post.text}
-            <br/>
-            <Link href={post.detailsURL}>Детали</Link>
-            <br/>
-            <br/>
-            <br/>
+        <div className={styles.post}>
+            {post.from && <PostUser post={post}/>}
+            <div className={styles.text}>{post.text}</div>
         </div>
     )
 }

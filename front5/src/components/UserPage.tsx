@@ -9,7 +9,7 @@ export function UserPage(props: { data: UserPageRenderer }) {
 
     return (
         <div>
-            {user && <PostUser user={user}/>}
+            {user.name}
             <hr/>
             {posts.map(post => <ComponentPost key={post.id} post={post}/>)}
         </div>

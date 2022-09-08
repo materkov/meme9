@@ -16,6 +16,7 @@ type Post struct {
 	ID     string `json:"id,omitempty"`
 	FromID string `json:"fromId,omitempty"`
 	From   *User  `json:"from,omitempty"`
+	Date   string `json:"date,omitempty"`
 
 	Text       string `json:"text"`
 	DetailsURL string `json:"detailsURL"`
@@ -53,6 +54,8 @@ func postsList(ids []int) []*Post {
 		result.From = &User{ID: strconv.Itoa(post.UserID)}
 		result.Text = post.Text
 
+		result.Date = time.Unix(int64(post.Date), 0).In(time.UTC).Format(time.RFC3339Nano)
+
 		usersPtr = append(usersPtr, result.From)
 	}
 
@@ -72,6 +75,7 @@ func postsAdd(text string, viewer *Viewer) (int, error) {
 		ID:     postID,
 		UserID: viewer.UserID,
 		Text:   text,
+		Date:   int(time.Now().Unix()),
 	}
 	postBytes, err := json.Marshal(post)
 	if err != nil {

@@ -1,0 +1,20 @@
+.header {
+    border-radius: 2px;
+    background: #f0f0f0;
+    padding: 10px 10px 13px 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 25px;
+    text-decoration: none;
+    color: black;
+}
+
+.userName {
+    justify-content: end;
+}

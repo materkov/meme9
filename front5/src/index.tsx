@@ -1,17 +1,6 @@
 import {createRoot} from "react-dom/client";
 import React from "react";
-import {Link} from "./components/Link";
-import {Router} from "./components/Router";
-
-const App = () => {
-    return (
-        <React.StrictMode>
-            <Link href={"/"}>Feed</Link>
-            <br/>
-            <Router/>
-        </React.StrictMode>
-    );
-}
+import {App} from "./components/App";
 
 const root = document.getElementById('root');
 if (root) {

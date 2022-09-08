@@ -15,7 +15,7 @@ func getUsersFromPosts(posts []*Post) []*User {
 		userIds[post.FromID] = true
 	}
 
-	userIdsList := make([]*User, 0)
+	userIdsList := make([]*User, len(userIds))
 	idx := 0
 	for userIdStr := range userIds {
 		userIdsList[idx] = &User{ID: userIdStr}
@@ -66,6 +66,13 @@ func Browse(url string, q string, viewer *Viewer) *BrowseResult {
 		req := &AddPostRequest{}
 		_ = json.Unmarshal([]byte(q), req)
 		result.AddPost, _ = AddPost(req, viewer)
+	}
+
+	if strings.HasPrefix(url, "/viewer") {
+		req := &ViewerRequest{}
+		_ = json.Unmarshal([]byte(q), req)
+		result.ComponentName = "Viewer"
+		result.ComponentData, _ = RViewer(req, viewer)
 	}
 
 	return result

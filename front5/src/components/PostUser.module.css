@@ -1,15 +1,39 @@
 .userName {
-    display: inline-block;
+    display: flex;
+    align-items: center;
     position: relative;
 }
 
 .userNamePopup {
     background: #eeeeee;
     position: absolute;
-    bottom: 20px;
+    bottom: 55px;
     width: 300px;
+    padding: 10px;
+    border-radius: 3px;
 }
 
 .userNamePopup__hidden {
     display: none;
+}
+
+.avatar {
+    width: 50px;
+    border-radius: 25px;
+}
+
+.rightContainer {
+    margin-left: 5px;
+    display: inline-block;
+    line-height: 21px;
+}
+
+.href {
+    color: #999;
+    display: block;
+    font-size: 14px;
+}
+
+.name {
+    font-weight: bold;
 }

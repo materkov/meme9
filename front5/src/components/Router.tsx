@@ -4,6 +4,7 @@ import {useCustomEventListener} from "react-custom-events";
 import {Feed} from "./Feed";
 import {PostPage} from "./PostPage";
 import {UserPage} from "./UserPage";
+import {Loader} from "./Loader";
 
 const dataCache: { [key: string]: BrowseResult } = {};
 
@@ -109,7 +110,7 @@ export function Router() {
     }, [url]);
 
     if (!data || !data.componentName) {
-        return null;
+        return <Loader/>;
     }
 
     const C = components[data.componentName];

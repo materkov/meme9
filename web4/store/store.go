@@ -4,6 +4,7 @@ type Post struct {
 	ID int
 
 	Text   string
+	Date   int
 	UserID int
 }
 

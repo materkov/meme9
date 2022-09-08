@@ -1,6 +1,10 @@
 .text {
-    width: 400px;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 50px;
+    width: 100%;
     display: block;
+    font-family: var(--font-family);
 }
 
 .submit {
