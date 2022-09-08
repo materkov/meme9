@@ -42,7 +42,7 @@ func Browse(url string, q string, viewer *Viewer) *BrowseResult {
 
 	if url == "/" {
 		result.ComponentName = "Feed"
-		result.ComponentData, _ = Feed(&FeedRequest{})
+		result.ComponentData, _ = Feed(&FeedRequest{}, viewer)
 	}
 
 	if strings.HasPrefix(url, "/posts/") {
@@ -58,8 +58,11 @@ func Browse(url string, q string, viewer *Viewer) *BrowseResult {
 	}
 
 	if strings.HasPrefix(url, "/vk-callback") {
+		req := &VkCallbackRequest{}
+		_ = json.Unmarshal([]byte(q), req)
+
 		code := strings.TrimPrefix(url, "/vk-callback?code=")
-		result.VkCallback, _ = VkCallback(&VkCallbackRequest{Code: code})
+		result.VkCallback, _ = VkCallback(&VkCallbackRequest{Code: code, RedirectURI: req.RedirectURI})
 	}
 
 	if strings.HasPrefix(url, "/posts/add") {

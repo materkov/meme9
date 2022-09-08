@@ -2,6 +2,7 @@ export type Composer = {}
 
 export type Feed = [
     posts: Post[],
+    viewerId: number,
 ]
 
 export type PostPage = [
@@ -44,3 +45,6 @@ export type VKCallback = {
     userId: string;
     authToken: string;
 }
+
+//export let apiHost = "http://localhost:8000";
+export let apiHost = "https://meme.mmaks.me";

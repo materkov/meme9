@@ -12,4 +12,4 @@ export function Link(props: { href?: string, children: ReactNode, className?: st
     }
 
     return <a className={props.className} href={props.href} onClick={onClick}>{props.children}</a>
-    }
+}

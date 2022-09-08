@@ -1,12 +1,13 @@
 import React, {useEffect} from "react";
 import styles from "./Header.module.css";
 import {Link} from "./Link";
-import {User} from "../store/types";
+import {apiHost, User} from "../store/types";
+import {emitCustomEvent, useCustomEventListener} from "react-custom-events";
 
 function getViewer(): Promise<User> {
     return new Promise<User>((resolve, reject) => {
 
-        fetch("http://localhost:8000/browse?url=/viewer", {
+        fetch(apiHost + "/browse?url=/viewer", {
             headers: {
                 'authorization': 'Bearer ' + localStorage.getItem('authToken'),
             }
@@ -19,20 +20,29 @@ function getViewer(): Promise<User> {
 
 }
 
-const vkURL = "https://oauth.vk.com/authorize?client_id=7260220&response_type=code&redirect_uri=http://localhost:3000/vk-callback"
+const vkURL = "https://oauth.vk.com/authorize?client_id=7260220&response_type=code&redirect_uri=" + location.origin + "/vk-callback"
 
 export function Header() {
     const [viewer, setViewer] = React.useState<User | undefined | null>();
     useEffect(() => {
-        getViewer().then(setViewer);
+        refreshUser();
     }, [])
 
     const onLogout = (e: MouseEvent) => {
-        e.stopPropagation();
+        e.preventDefault();
         localStorage.removeItem('authToken');
 
         setViewer(null);
+        emitCustomEvent('onAuthorized');
     }
+
+    const refreshUser = () => {
+        getViewer().then(setViewer);
+    }
+
+    useCustomEventListener('onAuthorized', () => {
+        refreshUser();
+    });
 
     return (
         <div className={styles.header}>

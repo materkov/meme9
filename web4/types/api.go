@@ -63,7 +63,8 @@ func UserPage(req *UserPageRequest) ([]interface{}, error) {
 }
 
 type VkCallbackRequest struct {
-	Code string
+	Code        string `json:"code"`
+	RedirectURI string `json:"redirectUri"`
 }
 
 type VkCallbackResponse struct {
@@ -72,7 +73,7 @@ type VkCallbackResponse struct {
 }
 
 func VkCallback(req *VkCallbackRequest) (*VkCallbackResponse, error) {
-	vkID, _ := authExchangeCode("http://localhost:3000", req.Code)
+	vkID, _ := authExchangeCode(req.Code, req.RedirectURI)
 	if vkID == 0 {
 		return nil, fmt.Errorf("error exchanging code")
 	}
@@ -110,7 +111,7 @@ func AddPost(req *AddPostRequest, viewer *Viewer) (*AddPostResponse, error) {
 type FeedRequest struct {
 }
 
-func Feed(req *FeedRequest) ([]interface{}, error) {
+func Feed(req *FeedRequest, viewer *Viewer) ([]interface{}, error) {
 	postIds, err := postsGetFeed()
 	if err != nil {
 		log.Printf("Error getting feed: %s", err)
@@ -123,6 +124,7 @@ func Feed(req *FeedRequest) ([]interface{}, error) {
 
 	return []interface{}{
 		posts,
+		viewer.UserID,
 	}, nil
 }
 

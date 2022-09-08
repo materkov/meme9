@@ -1,5 +1,5 @@
 import React from "react";
-import {BrowseResult, Post, User} from "../store/types";
+import {apiHost, BrowseResult, Post, User} from "../store/types";
 import {Link} from "./Link";
 import styles from "./PostUser.module.css";
 
@@ -21,7 +21,7 @@ export function PostUser(props: { post: Post }) {
         if (isUserLoaded) return;
 
         setIsUserLoaded(true);
-        fetch("http://localhost:8000/browse?url=/users/" + props.post.from?.id)
+        fetch(apiHost + "/browse?url=/users/" + props.post.from?.id)
             .then(r => r.json())
             .then(r => setUserData(r))
     }

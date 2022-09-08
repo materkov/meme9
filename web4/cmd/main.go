@@ -17,5 +17,10 @@ func main() {
 		_ = json.Unmarshal(dat, &types.DefaultConfig)
 	}
 
+	config := os.Getenv("CONFIG")
+	if config != "" {
+		_ = json.Unmarshal([]byte(config), &types.DefaultConfig)
+	}
+
 	types.DoHandle()
 }

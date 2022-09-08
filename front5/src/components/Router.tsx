@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {AddPostResponse, BrowseResult, Post, User} from "../store/types";
-import {useCustomEventListener} from "react-custom-events";
+import {AddPostResponse, apiHost, BrowseResult, Post, User} from "../store/types";
+import {emitCustomEvent, useCustomEventListener} from "react-custom-events";
 import {Feed} from "./Feed";
 import {PostPage} from "./PostPage";
 import {UserPage} from "./UserPage";
@@ -39,14 +39,14 @@ export function Router() {
             dataCopy.componentData.posts = [clientId, ...data.componentData.posts || []];
             setData(dataCopy);
 
-            fetch("http://localhost:8000/browse?url=/posts/add&q=" + encodeURIComponent(JSON.stringify({text: post.text})), {
+            fetch(apiHost + "/browse?url=/posts/add&q=" + encodeURIComponent(JSON.stringify({text: post.text})), {
                 headers: {
                     'authorization': localStorage.getItem('authToken') || "",
                 }
             })
                 .then(r => r.json())
                 .then((r: AddPostResponse) => {
-                    fetch("http://localhost:8000/browse?url=" + url)
+                    fetch(apiHost + "/browse?url=" + url)
                         .then(r => r.json())
                         .then((r) => {
                             setData(r);
@@ -92,7 +92,12 @@ export function Router() {
             }
         }
 
-        fetch("http://localhost:8000/browse?url=" + encodeURIComponent(url), {
+        let q = '';
+        if (url.startsWith('/vk-callback')) {
+            q = JSON.stringify({'redirectUri': location.origin + location.pathname});
+        }
+
+        fetch(apiHost + "/browse?url=" + encodeURIComponent(url) + '&q=' + encodeURIComponent(q), {
             method: 'GET',
             headers: {
                 'authorization': localStorage.getItem('authToken') || "",
@@ -105,6 +110,9 @@ export function Router() {
 
                 if (r.vkCallback) {
                     localStorage.setItem("authToken", r.vkCallback.authToken);
+                    window.history.pushState(null, '', '/');
+                    emitCustomEvent('urlChanged');
+                    emitCustomEvent('onAuthorized');
                 }
             })
     }, [url]);

@@ -14,11 +14,9 @@ import (
 	"time"
 )
 
-func authExchangeCode(origin string, code string) (int, error) {
+func authExchangeCode(code string, redirectURI string) (int, error) {
 	vkAppID := DefaultConfig.VKAppID
 	vkAppSecret := DefaultConfig.VKAppSecret
-
-	redirectURI := fmt.Sprintf("%s/vk-callback", origin)
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
 		"client_id":     []string{strconv.Itoa(vkAppID)},

@@ -7,7 +7,7 @@
 .userNamePopup {
     background: #eeeeee;
     position: absolute;
-    bottom: 55px;
+    top: 55px;
     width: 300px;
     padding: 10px;
     border-radius: 3px;
