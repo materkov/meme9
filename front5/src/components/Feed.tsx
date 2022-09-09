@@ -10,6 +10,7 @@ export function Feed() {
 
     useEffect(() => {
         api("/feed", {}).then(r => {
+            setViewerID(r[0]);
             setPosts(r[1]);
             setIsLoaded(true);
         })
