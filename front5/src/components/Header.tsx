@@ -1,20 +1,14 @@
 import React, {useEffect} from "react";
 import styles from "./Header.module.css";
 import {Link} from "./Link";
-import {apiHost, User} from "../store/types";
+import {api, User} from "../store/types";
 import {emitCustomEvent, useCustomEventListener} from "react-custom-events";
 
 function getViewer(): Promise<User | null> {
     return new Promise<User | null>((resolve, reject) => {
-        fetch(apiHost + "/viewer", {
-            headers: {
-                'authorization': 'Bearer ' + localStorage.getItem('authToken'),
-            }
+        api("/viewer").then(r => {
+            resolve(r[0]);
         })
-            .then(r => r.json())
-            .then(r => {
-                resolve(r[0]);
-            })
     })
 
 }
@@ -36,7 +30,9 @@ export function Header() {
     }
 
     const refreshUser = () => {
-        getViewer().then(setViewer);
+        api("/viewer").then(r => {
+            setViewer(r[0]);
+        })
     }
 
     useCustomEventListener('onAuthorized', () => {
@@ -51,7 +47,8 @@ export function Header() {
                 {viewer === null && <a href={vkURL}>Авторизация</a>}
                 {viewer !== null && viewer !== undefined &&
                     <>
-                    <Link href={"/users/" + viewer.id}>{viewer.name}</Link> | <a onClick={onLogout} href={"#"}>Выход</a>
+                        <Link href={"/users/" + viewer.id}>{viewer.name}</Link> | <a onClick={onLogout}
+                                                                                     href={"#"}>Выход</a>
                     </>
                 }
             </div>

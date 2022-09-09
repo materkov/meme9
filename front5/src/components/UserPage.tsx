@@ -1,5 +1,5 @@
 import React, {useEffect} from "react";
-import {apiHost, Post} from "../store/types";
+import {api, Post, User} from "../store/types";
 import {ComponentPost} from "./Post";
 
 export function UserPage() {
@@ -11,25 +11,19 @@ export function UserPage() {
         const f = new FormData();
         f.set("id", location.pathname.substring(7));
 
-        fetch(apiHost + "/userPage", {
-            method: 'POST',
-            body: f,
-            headers: {
-                'authorization': 'Bearer ' + localStorage.getItem('authToken'),
+        api("/userPage", {
+            id: location.pathname.substring(7)
+        }).then(r => {
+            setUser(r);
+
+            // TODO strange
+            for (let post of r.posts) {
+                post.user = r;
             }
+
+            setPosts(r.posts);
+            setLoaded(true);
         })
-            .then(r => r.json())
-            .then(r => {
-                setUser(r);
-
-                // TODO strange
-                for (let post of r.posts) {
-                    post.user = r;
-                }
-
-                setPosts(r.posts);
-                setLoaded(true);
-            })
     }, [])
 
     if (!loaded || !user) {

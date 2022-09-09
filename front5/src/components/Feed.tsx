@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import {ComponentPost} from "./Post";
 import {Composer} from "./Composer";
-import {apiHost, Post} from "../store/types";
+import {api, Post} from "../store/types";
 
 export function Feed() {
     const [viewerID, setViewerID] = React.useState('');
@@ -9,13 +9,7 @@ export function Feed() {
     const [loaded, setIsLoaded] = React.useState(false);
 
     useEffect(() => {
-        fetch(apiHost + "/feed", {
-            method: 'POST',
-            headers: {
-                'authorization': 'Bearer ' + localStorage.getItem('authToken'),
-            },
-        }).then(r => r.json()).then(r => {
-            setViewerID(r[0]);
+        api("/feed", {}).then(r => {
             setPosts(r[1]);
             setIsLoaded(true);
         })

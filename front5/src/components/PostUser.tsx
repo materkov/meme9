@@ -1,5 +1,5 @@
 import React from "react";
-import {apiHost, Post, User} from "../store/types";
+import {api, Post, User} from "../store/types";
 import {Link} from "./Link";
 import styles from "./PostUser.module.css";
 
@@ -25,15 +25,9 @@ export function PostUser(props: { post: Post }) {
         const f = new FormData();
         f.set("id", props.post.user?.id || "");
 
-        fetch(apiHost + "/userPage", {
-            method: 'POST',
-            body: f,
-            headers: {
-                'authorization': 'Bearer ' + localStorage.getItem('authToken'),
-            }
-        })
-            .then(r => r.json())
-            .then(r => setUserData(r))
+        api("/userPage", {
+            id: props.post.user?.id || ""
+        }).then(r => setUserData(r));
     }
 
     let userDetails = '...LOADING...';
