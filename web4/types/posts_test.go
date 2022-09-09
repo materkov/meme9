@@ -11,7 +11,7 @@ import (
 
 func setupRedis(t *testing.T) {
 	s := miniredis.RunT(t)
-	redisClient = redis.NewClient(&redis.Options{
+	RedisClient = redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	})
 }
@@ -20,12 +20,12 @@ func TestPosts_CRUD(t *testing.T) {
 	setupRedis(t)
 
 	// Add post
-	postID, err := postsAdd("test post", &Viewer{UserID: 161})
+	postID, err := PostsAdd("test post", &Viewer{UserID: 161})
 	require.NoError(t, err)
 	require.NotEmpty(t, postID)
 
 	// List posts
-	respList := postsList([]int{postID, postID + 1})
+	respList := PostsList([]int{postID, postID + 1})
 	require.Len(t, respList, 2)
 
 	require.Equal(t, "test post", respList[0].Text)
@@ -38,16 +38,16 @@ func TestPosts_CRUD(t *testing.T) {
 func TestPosts_AddErrors(t *testing.T) {
 	setupRedis(t)
 
-	_, err := postsAdd("", &Viewer{UserID: 0})
+	_, err := PostsAdd("", &Viewer{UserID: 0})
 	require.ErrorContains(t, err, "zero viewer")
 }
 
 func TestPosts_Feed(t *testing.T) {
 	setupRedis(t)
 
-	post1, err1 := postsAdd("", &Viewer{UserID: 15})
-	post2, err2 := postsAdd("", &Viewer{UserID: 16})
-	post3, err3 := postsAdd("", &Viewer{UserID: 16})
+	post1, err1 := PostsAdd("", &Viewer{UserID: 15})
+	post2, err2 := PostsAdd("", &Viewer{UserID: 16})
+	post3, err3 := PostsAdd("", &Viewer{UserID: 16})
 
 	require.NoError(t, err1)
 	require.NoError(t, err2)

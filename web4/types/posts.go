@@ -26,7 +26,7 @@ func nextID() int {
 	return int(time.Now().UnixMilli())
 }
 
-func postsList(ids []int) []*Post {
+func PostsList(ids []int) []*Post {
 	postsMap := map[int]store.Post{}
 	for _, postID := range ids {
 		post := store.Post{}
@@ -64,7 +64,7 @@ func postsList(ids []int) []*Post {
 	return results
 }
 
-func postsAdd(text string, viewer *Viewer) (int, error) {
+func PostsAdd(text string, viewer *Viewer) (int, error) {
 	if viewer.UserID == 0 {
 		return 0, fmt.Errorf("zero viewer")
 	}
@@ -82,17 +82,17 @@ func postsAdd(text string, viewer *Viewer) (int, error) {
 		return 0, fmt.Errorf("error serializing post to json: %w", err)
 	}
 
-	_, err = redisClient.Set(context.Background(), fmt.Sprintf("node:%d", postID), postBytes, 0).Result()
+	_, err = RedisClient.Set(context.Background(), fmt.Sprintf("node:%d", postID), postBytes, 0).Result()
 	if err != nil {
 		return 0, fmt.Errorf("error saving post to redis: %w", err)
 	}
 
-	_, err = redisClient.LPush(context.Background(), "feed", post.ID).Result()
+	_, err = RedisClient.LPush(context.Background(), "feed", post.ID).Result()
 	if err != nil {
 		log.Printf("Error saving feed key: %s", err)
 	}
 
-	_, err = redisClient.LPush(context.Background(), fmt.Sprintf("feed:%d", post.UserID), post.ID).Result()
+	_, err = RedisClient.LPush(context.Background(), fmt.Sprintf("feed:%d", post.UserID), post.ID).Result()
 	if err != nil {
 		log.Printf("Error saving user feed key: %s", err)
 	}
@@ -101,7 +101,7 @@ func postsAdd(text string, viewer *Viewer) (int, error) {
 }
 
 func postsGetFeed() ([]int, error) {
-	postIdsStr, err := redisClient.LRange(context.Background(), "feed", 0, 10).Result()
+	postIdsStr, err := RedisClient.LRange(context.Background(), "feed", 0, 10).Result()
 	if err != nil {
 		return nil, fmt.Errorf("error reading feed: %w", err)
 	}
@@ -115,7 +115,7 @@ func postsGetFeed() ([]int, error) {
 }
 
 func postsGetFeedByUsers(users []int) ([]int, error) {
-	p := redisClient.Pipeline()
+	p := RedisClient.Pipeline()
 
 	results := make([]*redis.StringSliceCmd, len(users))
 	for i, userID := range users {

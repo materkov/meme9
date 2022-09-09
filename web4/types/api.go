@@ -13,7 +13,7 @@ type PostPageRequest struct {
 func PostPage(req *PostPageRequest) ([]interface{}, error) {
 	postID, _ := strconv.Atoi(req.PostID)
 
-	posts := postsList([]int{postID})
+	posts := PostsList([]int{postID})
 	users := getUsersFromPosts(posts)
 	usersList(users)
 
@@ -41,7 +41,7 @@ func UserPage(req *UserPageRequest) ([]interface{}, error) {
 			log.Printf("Error getting user feed: %s", err)
 		}
 
-		posts = postsList(postIds)
+		posts = PostsList(postIds)
 		chPosts <- true
 	}()
 
@@ -103,8 +103,8 @@ type AddPostResponse struct {
 }
 
 func AddPost(req *AddPostRequest, viewer *Viewer) (*AddPostResponse, error) {
-	postID, _ := postsAdd(req.Text, viewer)
-	post := postsList([]int{postID})[0]
+	postID, _ := PostsAdd(req.Text, viewer)
+	post := PostsList([]int{postID})[0]
 	return &AddPostResponse{Post: post}, nil
 }
 
@@ -117,7 +117,7 @@ func Feed(req *FeedRequest, viewer *Viewer) ([]interface{}, error) {
 		log.Printf("Error getting feed: %s", err)
 	}
 
-	posts := postsList(postIds)
+	posts := PostsList(postIds)
 
 	users := getUsersFromPosts(posts)
 	usersList(users)

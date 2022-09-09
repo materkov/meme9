@@ -8,7 +8,7 @@ export function ComponentPost(props: { post: Post }) {
 
     return (
         <div className={styles.post}>
-            {post.from && <PostUser post={post}/>}
+            <PostUser post={post}/>
             <div className={styles.text}>{post.text}</div>
         </div>
     )

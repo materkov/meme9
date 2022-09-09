@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/go-redis/redis/v9"
+	"github.com/materkov/meme9/web4/api"
 	"github.com/materkov/meme9/web4/types"
 	"math/rand"
 	"os"
@@ -9,6 +11,8 @@ import (
 )
 
 func main() {
+	types.RedisClient = redis.NewClient(&redis.Options{})
+	
 	rand.Seed(time.Now().UnixNano())
 
 	homeDir, _ := os.UserHomeDir()
@@ -22,5 +26,5 @@ func main() {
 		_ = json.Unmarshal([]byte(config), &types.DefaultConfig)
 	}
 
-	types.DoHandle()
+	api.Serve()
 }

@@ -1,11 +1,10 @@
-package types
+package main
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v9"
-	"github.com/materkov/meme9/web4/store"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -13,6 +12,20 @@ import (
 	"strconv"
 	"time"
 )
+
+type AuthToken struct {
+	ID     int
+	UserID int
+	Token  string
+	Date   int
+}
+
+type Config struct {
+	VKAppID     int
+	VKAppSecret string
+}
+
+var DefaultConfig = Config{}
 
 func authExchangeCode(code string, redirectURI string) (int, error) {
 	vkAppID := DefaultConfig.VKAppID
@@ -59,8 +72,8 @@ func randStringRunes(n int) string {
 }
 
 func authCreateToken(userID int) (string, error) {
-	token := store.AuthToken{
-		ID:     nextID(),
+	token := AuthToken{
+		//ID:     nextID(),
 		UserID: userID,
 		Token:  randStringRunes(30),
 		Date:   int(time.Now().Unix()),
@@ -71,7 +84,7 @@ func authCreateToken(userID int) (string, error) {
 		return "", err
 	}
 
-	_, err = RedisClient.Set(context.Background(), fmt.Sprintf("auth_token:%s", token.Token), tokenBytes, time.Minute*10).Result()
+	_, err = redisClient.Set(context.Background(), fmt.Sprintf("auth_token:%s", token.Token), tokenBytes, time.Minute*10).Result()
 	if err != nil {
 		return "", err
 	}
@@ -79,19 +92,19 @@ func authCreateToken(userID int) (string, error) {
 	return token.Token, err
 }
 
-func AuthCheckToken(tokenStr string) (int, error) {
+func authCheckToken(tokenStr string) (int, error) {
 	if tokenStr == "" {
 		return 0, nil
 	}
 
-	tokenBytes, err := RedisClient.Get(context.Background(), fmt.Sprintf("auth_token:%s", tokenStr)).Bytes()
+	tokenBytes, err := redisClient.Get(context.Background(), fmt.Sprintf("auth_token:%s", tokenStr)).Bytes()
 	if err == redis.Nil {
 		return 0, nil
 	} else if err != nil {
 		return 0, err
 	}
 
-	token := store.AuthToken{}
+	token := AuthToken{}
 	err = json.Unmarshal(tokenBytes, &token)
 	if err != nil {
 		return 0, err

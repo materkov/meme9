@@ -7,7 +7,6 @@ export function Link(props: { href?: string, children: ReactNode, className?: st
 
         window.history.pushState(null, '', props.href);
 
-        //window.document.dispatchEvent(new Event('urlChanged'));
         emitCustomEvent('urlChanged');
     }
 

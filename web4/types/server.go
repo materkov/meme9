@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-var redisClient *redis.Client
+var RedisClient *redis.Client
 
 func getObject(id int, obj interface{}) error {
-	objBytes, err := redisClient.Get(context.Background(), fmt.Sprintf("node:%d", id)).Bytes()
+	objBytes, err := RedisClient.Get(context.Background(), fmt.Sprintf("node:%d", id)).Bytes()
 	if err == redis.Nil {
 		return err
 	} else if err != nil {
@@ -28,7 +28,7 @@ func saveObject(id int, obj interface{}) error {
 		return err
 	}
 
-	_, err = redisClient.Set(context.Background(), fmt.Sprintf("node:%d", id), objBytes, 0).Result()
+	_, err = RedisClient.Set(context.Background(), fmt.Sprintf("node:%d", id), objBytes, 0).Result()
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func saveObject(id int, obj interface{}) error {
 func DoHandle() {
 	// CRUD words: insert, delete, update, list
 
-	redisClient = redis.NewClient(&redis.Options{})
+	RedisClient = redis.NewClient(&redis.Options{})
 
 	http.HandleFunc("/browse", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -51,7 +51,7 @@ func DoHandle() {
 
 		authToken := r.Header.Get("authorization")
 		authToken = strings.TrimPrefix(authToken, "Bearer ")
-		userID, _ := authCheckToken(authToken)
+		userID, _ := AuthCheckToken(authToken)
 
 		viewer := Viewer{
 			UserID: userID,

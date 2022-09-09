@@ -57,14 +57,14 @@ func usersAdd(vkID int) (int, error) {
 
 func usersGetOrCreateByVKID(vkID int) (int, error) {
 	mapKey := fmt.Sprintf("vk2user_map:%d", vkID)
-	userIDStr, err := redisClient.Get(context.Background(), mapKey).Result()
+	userIDStr, err := RedisClient.Get(context.Background(), mapKey).Result()
 	if err == redis.Nil {
 		userID, err := usersAdd(vkID)
 		if err != nil {
 			return 0, err
 		}
 
-		_, err = redisClient.Set(context.Background(), mapKey, userID, 0).Result()
+		_, err = RedisClient.Set(context.Background(), mapKey, userID, 0).Result()
 		if err != nil {
 			return 0, err
 		}
