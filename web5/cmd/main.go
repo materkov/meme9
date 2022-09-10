@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"log"
@@ -43,12 +44,39 @@ type ApiUser struct {
 	Posts []*ApiPost `json:"posts"`
 }
 
+type ApiError string
+
+func (e ApiError) Error() string {
+	return string(e)
+}
+
+func write(w http.ResponseWriter, data interface{}, err error) {
+	resp := struct {
+		Ok    bool        `json:"ok"`
+		Data  interface{} `json:"data,omitempty"`
+		Error string      `json:"error,omitempty"`
+	}{}
+
+	var apiErr ApiError
+	if errors.As(err, &apiErr) {
+		resp.Error = err.Error()
+	} else if err != nil {
+		log.Printf("[ERROR] Internal error: %s", err)
+		resp.Error = "internal error"
+	} else {
+		resp.Ok = true
+		resp.Data = data
+	}
+	_ = json.NewEncoder(w).Encode(&resp)
+}
+
 func handleFeed(w http.ResponseWriter, r *http.Request) {
 	viewer := r.Context().Value("viewer").(*Viewer)
 
 	postIdsStr, err := redisClient.LRange(context.Background(), "feed", 0, 10).Result()
 	if err != nil {
-		log.Printf("Error getting feed: %s", err)
+		write(w, nil, err)
+		return
 	}
 
 	apiPosts := postsList(postIdsStr)
@@ -69,13 +97,13 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 		viewerID,
 		apiPosts,
 	}
-	_ = json.NewEncoder(w).Encode(resp)
+	write(w, resp, nil)
 }
 
 func handleAddPost(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
 	if text == "" {
-		fmt.Fprintf(w, "Empty text")
+		write(w, nil, ApiError("text is empty"))
 		return
 	}
 
@@ -92,7 +120,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 	postBytes, _ := json.Marshal(post)
 	_, err := redisClient.Set(context.Background(), fmt.Sprintf("node:%d", post.ID), postBytes, 0).Result()
 	if err != nil {
-		fmt.Fprintf(w, "Error saving post")
+		write(w, nil, err)
 		return
 	}
 
@@ -111,7 +139,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		Text: post.Text,
 	}
 
-	json.NewEncoder(w).Encode(apiPost)
+	write(w, apiPost, nil)
 }
 
 func handleUserPage(w http.ResponseWriter, r *http.Request) {
@@ -119,7 +147,7 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 
 	users := usersList([]string{userID})
 	if len(users) == 0 {
-		fmt.Fprintf(w, "User not found")
+		write(w, nil, ApiError("user not found"))
 		return
 	}
 
@@ -130,7 +158,7 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 
 	users[0].Posts = postsList(postIdsStr)
 
-	_ = json.NewEncoder(w).Encode(users[0])
+	write(w, users[0], nil)
 }
 
 func handlePostPage(w http.ResponseWriter, r *http.Request) {
@@ -138,14 +166,14 @@ func handlePostPage(w http.ResponseWriter, r *http.Request) {
 
 	posts := postsList([]string{postID})
 	if len(posts) == 0 {
-		fmt.Fprintf(w, "Post not found")
+		write(w, nil, ApiError("post not found"))
 		return
 	}
 
 	users := usersList([]string{posts[0].UserID})
 	posts[0].User = users[0]
 
-	_ = json.NewEncoder(w).Encode(posts[0])
+	write(w, posts[0], nil)
 }
 
 func usersList(ids []string) []*ApiUser {
@@ -232,13 +260,13 @@ func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 
 	vkID, err := authExchangeCode(code, redirectURI)
 	if err != nil {
-		fmt.Fprintf(w, "error")
+		write(w, nil, err)
 		return
 	}
 
 	userID, err := usersGetOrCreateByVKID(vkID)
 	if err != nil {
-		fmt.Fprintf(w, "error")
+		write(w, nil, err)
 		return
 	}
 
@@ -248,7 +276,7 @@ func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 		authToken,
 		userID,
 	}
-	_ = json.NewEncoder(w).Encode(resp)
+	write(w, resp, nil)
 }
 
 func handleViewer(w http.ResponseWriter, r *http.Request) {
@@ -263,7 +291,7 @@ func handleViewer(w http.ResponseWriter, r *http.Request) {
 	resp := []interface{}{
 		user,
 	}
-	_ = json.NewEncoder(w).Encode(resp)
+	write(w, resp, nil)
 }
 
 type Viewer struct {

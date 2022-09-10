@@ -7,17 +7,21 @@ export function Feed() {
     const [viewerID, setViewerID] = React.useState('');
     const [posts, setPosts] = React.useState<Post[]>([]);
     const [loaded, setIsLoaded] = React.useState(false);
+    const [err, setIsError] = React.useState(false);
 
     useEffect(() => {
-        api("/feed", {}).then(r => {
-            setViewerID(r[0]);
-            setPosts(r[1]);
+        api("/feed", {}).then(data => {
+            setViewerID(data[0]);
+            setPosts(data[1]);
             setIsLoaded(true);
-        })
+        }).catch(() => setIsError(true));
     }, [])
 
     if (!loaded) {
         return <>Загрузка...</>
+    }
+    if (err) {
+        return <>Ошибка...</>
     }
 
     return <>

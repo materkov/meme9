@@ -12,9 +12,6 @@ export type Post = {
     text: string;
 }
 
-//export let apiHost = "http://localhost:8000/api";
-export let apiHost = "https://meme.mmaks.me/api";
-
 export function api(url: string, params: any = {}): Promise<any> {
     const body = new FormData();
 
@@ -22,12 +19,23 @@ export function api(url: string, params: any = {}): Promise<any> {
         body.append(key, params[key]);
     }
 
-    return fetch(apiHost + url, {
-        method: 'POST',
-        body: body,
-        headers: {
-            'authorization': 'Bearer ' + localStorage.getItem('authToken'),
-        },
+    const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me/api" : "http://localhost:8000/api";
+
+    return new Promise((resolve, reject) => {
+        return fetch(apiHost + url, {
+            method: 'POST',
+            body: body,
+            headers: {
+                'authorization': 'Bearer ' + localStorage.getItem('authToken'),
+            },
+        })
+            .then(r => r.json())
+            .then(r => {
+                if (r.ok) {
+                    resolve(r.data);
+                } else {
+                    reject(r.error);
+                }
+            })
     })
-        .then(r => r.json());
 }
