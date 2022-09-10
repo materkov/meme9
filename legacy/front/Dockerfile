@@ -8,5 +8,5 @@ COPY . .
 RUN yarn build
 
 FROM busybox
-COPY --from=0 dist/ /data
+COPY --from=0 dist /data
 CMD ["cp", "-R", "/data/.", "/shared-volume"]

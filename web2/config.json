@@ -1,7 +1,0 @@
-{
-  "VkAppID": 7260220,
-  "VkAppSecret": "KbpbFMjgMGwjEtASWxZI",
-  "RequestScheme": "http",
-  "RequestHost": "localhost:8000",
-  "JwtSecret": "dasuAAsy@126DS"
-}
