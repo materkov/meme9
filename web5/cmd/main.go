@@ -163,8 +163,10 @@ func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	if name == "" {
 		write(w, nil, ApiError("name is empty"))
+		return
 	} else if len(name) > 100 {
 		write(w, nil, ApiError("name is too long"))
+		return
 	}
 
 	user.Name = name
@@ -172,6 +174,7 @@ func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 	err = store.NodeSave(user.ID, user)
 	if err != nil {
 		write(w, nil, err)
+		return
 	}
 
 	write(w, nil, nil)
