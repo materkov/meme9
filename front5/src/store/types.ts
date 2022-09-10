@@ -27,13 +27,12 @@ export function api(url: string, params: any = {}): Promise<any> {
             method: 'POST',
             body: body,
         })
-            .then(r => r.json())
-            .then(r => {
-                if (r.ok) {
-                    resolve(r.data);
+            .then(resp => {
+                if (resp.status == 200) {
+                    resp.json().then(resolve);
                 } else {
-                    reject(r.error);
+                    reject();
                 }
-            })
+            });
     })
 }

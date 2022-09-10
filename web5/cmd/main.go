@@ -36,23 +36,19 @@ func (e ApiError) Error() string {
 }
 
 func write(w http.ResponseWriter, data interface{}, err error) {
-	resp := struct {
-		Ok    bool        `json:"ok"`
-		Data  interface{} `json:"data,omitempty"`
-		Error string      `json:"error,omitempty"`
-	}{}
+	if err != nil {
+		w.WriteHeader(400)
 
-	var apiErr ApiError
-	if errors.As(err, &apiErr) {
-		resp.Error = err.Error()
-	} else if err != nil {
-		log.Printf("[ERROR] Internal error: %s", err)
-		resp.Error = "internal error"
+		var apiErr ApiError
+		if errors.As(err, &apiErr) {
+			fmt.Fprintf(w, err.Error())
+		} else if err != nil {
+			log.Printf("[ERROR] Internal error: %s", err)
+			fmt.Fprintf(w, "internal error")
+		}
 	} else {
-		resp.Ok = true
-		resp.Data = data
+		_ = json.NewEncoder(w).Encode(data)
 	}
-	_ = json.NewEncoder(w).Encode(&resp)
 }
 
 func parseIds(idsStr []string) []int {
