@@ -55,6 +55,15 @@ func write(w http.ResponseWriter, data interface{}, err error) {
 	_ = json.NewEncoder(w).Encode(&resp)
 }
 
+func parseIds(idsStr []string) []int {
+	result := make([]int, len(idsStr))
+	for i, idStr := range idsStr {
+		result[i], _ = strconv.Atoi(idStr)
+	}
+
+	return result
+}
+
 func handleFeed(w http.ResponseWriter, r *http.Request) {
 	viewer := r.Context().Value("viewer").(*Viewer)
 
@@ -64,7 +73,7 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apiPosts := postsList(postIdsStr)
+	apiPosts := postsList(parseIds(postIdsStr))
 
 	for _, post := range apiPosts {
 		users := usersList([]string{post.UserID})
@@ -104,7 +113,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts := postsList([]string{strconv.Itoa(postID)})
+	posts := postsList([]int{postID})
 	write(w, posts[0], nil)
 }
 
@@ -122,7 +131,7 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error getting feed: %s", err)
 	}
 
-	users[0].Posts = postsList(postIdsStr)
+	users[0].Posts = postsList(parseIds(postIdsStr))
 
 	write(w, users[0], nil)
 }
@@ -130,7 +139,7 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 func handlePostPage(w http.ResponseWriter, r *http.Request) {
 	postID := r.FormValue("id")
 
-	posts := postsList([]string{postID})
+	posts := postsList(parseIds([]string{postID}))
 	if len(posts) == 0 {
 		write(w, nil, ApiError("post not found"))
 		return

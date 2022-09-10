@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-func postsList(ids []string) []*Post {
+func postsList(ids []int) []*Post {
 	keys := make([]string, len(ids))
 	for i, postID := range ids {
-		keys[i] = fmt.Sprintf("node:%s", postID)
+		keys[i] = fmt.Sprintf("node:%d", postID)
 	}
 
 	postsBytes, err := store.RedisClient.MGet(context.Background(), keys...).Result()
@@ -21,7 +21,7 @@ func postsList(ids []string) []*Post {
 		log.Printf("error getting posts: %s", err)
 	}
 
-	var posts []*store.Post
+	posts := map[int]*store.Post{}
 	for _, postBytes := range postsBytes {
 		if postBytes == nil {
 			continue
@@ -33,18 +33,22 @@ func postsList(ids []string) []*Post {
 			continue
 		}
 
-		posts = append(posts, post)
+		posts[post.ID] = post
 	}
 
-	apiPosts := make([]*Post, len(posts))
-	for i, post := range posts {
-		apiPost := &Post{
-			ID:     strconv.Itoa(post.ID),
-			Text:   post.Text,
-			Date:   time.Unix(int64(post.Date), 0).UTC().Format(time.RFC3339),
-			UserID: strconv.Itoa(post.UserID),
+	apiPosts := make([]*Post, len(ids))
+	for i, postID := range ids {
+		result := &Post{ID: strconv.Itoa(postID)}
+		apiPosts[i] = result
+
+		post, ok := posts[postID]
+		if !ok {
+			continue
 		}
-		apiPosts[i] = apiPost
+
+		result.Text = post.Text
+		result.Date = time.Unix(int64(post.Date), 0).UTC().Format(time.RFC3339)
+		result.UserID = strconv.Itoa(post.UserID)
 	}
 
 	return apiPosts
