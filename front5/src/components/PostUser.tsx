@@ -45,7 +45,7 @@ export function PostUser(props: { post: Post }) {
         >
             <div className={className}>{userDetails}</div>
 
-            <img src={avatarStub} className={styles.avatar}/>
+            <img src={props.post.user?.avatar} className={styles.avatar} alt=""/>
             <div className={styles.rightContainer}>
                 <Link href={"/users/" + props.post.user?.id} className={styles.name}>{props.post.user?.name}</Link>
                 <Link href={"/posts/" + props.post.id} className={styles.href}>{dateStr}</Link>

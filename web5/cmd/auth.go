@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func authExchangeCode(code string, redirectURI string) (int, error) {
+func authExchangeCode(code string, redirectURI string) (int, string, error) {
 	vkAppID := store.DefaultConfig.VKAppID
 	vkAppSecret := store.DefaultConfig.VKAppSecret
 
@@ -25,13 +25,13 @@ func authExchangeCode(code string, redirectURI string) (int, error) {
 		"code":          []string{code},
 	})
 	if err != nil {
-		return 0, fmt.Errorf("http error: %s", err)
+		return 0, "", fmt.Errorf("http error: %s", err)
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return 0, fmt.Errorf("error reading body: %s", err)
+		return 0, "", fmt.Errorf("error reading body: %s", err)
 	}
 
 	body := struct {
@@ -40,12 +40,12 @@ func authExchangeCode(code string, redirectURI string) (int, error) {
 	}{}
 	err = json.Unmarshal(bodyBytes, &body)
 	if err != nil {
-		return 0, fmt.Errorf("error parsing json: %w", err)
+		return 0, "", fmt.Errorf("error parsing json: %w", err)
 	} else if body.AccessToken == "" {
-		return 0, fmt.Errorf("no access_token in response")
+		return 0, "", fmt.Errorf("no access_token in response")
 	}
 
-	return body.UserID, nil
+	return body.UserID, body.AccessToken, nil
 }
 
 func randStringRunes(n int) string {

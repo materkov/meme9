@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/store"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -85,10 +86,56 @@ func usersList(ids []string) []*User {
 	apiUsers := make([]*User, len(users))
 	for i, user := range users {
 		apiUsers[i] = &User{
-			ID:   strconv.Itoa(user.ID),
-			Name: user.Name,
+			ID:     strconv.Itoa(user.ID),
+			Name:   user.Name,
+			Avatar: user.VkPhoto200,
 		}
 	}
 
 	return apiUsers
+}
+
+func usersRefreshFromVk(id int) error {
+	user := store.User{}
+	err := store.NodeGet(id, &user)
+	if err != nil {
+		return fmt.Errorf("error getting user: %w", err)
+	}
+
+	args := fmt.Sprintf("v=5.180&access_token=%s&user_ids=%d&fields=photo_200", user.VkAccessToken, user.VkID)
+	resp, err := http.Post("https://api.vk.com/method/users.get?"+args, "", nil)
+	if err != nil {
+		return fmt.Errorf("http error: %s", err)
+	}
+	defer resp.Body.Close()
+
+	body := struct {
+		Response []struct {
+			ID        int    `json:"id"`
+			Photo200  string `json:"photo_200"`
+			FirstName string `json:"first_name"`
+			LastName  string `json:"last_name"`
+		} `json:"response"`
+		Error json.RawMessage `json:"error"`
+	}{}
+	err = json.NewDecoder(resp.Body).Decode(&body)
+	if err != nil {
+		return fmt.Errorf("incorrect json: %w", err)
+	}
+
+	if body.Error != nil {
+		return fmt.Errorf("error response from vk: %w", err)
+	} else if len(body.Response) == 0 || body.Response[0].ID != user.VkID {
+		return fmt.Errorf("user not found")
+	}
+
+	user.VkPhoto200 = body.Response[0].Photo200
+	user.Name = fmt.Sprintf("%s %s", body.Response[0].FirstName, body.Response[0].LastName)
+
+	err = store.NodeSave(user.ID, user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -17,7 +17,10 @@ type Post struct {
 type User struct {
 	ID   int
 	Name string
-	VkID int
+
+	VkID          int
+	VkAccessToken string
+	VkPhoto200    string
 }
 
 var RedisClient *redis.Client

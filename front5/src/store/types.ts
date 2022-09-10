@@ -2,6 +2,7 @@ export type User = {
     id: string;
     name?: string;
     posts?: Post[];
+    avatar?: string;
 }
 
 export type Post = {
