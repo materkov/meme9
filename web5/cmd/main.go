@@ -120,6 +120,8 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 func handleUserPage(w http.ResponseWriter, r *http.Request) {
 	userID := r.FormValue("id")
 
+	viewer := r.Context().Value("viewer").(*Viewer)
+
 	users := usersList([]string{userID})
 	if len(users) == 0 {
 		write(w, nil, ApiError("user not found"))
@@ -133,7 +135,46 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 
 	users[0].Posts = postsList(parseIds(postIdsStr))
 
-	write(w, users[0], nil)
+	write(w, []interface{}{
+		users[0],
+		viewer.GetUserIDStr(),
+	}, nil)
+}
+
+func handleUserEdit(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.FormValue("id"))
+
+	user := &store.User{}
+	err := store.NodeGet(userID, user)
+	if err != nil {
+		write(w, nil, err)
+		return
+	} else if user == nil {
+		write(w, nil, ApiError("user not found"))
+		return
+	}
+
+	viewer := r.Context().Value("viewer").(*Viewer)
+	if viewer.UserID != user.ID {
+		write(w, nil, ApiError("no access to edit this user"))
+		return
+	}
+
+	name := r.FormValue("name")
+	if name == "" {
+		write(w, nil, ApiError("name is empty"))
+	} else if len(name) > 100 {
+		write(w, nil, ApiError("name is too long"))
+	}
+
+	user.Name = name
+
+	err = store.NodeSave(user.ID, user)
+	if err != nil {
+		write(w, nil, err)
+	}
+
+	write(w, nil, nil)
 }
 
 func handlePostPage(w http.ResponseWriter, r *http.Request) {
@@ -201,6 +242,13 @@ type Viewer struct {
 	Origin string
 }
 
+func (v *Viewer) GetUserIDStr() string {
+	if v.UserID == 0 {
+		return ""
+	}
+	return strconv.Itoa(v.UserID)
+}
+
 func wrapper(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -241,6 +289,7 @@ func main() {
 	http.HandleFunc("/api/feed", wrapper(handleFeed))
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))
 	http.HandleFunc("/api/userPage", wrapper(handleUserPage))
+	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
 	http.HandleFunc("/api/postPage", wrapper(handlePostPage))
 	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))
 	http.HandleFunc("/api/viewer", wrapper(handleViewer))

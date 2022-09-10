@@ -43,8 +43,7 @@ func usersAdd(vkID int) (int, error) {
 		Name: fmt.Sprintf("User #%d", vkID),
 	}
 
-	userBytes, _ := json.Marshal(user)
-	_, err := store.RedisClient.Set(context.Background(), fmt.Sprintf("node:%d", user.ID), userBytes, 0).Result()
+	err := store.NodeSave(id, user)
 	if err != nil {
 		return 0, fmt.Errorf("error saving user: %w", err)
 	}

@@ -27,7 +27,7 @@ export function PostUser(props: { post: Post }) {
 
         api("/userPage", {
             id: props.post.user?.id || ""
-        }).then(r => setUserData(r));
+        }).then(r => setUserData(r[0]));
     }
 
     let userDetails = '...LOADING...';

@@ -63,8 +63,7 @@ func postsAdd(text string, userID int) (int, error) {
 		UserID: userID,
 		Date:   int(time.Now().Unix()),
 	}
-	postBytes, _ := json.Marshal(post)
-	_, err := store.RedisClient.Set(context.Background(), fmt.Sprintf("node:%d", post.ID), postBytes, 0).Result()
+	err := store.NodeSave(post.ID, post)
 	if err != nil {
 		return 0, fmt.Errorf("error creating post node: %w", err)
 	}

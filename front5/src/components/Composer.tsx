@@ -5,18 +5,30 @@ import {api} from "../store/types";
 
 export function Composer() {
     const [text, setText] = React.useState('');
+    const [success, setSuccess] = React.useState(false);
+    const [err, setErr] = React.useState(false);
 
     const onSubmit = () => {
-        api("/addPost", {text: text});
+        setSuccess(false);
+        setErr(false);
 
-        emitCustomEvent('postCreated', {
-            text: text,
+        api("/addPost", {text: text}).then(() => {
+            setSuccess(true);
+
+            emitCustomEvent('postCreated', {
+                text: text,
+            })
+        }).catch(() => {
+            setErr(true);
         })
+
         setText('');
     }
 
     return <>
         <textarea className={styles.text} value={text} onChange={(e) => setText(e.target.value)}/>
         <button className={styles.submit} onClick={onSubmit}>Опубликовать</button>
+        {success && <div>Ваш пост сохранен</div>}
+        {err && <div>Не удалось сохранить пост</div>}
     </>;
 }
