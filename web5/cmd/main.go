@@ -6,29 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"github.com/materkov/meme9/web5/store"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
-
-var redisClient *redis.Client
-
-type Post struct {
-	ID     int
-	Date   int
-	Text   string
-	UserID int
-}
-
-type User struct {
-	ID   int
-	Name string
-	VkID int
-}
 
 type ApiPost struct {
 	ID     string   `json:"id"`
@@ -73,7 +58,7 @@ func write(w http.ResponseWriter, data interface{}, err error) {
 func handleFeed(w http.ResponseWriter, r *http.Request) {
 	viewer := r.Context().Value("viewer").(*Viewer)
 
-	postIdsStr, err := redisClient.LRange(context.Background(), "feed", 0, 10).Result()
+	postIdsStr, err := store.RedisClient.LRange(context.Background(), "feed", 0, 10).Result()
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -111,25 +96,25 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 
 	nextId := int(time.Now().UnixMilli())
 
-	post := Post{
+	post := store.Post{
 		ID:     nextId,
 		Text:   text,
 		UserID: viewer.UserID,
 		Date:   int(time.Now().Unix()),
 	}
 	postBytes, _ := json.Marshal(post)
-	_, err := redisClient.Set(context.Background(), fmt.Sprintf("node:%d", post.ID), postBytes, 0).Result()
+	_, err := store.RedisClient.Set(context.Background(), fmt.Sprintf("node:%d", post.ID), postBytes, 0).Result()
 	if err != nil {
 		write(w, nil, err)
 		return
 	}
 
-	_, err = redisClient.LPush(context.Background(), "feed", post.ID).Result()
+	_, err = store.RedisClient.LPush(context.Background(), "feed", post.ID).Result()
 	if err != nil {
 		log.Printf("Error saving post to feed")
 	}
 
-	_, err = redisClient.LPush(context.Background(), fmt.Sprintf("feed:%d", post.UserID), post.ID).Result()
+	_, err = store.RedisClient.LPush(context.Background(), fmt.Sprintf("feed:%d", post.UserID), post.ID).Result()
 	if err != nil {
 		log.Printf("Error saving user feed key: %s", err)
 	}
@@ -151,7 +136,7 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postIdsStr, err := redisClient.LRange(context.Background(), fmt.Sprintf("feed:%s", userID), 0, 10).Result()
+	postIdsStr, err := store.RedisClient.LRange(context.Background(), fmt.Sprintf("feed:%s", userID), 0, 10).Result()
 	if err != nil {
 		log.Printf("Error getting feed: %s", err)
 	}
@@ -182,18 +167,18 @@ func usersList(ids []string) []*ApiUser {
 		keys[i] = fmt.Sprintf("node:%s", userID)
 	}
 
-	userBytesList, err := redisClient.MGet(context.Background(), keys...).Result()
+	userBytesList, err := store.RedisClient.MGet(context.Background(), keys...).Result()
 	if err != nil {
 		log.Printf("Error getting users: %s", err)
 	}
 
-	var users []*User
+	var users []*store.User
 	for _, userBytes := range userBytesList {
 		if userBytes == nil {
 			continue
 		}
 
-		user := &User{}
+		user := &store.User{}
 		err = json.Unmarshal([]byte(userBytes.(string)), user)
 		if err != nil {
 			log.Printf("Error unmarshalling user: %s", err)
@@ -220,18 +205,18 @@ func postsList(ids []string) []*ApiPost {
 		keys[i] = fmt.Sprintf("node:%s", postID)
 	}
 
-	postsBytes, err := redisClient.MGet(context.Background(), keys...).Result()
+	postsBytes, err := store.RedisClient.MGet(context.Background(), keys...).Result()
 	if err != nil {
 		log.Printf("error getting posts: %s", err)
 	}
 
-	var posts []*Post
+	var posts []*store.Post
 	for _, postBytes := range postsBytes {
 		if postBytes == nil {
 			continue
 		}
 
-		post := &Post{}
+		post := &store.Post{}
 		err = json.Unmarshal([]byte(postBytes.(string)), post)
 		if err != nil {
 			continue
@@ -310,8 +295,7 @@ func wrapper(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		authToken := r.Header.Get("authorization")
-		authToken = strings.TrimPrefix(authToken, "Bearer ")
+		authToken := r.FormValue("token")
 		userID, _ := authCheckToken(authToken)
 
 		viewer := &Viewer{
@@ -330,12 +314,12 @@ func main() {
 	homeDir, _ := os.UserHomeDir()
 	dat, _ := os.ReadFile(homeDir + "/mypage/config.json")
 	if len(dat) > 0 {
-		_ = json.Unmarshal(dat, &DefaultConfig)
+		_ = json.Unmarshal(dat, &store.DefaultConfig)
 	}
 
 	config := os.Getenv("CONFIG")
 	if config != "" {
-		_ = json.Unmarshal([]byte(config), &DefaultConfig)
+		_ = json.Unmarshal([]byte(config), &store.DefaultConfig)
 	}
 
 	http.HandleFunc("/api/feed", wrapper(handleFeed))
@@ -345,7 +329,7 @@ func main() {
 	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))
 	http.HandleFunc("/api/viewer", wrapper(handleViewer))
 
-	redisClient = redis.NewClient(&redis.Options{})
+	store.RedisClient = redis.NewClient(&redis.Options{})
 
 	http.ListenAndServe("127.0.0.1:8000", nil)
 }

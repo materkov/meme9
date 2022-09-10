@@ -14,6 +14,7 @@ export type Post = {
 
 export function api(url: string, params: any = {}): Promise<any> {
     const body = new FormData();
+    body.set("token", localStorage.getItem('authToken') || '');
 
     for (let key in params) {
         body.append(key, params[key]);
@@ -25,9 +26,6 @@ export function api(url: string, params: any = {}): Promise<any> {
         return fetch(apiHost + url, {
             method: 'POST',
             body: body,
-            headers: {
-                'authorization': 'Bearer ' + localStorage.getItem('authToken'),
-            },
         })
             .then(r => r.json())
             .then(r => {

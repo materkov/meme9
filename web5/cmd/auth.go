@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"github.com/materkov/meme9/web5/store"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -13,23 +14,9 @@ import (
 	"time"
 )
 
-type AuthToken struct {
-	ID     int
-	UserID int
-	Token  string
-	Date   int
-}
-
-type Config struct {
-	VKAppID     int
-	VKAppSecret string
-}
-
-var DefaultConfig = Config{}
-
 func authExchangeCode(code string, redirectURI string) (int, error) {
-	vkAppID := DefaultConfig.VKAppID
-	vkAppSecret := DefaultConfig.VKAppSecret
+	vkAppID := store.DefaultConfig.VKAppID
+	vkAppSecret := store.DefaultConfig.VKAppSecret
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
 		"client_id":     []string{strconv.Itoa(vkAppID)},
@@ -72,7 +59,7 @@ func randStringRunes(n int) string {
 }
 
 func authCreateToken(userID int) (string, error) {
-	token := AuthToken{
+	token := store.AuthToken{
 		//ID:     nextID(),
 		UserID: userID,
 		Token:  randStringRunes(30),
@@ -84,7 +71,7 @@ func authCreateToken(userID int) (string, error) {
 		return "", err
 	}
 
-	_, err = redisClient.Set(context.Background(), fmt.Sprintf("auth_token:%s", token.Token), tokenBytes, time.Minute*10).Result()
+	_, err = store.RedisClient.Set(context.Background(), fmt.Sprintf("auth_token:%s", token.Token), tokenBytes, time.Minute*10).Result()
 	if err != nil {
 		return "", err
 	}
@@ -97,14 +84,14 @@ func authCheckToken(tokenStr string) (int, error) {
 		return 0, nil
 	}
 
-	tokenBytes, err := redisClient.Get(context.Background(), fmt.Sprintf("auth_token:%s", tokenStr)).Bytes()
+	tokenBytes, err := store.RedisClient.Get(context.Background(), fmt.Sprintf("auth_token:%s", tokenStr)).Bytes()
 	if err == redis.Nil {
 		return 0, nil
 	} else if err != nil {
 		return 0, err
 	}
 
-	token := AuthToken{}
+	token := store.AuthToken{}
 	err = json.Unmarshal(tokenBytes, &token)
 	if err != nil {
 		return 0, err
