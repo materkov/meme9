@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/store"
+	"log"
 	"strconv"
 	"time"
 )
@@ -53,4 +54,42 @@ func usersAdd(vkID int) (int, error) {
 
 func nextID() int {
 	return int(time.Now().UnixMilli())
+}
+
+func usersList(ids []string) []*User {
+	keys := make([]string, len(ids))
+	for i, userID := range ids {
+		keys[i] = fmt.Sprintf("node:%s", userID)
+	}
+
+	userBytesList, err := store.RedisClient.MGet(context.Background(), keys...).Result()
+	if err != nil {
+		log.Printf("Error getting users: %s", err)
+	}
+
+	var users []*store.User
+	for _, userBytes := range userBytesList {
+		if userBytes == nil {
+			continue
+		}
+
+		user := &store.User{}
+		err = json.Unmarshal([]byte(userBytes.(string)), user)
+		if err != nil {
+			log.Printf("Error unmarshalling user: %s", err)
+			continue
+		}
+
+		users = append(users, user)
+	}
+
+	apiUsers := make([]*User, len(users))
+	for i, user := range users {
+		apiUsers[i] = &User{
+			ID:   strconv.Itoa(user.ID),
+			Name: user.Name,
+		}
+	}
+
+	return apiUsers
 }
