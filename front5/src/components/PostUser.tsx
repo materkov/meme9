@@ -3,8 +3,6 @@ import {api, Post, User} from "../store/types";
 import {Link} from "./Link";
 import styles from "./PostUser.module.css";
 
-const avatarStub = 'https://sun9-73.userapi.com/s/v1/ig2/dv3b5tV5Umau1mxqiWJwb6hJOHc-f5_lEkNmmjWuZ3_hsVQcfH9yiril0lJTbKjDr1Hc9BBZU_RY6aldGSU8N9cR.jpg?size=100x100&quality=95&crop=340,512,1228,1228&ava=1';
-
 export function PostUser(props: { post: Post }) {
     const [isVisible, setIsVisible] = React.useState(false);
     const [userData, setUserData] = React.useState<User>();

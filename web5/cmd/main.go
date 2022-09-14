@@ -35,7 +35,7 @@ type User struct {
 
 type UserPostsConnection struct {
 	Count      int     `json:"count,omitempty"`
-	Posts      []*Post `json:"posts,omitempty"`
+	Items      []*Post `json:"items,omitempty"`
 	NextCursor string  `json:"nextCursor,omitempty"`
 }
 
@@ -188,7 +188,7 @@ func userPagePosts(userID int, offset int) *UserPostsConnection {
 
 	return &UserPostsConnection{
 		Count:      count,
-		Posts:      postsList(parseIds(postIdsStr)),
+		Items:      postsList(parseIds(postIdsStr)),
 		NextCursor: nextCursor,
 	}
 }

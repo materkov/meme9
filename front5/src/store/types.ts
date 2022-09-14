@@ -8,7 +8,7 @@ export type User = {
 
 export type UserPostsConnection = {
     count?: number;
-    posts?: Post[];
+    items?: Post[];
     nextCursor?: string;
 }
 

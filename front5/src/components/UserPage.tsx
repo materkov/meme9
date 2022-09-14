@@ -16,19 +16,19 @@ export function UserPage() {
     useEffect(() => {
         api("/userPage", {
             id: location.pathname.substring(7)
-        }).then(r => {
+        }).then((r: [User, string]) => {
             const [user, viewerId] = r;
             setUser(user);
             setViewerId(viewerId);
-            setUserName(user.name);
+            setUserName(user.name || "");
 
             // TODO strange
-            for (let post of user.posts.posts) {
+            for (let post of user.posts?.items || []) {
                 post.user = user;
             }
 
             setLoaded(true);
-            setPostsCursor(user.posts?.nextCursor);
+            setPostsCursor(user.posts?.nextCursor || "");
         })
     }, []);
 
@@ -70,14 +70,14 @@ export function UserPage() {
             let r = result[0];
             setPostsCursor(r.nextCursor || "");
 
-            for (let post of r.posts || []) {
+            for (let post of r.items || []) {
                 post.user = user;
             }
 
-            setUser(produce(user, user => {
+            setUser(produce(user, (user: User) => {
                 user.posts = user.posts || {};
-                user.posts.posts = user.posts?.posts || [];
-                user.posts.posts = [...user.posts.posts, ...r.posts || []];
+                user.posts.items = user.posts?.items || [];
+                user.posts.items = [...user.posts.items, ...r.items || []];
             }));
         })
     }
@@ -110,7 +110,7 @@ export function UserPage() {
                 <button onClick={editName}>Обновить</button>
                 {userNameUpdated && <div>Имя успешно обновлено</div>}
             </>}
-            {user.posts?.posts?.map(post => <ComponentPost key={post.id} post={post}/>)}
+            {user.posts?.items?.map(post => <ComponentPost key={post.id} post={post}/>)}
             {postsCursor && <button onClick={onShowMore}>Показать еще</button>}
         </div>
     )
