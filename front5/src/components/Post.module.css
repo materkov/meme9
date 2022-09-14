@@ -2,6 +2,55 @@
     margin: 20px 0;
 }
 
+.topContainer {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+}
+
 .text {
     margin-top: 10px;
+}
+
+.menuIcon {
+    justify-self: right;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.menu {
+    border-radius: 3px;
+    background: #f0f0f0;
+    position: absolute;
+    right: 0;
+    top: 20px;
+    animation-duration: 0.2s;
+    animation-name: slidein;
+}
+
+@keyframes slidein {
+    from {
+        top: 50px;
+        opacity: 0;
+    }
+
+    to {
+        top: 20px;
+        opacity: 1;
+    }
+}
+
+.menuHidden {
+    display: none;
+}
+
+.menuItem {
+    padding: 6px 15px;
+    cursor: pointer;
+}
+
+.menuItem:hover {
+    border-radius: 3px;
+    background: #e0e0e0;
 }

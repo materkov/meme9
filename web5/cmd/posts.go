@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func postsList(ids []int) []*Post {
+func postsList(ids []int, viewerID int) []*Post {
 	if len(ids) == 0 {
 		return nil
 	}
@@ -48,11 +48,15 @@ func postsList(ids []int) []*Post {
 		post, ok := posts[postID]
 		if !ok {
 			continue
+		} else if post.IsDeleted {
+			result.Text = "DELETED"
+			continue
 		}
 
 		result.Text = post.Text
 		result.Date = time.Unix(int64(post.Date), 0).UTC().Format(time.RFC3339)
 		result.UserID = strconv.Itoa(post.UserID)
+		result.CanDelete = post.UserID == viewerID
 	}
 
 	return apiPosts
@@ -93,4 +97,23 @@ func postsAdd(text string, userID int) (int, error) {
 	<-doneUserFeed
 
 	return post.ID, nil
+}
+
+func postsDelete(post *store.Post) error {
+	pipe := store.RedisClient.Pipeline()
+	pipe.LRem(context.Background(), "feed", 0, post.ID)
+	pipe.LRem(context.Background(), fmt.Sprintf("feed:%d", post.UserID), 0, post.ID)
+
+	_, err := pipe.Exec(context.Background())
+	if err != nil {
+		return fmt.Errorf("error removing from feed: %w", err)
+	}
+
+	post.IsDeleted = true
+	err = store.NodeSave(post.ID, post)
+	if err != nil {
+		return fmt.Errorf("error updating post node: %w", err)
+	}
+
+	return nil
 }

@@ -12,6 +12,8 @@ type Post struct {
 	Date   int
 	Text   string
 	UserID int
+
+	IsDeleted bool
 }
 
 type User struct {
@@ -40,10 +42,12 @@ type Config struct {
 
 var DefaultConfig = Config{}
 
+var ErrNodeNotFound = fmt.Errorf("node not found")
+
 func NodeGet(id int, obj interface{}) error {
 	objBytes, err := RedisClient.Get(context.Background(), fmt.Sprintf("node:%d", id)).Bytes()
 	if err == redis.Nil {
-		return nil
+		return ErrNodeNotFound
 	} else if err != nil {
 		return fmt.Errorf("error getting node from redis: %s", err)
 	}

@@ -82,6 +82,14 @@ export function UserPage() {
         })
     }
 
+    const onPostDelete = (postId: string) => {
+        setUser(produce(user, user => {
+            user.posts = user.posts || {};
+            user.posts.items = user.posts?.items || [];
+            user.posts.items = user.posts?.items?.filter(post => post.id !== postId);
+        }))
+    }
+
     return (
         <div>
             <div className={styles.topBlock}>
@@ -110,7 +118,11 @@ export function UserPage() {
                 <button onClick={editName}>Обновить</button>
                 {userNameUpdated && <div>Имя успешно обновлено</div>}
             </>}
-            {user.posts?.items?.map(post => <ComponentPost key={post.id} post={post}/>)}
+
+            {user.posts?.items?.map(post => (
+                <ComponentPost key={post.id} post={post} onDelete={() => onPostDelete(post.id)}/>
+            ))}
+
             {postsCursor && <button onClick={onShowMore}>Показать еще</button>}
         </div>
     )

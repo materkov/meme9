@@ -22,6 +22,8 @@ type Post struct {
 	Date   string `json:"date"`
 	UserID string `json:"userId"`
 	User   *User  `json:"user"`
+
+	CanDelete bool `json:"canDelete,omitempty"`
 }
 
 type User struct {
@@ -79,7 +81,7 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apiPosts := postsList(parseIds(postIdsStr))
+	apiPosts := postsList(parseIds(postIdsStr), viewer.UserID)
 
 	for _, post := range apiPosts {
 		users := usersList([]string{post.UserID})
@@ -119,7 +121,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts := postsList([]int{postID})
+	posts := postsList([]int{postID}, viewer.UserID)
 	write(w, posts[0], nil)
 }
 
@@ -133,7 +135,7 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 		write(w, nil, ApiError("user not found"))
 		return
 	}
-	users[0].Posts = userPagePosts(userID, 0)
+	users[0].Posts = userPagePosts(userID, 0, viewer.UserID)
 
 	write(w, []interface{}{
 		users[0],
@@ -158,15 +160,16 @@ func ParsePostsListCursor(cursor string) *postsListCursor {
 func handleUserPagePosts(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("id"))
 	cursor := ParsePostsListCursor(r.FormValue("cursor"))
+	viewer := r.Context().Value("viewer").(*Viewer)
 
-	result := userPagePosts(userID, cursor.Offset)
+	result := userPagePosts(userID, cursor.Offset, viewer.UserID)
 
 	write(w, []interface{}{
 		result,
 	}, nil)
 }
 
-func userPagePosts(userID int, offset int) *UserPostsConnection {
+func userPagePosts(userID int, offset int, viewerID int) *UserPostsConnection {
 	redisKey := fmt.Sprintf("feed:%d", userID)
 	pipe := store.RedisClient.Pipeline()
 
@@ -188,7 +191,7 @@ func userPagePosts(userID int, offset int) *UserPostsConnection {
 
 	return &UserPostsConnection{
 		Count:      count,
-		Items:      postsList(parseIds(postIdsStr)),
+		Items:      postsList(parseIds(postIdsStr), viewerID),
 		NextCursor: nextCursor,
 	}
 }
@@ -234,8 +237,9 @@ func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 
 func handlePostPage(w http.ResponseWriter, r *http.Request) {
 	postID := r.FormValue("id")
+	viewer := r.Context().Value("viewer").(*Viewer)
 
-	posts := postsList(parseIds([]string{postID}))
+	posts := postsList(parseIds([]string{postID}), viewer.UserID)
 	if len(posts) == 0 {
 		write(w, nil, ApiError("post not found"))
 		return
@@ -245,6 +249,36 @@ func handlePostPage(w http.ResponseWriter, r *http.Request) {
 	posts[0].User = users[0]
 
 	write(w, posts[0], nil)
+}
+
+func handlePostDelete(w http.ResponseWriter, r *http.Request) {
+	postID, _ := strconv.Atoi(r.FormValue("id"))
+
+	post := &store.Post{}
+	err := store.NodeGet(postID, post)
+	if err == store.ErrNodeNotFound {
+		write(w, nil, ApiError("post not found"))
+		return
+	} else if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	viewer := r.Context().Value("viewer").(*Viewer)
+	if post.UserID != viewer.UserID {
+		write(w, nil, ApiError("no access to delete this post"))
+		return
+	}
+
+	if !post.IsDeleted {
+		err = postsDelete(post)
+		if err != nil {
+			write(w, nil, err)
+			return
+		}
+	}
+
+	write(w, []interface{}{}, nil)
 }
 
 func handleVkCallback(w http.ResponseWriter, r *http.Request) {
@@ -372,6 +406,7 @@ func main() {
 	http.HandleFunc("/api/userPage/posts", wrapper(handleUserPagePosts))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
 	http.HandleFunc("/api/postPage", wrapper(handlePostPage))
+	http.HandleFunc("/api/postDelete", wrapper(handlePostDelete))
 	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))
 	http.HandleFunc("/api/viewer", wrapper(handleViewer))
 

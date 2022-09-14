@@ -67,7 +67,7 @@ func usersList(ids []string) []*User {
 		log.Printf("Error getting users: %s", err)
 	}
 
-	var users []*store.User
+	usersMap := map[string]*store.User{}
 	for _, userBytes := range userBytesList {
 		if userBytes == nil {
 			continue
@@ -80,17 +80,25 @@ func usersList(ids []string) []*User {
 			continue
 		}
 
-		users = append(users, user)
+		usersMap[strconv.Itoa(user.ID)] = user
 	}
 
-	apiUsers := make([]*User, len(users))
-	for i, user := range users {
-		apiUsers[i] = &User{
-			ID:     strconv.Itoa(user.ID),
-			Name:   user.Name,
-			Avatar: user.VkPhoto200,
-			Bio:    user.Bio,
+	apiUsers := make([]*User, len(ids))
+	for i, userID := range ids {
+		apiUser := &User{
+			ID: userID,
 		}
+
+		apiUsers[i] = apiUser
+
+		user, ok := usersMap[userID]
+		if !ok {
+			continue
+		}
+
+		apiUser.Name = user.Name
+		apiUser.Avatar = user.VkPhoto200
+		apiUser.Bio = user.Bio
 	}
 
 	return apiUsers

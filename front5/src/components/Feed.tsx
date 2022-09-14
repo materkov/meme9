@@ -3,6 +3,7 @@ import {ComponentPost} from "./Post";
 import {Composer} from "./Composer";
 import {api, Post} from "../store/types";
 import {useCustomEventListener} from "react-custom-events";
+import produce from "immer";
 
 export function Feed() {
     const [viewerID, setViewerID] = React.useState('');
@@ -18,6 +19,10 @@ export function Feed() {
         }).catch(() => setIsError(true));
     }
 
+    const onPostDelete = (postId: string) => {
+        setPosts(posts.filter(post => post.id !== postId));
+    }
+
     useEffect(refreshData, []);
     useCustomEventListener('postCreated', refreshData);
 
@@ -31,6 +36,6 @@ export function Feed() {
     return <>
         {viewerID ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
 
-        {posts.map(post => <ComponentPost post={post} key={post.id}/>)}
+        {posts.map(post => <ComponentPost post={post} key={post.id} onDelete={() => onPostDelete(post.id)}/>)}
     </>
 }

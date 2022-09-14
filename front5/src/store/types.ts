@@ -18,6 +18,7 @@ export type Post = {
     user?: User;
     date: string;
     text: string;
+    canDelete?: boolean;
 }
 
 export function api(url: string, params: any = {}): Promise<any> {
