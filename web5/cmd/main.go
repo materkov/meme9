@@ -34,8 +34,9 @@ type User struct {
 }
 
 type UserPostsConnection struct {
-	Count int     `json:"count,omitempty"`
-	Posts []*Post `json:"posts,omitempty"`
+	Count      int     `json:"count,omitempty"`
+	Posts      []*Post `json:"posts,omitempty"`
+	NextCursor string  `json:"nextCursor,omitempty"`
 }
 
 type ApiError string
@@ -123,20 +124,53 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUserPage(w http.ResponseWriter, r *http.Request) {
-	userID := r.FormValue("id")
+	userID, _ := strconv.Atoi(r.FormValue("id"))
 
 	viewer := r.Context().Value("viewer").(*Viewer)
 
-	users := usersList([]string{userID})
+	users := usersList([]string{strconv.Itoa(userID)})
 	if len(users) == 0 {
 		write(w, nil, ApiError("user not found"))
 		return
 	}
+	users[0].Posts = userPagePosts(userID, 0)
 
-	redisKey := fmt.Sprintf("feed:%s", userID)
+	write(w, []interface{}{
+		users[0],
+		viewer.GetUserIDStr(),
+	}, nil)
+}
+
+type postsListCursor struct {
+	Offset int
+}
+
+func (p *postsListCursor) ToString() string {
+	return strconv.Itoa(p.Offset)
+}
+
+func ParsePostsListCursor(cursor string) *postsListCursor {
+	result := &postsListCursor{}
+	result.Offset, _ = strconv.Atoi(cursor)
+	return result
+}
+
+func handleUserPagePosts(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.FormValue("id"))
+	cursor := ParsePostsListCursor(r.FormValue("cursor"))
+
+	result := userPagePosts(userID, cursor.Offset)
+
+	write(w, []interface{}{
+		result,
+	}, nil)
+}
+
+func userPagePosts(userID int, offset int) *UserPostsConnection {
+	redisKey := fmt.Sprintf("feed:%d", userID)
 	pipe := store.RedisClient.Pipeline()
 
-	postsIdsCmd := pipe.LRange(context.Background(), redisKey, 0, 10)
+	postsIdsCmd := pipe.LRange(context.Background(), redisKey, int64(offset), int64(offset+10-1))
 	lenCmd := pipe.LLen(context.Background(), redisKey)
 	_, err := pipe.Exec(context.Background())
 	if err != nil {
@@ -146,15 +180,17 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 	postIdsStr := postsIdsCmd.Val()
 	count := int(lenCmd.Val())
 
-	users[0].Posts = &UserPostsConnection{
-		Count: count,
-		Posts: postsList(parseIds(postIdsStr)),
+	nextCursor := ""
+	if offset+10 < count {
+		cursor := postsListCursor{Offset: offset + 10}
+		nextCursor = cursor.ToString()
 	}
 
-	write(w, []interface{}{
-		users[0],
-		viewer.GetUserIDStr(),
-	}, nil)
+	return &UserPostsConnection{
+		Count:      count,
+		Posts:      postsList(parseIds(postIdsStr)),
+		NextCursor: nextCursor,
+	}
 }
 
 func handleUserEdit(w http.ResponseWriter, r *http.Request) {
@@ -333,6 +369,7 @@ func main() {
 	http.HandleFunc("/api/feed", wrapper(handleFeed))
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))
 	http.HandleFunc("/api/userPage", wrapper(handleUserPage))
+	http.HandleFunc("/api/userPage/posts", wrapper(handleUserPagePosts))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
 	http.HandleFunc("/api/postPage", wrapper(handlePostPage))
 	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))

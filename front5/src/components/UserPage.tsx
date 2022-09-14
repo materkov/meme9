@@ -1,10 +1,12 @@
 import React, {useEffect} from "react";
-import {api, User} from "../store/types";
+import {api, User, UserPostsConnection} from "../store/types";
 import {ComponentPost} from "./Post";
 import styles from "./UserPage.module.css";
+import produce from "immer";
 
 export function UserPage() {
     const [user, setUser] = React.useState<User>();
+    const [postsCursor, setPostsCursor] = React.useState("");
     const [viewerId, setViewerId] = React.useState("");
     const [loaded, setLoaded] = React.useState(false);
 
@@ -12,9 +14,6 @@ export function UserPage() {
     const [userNameUpdated, setUserNameUpdated] = React.useState(false);
 
     useEffect(() => {
-        const f = new FormData();
-        f.set("id", location.pathname.substring(7));
-
         api("/userPage", {
             id: location.pathname.substring(7)
         }).then(r => {
@@ -29,6 +28,7 @@ export function UserPage() {
             }
 
             setLoaded(true);
+            setPostsCursor(user.posts?.nextCursor);
         })
     }, []);
 
@@ -62,6 +62,26 @@ export function UserPage() {
         }
     }
 
+    const onShowMore = () => {
+        api("/userPage/posts", {
+            id: location.pathname.substring(7),
+            cursor: postsCursor,
+        }).then((result: [UserPostsConnection]) => {
+            let r = result[0];
+            setPostsCursor(r.nextCursor || "");
+
+            for (let post of r.posts || []) {
+                post.user = user;
+            }
+
+            setUser(produce(user, user => {
+                user.posts = user.posts || {};
+                user.posts.posts = user.posts?.posts || [];
+                user.posts.posts = [...user.posts.posts, ...r.posts || []];
+            }));
+        })
+    }
+
     return (
         <div>
             <div className={styles.topBlock}>
@@ -90,7 +110,8 @@ export function UserPage() {
                 <button onClick={editName}>Обновить</button>
                 {userNameUpdated && <div>Имя успешно обновлено</div>}
             </>}
-            {user.posts?.posts.map(post => <ComponentPost key={post.id} post={post}/>)}
+            {user.posts?.posts?.map(post => <ComponentPost key={post.id} post={post}/>)}
+            {postsCursor && <button onClick={onShowMore}>Показать еще</button>}
         </div>
     )
 }

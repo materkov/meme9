@@ -11,6 +11,10 @@ import (
 )
 
 func postsList(ids []int) []*Post {
+	if len(ids) == 0 {
+		return nil
+	}
+
 	keys := make([]string, len(ids))
 	for i, postID := range ids {
 		keys[i] = fmt.Sprintf("node:%d", postID)

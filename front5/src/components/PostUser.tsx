@@ -32,7 +32,7 @@ export function PostUser(props: { post: Post }) {
 
     let userDetails = '...LOADING...';
     if (userData) {
-        userDetails = "Name: " + userData.name + ", posts: " + userData.posts?.length;
+        userDetails = "Name: " + userData.name + ", posts: " + userData.posts?.count;
     }
 
     const date = new Date(props.post.date || "");
