@@ -25,10 +25,17 @@ type Post struct {
 }
 
 type User struct {
-	ID     string  `json:"id"`
-	Name   string  `json:"name"`
-	Avatar string  `json:"avatar"`
-	Posts  []*Post `json:"posts"`
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+	Bio    string `json:"bio"`
+
+	Posts *UserPostsConnection `json:"posts"`
+}
+
+type UserPostsConnection struct {
+	Count int     `json:"count,omitempty"`
+	Posts []*Post `json:"posts,omitempty"`
 }
 
 type ApiError string
@@ -126,12 +133,23 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postIdsStr, err := store.RedisClient.LRange(context.Background(), fmt.Sprintf("feed:%s", userID), 0, 10).Result()
+	redisKey := fmt.Sprintf("feed:%s", userID)
+	pipe := store.RedisClient.Pipeline()
+
+	postsIdsCmd := pipe.LRange(context.Background(), redisKey, 0, 10)
+	lenCmd := pipe.LLen(context.Background(), redisKey)
+	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		log.Printf("Error getting feed: %s", err)
 	}
 
-	users[0].Posts = postsList(parseIds(postIdsStr))
+	postIdsStr := postsIdsCmd.Val()
+	count := int(lenCmd.Val())
+
+	users[0].Posts = &UserPostsConnection{
+		Count: count,
+		Posts: postsList(parseIds(postIdsStr)),
+	}
 
 	write(w, []interface{}{
 		users[0],

@@ -89,6 +89,7 @@ func usersList(ids []string) []*User {
 			ID:     strconv.Itoa(user.ID),
 			Name:   user.Name,
 			Avatar: user.VkPhoto200,
+			Bio:    user.Bio,
 		}
 	}
 

@@ -17,6 +17,7 @@ type Post struct {
 type User struct {
 	ID   int
 	Name string
+	Bio  string
 
 	VkID          int
 	VkAccessToken string

@@ -1,11 +1,11 @@
 import React, {useEffect} from "react";
-import {api, Post, User} from "../store/types";
+import {api, User} from "../store/types";
 import {ComponentPost} from "./Post";
+import styles from "./UserPage.module.css";
 
 export function UserPage() {
     const [user, setUser] = React.useState<User>();
     const [viewerId, setViewerId] = React.useState("");
-    const [posts, setPosts] = React.useState<Post[]>([]);
     const [loaded, setLoaded] = React.useState(false);
 
     const [userName, setUserName] = React.useState("");
@@ -24,11 +24,10 @@ export function UserPage() {
             setUserName(user.name);
 
             // TODO strange
-            for (let post of user.posts) {
+            for (let post of user.posts.posts) {
                 post.user = user;
             }
 
-            setPosts(user.posts);
             setLoaded(true);
         })
     }, []);
@@ -44,16 +43,54 @@ export function UserPage() {
         return <>Загрузка ...</>;
     }
 
+    const localizeCounter = (count?: number) => {
+        const mod = (count || 0) % 10;
+        switch (mod) {
+            case 0:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+                return 'публикаций';
+            case 1:
+                return 'публикация';
+            case 2:
+            case 3:
+            case 4:
+                return 'публикации';
+        }
+    }
+
     return (
         <div>
-            {user.name}
-            <hr/>
+            <div className={styles.topBlock}>
+                <img className={styles.userAvatar} src={user.avatar}/>
+                <div className={styles.rightBlock}>
+                    <div className={styles.userName}>{user.name}</div>
+                    <div className={styles.userBio}>
+                        {user.bio}
+                    </div>
+                    <div className={styles.userCounters}>
+                        <div className={styles.userCounter}>
+                            <b>{user.posts?.count}</b> {localizeCounter(user.posts?.count)}
+                        </div>
+                        {/*<div className={styles.userCounter}>
+                            <b>9</b> подписчиков
+                        </div>
+                        <div className={styles.userCounter}>
+                            <b>9</b> подписок
+                        </div>*/}
+                    </div>
+                </div>
+            </div>
+
             {user.id === viewerId && <>
                 Имя: <input type="text" value={userName} onChange={e => setUserName(e.target.value)}/>
                 <button onClick={editName}>Обновить</button>
                 {userNameUpdated && <div>Имя успешно обновлено</div>}
             </>}
-            {posts.map(post => <ComponentPost key={post.id} post={post}/>)}
+            {user.posts?.posts.map(post => <ComponentPost key={post.id} post={post}/>)}
         </div>
     )
 }

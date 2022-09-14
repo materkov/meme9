@@ -1,8 +1,14 @@
 export type User = {
     id: string;
     name?: string;
-    posts?: Post[];
+    posts?: UserPostsConnection;
     avatar?: string;
+    bio?: string;
+}
+
+export type UserPostsConnection = {
+    count?: number;
+    posts: Post[];
 }
 
 export type Post = {
