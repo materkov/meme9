@@ -13,6 +13,8 @@ export function UserPage() {
     const [userName, setUserName] = React.useState("");
     const [userNameUpdated, setUserNameUpdated] = React.useState(false);
 
+    const [isFollowing, setIsFollowing] = React.useState(false);
+
     useEffect(() => {
         api("/userPage", {
             id: location.pathname.substring(7)
@@ -29,6 +31,7 @@ export function UserPage() {
 
             setLoaded(true);
             setPostsCursor(user.posts?.nextCursor || "");
+            setIsFollowing(Boolean(user.isFollowing))
         })
     }, []);
 
@@ -90,11 +93,27 @@ export function UserPage() {
         }))
     }
 
+    const onFollow = () => {
+        api("/userFollow", {
+            id: user.id,
+        }).then(() => {
+            setIsFollowing(true);
+        })
+    }
+
+    const onUnfollow = () => {
+        api("/userUnfollow", {
+            id: user.id,
+        }).then(() => {
+            setIsFollowing(false);
+        })
+    }
+
     return (
         <div>
             <div className={styles.topBlock}>
                 <img className={styles.userAvatar} src={user.avatar}/>
-                <div className={styles.rightBlock}>
+                <div className={styles.infoBlock}>
                     <div className={styles.userName}>{user.name}</div>
                     <div className={styles.userBio}>
                         {user.bio}
@@ -109,6 +128,16 @@ export function UserPage() {
                         <div className={styles.userCounter}>
                             <b>9</b> подписок
                         </div>*/}
+                        <div className={styles.buttonsBlock}>
+                            {viewerId && viewerId != user.id &&
+                                <>
+                                    {isFollowing ?
+                                        <button onClick={onUnfollow}>Отписаться</button> :
+                                        <button onClick={onFollow}>Подписаться</button>
+                                    }
+                                </>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>

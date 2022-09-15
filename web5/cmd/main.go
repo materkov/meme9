@@ -33,6 +33,8 @@ type User struct {
 	Bio    string `json:"bio"`
 
 	Posts *UserPostsConnection `json:"posts"`
+
+	IsFollowing bool `json:"isFollowing,omitempty"`
 }
 
 type UserPostsConnection struct {
@@ -84,7 +86,8 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 	apiPosts := postsList(parseIds(postIdsStr), viewer.UserID)
 
 	for _, post := range apiPosts {
-		users := usersList([]string{post.UserID})
+		userID, _ := strconv.Atoi(post.UserID)
+		users := usersList([]int{userID}, viewer.UserID, false)
 		if len(users) == 1 {
 			post.User = users[0]
 		}
@@ -130,7 +133,7 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 
 	viewer := r.Context().Value("viewer").(*Viewer)
 
-	users := usersList([]string{strconv.Itoa(userID)})
+	users := usersList([]int{userID}, viewer.UserID, true)
 	if len(users) == 0 {
 		write(w, nil, ApiError("user not found"))
 		return
@@ -235,6 +238,43 @@ func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 	write(w, nil, nil)
 }
 
+func handleUserFollow(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.FormValue("id"))
+	viewer := r.Context().Value("viewer").(*Viewer)
+
+	if viewer.UserID == 0 {
+		write(w, nil, ApiError("not authorized"))
+		return
+	} else if userID == 0 {
+		write(w, nil, ApiError("empty user"))
+		return
+	} else if userID == viewer.UserID {
+		write(w, nil, ApiError("you cannot subscribe to yourself"))
+		return
+	}
+
+	err := usersFollow(viewer.UserID, userID)
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	write(w, nil, nil)
+}
+
+func handleUserUnfollow(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.FormValue("id"))
+	viewer := r.Context().Value("viewer").(*Viewer)
+
+	err := usersUnfollow(viewer.UserID, userID)
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	write(w, nil, nil)
+}
+
 func handlePostPage(w http.ResponseWriter, r *http.Request) {
 	postID := r.FormValue("id")
 	viewer := r.Context().Value("viewer").(*Viewer)
@@ -245,7 +285,8 @@ func handlePostPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users := usersList([]string{posts[0].UserID})
+	userID, _ := strconv.Atoi(posts[0].UserID)
+	users := usersList([]int{userID}, viewer.UserID, false)
 	posts[0].User = users[0]
 
 	write(w, posts[0], nil)
@@ -330,7 +371,7 @@ func handleViewer(w http.ResponseWriter, r *http.Request) {
 
 	var user *User
 	if viewer.UserID != 0 {
-		users := usersList([]string{strconv.Itoa(viewer.UserID)})
+		users := usersList([]int{viewer.UserID}, viewer.UserID, false)
 		user = users[0]
 	}
 
@@ -405,6 +446,8 @@ func main() {
 	http.HandleFunc("/api/userPage", wrapper(handleUserPage))
 	http.HandleFunc("/api/userPage/posts", wrapper(handleUserPagePosts))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
+	http.HandleFunc("/api/userFollow", wrapper(handleUserFollow))
+	http.HandleFunc("/api/userUnfollow", wrapper(handleUserUnfollow))
 	http.HandleFunc("/api/postPage", wrapper(handlePostPage))
 	http.HandleFunc("/api/postDelete", wrapper(handlePostDelete))
 	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))

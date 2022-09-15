@@ -56,37 +56,60 @@ func nextID() int {
 	return int(time.Now().UnixMilli())
 }
 
-func usersList(ids []string) []*User {
-	keys := make([]string, len(ids))
-	for i, userID := range ids {
-		keys[i] = fmt.Sprintf("node:%s", userID)
-	}
+func usersList(ids []int, viewerID int, includeIsFollowing bool) []*User {
+	chanUsersMap := make(chan map[int]*store.User)
 
-	userBytesList, err := store.RedisClient.MGet(context.Background(), keys...).Result()
-	if err != nil {
-		log.Printf("Error getting users: %s", err)
-	}
-
-	usersMap := map[string]*store.User{}
-	for _, userBytes := range userBytesList {
-		if userBytes == nil {
-			continue
+	go func() {
+		keys := make([]string, len(ids))
+		for i, userID := range ids {
+			keys[i] = fmt.Sprintf("node:%d", userID)
 		}
 
-		user := &store.User{}
-		err = json.Unmarshal([]byte(userBytes.(string)), user)
+		userBytesList, err := store.RedisClient.MGet(context.Background(), keys...).Result()
 		if err != nil {
-			log.Printf("Error unmarshalling user: %s", err)
-			continue
+			log.Printf("Error getting users: %s", err)
 		}
 
-		usersMap[strconv.Itoa(user.ID)] = user
-	}
+		usersMap := map[int]*store.User{}
+		for _, userBytes := range userBytesList {
+			if userBytes == nil {
+				continue
+			}
+
+			user := &store.User{}
+			err = json.Unmarshal([]byte(userBytes.(string)), user)
+			if err != nil {
+				log.Printf("Error unmarshalling user: %s", err)
+				continue
+			}
+
+			usersMap[user.ID] = user
+		}
+
+		chanUsersMap <- usersMap
+	}()
+
+	chanIsFollowing := make(chan map[int]bool)
+	go func() {
+		if !includeIsFollowing {
+			chanIsFollowing <- nil
+			return
+		}
+
+		isFollowing, err := usersIsFollowing(viewerID, ids)
+		if err != nil {
+			log.Printf("Error getting is followed: %s", err)
+		}
+		chanIsFollowing <- isFollowing
+	}()
+
+	usersMap := <-chanUsersMap
+	isFollowing := <-chanIsFollowing
 
 	apiUsers := make([]*User, len(ids))
 	for i, userID := range ids {
 		apiUser := &User{
-			ID: userID,
+			ID: strconv.Itoa(userID),
 		}
 
 		apiUsers[i] = apiUser
@@ -99,6 +122,7 @@ func usersList(ids []string) []*User {
 		apiUser.Name = user.Name
 		apiUser.Avatar = user.VkPhoto200
 		apiUser.Bio = user.Bio
+		apiUser.IsFollowing = isFollowing[userID]
 	}
 
 	return apiUsers
@@ -147,4 +171,46 @@ func usersRefreshFromVk(id int) error {
 	}
 
 	return nil
+}
+
+func usersFollow(userID, targetID int) error {
+	_, err := store.RedisClient.ZAdd(context.Background(), fmt.Sprintf("followers:%d", userID), redis.Z{
+		Score:  float64(time.Now().UnixMilli()),
+		Member: targetID,
+	}).Result()
+	if err != nil {
+		return fmt.Errorf("error storing followers key: %w", err)
+	}
+
+	return nil
+}
+
+func usersUnfollow(userID, targetID int) error {
+	_, err := store.RedisClient.ZRem(context.Background(), fmt.Sprintf("followers:%d", userID), targetID).Result()
+	if err != nil {
+		return fmt.Errorf("error removing followers from zset: %w", err)
+	}
+
+	return nil
+}
+
+func usersIsFollowing(userID int, targetIds []int) (map[int]bool, error) {
+	targetsStr := make([]string, len(targetIds))
+	for i, targetID := range targetIds {
+		targetsStr[i] = strconv.Itoa(targetID)
+	}
+
+	scores, err := store.RedisClient.ZMScore(context.Background(), fmt.Sprintf("followers:%d", userID), targetsStr...).Result()
+	if err != nil {
+		return nil, fmt.Errorf("error getting scores: %w", err)
+	}
+
+	result := map[int]bool{}
+	for i, targetID := range targetIds {
+		if scores[i] != 0 {
+			result[targetID] = true
+		}
+	}
+
+	return result, nil
 }

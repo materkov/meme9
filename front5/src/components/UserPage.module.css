@@ -1,12 +1,18 @@
 .userAvatar {
     width: 100px;
     height: 100px;
-    border-radius: 50%;
+    border-radius: 50px;
+    display: block;
+    background: #eeeeee;
 }
 
-.rightBlock {
+.infoBlock {
     margin-left: 10px;
-    align-self: center;
+    width: 100%;
+}
+
+.buttonsBlock {
+    margin-top: 10px;
 }
 
 .userName {
@@ -35,4 +41,5 @@
     border-radius: 5px;
     background: #f9f9f9;
     display: flex;
+    justify-content: space-between;
 }
