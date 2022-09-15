@@ -35,6 +35,9 @@ type User struct {
 	Posts *UserPostsConnection `json:"posts"`
 
 	IsFollowing bool `json:"isFollowing,omitempty"`
+
+	FollowingCount  int `json:"followingCount,omitempty"`
+	FollowedByCount int `json:"followedByCount,omitempty"`
 }
 
 type UserPostsConnection struct {
@@ -87,7 +90,7 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 
 	for _, post := range apiPosts {
 		userID, _ := strconv.Atoi(post.UserID)
-		users := usersList([]int{userID}, viewer.UserID, false)
+		users := usersList([]int{userID}, viewer.UserID, false, false)
 		if len(users) == 1 {
 			post.User = users[0]
 		}
@@ -133,7 +136,7 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 
 	viewer := r.Context().Value("viewer").(*Viewer)
 
-	users := usersList([]int{userID}, viewer.UserID, true)
+	users := usersList([]int{userID}, viewer.UserID, true, true)
 	if len(users) == 0 {
 		write(w, nil, ApiError("user not found"))
 		return
@@ -286,7 +289,7 @@ func handlePostPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID, _ := strconv.Atoi(posts[0].UserID)
-	users := usersList([]int{userID}, viewer.UserID, false)
+	users := usersList([]int{userID}, viewer.UserID, false, true)
 	posts[0].User = users[0]
 
 	write(w, posts[0], nil)
@@ -371,7 +374,7 @@ func handleViewer(w http.ResponseWriter, r *http.Request) {
 
 	var user *User
 	if viewer.UserID != 0 {
-		users := usersList([]int{viewer.UserID}, viewer.UserID, false)
+		users := usersList([]int{viewer.UserID}, viewer.UserID, false, true)
 		user = users[0]
 	}
 

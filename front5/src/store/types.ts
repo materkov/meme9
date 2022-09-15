@@ -5,6 +5,8 @@ export type User = {
     avatar?: string;
     bio?: string;
     isFollowing?: boolean;
+    followingCount?: number;
+    followedByCount?: number;
 }
 
 export type UserPostsConnection = {

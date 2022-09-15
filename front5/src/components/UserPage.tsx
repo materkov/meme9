@@ -3,6 +3,7 @@ import {api, User, UserPostsConnection} from "../store/types";
 import {ComponentPost} from "./Post";
 import styles from "./UserPage.module.css";
 import produce from "immer";
+import {localizeCounter} from "../utils/localize";
 
 export function UserPage() {
     const [user, setUser] = React.useState<User>();
@@ -44,25 +45,6 @@ export function UserPage() {
 
     if (!loaded || !user) {
         return <>Загрузка ...</>;
-    }
-
-    const localizeCounter = (count?: number) => {
-        const mod = (count || 0) % 10;
-        switch (mod) {
-            case 0:
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-                return 'публикаций';
-            case 1:
-                return 'публикация';
-            case 2:
-            case 3:
-            case 4:
-                return 'публикации';
-        }
     }
 
     const onShowMore = () => {
@@ -120,14 +102,14 @@ export function UserPage() {
                     </div>
                     <div className={styles.userCounters}>
                         <div className={styles.userCounter}>
-                            <b>{user.posts?.count}</b> {localizeCounter(user.posts?.count)}
-                        </div>
-                        {/*<div className={styles.userCounter}>
-                            <b>9</b> подписчиков
+                            <b>{user.posts?.count}</b> {localizeCounter(user.posts?.count || 0, "публикация", "публикации", "публикаций")}
                         </div>
                         <div className={styles.userCounter}>
-                            <b>9</b> подписок
-                        </div>*/}
+                            <b>{user.followedByCount || 0}</b> {localizeCounter(user.followedByCount || 0, "подписчик", "подписчика", "подписчиков")}
+                        </div>
+                        <div className={styles.userCounter}>
+                            <b>{user.followingCount || 0}</b> {localizeCounter(user.followingCount || 0, "подписка", "подписки", "подписок")}
+                        </div>
                         <div className={styles.buttonsBlock}>
                             {viewerId && viewerId != user.id &&
                                 <>

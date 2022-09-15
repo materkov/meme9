@@ -56,7 +56,7 @@ func nextID() int {
 	return int(time.Now().UnixMilli())
 }
 
-func usersList(ids []int, viewerID int, includeIsFollowing bool) []*User {
+func usersList(ids []int, viewerID int, includeIsFollowing bool, includeFollowersCount bool) []*User {
 	chanUsersMap := make(chan map[int]*store.User)
 
 	go func() {
@@ -103,8 +103,48 @@ func usersList(ids []int, viewerID int, includeIsFollowing bool) []*User {
 		chanIsFollowing <- isFollowing
 	}()
 
+	chanFollowingCount := make(chan map[int]int)
+	go func() {
+		if !includeFollowersCount {
+			chanFollowingCount <- nil
+			return
+		}
+
+		result := map[int]int{}
+		for _, id := range ids {
+			count, err := usersFollowingCount(id)
+			if err != nil {
+				log.Printf("Error getting following count: %s", err)
+			}
+			result[id] = count
+		}
+
+		chanFollowingCount <- result
+	}()
+
+	chanFollowedByCount := make(chan map[int]int)
+	go func() {
+		if !includeFollowersCount {
+			chanFollowedByCount <- nil
+			return
+		}
+
+		result := map[int]int{}
+		for _, id := range ids {
+			count, err := usersFollowedByCount(id)
+			if err != nil {
+				log.Printf("Error getting followedBy count: %s", err)
+			}
+			result[id] = count
+		}
+
+		chanFollowedByCount <- result
+	}()
+
 	usersMap := <-chanUsersMap
 	isFollowing := <-chanIsFollowing
+	followedByCount := <-chanFollowedByCount
+	followingCount := <-chanFollowingCount
 
 	apiUsers := make([]*User, len(ids))
 	for i, userID := range ids {
@@ -123,6 +163,8 @@ func usersList(ids []int, viewerID int, includeIsFollowing bool) []*User {
 		apiUser.Avatar = user.VkPhoto200
 		apiUser.Bio = user.Bio
 		apiUser.IsFollowing = isFollowing[userID]
+		apiUser.FollowingCount = followingCount[userID]
+		apiUser.FollowedByCount = followedByCount[userID]
 	}
 
 	return apiUsers
@@ -174,10 +216,19 @@ func usersRefreshFromVk(id int) error {
 }
 
 func usersFollow(userID, targetID int) error {
-	_, err := store.RedisClient.ZAdd(context.Background(), fmt.Sprintf("followers:%d", userID), redis.Z{
-		Score:  float64(time.Now().UnixMilli()),
+	score := float64(time.Now().UnixMilli())
+
+	pipe := store.RedisClient.Pipeline()
+	pipe.ZAdd(context.Background(), fmt.Sprintf("following:%d", userID), redis.Z{
+		Score:  score,
 		Member: targetID,
-	}).Result()
+	})
+	pipe.ZAdd(context.Background(), fmt.Sprintf("followed_by:%d", targetID), redis.Z{
+		Score:  score,
+		Member: userID,
+	})
+
+	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		return fmt.Errorf("error storing followers key: %w", err)
 	}
@@ -186,7 +237,11 @@ func usersFollow(userID, targetID int) error {
 }
 
 func usersUnfollow(userID, targetID int) error {
-	_, err := store.RedisClient.ZRem(context.Background(), fmt.Sprintf("followers:%d", userID), targetID).Result()
+	pipe := store.RedisClient.Pipeline()
+	pipe.ZRem(context.Background(), fmt.Sprintf("following:%d", userID), targetID)
+	pipe.ZRem(context.Background(), fmt.Sprintf("followed_by:%d", targetID), userID)
+
+	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		return fmt.Errorf("error removing followers from zset: %w", err)
 	}
@@ -200,7 +255,7 @@ func usersIsFollowing(userID int, targetIds []int) (map[int]bool, error) {
 		targetsStr[i] = strconv.Itoa(targetID)
 	}
 
-	scores, err := store.RedisClient.ZMScore(context.Background(), fmt.Sprintf("followers:%d", userID), targetsStr...).Result()
+	scores, err := store.RedisClient.ZMScore(context.Background(), fmt.Sprintf("following:%d", userID), targetsStr...).Result()
 	if err != nil {
 		return nil, fmt.Errorf("error getting scores: %w", err)
 	}
@@ -213,4 +268,14 @@ func usersIsFollowing(userID int, targetIds []int) (map[int]bool, error) {
 	}
 
 	return result, nil
+}
+
+func usersFollowingCount(userID int) (int, error) {
+	result, err := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("following:%d", userID)).Result()
+	return int(result), err
+}
+
+func usersFollowedByCount(userID int) (int, error) {
+	result, err := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("followed_by:%d", userID)).Result()
+	return int(result), err
 }
