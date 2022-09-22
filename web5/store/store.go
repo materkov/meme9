@@ -38,6 +38,8 @@ type AuthToken struct {
 type Config struct {
 	VKAppID     int
 	VKAppSecret string
+
+	TelegramToken string
 }
 
 var DefaultConfig = Config{}

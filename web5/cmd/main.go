@@ -7,11 +7,11 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"github.com/materkov/meme9/web5/pkg/telegram"
 	"github.com/materkov/meme9/web5/store"
 	"log"
 	"math/rand"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 )
@@ -362,6 +362,11 @@ func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = telegram.SendNotify(fmt.Sprintf("meme new login: https://vk.com/id%d", user.VkID))
+	if err != nil {
+		log.Printf("Error sending telegram notify: %s", err)
+	}
+
 	resp := []interface{}{
 		authToken,
 		userID,
@@ -421,26 +426,26 @@ func wrapper(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func main() {
-	queue := flag.String("queue", "", "Queue listen to")
+	queue := ""
+	flag.StringVar(&queue, "queue", "", "Queue listen to")
 	flag.Parse()
 
 	rand.Seed(time.Now().UnixNano())
 
-	homeDir, _ := os.UserHomeDir()
-	dat, _ := os.ReadFile(homeDir + "/mypage/config.json")
-	if len(dat) > 0 {
-		_ = json.Unmarshal(dat, &store.DefaultConfig)
-	}
-
-	config := os.Getenv("CONFIG")
-	if config != "" {
-		_ = json.Unmarshal([]byte(config), &store.DefaultConfig)
-	}
-
 	store.RedisClient = redis.NewClient(&redis.Options{})
 
-	if queue != nil && *queue != "" {
-		HandleWorker(*queue)
+	configStr, err := store.RedisClient.Get(context.Background(), "config").Bytes()
+	if err != nil {
+		log.Fatalf("Failed reading config: %s", err)
+	}
+
+	err = json.Unmarshal(configStr, &store.DefaultConfig)
+	if err != nil {
+		log.Fatalf("Error parsing config JSON: %s", err)
+	}
+
+	if queue != "" {
+		HandleWorker(queue)
 		return
 	}
 
