@@ -58,10 +58,10 @@ func write(w http.ResponseWriter, data interface{}, err error) {
 
 		var apiErr ApiError
 		if errors.As(err, &apiErr) {
-			_, _ = fmt.Fprintf(w, err.Error())
+			_, _ = fmt.Fprint(w, err.Error())
 		} else if err != nil {
 			log.Printf("[ERROR] Internal error: %s", err)
-			_, _ = fmt.Fprintf(w, "internal error")
+			_, _ = fmt.Fprint(w, "internal error")
 		}
 	} else {
 		_ = json.NewEncoder(w).Encode(data)
