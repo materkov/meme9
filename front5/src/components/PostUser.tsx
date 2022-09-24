@@ -2,6 +2,7 @@ import React from "react";
 import {api, Post, User} from "../store/types";
 import {Link} from "./Link";
 import styles from "./PostUser.module.css";
+import {UserAvatar} from "./UserAvatar";
 
 export function PostUser(props: { post: Post }) {
     const [isVisible, setIsVisible] = React.useState(false);
@@ -43,7 +44,7 @@ export function PostUser(props: { post: Post }) {
         >
             <div className={className}>{userDetails}</div>
 
-            <img src={props.post.user?.avatar} className={styles.avatar} alt=""/>
+            <UserAvatar width={50} url={props.post.user?.avatar}/>
             <div className={styles.rightContainer}>
                 <Link href={"/users/" + props.post.user?.id} className={styles.name}>{props.post.user?.name}</Link>
                 <Link href={"/posts/" + props.post.id} className={styles.href}>{dateStr}</Link>

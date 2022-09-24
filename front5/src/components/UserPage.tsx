@@ -4,6 +4,7 @@ import {ComponentPost} from "./Post";
 import styles from "./UserPage.module.css";
 import produce from "immer";
 import {localizeCounter} from "../utils/localize";
+import {UserAvatar} from "./UserAvatar";
 
 export function UserPage() {
     const [user, setUser] = React.useState<User>();
@@ -94,7 +95,7 @@ export function UserPage() {
     return (
         <div>
             <div className={styles.topBlock}>
-                <img className={styles.userAvatar} src={user.avatar}/>
+                <UserAvatar width={100} url={user.avatar}/>
                 <div className={styles.infoBlock}>
                     <div className={styles.userName}>{user.name}</div>
                     <div className={styles.userBio}>
