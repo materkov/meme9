@@ -58,10 +58,10 @@ func write(w http.ResponseWriter, data interface{}, err error) {
 
 		var apiErr ApiError
 		if errors.As(err, &apiErr) {
-			fmt.Fprintf(w, err.Error())
+			_, _ = fmt.Fprintf(w, err.Error())
 		} else if err != nil {
 			log.Printf("[ERROR] Internal error: %s", err)
-			fmt.Fprintf(w, "internal error")
+			_, _ = fmt.Fprintf(w, "internal error")
 		}
 	} else {
 		_ = json.NewEncoder(w).Encode(data)
@@ -78,7 +78,7 @@ func parseIds(idsStr []string) []int {
 }
 
 func handleFeed(w http.ResponseWriter, r *http.Request) {
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
 	postIdsStr, err := store.RedisClient.LRange(context.Background(), "feed", 0, 10).Result()
 	if err != nil {
@@ -115,7 +115,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 	if viewer.UserID == 0 {
 		write(w, nil, ApiError("not authorized"))
 		return
@@ -134,7 +134,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 func handleUserPage(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("id"))
 
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
 	users := usersList([]int{userID}, viewer.UserID, true, true)
 	if len(users) == 0 {
@@ -166,7 +166,7 @@ func ParsePostsListCursor(cursor string) *postsListCursor {
 func handleUserPagePosts(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("id"))
 	cursor := ParsePostsListCursor(r.FormValue("cursor"))
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
 	result := userPagePosts(userID, cursor.Offset, viewer.UserID)
 
@@ -205,7 +205,7 @@ func userPagePosts(userID int, offset int, viewerID int) *UserPostsConnection {
 func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("id"))
 
-	user := &store.User{}
+	var user *store.User
 	err := store.NodeGet(userID, user)
 	if err != nil {
 		write(w, nil, err)
@@ -215,7 +215,7 @@ func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 	if viewer.UserID != user.ID {
 		write(w, nil, ApiError("no access to edit this user"))
 		return
@@ -243,7 +243,7 @@ func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 
 func handleUserFollow(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("id"))
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
 	if viewer.UserID == 0 {
 		write(w, nil, ApiError("not authorized"))
@@ -267,7 +267,7 @@ func handleUserFollow(w http.ResponseWriter, r *http.Request) {
 
 func handleUserUnfollow(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("id"))
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
 	err := usersUnfollow(viewer.UserID, userID)
 	if err != nil {
@@ -280,7 +280,7 @@ func handleUserUnfollow(w http.ResponseWriter, r *http.Request) {
 
 func handlePostPage(w http.ResponseWriter, r *http.Request) {
 	postID := r.FormValue("id")
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
 	posts := postsList(parseIds([]string{postID}), viewer.UserID)
 	if len(posts) == 0 {
@@ -308,7 +308,7 @@ func handlePostDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 	if post.UserID != viewer.UserID {
 		write(w, nil, ApiError("no access to delete this post"))
 		return
@@ -375,7 +375,7 @@ func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleViewer(w http.ResponseWriter, r *http.Request) {
-	viewer := r.Context().Value("viewer").(*Viewer)
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
 	var user *User
 	if viewer.UserID != 0 {
@@ -462,6 +462,10 @@ func (v *Viewer) GetUserIDStr() string {
 	return strconv.Itoa(v.UserID)
 }
 
+type contextKey int
+
+const ViewerKey contextKey = iota
+
 func wrapper(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -479,7 +483,7 @@ func wrapper(next http.HandlerFunc) http.HandlerFunc {
 			UserID: userID,
 			Origin: r.Header.Get("origin"),
 		}
-		r = r.WithContext(context.WithValue(r.Context(), "viewer", viewer))
+		r = r.WithContext(context.WithValue(r.Context(), ViewerKey, viewer))
 
 		next(w, r)
 	}
@@ -523,7 +527,7 @@ func main() {
 	http.HandleFunc("/api/emailRegister", wrapper(handleEmailRegister))
 	http.HandleFunc("/api/emailLogin", wrapper(handleAuthEmail))
 
-	http.ListenAndServe("127.0.0.1:8000", nil)
+	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
 
 func HandleWorker(queue string) {

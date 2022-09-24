@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/store"
-	"io/ioutil"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -31,7 +31,7 @@ func authExchangeCode(code string, redirectURI string) (int, string, error) {
 	}
 	defer resp.Body.Close()
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return 0, "", fmt.Errorf("error reading body: %s", err)
 	}
@@ -155,7 +155,7 @@ func authValidateCredentials(email, password string) string {
 	if email == "" {
 		return "empty email"
 	}
-	if strings.Index(email, "@") == -1 {
+	if !strings.Contains(email, "@") {
 		return "incorrect email"
 	}
 	if len(email) > 200 {
