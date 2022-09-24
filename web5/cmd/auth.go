@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/store"
+	"golang.org/x/crypto/bcrypt"
 	"io"
 	"log"
 	"math/rand"
@@ -120,7 +121,8 @@ func authEmailAuth(email, password string) (int, error) {
 		return 0, fmt.Errorf("error getting user: %s", err)
 	}
 
-	if password != user.PasswordHash {
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if err != nil {
 		return 0, ErrInvalidCredentials
 	}
 
@@ -128,14 +130,19 @@ func authEmailAuth(email, password string) (int, error) {
 }
 
 func authRegister(email, password string) (int, error) {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return 0, fmt.Errorf("error generating password hash: %w", err)
+	}
+
 	id := int(time.Now().UnixMilli())
 	user := store.User{
 		ID:           id,
 		Name:         fmt.Sprintf("User #%d", id),
 		Email:        email,
-		PasswordHash: password,
+		PasswordHash: string(passwordHash),
 	}
-	err := store.NodeSave(user.ID, user)
+	err = store.NodeSave(user.ID, user)
 	if err != nil {
 		return 0, fmt.Errorf("error saving user: %w", err)
 	}
