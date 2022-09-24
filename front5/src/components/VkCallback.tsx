@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import {api} from "../store/types";
-import {emitCustomEvent} from "react-custom-events";
+import {authorize, navigate} from "../utils/localize";
 
 export function VkCallback() {
     useEffect(() => {
@@ -10,10 +10,8 @@ export function VkCallback() {
             code: urlParams.get("code") || "",
             redirectUri: location.origin + location.pathname,
         }).then(r => {
-            localStorage.setItem("authToken", r[0]);
-            window.history.pushState(null, '', '/');
-            emitCustomEvent('urlChanged');
-            emitCustomEvent('onAuthorized');
+            navigate("/");
+            authorize(r[0]);
         })
     }, [])
 

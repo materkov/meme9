@@ -1,13 +1,13 @@
 import React, {MouseEvent, ReactNode} from "react";
-import {emitCustomEvent} from "react-custom-events";
+import {navigate} from "../utils/localize";
 
 export function Link(props: { href?: string, children: ReactNode, className?: string }) {
     const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
-        window.history.pushState(null, '', props.href);
-
-        emitCustomEvent('urlChanged');
+        if (props.href) {
+            navigate(props.href);
+        }
     }
 
     return <a className={props.className} href={props.href} onClick={onClick}>{props.children}</a>

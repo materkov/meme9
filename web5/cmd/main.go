@@ -389,6 +389,66 @@ func handleViewer(w http.ResponseWriter, r *http.Request) {
 	write(w, resp, nil)
 }
 
+func handleEmailRegister(w http.ResponseWriter, r *http.Request) {
+	email, password := r.FormValue("email"), r.FormValue("password")
+	validateErr := authValidateCredentials(email, password)
+	if validateErr != "" {
+		write(w, nil, ApiError(validateErr))
+		return
+	}
+
+	userID, err := authRegister(email, password)
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	users := usersList([]int{userID}, userID, false, false)
+
+	token, err := authCreateToken(userID)
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	resp := struct {
+		Token string `json:"token"`
+		User  *User  `json:"user"`
+	}{
+		Token: token,
+		User:  users[0],
+	}
+	write(w, resp, nil)
+}
+
+func handleAuthEmail(w http.ResponseWriter, r *http.Request) {
+	userID, err := authEmailAuth(r.FormValue("email"), r.FormValue("password"))
+	if err == ErrInvalidCredentials {
+		write(w, nil, ApiError("invalid credentials"))
+		return
+	} else if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	token, err := authCreateToken(userID)
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	users := usersList([]int{userID}, userID, false, false)
+
+	resp := struct {
+		User  *User  `json:"user"`
+		Token string `json:"token"`
+	}{
+		User:  users[0],
+		Token: token,
+	}
+	write(w, resp, nil)
+}
+
 type Viewer struct {
 	UserID int
 
@@ -460,6 +520,8 @@ func main() {
 	http.HandleFunc("/api/postDelete", wrapper(handlePostDelete))
 	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))
 	http.HandleFunc("/api/viewer", wrapper(handleViewer))
+	http.HandleFunc("/api/emailRegister", wrapper(handleEmailRegister))
+	http.HandleFunc("/api/emailLogin", wrapper(handleAuthEmail))
 
 	http.ListenAndServe("127.0.0.1:8000", nil)
 }

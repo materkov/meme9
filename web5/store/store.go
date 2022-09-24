@@ -24,6 +24,9 @@ type User struct {
 	VkID          int
 	VkAccessToken string
 	VkPhoto200    string
+
+	Email        string
+	PasswordHash string
 }
 
 var RedisClient *redis.Client

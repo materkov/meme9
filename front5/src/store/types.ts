@@ -43,8 +43,8 @@ export function api(url: string, params: any = {}): Promise<any> {
                 if (resp.status == 200) {
                     resp.json().then(resolve);
                 } else {
-                    reject();
+                    resp.text().then(reject);
                 }
-            });
+            })
     })
 }

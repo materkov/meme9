@@ -23,7 +23,7 @@ func TestPosts_CRUD(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, postID)
 
-	posts := postsList([]int{postID, 0})
+	posts := postsList([]int{postID, 0}, 0)
 	require.Len(t, posts, 2)
 
 	require.Equal(t, strconv.Itoa(postID), posts[0].ID)

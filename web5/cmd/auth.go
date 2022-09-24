@@ -7,10 +7,12 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/store"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -98,4 +100,82 @@ func authCheckToken(tokenStr string) (int, error) {
 	}
 
 	return token.UserID, err
+}
+
+var ErrInvalidCredentials = fmt.Errorf("invalid credentials")
+
+func authEmailAuth(email, password string) (int, error) {
+	userIDStr, err := store.RedisClient.Get(context.Background(), fmt.Sprintf("map_email2id:%s", email)).Result()
+	if err == redis.Nil {
+		return 0, ErrInvalidCredentials
+	} else if err != nil {
+		return 0, err
+	}
+
+	userID, _ := strconv.Atoi(userIDStr)
+
+	user := store.User{}
+	err = store.NodeGet(userID, &user)
+	if err != nil {
+		return 0, fmt.Errorf("error getting user: %s", err)
+	}
+
+	if password != user.PasswordHash {
+		return 0, ErrInvalidCredentials
+	}
+
+	return user.ID, nil
+}
+
+func authRegister(email, password string) (int, error) {
+	id := int(time.Now().UnixMilli())
+	user := store.User{
+		ID:           id,
+		Name:         fmt.Sprintf("User #%d", id),
+		Email:        email,
+		PasswordHash: password,
+	}
+	err := store.NodeSave(user.ID, user)
+	if err != nil {
+		return 0, fmt.Errorf("error saving user: %w", err)
+	}
+
+	key := fmt.Sprintf("map_email2id:%s", email)
+	wasSet, err := store.RedisClient.SetNX(context.Background(), key, user.ID, 0).Result()
+	if err != nil {
+		return 0, fmt.Errorf("error saving map key: %s", err)
+	} else if !wasSet {
+		return 0, fmt.Errorf("key was not set")
+	}
+
+	return user.ID, nil
+}
+
+func authValidateCredentials(email, password string) string {
+	if email == "" {
+		return "empty email"
+	}
+	if strings.Index(email, "@") == -1 {
+		return "incorrect email"
+	}
+	if len(email) > 200 {
+		return "email too long"
+	}
+
+	key := fmt.Sprintf("map_email2id:%s", email)
+	_, err := store.RedisClient.Get(context.Background(), key).Result()
+	if err == redis.Nil {
+		// ok
+	} else if err != nil {
+		log.Printf("Error: %s", err)
+		return "cannot check email"
+	} else {
+		return "email already registered"
+	}
+
+	if password == "" {
+		return "empty password"
+	}
+
+	return ""
 }
