@@ -27,6 +27,8 @@ type User struct {
 
 	Email        string
 	PasswordHash string
+
+	AvatarSha string
 }
 
 var RedisClient *redis.Client
@@ -43,6 +45,10 @@ type Config struct {
 	VKAppSecret string
 
 	TelegramToken string
+
+	SelectelAccountID    int
+	SelectelUserName     string
+	SelectelUserPassword string
 }
 
 var DefaultConfig = Config{}

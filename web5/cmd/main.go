@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -9,6 +11,7 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/pkg/telegram"
 	"github.com/materkov/meme9/web5/store"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -449,6 +452,57 @@ func handleAuthEmail(w http.ResponseWriter, r *http.Request) {
 	write(w, resp, nil)
 }
 
+func handleUploadAvatar(w http.ResponseWriter, r *http.Request) {
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		write(w, nil, ApiError("invalid file"))
+		return
+	}
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	hash := sha256.Sum256(fileBytes)
+	hashHex := hex.EncodeToString(hash[:])
+
+	err = filesSelectelUpload(fileBytes, hashHex)
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
+	if viewer.UserID == 0 {
+		write(w, nil, ApiError("not authorized"))
+		return
+	}
+
+	user := &store.User{}
+	err = store.NodeGet(viewer.UserID, user)
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	user.AvatarSha = hashHex
+
+	err = store.NodeSave(user.ID, user)
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	resp := struct {
+		Avatar string `json:"avatar"`
+	}{
+		Avatar: filesGetURL(hashHex),
+	}
+	write(w, resp, nil)
+}
+
 type Viewer struct {
 	UserID int
 
@@ -526,6 +580,7 @@ func main() {
 	http.HandleFunc("/api/viewer", wrapper(handleViewer))
 	http.HandleFunc("/api/emailRegister", wrapper(handleEmailRegister))
 	http.HandleFunc("/api/emailLogin", wrapper(handleAuthEmail))
+	http.HandleFunc("/api/uploadAvatar", wrapper(handleUploadAvatar))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }

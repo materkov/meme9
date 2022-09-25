@@ -17,6 +17,8 @@ export function UserPage() {
 
     const [isFollowing, setIsFollowing] = React.useState(false);
 
+    const [avatarUploading, setAvatarUploading] = React.useState(false);
+
     useEffect(() => {
         api("/userPage", {
             id: location.pathname.substring(7)
@@ -92,6 +94,23 @@ export function UserPage() {
         })
     }
 
+    const onAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) {
+            return;
+        }
+
+        setAvatarUploading(true);
+        const file = e.target.files[0];
+
+        api("/uploadAvatar", {
+            file: file,
+        }).then((resp) => {
+            setUser({...user, avatar: resp.avatar});
+            setAvatarUploading(false);
+        })
+
+    }
+
     return (
         <div>
             <div className={styles.topBlock}>
@@ -129,6 +148,12 @@ export function UserPage() {
                 Имя: <input type="text" value={userName} onChange={e => setUserName(e.target.value)}/>
                 <button onClick={editName}>Обновить</button>
                 {userNameUpdated && <div>Имя успешно обновлено</div>}
+
+                <br/><br/>
+                Поменять аватарку:
+                <br/>
+                {!avatarUploading && <input type={"file"} onChange={onAvatarUpload}/>}
+                {avatarUploading && <span>Загружаем аватар...</span>}
             </>}
 
             {user.posts?.items?.map(post => (

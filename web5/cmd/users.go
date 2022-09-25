@@ -160,11 +160,16 @@ func usersList(ids []int, viewerID int, includeIsFollowing bool, includeFollower
 		}
 
 		apiUser.Name = user.Name
-		apiUser.Avatar = user.VkPhoto200
 		apiUser.Bio = user.Bio
 		apiUser.IsFollowing = isFollowing[userID]
 		apiUser.FollowingCount = followingCount[userID]
 		apiUser.FollowedByCount = followedByCount[userID]
+
+		if user.AvatarSha != "" {
+			apiUser.Avatar = filesGetURL(user.AvatarSha)
+		} else if user.VkPhoto200 != "" {
+			apiUser.Avatar = user.VkPhoto200
+		}
 	}
 
 	return apiUsers
