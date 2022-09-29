@@ -83,13 +83,28 @@ func parseIds(idsStr []string) []int {
 func handleFeed(w http.ResponseWriter, r *http.Request) {
 	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
-	postIdsStr, err := store.RedisClient.LRange(context.Background(), "feed", 0, 10).Result()
+	offset, _ := strconv.Atoi(r.FormValue("cursor"))
+	limit := 10
+
+	pipe := store.RedisClient.Pipeline()
+
+	lenCmd := pipe.LLen(context.Background(), "feed")
+	rangeCmd := pipe.LRange(context.Background(), "feed", int64(offset), int64(offset+limit-1))
+
+	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		write(w, nil, err)
 		return
 	}
 
-	apiPosts := postsList(parseIds(postIdsStr), viewer.UserID)
+	feedLen := int(lenCmd.Val())
+
+	nextCursor := ""
+	if offset+limit < feedLen {
+		nextCursor = strconv.Itoa(offset + limit)
+	}
+
+	apiPosts := postsList(parseIds(rangeCmd.Val()), viewer.UserID)
 
 	for _, post := range apiPosts {
 		userID, _ := strconv.Atoi(post.UserID)
@@ -104,9 +119,14 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 		viewerID = strconv.Itoa(viewer.UserID)
 	}
 
-	resp := []interface{}{
-		viewerID,
-		apiPosts,
+	resp := struct {
+		ViewerID   string  `json:"viewerId"`
+		Posts      []*Post `json:"posts"`
+		NextCursor string  `json:"nextCursor"`
+	}{
+		ViewerID:   viewerID,
+		Posts:      apiPosts,
+		NextCursor: nextCursor,
 	}
 	write(w, resp, nil)
 }

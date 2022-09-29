@@ -1,21 +1,26 @@
 import React, {useEffect} from "react";
-import {ComponentPost} from "./Post";
 import {Composer} from "./Composer";
 import {api, Post} from "../store/types";
 import {useCustomEventListener} from "react-custom-events";
-import produce from "immer";
+import {PostsList} from "./PostsList";
 
 export function Feed() {
     const [viewerID, setViewerID] = React.useState('');
     const [posts, setPosts] = React.useState<Post[]>([]);
     const [loaded, setIsLoaded] = React.useState(false);
     const [err, setIsError] = React.useState(false);
+    const [cursor, setCursor] = React.useState('');
+    const [showMoreLocked, setShowMoreLocked] = React.useState(false);
 
     const refreshData = () => {
-        api("/feed", {}).then(data => {
-            setViewerID(data[0]);
-            setPosts(data[1]);
+        setShowMoreLocked(true);
+
+        api("/feed", {cursor: cursor}).then(data => {
+            setViewerID(data.viewerId);
+            setPosts([...posts, ...data.posts]);
             setIsLoaded(true);
+            setShowMoreLocked(false);
+            setCursor(data.nextCursor);
         }).catch(() => setIsError(true));
     }
 
@@ -36,6 +41,8 @@ export function Feed() {
     return <>
         {viewerID ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
 
-        {posts.map(post => <ComponentPost post={post} key={post.id} onDelete={() => onPostDelete(post.id)}/>)}
+        <PostsList posts={posts} onPostDelete={onPostDelete} onShowMore={refreshData} showMore={Boolean(cursor)}
+                   showMoreDisabled={showMoreLocked}
+        />
     </>
 }
