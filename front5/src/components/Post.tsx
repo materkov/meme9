@@ -4,10 +4,13 @@ import {PostUser} from "./PostUser";
 import styles from "./Post.module.css";
 import {Dots3} from "./icons/Dots3";
 import classNames from "classnames";
+import {PostLike} from "./PostLike";
 
 export type Props = {
     post: Post;
     onDelete?: () => void;
+    onLike?: () => void;
+    onUnlike?: () => void;
 }
 
 export function ComponentPost(props: Props) {
@@ -17,6 +20,16 @@ export function ComponentPost(props: Props) {
     const onDelete = () => {
         api("/postDelete", {id: post.id});
         props.onDelete && props.onDelete();
+    }
+
+    const onLikeToggle = () => {
+        if (post.isLiked) {
+            api("/postUnlike", {id: post.id});
+            props.onUnlike && props.onUnlike();
+        } else {
+            api("/postLike", {id: post.id});
+            props.onLike && props.onLike();
+        }
     }
 
     return (
@@ -36,7 +49,10 @@ export function ComponentPost(props: Props) {
                 </>
                 }
             </div>
+
             <div className={styles.text}>{post.text}</div>
+
+            <PostLike count={post.likesCount} isLiked={post.isLiked} onToggle={onLikeToggle}/>
         </div>
     )
 }

@@ -22,6 +22,8 @@ export type Post = {
     date: string;
     text: string;
     canDelete?: boolean;
+    isLiked: boolean;
+    likesCount: number;
 }
 
 export function api(url: string, params: any = {}): Promise<any> {

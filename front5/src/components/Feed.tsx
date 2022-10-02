@@ -28,6 +28,30 @@ export function Feed() {
         setPosts(posts.filter(post => post.id !== postId));
     }
 
+    const onPostLike = (postId: string) => {
+        const postsCopy = [...posts];
+        for (let post of postsCopy) {
+            if (post.id == postId) {
+                post.isLiked = true;
+                post.likesCount = (post.likesCount || 0) + 1;
+            }
+        }
+
+        setPosts(postsCopy);
+    }
+
+    const onPostUnlike = (postId: string) => {
+        const postsCopy = [...posts];
+        for (let post of postsCopy) {
+            if (post.id == postId) {
+                post.isLiked = false;
+                post.likesCount = (post.likesCount || 0) - 1;
+            }
+        }
+
+        setPosts(postsCopy);
+    }
+
     useEffect(refreshData, []);
     useCustomEventListener('postCreated', refreshData);
 
@@ -42,7 +66,7 @@ export function Feed() {
         {viewerID ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
 
         <PostsList posts={posts} onPostDelete={onPostDelete} onShowMore={refreshData} showMore={Boolean(cursor)}
-                   showMoreDisabled={showMoreLocked}
+                   showMoreDisabled={showMoreLocked} onLike={onPostLike} onUnlike={onPostUnlike}
         />
     </>
 }

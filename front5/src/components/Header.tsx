@@ -32,8 +32,7 @@ export function Header() {
                 {viewer === null && <Link href={"/login"}>Авторизация</Link>}
                 {viewer !== null && viewer !== undefined &&
                     <>
-                        <Link href={"/users/" + viewer.id}>{viewer.name}</Link> |
-                        <a onClick={onLogout} href={"#"}>Выход</a>
+                        <Link href={"/users/" + viewer.id}>{viewer.name}</Link> | <a onClick={onLogout} href={"#"}>Выход</a>
                     </>
                 }
             </div>

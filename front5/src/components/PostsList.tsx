@@ -6,6 +6,8 @@ import styles from "./PostsList.module.css";
 export type Props = {
     posts: Post[];
     onPostDelete?: (postId: string) => void;
+    onLike?: (postId: string) => void;
+    onUnlike?: (postId: string) => void;
 
     onShowMore?: () => void;
     showMore?: boolean;
@@ -17,6 +19,8 @@ export function PostsList(props: Props) {
         {props.posts.map(post => <ComponentPost
             post={post}
             key={post.id}
+            onLike={() => props.onLike && props.onLike(post.id)}
+            onUnlike={() => props.onUnlike && props.onUnlike(post.id)}
             onDelete={() => props.onPostDelete && !props.showMoreDisabled && props.onPostDelete(post.id)}
         />)}
 

@@ -4,11 +4,54 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-redis/redis/v9"
+	"github.com/hashicorp/go-multierror"
 	"github.com/materkov/meme9/web5/store"
 	"log"
 	"strconv"
 	"time"
 )
+
+type likedData struct {
+	Count   int
+	IsLiked bool
+}
+
+func getLikesData(ids []int, viewerId int) ([]likedData, error) {
+	result := make([]likedData, len(ids))
+
+	pipe := store.RedisClient.Pipeline()
+
+	cardCmds := make([]*redis.IntCmd, len(ids))
+	scoreCmds := make([]*redis.FloatCmd, len(ids))
+
+	for i, postID := range ids {
+		key := fmt.Sprintf("postLikes:%d", postID)
+		cardCmds[i] = pipe.ZCard(context.Background(), key)
+		scoreCmds[i] = pipe.ZScore(context.Background(), key, strconv.Itoa(viewerId))
+	}
+
+	_, _ = pipe.Exec(context.Background())
+
+	var resultErr error
+
+	for i := range ids {
+		if cardCmds[i].Err() != nil {
+			resultErr = multierror.Append(resultErr, cardCmds[i].Err())
+		}
+
+		if scoreCmds[i].Err() != nil && scoreCmds[i].Err() != redis.Nil {
+			resultErr = multierror.Append(resultErr, scoreCmds[i].Err())
+		}
+
+		result[i] = likedData{
+			Count:   int(cardCmds[i].Val()),
+			IsLiked: scoreCmds[i].Val() != 0,
+		}
+	}
+
+	return result, resultErr
+}
 
 func postsList(ids []int, viewerID int) []*Post {
 	if len(ids) == 0 {
@@ -23,6 +66,11 @@ func postsList(ids []int, viewerID int) []*Post {
 	postsBytes, err := store.RedisClient.MGet(context.Background(), keys...).Result()
 	if err != nil {
 		log.Printf("error getting posts: %s", err)
+	}
+
+	likesData, err := getLikesData(ids, viewerID)
+	if err != nil {
+		log.Printf("Error getting post likes: %s", err)
 	}
 
 	posts := map[int]*store.Post{}
@@ -57,6 +105,9 @@ func postsList(ids []int, viewerID int) []*Post {
 		result.Date = time.Unix(int64(post.Date), 0).UTC().Format(time.RFC3339)
 		result.UserID = strconv.Itoa(post.UserID)
 		result.CanDelete = post.UserID == viewerID
+
+		result.LikesCount = likesData[i].Count
+		result.IsLiked = likesData[i].IsLiked
 	}
 
 	return apiPosts

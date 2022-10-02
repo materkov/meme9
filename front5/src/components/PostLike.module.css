@@ -1,0 +1,24 @@
+.likeBtn {
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 5px 10px;
+    display: inline-block;
+    background: #ddd;
+    margin: 6px 0;
+}
+
+.likeBtn:hover {
+    background: #ccc;
+}
+
+.likeText {
+    display: inline-block;
+    font-weight: bold;
+    margin-left: 6px;
+}
+
+.likeIcon {
+    vertical-align: middle;
+    display: inline-block;
+    width: 18px;
+}

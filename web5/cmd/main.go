@@ -27,6 +27,9 @@ type Post struct {
 	User   *User  `json:"user"`
 
 	CanDelete bool `json:"canDelete,omitempty"`
+
+	LikesCount int  `json:"likesCount,omitempty"`
+	IsLiked    bool `json:"isLiked,omitempty"`
 }
 
 type User struct {
@@ -348,6 +351,89 @@ func handlePostDelete(w http.ResponseWriter, r *http.Request) {
 	write(w, []interface{}{}, nil)
 }
 
+func handlePostLike(w http.ResponseWriter, r *http.Request) {
+	postID, _ := strconv.Atoi(r.FormValue("id"))
+
+	post := store.Post{}
+	err := store.NodeGet(postID, &post)
+	if err == store.ErrNodeNotFound {
+		write(w, nil, ApiError("post not found"))
+		return
+	} else if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
+	if viewer.UserID == 0 {
+		write(w, nil, ApiError("not authorized"))
+		return
+	}
+
+	pipe := store.RedisClient.Pipeline()
+
+	key := fmt.Sprintf("postLikes:%d", postID)
+	_ = pipe.ZAdd(context.Background(), key, redis.Z{
+		Score:  float64(time.Now().UnixMilli()),
+		Member: viewer.UserID,
+	})
+	cardCmd := pipe.ZCard(context.Background(), key)
+
+	_, err = pipe.Exec(context.Background())
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	resp := struct {
+		LikesCount int `json:"likesCount"`
+	}{
+		LikesCount: int(cardCmd.Val()),
+	}
+
+	write(w, resp, nil)
+}
+
+func handlePostUnlike(w http.ResponseWriter, r *http.Request) {
+	postID, _ := strconv.Atoi(r.FormValue("id"))
+
+	post := store.Post{}
+	err := store.NodeGet(postID, &post)
+	if err == store.ErrNodeNotFound {
+		write(w, nil, ApiError("post not found"))
+		return
+	} else if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
+	if viewer.UserID == 0 {
+		write(w, nil, ApiError("not authorized"))
+		return
+	}
+
+	pipe := store.RedisClient.Pipeline()
+
+	key := fmt.Sprintf("postLikes:%d", postID)
+	pipe.ZRem(context.Background(), key, viewer.UserID)
+	cardCmd := pipe.ZCard(context.Background(), key)
+
+	_, err = pipe.Exec(context.Background())
+	if err != nil {
+		write(w, nil, err)
+		return
+	}
+
+	resp := struct {
+		LikesCount int `json:"likesCount"`
+	}{
+		LikesCount: int(cardCmd.Val()),
+	}
+
+	write(w, resp, nil)
+}
+
 func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 	redirectURI := r.FormValue("redirectUri")
@@ -596,6 +682,8 @@ func main() {
 	http.HandleFunc("/api/userUnfollow", wrapper(handleUserUnfollow))
 	http.HandleFunc("/api/postPage", wrapper(handlePostPage))
 	http.HandleFunc("/api/postDelete", wrapper(handlePostDelete))
+	http.HandleFunc("/api/postLike", wrapper(handlePostLike))
+	http.HandleFunc("/api/postUnlike", wrapper(handlePostUnlike))
 	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))
 	http.HandleFunc("/api/viewer", wrapper(handleViewer))
 	http.HandleFunc("/api/emailRegister", wrapper(handleEmailRegister))
