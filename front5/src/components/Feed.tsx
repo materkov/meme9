@@ -1,72 +1,35 @@
 import React, {useEffect} from "react";
 import {Composer} from "./Composer";
-import {api, Post} from "../store/types";
 import {useCustomEventListener} from "react-custom-events";
 import {PostsList} from "./PostsList";
+import {feedStore} from "../store/Feed";
 
 export function Feed() {
-    const [viewerID, setViewerID] = React.useState('');
-    const [posts, setPosts] = React.useState<Post[]>([]);
-    const [loaded, setIsLoaded] = React.useState(false);
-    const [err, setIsError] = React.useState(false);
-    const [cursor, setCursor] = React.useState('');
-    const [showMoreLocked, setShowMoreLocked] = React.useState(false);
+    const [version, setVersion] = React.useState(0);
 
-    const refreshData = () => {
-        setShowMoreLocked(true);
+    useEffect(() => {
+        const cb = () => {
+            setVersion(feedStore.version);
+        };
 
-        api("/feed", {cursor: cursor}).then(data => {
-            setViewerID(data.viewerId);
-            setPosts([...posts, ...data.posts]);
-            setIsLoaded(true);
-            setShowMoreLocked(false);
-            setCursor(data.nextCursor);
-        }).catch(() => setIsError(true));
-    }
-
-    const onPostDelete = (postId: string) => {
-        setPosts(posts.filter(post => post.id !== postId));
-    }
-
-    const onPostLike = (postId: string) => {
-        const postsCopy = [...posts];
-        for (let post of postsCopy) {
-            if (post.id == postId) {
-                post.isLiked = true;
-                post.likesCount = (post.likesCount || 0) + 1;
-            }
+        feedStore.fetch();
+        feedStore.subscribe(cb);
+        return () => {
+            feedStore.unsubscribe(cb);
         }
+    })
 
-        setPosts(postsCopy);
-    }
+    useCustomEventListener('postCreated', feedStore.reset);
 
-    const onPostUnlike = (postId: string) => {
-        const postsCopy = [...posts];
-        for (let post of postsCopy) {
-            if (post.id == postId) {
-                post.isLiked = false;
-                post.likesCount = (post.likesCount || 0) - 1;
-            }
-        }
-
-        setPosts(postsCopy);
-    }
-
-    useEffect(refreshData, []);
-    useCustomEventListener('postCreated', refreshData);
-
-    if (!loaded) {
+    if (!feedStore.isFirstLoaded) {
         return <>Загрузка...</>
-    }
-    if (err) {
-        return <>Ошибка...</>
     }
 
     return <>
-        {viewerID ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
+        {feedStore.viewerId ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
 
-        <PostsList posts={posts} onPostDelete={onPostDelete} onShowMore={refreshData} showMore={Boolean(cursor)}
-                   showMoreDisabled={showMoreLocked} onLike={onPostLike} onUnlike={onPostUnlike}
+        <PostsList posts={feedStore.posts} onShowMore={feedStore.fetch} showMore={Boolean(feedStore.nextCursor)}
+                   showMoreDisabled={feedStore.isLoading}
         />
     </>
 }

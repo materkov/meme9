@@ -5,12 +5,10 @@ import styles from "./Post.module.css";
 import {Dots3} from "./icons/Dots3";
 import classNames from "classnames";
 import {PostLike} from "./PostLike";
+import {feedStore} from "../store/Feed";
 
 export type Props = {
     post: Post;
-    onDelete?: () => void;
-    onLike?: () => void;
-    onUnlike?: () => void;
 }
 
 export function ComponentPost(props: Props) {
@@ -18,17 +16,14 @@ export function ComponentPost(props: Props) {
     const [menuHidden, setMenuHidden] = React.useState(true);
 
     const onDelete = () => {
-        api("/postDelete", {id: post.id});
-        props.onDelete && props.onDelete();
+        feedStore.delete(post.id);
     }
 
     const onLikeToggle = () => {
         if (post.isLiked) {
-            api("/postUnlike", {id: post.id});
-            props.onUnlike && props.onUnlike();
+            feedStore.unlike(post.id);
         } else {
-            api("/postLike", {id: post.id});
-            props.onLike && props.onLike();
+            feedStore.like(post.id);
         }
     }
 
