@@ -7,7 +7,7 @@ require("esbuild")
         logLevel: "debug",
         entryPoints: ["src/index.tsx"],
         bundle: true,
-        outfile: "dist/bundle.js",
+        outfile: "dist/bundle/bundle.js",
         plugins: [cssModulesPlugin({
             localsConvention: 'camelCase',
         })],

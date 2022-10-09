@@ -6,7 +6,8 @@ import {UserAvatar} from "./UserAvatar";
 
 export function PostUser(props: { post: Post }) {
     const [isVisible, setIsVisible] = React.useState(false);
-    const [userData, setUserData] = React.useState<User>();
+    const [userName, setUserName] = React.useState("");
+    const [postsCount, setPostsCount] = React.useState(0);
     const [isUserLoaded, setIsUserLoaded] = React.useState(false);
 
     let className = styles.userNamePopup;
@@ -24,14 +25,17 @@ export function PostUser(props: { post: Post }) {
         const f = new FormData();
         f.set("id", props.post.user?.id || "");
 
-        api("/userPage", {
+        api("/userPopup", {
             id: props.post.user?.id || ""
-        }).then(r => setUserData(r[0]));
+        }).then(r => {
+            setUserName(r[0]);
+            setPostsCount(r[1]);
+        });
     }
 
     let userDetails = '...LOADING...';
-    if (userData) {
-        userDetails = "Name: " + userData.name + ", posts: " + userData.posts?.count;
+    if (userName) {
+        userDetails = "Name: " + userName + ", posts: " + postsCount;
     }
 
     const date = new Date(props.post.date || "");

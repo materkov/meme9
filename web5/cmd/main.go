@@ -175,6 +175,36 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 	}, nil)
 }
 
+func handleUserPopup(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.FormValue("id"))
+
+	userChan := make(chan store.User)
+	go func() {
+		user := store.User{}
+		err := store.NodeGet(userID, &user)
+		if err != nil {
+			log.Printf("[ERROR] Error getting user: %s", err)
+		}
+
+		userChan <- user
+	}()
+
+	postsCount := make(chan int)
+	go func() {
+		redisKey := fmt.Sprintf("feed:%d", userID)
+		count, err := store.RedisClient.LLen(context.Background(), redisKey).Result()
+		if err != nil {
+			log.Printf("[ERROR] Error getting posts count: %s", err)
+		}
+		postsCount <- int(count)
+	}()
+
+	write(w, []interface{}{
+		(<-userChan).Name,
+		<-postsCount,
+	}, nil)
+}
+
 type postsListCursor struct {
 	Offset int
 }
@@ -677,6 +707,7 @@ func main() {
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))
 	http.HandleFunc("/api/userPage", wrapper(handleUserPage))
 	http.HandleFunc("/api/userPage/posts", wrapper(handleUserPagePosts))
+	http.HandleFunc("/api/userPopup", wrapper(handleUserPopup))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
 	http.HandleFunc("/api/userFollow", wrapper(handleUserFollow))
 	http.HandleFunc("/api/userUnfollow", wrapper(handleUserUnfollow))

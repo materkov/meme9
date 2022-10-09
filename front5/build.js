@@ -8,7 +8,7 @@ require("esbuild")
         entryPoints: ["src/index.tsx"],
         bundle: true,
         watch: true,
-        outfile: "dist/bundle.js",
+        outfile: "dist/bundle/bundle.js",
         plugins: [cssModulesPlugin({
             localsConvention: 'camelCase',
         })],

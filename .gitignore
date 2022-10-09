@@ -1,15 +1,8 @@
 .DS_Store
 .idea
 legacy/front/node_modules
-front/dist/*.js
-front/dist/*.LICENSE.txt
-front2/node_modules
-front3/node_modules
-front4/node_modules
-front4/dist/bundle*
 front5/node_modules
-front5/dist/index.js
-front5/dist/bundle.js
+front5/dist/bundle
 legacy/web/config.json
 web5/config.json
 mongotest
