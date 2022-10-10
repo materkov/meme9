@@ -12,7 +12,6 @@ import (
 	"github.com/materkov/meme9/web5/pkg/metrics"
 	"github.com/materkov/meme9/web5/pkg/posts"
 	"github.com/materkov/meme9/web5/pkg/telegram"
-	"github.com/materkov/meme9/web5/pkg/utils"
 	"github.com/materkov/meme9/web5/store"
 	"io"
 	"log"
@@ -175,33 +174,6 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 	write(w, []interface{}{
 		users[0],
 		viewer.GetUserIDStr(),
-	}, nil)
-}
-
-func handleUserPopup(w http.ResponseWriter, r *http.Request) {
-	userID, _ := strconv.Atoi(r.FormValue("id"))
-
-	userChan := make(chan store.User)
-	go func() {
-		user := store.User{}
-		err := store.NodeGet(userID, &user)
-		if err != nil {
-			log.Printf("[ERROR] Error getting user: %s", err)
-		}
-
-		userChan <- user
-	}()
-
-	postsCount := make(chan int)
-	go func() {
-		count, err := posts.FeedLen(userID)
-		utils.LogIfErr(err)
-		postsCount <- count
-	}()
-
-	write(w, []interface{}{
-		(<-userChan).Name,
-		<-postsCount,
 	}, nil)
 }
 
@@ -812,7 +784,6 @@ func main() {
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))
 	http.HandleFunc("/api/userPage", wrapper(handleUserPage))
 	http.HandleFunc("/api/userPage/posts", wrapper(handleUserPagePosts))
-	http.HandleFunc("/api/userPopup", wrapper(handleUserPopup))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
 	http.HandleFunc("/api/userFollow", wrapper(handleUserFollow))
 	http.HandleFunc("/api/userUnfollow", wrapper(handleUserUnfollow))
