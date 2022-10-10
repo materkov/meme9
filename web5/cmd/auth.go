@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"github.com/materkov/meme9/web5/pkg/utils"
 	"github.com/materkov/meme9/web5/store"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"log"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -51,21 +51,11 @@ func authExchangeCode(code string, redirectURI string) (int, string, error) {
 	return body.UserID, body.AccessToken, nil
 }
 
-func randStringRunes(n int) string {
-	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
-}
-
 func authCreateToken(userID int) (string, error) {
 	token := store.AuthToken{
 		//ID:     nextID(),
 		UserID: userID,
-		Token:  randStringRunes(30),
+		Token:  utils.RandString(30),
 		Date:   int(time.Now().Unix()),
 	}
 

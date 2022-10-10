@@ -17,7 +17,7 @@ type likedData struct {
 	IsLiked bool
 }
 
-func getLikesData(ids []int, viewerId int) ([]likedData, error) {
+func getLikesData(ctx context.Context, ids []int, viewerId int) ([]likedData, error) {
 	result := make([]likedData, len(ids))
 
 	pipe := store.RedisClient.Pipeline()
@@ -27,11 +27,11 @@ func getLikesData(ids []int, viewerId int) ([]likedData, error) {
 
 	for i, postID := range ids {
 		key := fmt.Sprintf("postLikes:%d", postID)
-		cardCmds[i] = pipe.ZCard(context.Background(), key)
-		scoreCmds[i] = pipe.ZScore(context.Background(), key, strconv.Itoa(viewerId))
+		cardCmds[i] = pipe.ZCard(ctx, key)
+		scoreCmds[i] = pipe.ZScore(ctx, key, strconv.Itoa(viewerId))
 	}
 
-	_, _ = pipe.Exec(context.Background())
+	_, _ = pipe.Exec(ctx)
 
 	var resultErr error
 
@@ -53,7 +53,7 @@ func getLikesData(ids []int, viewerId int) ([]likedData, error) {
 	return result, resultErr
 }
 
-func postsList(ids []int, viewerID int) []*Post {
+func postsList(ctx context.Context, ids []int, viewerID int) []*Post {
 	if len(ids) == 0 {
 		return nil
 	}
@@ -63,12 +63,12 @@ func postsList(ids []int, viewerID int) []*Post {
 		keys[i] = fmt.Sprintf("node:%d", postID)
 	}
 
-	postsBytes, err := store.RedisClient.MGet(context.Background(), keys...).Result()
+	postsBytes, err := store.RedisClient.MGet(ctx, keys...).Result()
 	if err != nil {
 		log.Printf("error getting posts: %s", err)
 	}
 
-	likesData, err := getLikesData(ids, viewerID)
+	likesData, err := getLikesData(ctx, ids, viewerID)
 	if err != nil {
 		log.Printf("Error getting post likes: %s", err)
 	}
