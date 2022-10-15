@@ -9,10 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-redis/redis/v9"
-	"github.com/materkov/meme9/web5/pkg/metrics"
-	"github.com/materkov/meme9/web5/pkg/posts"
 	"github.com/materkov/meme9/web5/pkg/telegram"
-	"github.com/materkov/meme9/web5/pkg/utils"
 	"github.com/materkov/meme9/web5/store"
 	"io"
 	"log"
@@ -94,10 +91,10 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 
 	pipe := store.RedisClient.Pipeline()
 
-	lenCmd := pipe.LLen(r.Context(), "feed")
-	rangeCmd := pipe.LRange(r.Context(), "feed", int64(offset), int64(offset+limit-1))
+	lenCmd := pipe.LLen(context.Background(), "feed")
+	rangeCmd := pipe.LRange(context.Background(), "feed", int64(offset), int64(offset+limit-1))
 
-	_, err := pipe.Exec(r.Context())
+	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -110,7 +107,7 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 		nextCursor = strconv.Itoa(offset + limit)
 	}
 
-	apiPosts := postsList(r.Context(), parseIds(rangeCmd.Val()), viewer.UserID)
+	apiPosts := postsList(parseIds(rangeCmd.Val()), viewer.UserID)
 
 	for _, post := range apiPosts {
 		userID, _ := strconv.Atoi(post.UserID)
@@ -156,7 +153,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts := postsList(r.Context(), []int{postID}, viewer.UserID)
+	posts := postsList([]int{postID}, viewer.UserID)
 	write(w, posts[0], nil)
 }
 
@@ -170,7 +167,7 @@ func handleUserPage(w http.ResponseWriter, r *http.Request) {
 		write(w, nil, ApiError("user not found"))
 		return
 	}
-	users[0].Posts = userPagePosts(r.Context(), userID, 0, viewer.UserID)
+	users[0].Posts = userPagePosts(userID, 0, viewer.UserID)
 
 	write(w, []interface{}{
 		users[0],
@@ -194,9 +191,12 @@ func handleUserPopup(w http.ResponseWriter, r *http.Request) {
 
 	postsCount := make(chan int)
 	go func() {
-		count, err := posts.FeedLen(userID)
-		utils.LogIfErr(err)
-		postsCount <- count
+		redisKey := fmt.Sprintf("feed:%d", userID)
+		count, err := store.RedisClient.LLen(context.Background(), redisKey).Result()
+		if err != nil {
+			log.Printf("[ERROR] Error getting posts count: %s", err)
+		}
+		postsCount <- int(count)
 	}()
 
 	write(w, []interface{}{
@@ -224,20 +224,20 @@ func handleUserPagePosts(w http.ResponseWriter, r *http.Request) {
 	cursor := ParsePostsListCursor(r.FormValue("cursor"))
 	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
-	result := userPagePosts(r.Context(), userID, cursor.Offset, viewer.UserID)
+	result := userPagePosts(userID, cursor.Offset, viewer.UserID)
 
 	write(w, []interface{}{
 		result,
 	}, nil)
 }
 
-func userPagePosts(ctx context.Context, userID int, offset int, viewerID int) *UserPostsConnection {
+func userPagePosts(userID int, offset int, viewerID int) *UserPostsConnection {
 	redisKey := fmt.Sprintf("feed:%d", userID)
 	pipe := store.RedisClient.Pipeline()
 
-	postsIdsCmd := pipe.LRange(ctx, redisKey, int64(offset), int64(offset+10-1))
-	lenCmd := pipe.LLen(ctx, redisKey)
-	_, err := pipe.Exec(ctx)
+	postsIdsCmd := pipe.LRange(context.Background(), redisKey, int64(offset), int64(offset+10-1))
+	lenCmd := pipe.LLen(context.Background(), redisKey)
+	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		log.Printf("Error getting feed: %s", err)
 	}
@@ -253,7 +253,7 @@ func userPagePosts(ctx context.Context, userID int, offset int, viewerID int) *U
 
 	return &UserPostsConnection{
 		Count:      count,
-		Items:      postsList(ctx, parseIds(postIdsStr), viewerID),
+		Items:      postsList(parseIds(postIdsStr), viewerID),
 		NextCursor: nextCursor,
 	}
 }
@@ -338,7 +338,7 @@ func handlePostPage(w http.ResponseWriter, r *http.Request) {
 	postID := r.FormValue("id")
 	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
-	posts := postsList(r.Context(), parseIds([]string{postID}), viewer.UserID)
+	posts := postsList(parseIds([]string{postID}), viewer.UserID)
 	if len(posts) == 0 {
 		write(w, nil, ApiError("post not found"))
 		return
@@ -639,63 +639,10 @@ func handleUploadAvatar(w http.ResponseWriter, r *http.Request) {
 	write(w, resp, nil)
 }
 
-func handleExecute(w http.ResponseWriter, r *http.Request) {
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-
-	type operation struct {
-		Method string          `json:"method"`
-		Params json.RawMessage `json:"params"`
-	}
-	var operations []operation
-	_ = json.Unmarshal([]byte(r.FormValue("operations")), &operations)
-
-	var allResult []interface{}
-	for _, op := range operations {
-		var result interface{}
-
-		switch op.Method {
-		case "userPostsCount":
-			type params struct {
-				UserID string `json:"userId"`
-			}
-			type response struct {
-				PostsCount int `json:"postsCount,omitempty"`
-			}
-			p := params{}
-			_ = json.Unmarshal(op.Params, &p)
-
-			userID, _ := strconv.Atoi(p.UserID)
-			postsCount, _ := posts.FeedLen(userID)
-
-			result = response{PostsCount: postsCount}
-
-		case "userDetails":
-			type params struct {
-				UserIds []string `json:"userIds"`
-			}
-			type response struct {
-				Users []*User `json:"users,omitempty"`
-			}
-
-			p := params{}
-			_ = json.Unmarshal(op.Params, &p)
-
-			users := usersList(parseIds(p.UserIds), viewer.UserID, false, false)
-
-			result = response{Users: users}
-		}
-
-		allResult = append(allResult, result)
-	}
-
-	_ = json.NewEncoder(w).Encode(allResult)
-}
-
 type Viewer struct {
 	UserID int
 
-	Origin    string
-	RequestID int
+	Origin string
 }
 
 func (v *Viewer) GetUserIDStr() string {
@@ -707,11 +654,7 @@ func (v *Viewer) GetUserIDStr() string {
 
 type contextKey int
 
-const (
-	ViewerKey contextKey = iota
-	RequestID
-	StartTime
-)
+const ViewerKey contextKey = iota
 
 func wrapper(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -723,63 +666,17 @@ func wrapper(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		requestID := int(rand.Int63())
-
-		start := time.Now()
-		defer func() {
-			t := time.Since(start)
-			go func() {
-				_ = metrics.WriteSpan(r.URL.Path, requestID, true, t)
-			}()
-		}()
-
 		authToken := r.FormValue("token")
 		userID, _ := authCheckToken(authToken)
 
 		viewer := &Viewer{
-			UserID:    userID,
-			Origin:    r.Header.Get("origin"),
-			RequestID: requestID,
+			UserID: userID,
+			Origin: r.Header.Get("origin"),
 		}
-
-		ctx := context.WithValue(r.Context(), ViewerKey, viewer)
-		ctx = context.WithValue(ctx, RequestID, viewer.RequestID)
-
-		r = r.WithContext(ctx)
+		r = r.WithContext(context.WithValue(r.Context(), ViewerKey, viewer))
 
 		next(w, r)
 	}
-}
-
-type redisHook struct {
-}
-
-func (h redisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (context.Context, error) {
-	return context.WithValue(ctx, StartTime, time.Now()), nil
-}
-
-func (h redisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error {
-	startTime := ctx.Value(StartTime).(time.Time)
-	requestID, ok := ctx.Value(RequestID).(int)
-	if ok {
-		_ = metrics.WriteSpan(fmt.Sprintf("REDIS %s", cmd.Name()), requestID, false, time.Since(startTime))
-	}
-	return nil
-}
-
-func (h redisHook) BeforeProcessPipeline(ctx context.Context, cmds []redis.Cmder) (context.Context, error) {
-	return context.WithValue(ctx, StartTime, time.Now()), nil
-}
-
-func (h redisHook) AfterProcessPipeline(ctx context.Context, cmds []redis.Cmder) error {
-	startTime := ctx.Value(StartTime).(time.Time)
-	requestID, ok := ctx.Value(RequestID).(int)
-	if ok {
-		for _, cmd := range cmds {
-			_ = metrics.WriteSpan(fmt.Sprintf("REDIS %s", cmd.Name()), requestID, false, time.Since(startTime))
-		}
-	}
-	return nil
 }
 
 func main() {
@@ -790,8 +687,6 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	store.RedisClient = redis.NewClient(&redis.Options{})
-
-	store.RedisClient.AddHook(&redisHook{})
 
 	configStr, err := store.RedisClient.Get(context.Background(), "config").Bytes()
 	if err != nil {
@@ -825,7 +720,6 @@ func main() {
 	http.HandleFunc("/api/emailRegister", wrapper(handleEmailRegister))
 	http.HandleFunc("/api/emailLogin", wrapper(handleAuthEmail))
 	http.HandleFunc("/api/uploadAvatar", wrapper(handleUploadAvatar))
-	http.HandleFunc("/api/execute", wrapper(handleExecute))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
