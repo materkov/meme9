@@ -53,7 +53,7 @@ func getLikesData(ids []int, viewerId int) ([]likedData, error) {
 	return result, resultErr
 }
 
-func postsList(ids []int, viewerID int) []*Post {
+func postsList(ids []int, viewerID int, includeUser bool) []*Post {
 	if len(ids) == 0 {
 		return nil
 	}
@@ -104,10 +104,23 @@ func postsList(ids []int, viewerID int) []*Post {
 		result.Text = post.Text
 		result.Date = time.Unix(int64(post.Date), 0).UTC().Format(time.RFC3339)
 		result.UserID = strconv.Itoa(post.UserID)
+		result.User = &User{ID: strconv.Itoa(post.UserID)}
 		result.CanDelete = post.UserID == viewerID
 
 		result.LikesCount = likesData[i].Count
 		result.IsLiked = likesData[i].IsLiked
+	}
+
+	if includeUser {
+		userIds := make([]int, len(apiPosts))
+		for i, apiPost := range apiPosts {
+			userIds[i], _ = strconv.Atoi(apiPost.UserID)
+		}
+
+		users := usersList(userIds, viewerID, false, false, false, false, false, 0)
+		for i, user := range users {
+			apiPosts[i].User = user
+		}
 	}
 
 	return apiPosts
