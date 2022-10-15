@@ -20,9 +20,9 @@ export class FeedStore {
         this.isLoading = true;
         api("/feed", {cursor: this.nextCursor}).then(data => {
             this.viewerId = data.viewerId;
-            this.posts = [...this.posts, ...data.posts];
+            this.posts = [...this.posts, ...data.feed.items];
             this.isLoading = false;
-            this.nextCursor = data.nextCursor;
+            this.nextCursor = data.feed.nextCursor;
             this.isFirstLoaded = true;
             this.fire();
         });

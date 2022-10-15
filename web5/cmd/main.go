@@ -32,24 +32,24 @@ type Post struct {
 	IsLiked    bool `json:"isLiked,omitempty"`
 }
 
+type PostsList struct {
+	Count      int     `json:"count,omitempty"`
+	Items      []*Post `json:"items,omitempty"`
+	NextCursor string  `json:"nextCursor,omitempty"`
+}
+
 type User struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 	Bio    string `json:"bio"`
 
-	Posts *UserPostsConnection `json:"posts"`
+	Posts *PostsList `json:"posts,omitempty"`
 
 	IsFollowing bool `json:"isFollowing,omitempty"`
 
 	FollowingCount  int `json:"followingCount,omitempty"`
 	FollowedByCount int `json:"followedByCount,omitempty"`
-}
-
-type UserPostsConnection struct {
-	Count      int     `json:"count,omitempty"`
-	Items      []*Post `json:"items,omitempty"`
-	NextCursor string  `json:"nextCursor,omitempty"`
 }
 
 type ApiError string
@@ -123,13 +123,14 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := struct {
-		ViewerID   string  `json:"viewerId"`
-		Posts      []*Post `json:"posts"`
-		NextCursor string  `json:"nextCursor"`
+		ViewerID string    `json:"viewerId"`
+		Feed     PostsList `json:"feed"`
 	}{
-		ViewerID:   viewerID,
-		Posts:      apiPosts,
-		NextCursor: nextCursor,
+		ViewerID: viewerID,
+		Feed: PostsList{
+			Items:      apiPosts,
+			NextCursor: nextCursor,
+		},
 	}
 	write(w, resp, nil)
 }
@@ -231,7 +232,7 @@ func handleUserPagePosts(w http.ResponseWriter, r *http.Request) {
 	}, nil)
 }
 
-func userPagePosts(userID int, offset int, viewerID int) *UserPostsConnection {
+func userPagePosts(userID int, offset int, viewerID int) *PostsList {
 	redisKey := fmt.Sprintf("feed:%d", userID)
 	pipe := store.RedisClient.Pipeline()
 
@@ -251,7 +252,7 @@ func userPagePosts(userID int, offset int, viewerID int) *UserPostsConnection {
 		nextCursor = cursor.ToString()
 	}
 
-	return &UserPostsConnection{
+	return &PostsList{
 		Count:      count,
 		Items:      postsList(parseIds(postIdsStr), viewerID),
 		NextCursor: nextCursor,
