@@ -56,7 +56,7 @@ func nextID() int {
 	return int(time.Now().UnixMilli())
 }
 
-func usersList(ids []int, viewerID int, includeIsFollowing bool, includeFollowersCount bool, includePosts bool, includePostsItems bool, includePostsItemsUser bool, postsCursor int) []*User {
+func usersList(ids []int, viewerID int, includeIsFollowing bool, includeFollowersCount bool) []*User {
 	chanUsersMap := make(chan map[int]*store.User)
 
 	go func() {
@@ -141,25 +141,10 @@ func usersList(ids []int, viewerID int, includeIsFollowing bool, includeFollower
 		chanFollowedByCount <- result
 	}()
 
-	chanPostsLists := make(chan map[int]*PostsList)
-	go func() {
-		result := map[int]*PostsList{}
-		if !includePosts {
-			chanPostsLists <- result
-			return
-		}
-
-		for _, id := range ids {
-			result[id] = userPagePosts(id, postsCursor, viewerID, true, includePostsItems, includePostsItemsUser)
-		}
-		chanPostsLists <- result
-	}()
-
 	usersMap := <-chanUsersMap
 	isFollowing := <-chanIsFollowing
 	followedByCount := <-chanFollowedByCount
 	followingCount := <-chanFollowingCount
-	postsListMap := <-chanPostsLists
 
 	apiUsers := make([]*User, len(ids))
 	for i, userID := range ids {
@@ -185,8 +170,6 @@ func usersList(ids []int, viewerID int, includeIsFollowing bool, includeFollower
 		} else if user.VkPhoto200 != "" {
 			apiUser.Avatar = user.VkPhoto200
 		}
-
-		apiUser.Posts = postsListMap[userID]
 	}
 
 	return apiUsers

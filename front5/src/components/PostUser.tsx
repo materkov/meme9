@@ -25,13 +25,12 @@ export function PostUser(props: { post: Post }) {
         const f = new FormData();
         f.set("id", props.post.user?.id || "");
 
-        api("/users.list", {
-            ids: props.post.user?.id || "",
-            fields: "posts",
+        api("/userPopup", {
+            id: props.post.user?.id || ""
         }).then(r => {
-            setUserName(r[0].name);
-            setPostsCount(r[0].posts.count);
-        })
+            setUserName(r[0]);
+            setPostsCount(r[1]);
+        });
     }
 
     let userDetails = '...LOADING...';

@@ -20,18 +20,22 @@ export function UserPage() {
     const [avatarUploading, setAvatarUploading] = React.useState(false);
 
     useEffect(() => {
-        api("/users.list", {
-            ids: location.pathname.substring(7),
-            fields: "posts,posts.items,posts.items.user",
-        }).then(r => {
-            //const [user, viewerId] = r;
-            setUser(r[0]);
-            setViewerId('123');//TODO
-            setUserName(r[0].name || "");
+        api("/userPage", {
+            id: location.pathname.substring(7)
+        }).then((r: [User, string]) => {
+            const [user, viewerId] = r;
+            setUser(user);
+            setViewerId(viewerId);
+            setUserName(user.name || "");
+
+            // TODO strange
+            for (let post of user.posts?.items || []) {
+                post.user = user;
+            }
 
             setLoaded(true);
-            setPostsCursor(r[0].posts?.nextCursor || "");
-            setIsFollowing(Boolean(r[0].isFollowing))
+            setPostsCursor(user.posts?.nextCursor || "");
+            setIsFollowing(Boolean(user.isFollowing))
         })
     }, []);
 
@@ -47,17 +51,21 @@ export function UserPage() {
     }
 
     const onShowMore = () => {
-        api("/users.list", {
-            ids: location.pathname.substring(7),
-            postsCursor: postsCursor,
-            fields: "posts,posts.items,posts.items.user",
-        }).then(r => {
-            setPostsCursor(r[0].posts.nextCursor || "");
+        api("/userPage/posts", {
+            id: location.pathname.substring(7),
+            cursor: postsCursor,
+        }).then((result: [UserPostsConnection]) => {
+            let r = result[0];
+            setPostsCursor(r.nextCursor || "");
+
+            for (let post of r.items || []) {
+                post.user = user;
+            }
 
             setUser(produce(user, (user: User) => {
                 user.posts = user.posts || {};
                 user.posts.items = user.posts?.items || [];
-                user.posts.items = [...user.posts.items, ...r[0].posts.items || []];
+                user.posts.items = [...user.posts.items, ...r.items || []];
             }));
         })
     }

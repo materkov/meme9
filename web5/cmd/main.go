@@ -107,7 +107,15 @@ func handleFeed(w http.ResponseWriter, r *http.Request) {
 		nextCursor = strconv.Itoa(offset + limit)
 	}
 
-	apiPosts := postsList(parseIds(rangeCmd.Val()), viewer.UserID, true)
+	apiPosts := postsList(parseIds(rangeCmd.Val()), viewer.UserID)
+
+	for _, post := range apiPosts {
+		userID, _ := strconv.Atoi(post.UserID)
+		users := usersList([]int{userID}, viewer.UserID, false, false)
+		if len(users) == 1 {
+			post.User = users[0]
+		}
+	}
 
 	viewerID := ""
 	if viewer.UserID != 0 {
@@ -146,8 +154,56 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts := postsList([]int{postID}, viewer.UserID, false)
+	posts := postsList([]int{postID}, viewer.UserID)
 	write(w, posts[0], nil)
+}
+
+func handleUserPage(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.FormValue("id"))
+
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
+
+	users := usersList([]int{userID}, viewer.UserID, true, true)
+	if len(users) == 0 {
+		write(w, nil, ApiError("user not found"))
+		return
+	}
+	users[0].Posts = userPagePosts(userID, 0, viewer.UserID)
+
+	write(w, []interface{}{
+		users[0],
+		viewer.GetUserIDStr(),
+	}, nil)
+}
+
+func handleUserPopup(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.FormValue("id"))
+
+	userChan := make(chan store.User)
+	go func() {
+		user := store.User{}
+		err := store.NodeGet(userID, &user)
+		if err != nil {
+			log.Printf("[ERROR] Error getting user: %s", err)
+		}
+
+		userChan <- user
+	}()
+
+	postsCount := make(chan int)
+	go func() {
+		redisKey := fmt.Sprintf("feed:%d", userID)
+		count, err := store.RedisClient.LLen(context.Background(), redisKey).Result()
+		if err != nil {
+			log.Printf("[ERROR] Error getting posts count: %s", err)
+		}
+		postsCount <- int(count)
+	}()
+
+	write(w, []interface{}{
+		(<-userChan).Name,
+		<-postsCount,
+	}, nil)
 }
 
 type postsListCursor struct {
@@ -158,7 +214,25 @@ func (p *postsListCursor) ToString() string {
 	return strconv.Itoa(p.Offset)
 }
 
-func userPagePosts(userID int, offset int, viewerID int, includeCount, includeItems, includeItemsUser bool) *PostsList {
+func ParsePostsListCursor(cursor string) *postsListCursor {
+	result := &postsListCursor{}
+	result.Offset, _ = strconv.Atoi(cursor)
+	return result
+}
+
+func handleUserPagePosts(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.FormValue("id"))
+	cursor := ParsePostsListCursor(r.FormValue("cursor"))
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
+
+	result := userPagePosts(userID, cursor.Offset, viewer.UserID)
+
+	write(w, []interface{}{
+		result,
+	}, nil)
+}
+
+func userPagePosts(userID int, offset int, viewerID int) *PostsList {
 	redisKey := fmt.Sprintf("feed:%d", userID)
 	pipe := store.RedisClient.Pipeline()
 
@@ -178,16 +252,11 @@ func userPagePosts(userID int, offset int, viewerID int, includeCount, includeIt
 		nextCursor = cursor.ToString()
 	}
 
-	result := &PostsList{}
-	if includeItems {
-		result.Items = postsList(parseIds(postIdsStr), viewerID, includeItemsUser)
-		result.NextCursor = nextCursor
+	return &PostsList{
+		Count:      count,
+		Items:      postsList(parseIds(postIdsStr), viewerID),
+		NextCursor: nextCursor,
 	}
-	if includeCount {
-		result.Count = count
-	}
-
-	return result
 }
 
 func handleUserEdit(w http.ResponseWriter, r *http.Request) {
@@ -270,14 +339,14 @@ func handlePostPage(w http.ResponseWriter, r *http.Request) {
 	postID := r.FormValue("id")
 	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
-	posts := postsList(parseIds([]string{postID}), viewer.UserID, false)
+	posts := postsList(parseIds([]string{postID}), viewer.UserID)
 	if len(posts) == 0 {
 		write(w, nil, ApiError("post not found"))
 		return
 	}
 
 	userID, _ := strconv.Atoi(posts[0].UserID)
-	users := usersList([]int{userID}, viewer.UserID, false, true, false, false, false, 0)
+	users := usersList([]int{userID}, viewer.UserID, false, true)
 	posts[0].User = users[0]
 
 	write(w, posts[0], nil)
@@ -450,7 +519,7 @@ func handleViewer(w http.ResponseWriter, r *http.Request) {
 
 	var user *User
 	if viewer.UserID != 0 {
-		users := usersList([]int{viewer.UserID}, viewer.UserID, false, true, false, false, false, 0)
+		users := usersList([]int{viewer.UserID}, viewer.UserID, false, true)
 		user = users[0]
 	}
 
@@ -474,7 +543,7 @@ func handleEmailRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users := usersList([]int{userID}, userID, false, false, false, false, false, 0)
+	users := usersList([]int{userID}, userID, false, false)
 
 	token, err := authCreateToken(userID)
 	if err != nil {
@@ -508,7 +577,7 @@ func handleAuthEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users := usersList([]int{userID}, userID, false, false, false, false, false, 0)
+	users := usersList([]int{userID}, userID, false, false)
 
 	resp := struct {
 		User  *User  `json:"user"`
@@ -637,6 +706,9 @@ func main() {
 
 	http.HandleFunc("/api/feed", wrapper(handleFeed))
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))
+	http.HandleFunc("/api/userPage", wrapper(handleUserPage))
+	http.HandleFunc("/api/userPage/posts", wrapper(handleUserPagePosts))
+	http.HandleFunc("/api/userPopup", wrapper(handleUserPopup))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
 	http.HandleFunc("/api/userFollow", wrapper(handleUserFollow))
 	http.HandleFunc("/api/userUnfollow", wrapper(handleUserUnfollow))
@@ -649,9 +721,6 @@ func main() {
 	http.HandleFunc("/api/emailRegister", wrapper(handleEmailRegister))
 	http.HandleFunc("/api/emailLogin", wrapper(handleAuthEmail))
 	http.HandleFunc("/api/uploadAvatar", wrapper(handleUploadAvatar))
-
-	// v2
-	http.HandleFunc("/api/users.list", wrapper(handleUsersList))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }
