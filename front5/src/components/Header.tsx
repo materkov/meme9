@@ -1,38 +1,38 @@
-import React, {MouseEvent, useEffect} from "react";
+import React, {MouseEvent} from "react";
 import styles from "./Header.module.css";
 import {Link} from "./Link";
-import {api, User} from "../store/types";
-import {useCustomEventListener} from "react-custom-events";
+import {User, Viewer} from "../store/types";
 import {authorize} from "../utils/localize";
+import {fetcher, queryClient} from "../store/fetcher";
+import { useQuery } from "@tanstack/react-query";
 
 export function Header() {
-    const [viewer, setViewer] = React.useState<User | undefined | null>();
+    const {data: viewer, isLoading} = useQuery<Viewer>(["/viewer"], fetcher);
+    const {data: viewerUser} = useQuery<User>(["/users/" + viewer?.viewerId], fetcher, {
+        enabled: !!viewer?.viewerId,
+    })
+    //const [viewer, setViewer] = React.useState<User | undefined | null>();
 
     const onLogout = (e: MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
         authorize('');
-        setViewer(null);
+        queryClient.invalidateQueries(["/viewer"]);
     }
 
-    const refreshUser = () => {
-        api("/viewer").then(r => {
-            setViewer(r[0]);
-        })
-    }
-
-    useCustomEventListener('onAuthorized', refreshUser);
-    useEffect(refreshUser, [])
+    //useCustomEventListener('onAuthorized', refreshUser);
+    //useEffect(refreshUser, [])
 
     return (
         <div className={styles.header}>
             <Link href="/" className={styles.logo}>meme</Link>
 
             <div className={styles.userName}>
-                {viewer === null && <Link href={"/login"}>Авторизация</Link>}
-                {viewer !== null && viewer !== undefined &&
+                {!isLoading && !viewer?.viewerId && <Link href={"/login"}>Авторизация</Link>}
+                {!isLoading && viewer?.viewerId &&
                     <>
-                        <Link href={"/users/" + viewer.id}>{viewer.name}</Link> | <a onClick={onLogout} href={"#"}>Выход</a>
+                        <Link href={"/users/" + viewer.viewerId}>{viewerUser?.name}</Link> | <a onClick={onLogout}
+                                                                                     href={"#"}>Выход</a>
                     </>
                 }
             </div>

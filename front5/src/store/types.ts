@@ -62,3 +62,8 @@ export interface Edges {
     items: string[]
     nextCursor: string
 }
+
+export interface Viewer {
+    url: string;
+    viewerId: string;
+}

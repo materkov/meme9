@@ -3,19 +3,21 @@ import {Composer} from "./Composer";
 import {PostsList} from "./PostsList";
 import {feedStore} from "../store/Feed";
 import {useQuery} from "../store/fetcher";
-import {Edges} from "../store/types";
+import {Edges, Viewer} from "../store/types";
 
 export function Feed() {
     const {data} = useQuery<Edges>("/feed");
-    if (!data) {
-        return <>Загрузка...</>
-    }
+    const {data: viewer, isLoading: isViewerLoading} = useQuery<Viewer>("/viewer");
+    if (isViewerLoading) return <div>Loading...</div>;
 
     return <>
-        {feedStore.viewerId ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
-        fee
-        <PostsList posts={data.items} onShowMore={feedStore.fetch} showMore={Boolean(feedStore.nextCursor)}
-                   showMoreDisabled={feedStore.isLoading}
-        />
+        {viewer?.viewerId ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
+
+        {!data && <div>Loading...</div>}
+        {data &&
+            <PostsList posts={data.items} onShowMore={feedStore.fetch} showMore={Boolean(feedStore.nextCursor)}
+                       showMoreDisabled={feedStore.isLoading}
+            />
+        }
     </>
 }

@@ -240,12 +240,23 @@ func handlePostsIsLiked(viewerID int, url string) []interface{} {
 }
 
 // /viewer
-func handleViewer(_ int, _ string) []interface{} {
-	return []interface{}{User{
-		URL:  fmt.Sprintf("/users/6"),
-		ID:   "6",
-		Name: "user 6",
-	}}
+func handleViewer(viewerID int, _ string) []interface{} {
+	type Viewer struct {
+		URL      string `json:"url,omitempty"`
+		ViewerID string `json:"viewerId,omitempty"`
+	}
+
+	viewer := Viewer{
+		URL: fmt.Sprintf("/viewer"),
+	}
+	results := []interface{}{&viewer}
+
+	if viewerID != 0 {
+		viewer.ViewerID = strconv.Itoa(viewerID)
+		results = append(results, handleUserById(viewerID, fmt.Sprintf("/users/%d", viewerID))...)
+	}
+
+	return results
 }
 
 func handleQuery(viewerID int, url string) []interface{} {
