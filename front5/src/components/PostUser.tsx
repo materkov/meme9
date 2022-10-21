@@ -1,12 +1,10 @@
 import React from "react";
-import {api, Post, User} from "../store/types";
+import {Edges, Post, User} from "../store/types";
 import {Link} from "./Link";
 import styles from "./PostUser.module.css";
 import {UserAvatar} from "./UserAvatar";
-import useSWR from 'swr';
-import { useQuery } from "@tanstack/react-query";
+import {useQuery} from "@tanstack/react-query";
 import {fetcher} from "../store/fetcher";
-import {Edges} from "./new/types";
 
 export function PostUser(props: { postId: string }) {
     const {data: post} = useQuery<Post>(["/posts/" + props.postId], fetcher);

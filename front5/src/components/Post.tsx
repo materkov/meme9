@@ -22,14 +22,6 @@ export function ComponentPost(props: Props) {
         feedStore.delete(props.id);
     }
 
-    const onLikeToggle = () => {
-        if (post.isLiked) {
-            feedStore.unlike(props.id);
-        } else {
-            feedStore.like(props.id);
-        }
-    }
-
     // TODO post.canDelete -> true
 
     return (

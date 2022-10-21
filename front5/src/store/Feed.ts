@@ -28,53 +28,9 @@ export class FeedStore {
         });
     }
 
-    public subscribe(callback: () => void) {
-        this.callbacks.push(callback)
-    }
-
-    public unsubscribe(callback: () => void) {
-        this.callbacks = this.callbacks.filter(item => item !== callback)
-    }
-
     public fire() {
         this.version++;
         this.callbacks.forEach(cb => cb());
-    }
-
-    public like = (postId: string) => {
-        api("/postLike", {id: postId});
-
-        const postsCopy = [...this.posts];
-        for (let post of postsCopy) {
-            if (post.id == postId) {
-                post.isLiked = true;
-                post.likesCount = (post.likesCount || 0) + 1;
-            }
-        }
-
-        this.posts = postsCopy;
-        this.fire();
-    }
-
-    public unlike = (postId: string) => {
-        api("/postUnlike", {id: postId});
-
-        const postsCopy = [...this.posts];
-        for (let post of postsCopy) {
-            if (post.id == postId) {
-                post.isLiked = false;
-                post.likesCount = (post.likesCount || 0) - 1;
-            }
-        }
-
-        this.posts = postsCopy;
-        this.fire();
-    }
-
-    public reset() {
-        this.fetchedCursors = {};
-        this.nextCursor = '';
-        this.fetch();
     }
 
     public delete(postId: string) {
