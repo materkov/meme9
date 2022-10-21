@@ -5,7 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@tanstack/react-query": "^4.0.10",
-    "@tanstack/react-query-devtools": "^4.0.10",
+    "@tanstack/react-query-devtools": "^4.12.0",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@types/react-query": "^1.2.9",
@@ -16,7 +16,8 @@
     "react": "^18.2.0",
     "react-custom-events": "^1.1.1",
     "react-dom": "^18.2.0",
-    "react-query": "^4.0.0"
+    "react-query": "^4.0.0",
+    "swr": "2.0.0-rc.0"
   },
   "scripts": {
     "build": "node build-prod.js",

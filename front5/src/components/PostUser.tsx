@@ -3,55 +3,48 @@ import {api, Post, User} from "../store/types";
 import {Link} from "./Link";
 import styles from "./PostUser.module.css";
 import {UserAvatar} from "./UserAvatar";
+import useSWR from 'swr';
+import { useQuery } from "@tanstack/react-query";
+import {fetcher} from "../store/fetcher";
+import {Edges} from "./new/types";
 
-export function PostUser(props: { post: Post }) {
+export function PostUser(props: { postId: string }) {
+    const {data: post} = useQuery<Post>(["/posts/" + props.postId], fetcher);
+
+    const {data: user} = useQuery<User>(["/users/" + post?.userId], fetcher, {
+        enabled: !!post,
+    });
     const [isVisible, setIsVisible] = React.useState(false);
-    const [userName, setUserName] = React.useState("");
-    const [postsCount, setPostsCount] = React.useState(0);
-    const [isUserLoaded, setIsUserLoaded] = React.useState(false);
+
+    const {data: userPosts} = useQuery<Edges>(["/users/" + post?.userId + "/posts"], fetcher, {
+        enabled: isVisible,
+    });
 
     let className = styles.userNamePopup;
     if (!isVisible) {
         className += " " + styles.userNamePopup__hidden;
     }
 
-    const onMouseEnter = () => {
-        setIsVisible(true);
-
-        if (isUserLoaded) return;
-
-        setIsUserLoaded(true);
-
-        const f = new FormData();
-        f.set("id", props.post.user?.id || "");
-
-        api("/userPopup", {
-            id: props.post.user?.id || ""
-        }).then(r => {
-            setUserName(r[0]);
-            setPostsCount(r[1]);
-        });
-    }
 
     let userDetails = '...LOADING...';
-    if (userName) {
-        userDetails = "Name: " + userName + ", posts: " + postsCount;
+    if (userPosts && user) {
+        userDetails = "Name: " + user.name + ", posts: " + userPosts.totalCount;
     }
 
-    const date = new Date(props.post.date || "");
+    const date = new Date(post?.date || "");
     const dateStr = date.toLocaleString();
 
     return (
         <div className={styles.userName}
-             onMouseEnter={onMouseEnter}
+             onMouseEnter={() => setIsVisible(true)}
              onMouseLeave={() => setIsVisible(false)}
         >
             <div className={className}>{userDetails}</div>
 
-            <UserAvatar width={50} url={props.post.user?.avatar}/>
+            <UserAvatar width={50} url={user?.avatar}/>
             <div className={styles.rightContainer}>
-                <Link href={"/users/" + props.post.user?.id} className={styles.name}>{props.post.user?.name}</Link>
-                <Link href={"/posts/" + props.post.id} className={styles.href}>{dateStr}</Link>
+                <Link href={"/users/" + user?.id} className={styles.name}>{user?.name}</Link>
+                <Link href={"/posts/" + post?.id} className={styles.href}>{dateStr}</Link>
             </div>
         </div>
     )

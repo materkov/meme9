@@ -50,3 +50,15 @@ export function api(url: string, params: any = {}): Promise<any> {
             })
     })
 }
+
+export interface PostLikeData {
+    postID: string
+    isLiked: boolean
+    likesCount: number
+}
+
+export interface Edges {
+    totalCount: number
+    items: string[]
+    nextCursor: string
+}

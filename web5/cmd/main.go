@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"github.com/materkov/meme9/web5/api"
 	"github.com/materkov/meme9/web5/pkg/telegram"
 	"github.com/materkov/meme9/web5/store"
 	"io"
@@ -702,6 +703,8 @@ func main() {
 		HandleWorker(queue)
 		return
 	}
+
+	http.HandleFunc("/api", api.HandleAPI)
 
 	http.HandleFunc("/api/feed", wrapper(handleFeed))
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))

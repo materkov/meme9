@@ -2,22 +2,21 @@ import styles from "./PostLike.module.css";
 import {Heart} from "./icons/Heart";
 import React from "react";
 import {HeartRed} from "./icons/HeartRed";
+import {useQuery} from "../store/fetcher";
+import {PostLikeData} from "../store/types";
 
-export type Props = {
-    count: number;
-    isLiked: boolean;
-    onToggle?: () => void;
-}
+export const PostLike = (props: {id: string}) => {
+    const {data} = useQuery<PostLikeData>("/posts/" + props.id + "/isLiked");
+    if (!data) return null;
 
-export const PostLike = (props: Props) => {
-    return <div className={styles.likeBtn} onClick={props.onToggle}>
-        {props.isLiked ?
+    return <div className={styles.likeBtn}>
+        {data.isLiked ?
             <HeartRed className={styles.likeIcon}/> :
             <Heart className={styles.likeIcon}/>
         }
 
-        {props.count > 0 &&
-            <div className={styles.likeText}>{props.count}</div>
+        {data.likesCount > 0 &&
+            <div className={styles.likeText}>{data.likesCount}</div>
         }
     </div>
 }

@@ -1,10 +1,9 @@
 import React from "react";
 import {ComponentPost} from "./Post";
-import {Post} from "../store/types";
 import styles from "./PostsList.module.css";
 
 export type Props = {
-    posts: Post[];
+    posts: string[];
 
     onShowMore?: () => void;
     showMore?: boolean;
@@ -14,8 +13,8 @@ export type Props = {
 export function PostsList(props: Props) {
     return <>
         {props.posts.map(post => <ComponentPost
-            post={post}
-            key={post.id}
+            id={post}
+            key={post}
         />)}
 
         {props.showMore && <button

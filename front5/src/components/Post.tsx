@@ -1,38 +1,43 @@
 import React from "react";
-import {api, Post} from "../store/types";
+import {Post} from "../store/types";
 import {PostUser} from "./PostUser";
 import styles from "./Post.module.css";
 import {Dots3} from "./icons/Dots3";
 import classNames from "classnames";
 import {PostLike} from "./PostLike";
 import {feedStore} from "../store/Feed";
+import {useQuery} from "../store/fetcher";
 
 export type Props = {
-    post: Post;
+    id: string;
 }
 
 export function ComponentPost(props: Props) {
-    const post = props.post;
+    const {data: post} = useQuery<Post>("/posts/" + props.id);
     const [menuHidden, setMenuHidden] = React.useState(true);
 
+    if (!post) return null;
+
     const onDelete = () => {
-        feedStore.delete(post.id);
+        feedStore.delete(props.id);
     }
 
     const onLikeToggle = () => {
         if (post.isLiked) {
-            feedStore.unlike(post.id);
+            feedStore.unlike(props.id);
         } else {
-            feedStore.like(post.id);
+            feedStore.like(props.id);
         }
     }
+
+    // TODO post.canDelete -> true
 
     return (
         <div className={styles.post}>
             <div className={styles.topContainer}>
-                <PostUser post={post}/>
+                <PostUser postId={props.id}/>
 
-                {post.canDelete && <>
+                {true && <>
                     <Dots3 className={styles.menuIcon} onClick={() => setMenuHidden(!menuHidden)}/>
 
                     <div className={classNames({
@@ -47,7 +52,7 @@ export function ComponentPost(props: Props) {
 
             <div className={styles.text}>{post.text}</div>
 
-            <PostLike count={post.likesCount} isLiked={post.isLiked} onToggle={onLikeToggle}/>
+            <PostLike id={props.id}/>
         </div>
     )
 }

@@ -20,7 +20,7 @@ export function PostPage() {
     }
 
     return <>
-        <ComponentPost post={post}/>
+        <ComponentPost id={post.id}/>
     </>
 
 }

@@ -157,7 +157,7 @@ export function UserPage() {
             </>}
 
             {user.posts?.items?.map(post => (
-                <ComponentPost key={post.id} post={post} onDelete={() => onPostDelete(post.id)}/>
+                <ComponentPost key={post.id} id={post.id}/>
             ))}
 
             {postsCursor && <button onClick={onShowMore}>Показать еще</button>}
