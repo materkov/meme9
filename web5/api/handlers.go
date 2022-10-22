@@ -21,6 +21,8 @@ type Post struct {
 	Date   string `json:"date,omitempty"`
 	Text   string `json:"text,omitempty"`
 	UserID string `json:"userId,omitempty"`
+
+	CanDelete bool `json:"canDelete,omitempty"`
 }
 
 type Edges struct {
@@ -168,6 +170,7 @@ func handlePostsId(viewerID int, url string) []interface{} {
 	result.Text = post.Text
 	result.Date = time.Unix(int64(post.Date), 0).Format(time.RFC3339)
 	result.UserID = strconv.Itoa(post.UserID)
+	result.CanDelete = post.UserID == viewerID
 
 	user := handleUserById(viewerID, fmt.Sprintf("/users/%d", post.UserID))
 

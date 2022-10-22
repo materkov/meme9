@@ -1,12 +1,11 @@
 import React from "react";
-import {Post} from "../store/types";
+import {api, Edges, Post} from "../store/types";
 import {PostUser} from "./PostUser";
 import styles from "./Post.module.css";
 import {Dots3} from "./icons/Dots3";
 import classNames from "classnames";
 import {PostLike} from "./PostLike";
-import {feedStore} from "../store/Feed";
-import {useQuery} from "../store/fetcher";
+import {queryClient, useQuery} from "../store/fetcher";
 
 export type Props = {
     id: string;
@@ -19,7 +18,17 @@ export function ComponentPost(props: Props) {
     if (!post) return null;
 
     const onDelete = () => {
-        //feedStore.delete(props.id);
+        const feedData = queryClient.getQueryData<Edges>(["/feed"]);
+        if (feedData) {
+            queryClient.setQueryData(["/feed"], {
+                ...feedData,
+                items: feedData.items.filter(item => item != props.id)
+            })
+        }
+
+        api("/postDelete", {
+            id: props.id,
+        })
     }
 
     // TODO post.canDelete -> true
@@ -29,7 +38,7 @@ export function ComponentPost(props: Props) {
             <div className={styles.topContainer}>
                 <PostUser postId={props.id}/>
 
-                {true && <>
+                {post.canDelete && <>
                     <Dots3 className={styles.menuIcon} onClick={() => setMenuHidden(!menuHidden)}/>
 
                     <div className={classNames({

@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./Composer.module.css";
-import {emitCustomEvent} from "react-custom-events";
-import {api} from "../store/types";
+import {api, Edges, Post, PostLikeData} from "../store/types";
+import {queryClient} from "../store/fetcher";
 
 export function Composer() {
     const [text, setText] = React.useState('');
@@ -12,12 +12,24 @@ export function Composer() {
         setSuccess(false);
         setErr(false);
 
-        api("/addPost", {text: text}).then(() => {
+        api("/addPost", {text: text}).then((resp: Post) => {
             setSuccess(true);
 
-            emitCustomEvent('postCreated', {
-                text: text,
-            })
+            queryClient.setQueryData(["/posts/" + resp.id], resp);
+
+            const d: PostLikeData = {
+                postID: resp.id,
+                isLiked: false,
+                likesCount: 0,
+            }
+            queryClient.setQueryData(["/posts/" + resp.id + "/isLiked"], d);
+
+            const feedData = queryClient.getQueryData<Edges>(["/feed"]);
+            if (feedData) {
+                queryClient.setQueryData(["/feed"], {...feedData, items: [resp.id, ...feedData.items]});
+            }
+
+            queryClient.invalidateQueries(["/feed"]);
         }).catch(() => {
             setErr(true);
         })
