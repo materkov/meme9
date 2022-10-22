@@ -4,14 +4,13 @@ import {Link} from "./Link";
 import {User, Viewer} from "../store/types";
 import {authorize} from "../utils/localize";
 import {fetcher, queryClient} from "../store/fetcher";
-import { useQuery } from "@tanstack/react-query";
+import {useQuery} from "@tanstack/react-query";
 
 export function Header() {
     const {data: viewer, isLoading} = useQuery<Viewer>(["/viewer"], fetcher);
     const {data: viewerUser} = useQuery<User>(["/users/" + viewer?.viewerId], fetcher, {
         enabled: !!viewer?.viewerId,
     })
-    //const [viewer, setViewer] = React.useState<User | undefined | null>();
 
     const onLogout = (e: MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
@@ -32,7 +31,7 @@ export function Header() {
                 {!isLoading && viewer?.viewerId &&
                     <>
                         <Link href={"/users/" + viewer.viewerId}>{viewerUser?.name}</Link> | <a onClick={onLogout}
-                                                                                     href={"#"}>Выход</a>
+                                                                                                href={"#"}>Выход</a>
                     </>
                 }
             </div>

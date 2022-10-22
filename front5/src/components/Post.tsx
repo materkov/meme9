@@ -19,7 +19,7 @@ export function ComponentPost(props: Props) {
     if (!post) return null;
 
     const onDelete = () => {
-        feedStore.delete(props.id);
+        //feedStore.delete(props.id);
     }
 
     // TODO post.canDelete -> true

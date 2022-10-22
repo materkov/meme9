@@ -15,8 +15,8 @@ export function Feed() {
 
         {!data && <div>Loading...</div>}
         {data &&
-            <PostsList posts={data.items} onShowMore={feedStore.fetch} showMore={Boolean(feedStore.nextCursor)}
-                       showMoreDisabled={feedStore.isLoading}
+            <PostsList posts={data.items} onShowMore={() => {}} showMore={false}
+                       showMoreDisabled={false}
             />
         }
     </>

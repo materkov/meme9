@@ -4,9 +4,6 @@ export type User = {
     posts?: UserPostsConnection;
     avatar?: string;
     bio?: string;
-    //isFollowing?: boolean;
-    //followingCount?: number;
-    //followedByCount?: number;
 }
 
 export type UserPostsConnection = {

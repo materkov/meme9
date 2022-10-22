@@ -84,57 +84,6 @@ func parseIds(idsStr []string) []int {
 	return result
 }
 
-func handleFeed(w http.ResponseWriter, r *http.Request) {
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-
-	offset, _ := strconv.Atoi(r.FormValue("cursor"))
-	limit := 10
-
-	pipe := store.RedisClient.Pipeline()
-
-	lenCmd := pipe.LLen(context.Background(), "feed")
-	rangeCmd := pipe.LRange(context.Background(), "feed", int64(offset), int64(offset+limit-1))
-
-	_, err := pipe.Exec(context.Background())
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	feedLen := int(lenCmd.Val())
-
-	nextCursor := ""
-	if offset+limit < feedLen {
-		nextCursor = strconv.Itoa(offset + limit)
-	}
-
-	apiPosts := postsList(parseIds(rangeCmd.Val()), viewer.UserID)
-
-	for _, post := range apiPosts {
-		userID, _ := strconv.Atoi(post.UserID)
-		users := usersList([]int{userID}, viewer.UserID, false, false)
-		if len(users) == 1 {
-			post.User = users[0]
-		}
-	}
-
-	viewerID := ""
-	if viewer.UserID != 0 {
-		viewerID = strconv.Itoa(viewer.UserID)
-	}
-
-	resp := struct {
-		ViewerID   string  `json:"viewerId"`
-		Posts      []*Post `json:"posts"`
-		NextCursor string  `json:"nextCursor"`
-	}{
-		ViewerID:   viewerID,
-		Posts:      apiPosts,
-		NextCursor: nextCursor,
-	}
-	write(w, resp, nil)
-}
-
 func handleAddPost(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
 	if text == "" {
@@ -156,107 +105,6 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 
 	posts := postsList([]int{postID}, viewer.UserID)
 	write(w, posts[0], nil)
-}
-
-func handleUserPage(w http.ResponseWriter, r *http.Request) {
-	userID, _ := strconv.Atoi(r.FormValue("id"))
-
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-
-	users := usersList([]int{userID}, viewer.UserID, true, true)
-	if len(users) == 0 {
-		write(w, nil, ApiError("user not found"))
-		return
-	}
-	users[0].Posts = userPagePosts(userID, 0, viewer.UserID)
-
-	write(w, []interface{}{
-		users[0],
-		viewer.GetUserIDStr(),
-	}, nil)
-}
-
-func handleUserPopup(w http.ResponseWriter, r *http.Request) {
-	userID, _ := strconv.Atoi(r.FormValue("id"))
-
-	userChan := make(chan store.User)
-	go func() {
-		user := store.User{}
-		err := store.NodeGet(userID, &user)
-		if err != nil {
-			log.Printf("[ERROR] Error getting user: %s", err)
-		}
-
-		userChan <- user
-	}()
-
-	postsCount := make(chan int)
-	go func() {
-		redisKey := fmt.Sprintf("feed:%d", userID)
-		count, err := store.RedisClient.LLen(context.Background(), redisKey).Result()
-		if err != nil {
-			log.Printf("[ERROR] Error getting posts count: %s", err)
-		}
-		postsCount <- int(count)
-	}()
-
-	write(w, []interface{}{
-		(<-userChan).Name,
-		<-postsCount,
-	}, nil)
-}
-
-type postsListCursor struct {
-	Offset int
-}
-
-func (p *postsListCursor) ToString() string {
-	return strconv.Itoa(p.Offset)
-}
-
-func ParsePostsListCursor(cursor string) *postsListCursor {
-	result := &postsListCursor{}
-	result.Offset, _ = strconv.Atoi(cursor)
-	return result
-}
-
-func handleUserPagePosts(w http.ResponseWriter, r *http.Request) {
-	userID, _ := strconv.Atoi(r.FormValue("id"))
-	cursor := ParsePostsListCursor(r.FormValue("cursor"))
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-
-	result := userPagePosts(userID, cursor.Offset, viewer.UserID)
-
-	write(w, []interface{}{
-		result,
-	}, nil)
-}
-
-func userPagePosts(userID int, offset int, viewerID int) *UserPostsConnection {
-	redisKey := fmt.Sprintf("feed:%d", userID)
-	pipe := store.RedisClient.Pipeline()
-
-	postsIdsCmd := pipe.LRange(context.Background(), redisKey, int64(offset), int64(offset+10-1))
-	lenCmd := pipe.LLen(context.Background(), redisKey)
-	_, err := pipe.Exec(context.Background())
-	if err != nil {
-		log.Printf("Error getting feed: %s", err)
-	}
-
-	postIdsStr := postsIdsCmd.Val()
-	count := int(lenCmd.Val())
-
-	nextCursor := ""
-	if offset+10 < count {
-		cursor := postsListCursor{Offset: offset + 10}
-		nextCursor = cursor.ToString()
-	}
-
-	return &UserPostsConnection{
-		Count:      count,
-		Items:      postsList(parseIds(postIdsStr), viewerID),
-		NextCursor: nextCursor,
-	}
 }
 
 func handleUserEdit(w http.ResponseWriter, r *http.Request) {
@@ -333,23 +181,6 @@ func handleUserUnfollow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	write(w, nil, nil)
-}
-
-func handlePostPage(w http.ResponseWriter, r *http.Request) {
-	postID := r.FormValue("id")
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-
-	posts := postsList(parseIds([]string{postID}), viewer.UserID)
-	if len(posts) == 0 {
-		write(w, nil, ApiError("post not found"))
-		return
-	}
-
-	userID, _ := strconv.Atoi(posts[0].UserID)
-	users := usersList([]int{userID}, viewer.UserID, false, true)
-	posts[0].User = users[0]
-
-	write(w, posts[0], nil)
 }
 
 func handlePostDelete(w http.ResponseWriter, r *http.Request) {
@@ -510,21 +341,6 @@ func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 	resp := []interface{}{
 		authToken,
 		userID,
-	}
-	write(w, resp, nil)
-}
-
-func handleViewer(w http.ResponseWriter, r *http.Request) {
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-
-	var user *User
-	if viewer.UserID != 0 {
-		users := usersList([]int{viewer.UserID}, viewer.UserID, false, true)
-		user = users[0]
-	}
-
-	resp := []interface{}{
-		user,
 	}
 	write(w, resp, nil)
 }
@@ -706,20 +522,14 @@ func main() {
 
 	http.HandleFunc("/api", api.HandleAPI)
 
-	http.HandleFunc("/api/feed", wrapper(handleFeed))
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))
-	http.HandleFunc("/api/userPage", wrapper(handleUserPage))
-	http.HandleFunc("/api/userPage/posts", wrapper(handleUserPagePosts))
-	http.HandleFunc("/api/userPopup", wrapper(handleUserPopup))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
 	http.HandleFunc("/api/userFollow", wrapper(handleUserFollow))
 	http.HandleFunc("/api/userUnfollow", wrapper(handleUserUnfollow))
-	http.HandleFunc("/api/postPage", wrapper(handlePostPage))
 	http.HandleFunc("/api/postDelete", wrapper(handlePostDelete))
 	http.HandleFunc("/api/postLike", wrapper(handlePostLike))
 	http.HandleFunc("/api/postUnlike", wrapper(handlePostUnlike))
 	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))
-	http.HandleFunc("/api/viewer", wrapper(handleViewer))
 	http.HandleFunc("/api/emailRegister", wrapper(handleEmailRegister))
 	http.HandleFunc("/api/emailLogin", wrapper(handleAuthEmail))
 	http.HandleFunc("/api/uploadAvatar", wrapper(handleUploadAvatar))
