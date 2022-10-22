@@ -1,16 +1,19 @@
-import React, {useEffect} from "react";
-import {api, User, UserPostsConnection} from "../store/types";
+import React from "react";
+import {api, Edges, User, UserPostsConnection, Viewer} from "../store/types";
 import {ComponentPost} from "./Post";
 import styles from "./UserPage.module.css";
-import produce from "immer";
 import {localizeCounter} from "../utils/localize";
 import {UserAvatar} from "./UserAvatar";
+import {useQuery} from "@tanstack/react-query";
+import {fetcher, queryClient} from "../store/fetcher";
 
 export function UserPage() {
-    const [user, setUser] = React.useState<User>();
-    const [postsCursor, setPostsCursor] = React.useState("");
-    const [viewerId, setViewerId] = React.useState("");
-    const [loaded, setLoaded] = React.useState(false);
+    const userId = location.pathname.substring(7);
+    const {data: user, isLoading} = useQuery<User>(["/users/" + userId], fetcher);
+    const {data: posts} = useQuery<Edges>(["/users/" + userId + "/posts"], fetcher);
+    const {data: followers} = useQuery<Edges>(["/users/" + userId + "/followers"], fetcher);
+    const {data: following} = useQuery<Edges>(["/users/" + userId + "/following"], fetcher);
+    const {data: viewer} = useQuery<Viewer>(["/viewer"], fetcher);
 
     const [userName, setUserName] = React.useState("");
     const [userNameUpdated, setUserNameUpdated] = React.useState(false);
@@ -19,63 +22,35 @@ export function UserPage() {
 
     const [avatarUploading, setAvatarUploading] = React.useState(false);
 
-    useEffect(() => {
-        api("/userPage", {
-            id: location.pathname.substring(7)
-        }).then((r: [User, string]) => {
-            const [user, viewerId] = r;
-            setUser(user);
-            setViewerId(viewerId);
-            setUserName(user.name || "");
-
-            // TODO strange
-            for (let post of user.posts?.items || []) {
-                post.user = user;
-            }
-
-            setLoaded(true);
-            setPostsCursor(user.posts?.nextCursor || "");
-            setIsFollowing(Boolean(user.isFollowing))
-        })
-    }, []);
-
     const editName = () => {
         api("/userEdit", {
-            id: viewerId,
+            id: userId,
             name: userName,
-        }).then(() => setUserNameUpdated(true));
-    }
+        }).then(() => {
+            setUserNameUpdated(true);
 
-    if (!loaded || !user) {
-        return <>Загрузка ...</>;
+            const queryKey = ["/users/" + userId];
+            const user = queryClient.getQueryData<User>(queryKey);
+            if (!user) {
+                return;
+            }
+            queryClient.setQueryData(queryKey, {...user, name: userName});
+        });
     }
 
     const onShowMore = () => {
         api("/userPage/posts", {
             id: location.pathname.substring(7),
-            cursor: postsCursor,
+            cursor: "",
         }).then((result: [UserPostsConnection]) => {
             let r = result[0];
-            setPostsCursor(r.nextCursor || "");
+            //setPostsCursor(r.nextCursor || "");
 
             for (let post of r.items || []) {
                 post.user = user;
             }
 
-            setUser(produce(user, (user: User) => {
-                user.posts = user.posts || {};
-                user.posts.items = user.posts?.items || [];
-                user.posts.items = [...user.posts.items, ...r.items || []];
-            }));
         })
-    }
-
-    const onPostDelete = (postId: string) => {
-        setUser(produce(user, user => {
-            user.posts = user.posts || {};
-            user.posts.items = user.posts?.items || [];
-            user.posts.items = user.posts?.items?.filter(post => post.id !== postId);
-        }))
     }
 
     const onFollow = () => {
@@ -105,10 +80,15 @@ export function UserPage() {
         api("/uploadAvatar", {
             file: file,
         }).then((resp) => {
-            setUser({...user, avatar: resp.avatar});
+            //setUser({...user, avatar: resp.avatar});
+            queryClient.invalidateQueries(["/users/" + userId]);
             setAvatarUploading(false);
         })
 
+    }
+
+    if (!user) {
+        return <>Загрузка ...</>;
     }
 
     return (
@@ -122,16 +102,16 @@ export function UserPage() {
                     </div>
                     <div className={styles.userCounters}>
                         <div className={styles.userCounter}>
-                            <b>{user.posts?.count}</b> {localizeCounter(user.posts?.count || 0, "публикация", "публикации", "публикаций")}
+                            <b>{posts?.totalCount}</b> {localizeCounter(posts?.totalCount || 0, "публикация", "публикации", "публикаций")}
                         </div>
                         <div className={styles.userCounter}>
-                            <b>{user.followedByCount || 0}</b> {localizeCounter(user.followedByCount || 0, "подписчик", "подписчика", "подписчиков")}
+                            <b>{followers?.totalCount || 0}</b> {localizeCounter(following?.totalCount || 0, "подписчик", "подписчика", "подписчиков")}
                         </div>
                         <div className={styles.userCounter}>
-                            <b>{user.followingCount || 0}</b> {localizeCounter(user.followingCount || 0, "подписка", "подписки", "подписок")}
+                            <b>{following?.totalCount || 0}</b> {localizeCounter(following?.totalCount || 0, "подписка", "подписки", "подписок")}
                         </div>
                         <div className={styles.buttonsBlock}>
-                            {viewerId && viewerId != user.id &&
+                            {viewer?.viewerId && viewer.viewerId != user.id &&
                                 <>
                                     {isFollowing ?
                                         <button onClick={onUnfollow}>Отписаться</button> :
@@ -144,7 +124,7 @@ export function UserPage() {
                 </div>
             </div>
 
-            {user.id === viewerId && <>
+            {user.id === viewer?.viewerId && <>
                 Имя: <input type="text" value={userName} onChange={e => setUserName(e.target.value)}/>
                 <button onClick={editName}>Обновить</button>
                 {userNameUpdated && <div>Имя успешно обновлено</div>}
@@ -156,11 +136,11 @@ export function UserPage() {
                 {avatarUploading && <span>Загружаем аватар...</span>}
             </>}
 
-            {user.posts?.items?.map(post => (
-                <ComponentPost key={post.id} id={post.id}/>
+            {posts?.items?.map(postId => (
+                <ComponentPost key={postId} id={postId}/>
             ))}
 
-            {postsCursor && <button onClick={onShowMore}>Показать еще</button>}
+            {<button onClick={onShowMore}>Показать еще</button>}
         </div>
     )
 }

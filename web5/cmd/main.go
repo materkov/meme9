@@ -262,12 +262,12 @@ func userPagePosts(userID int, offset int, viewerID int) *UserPostsConnection {
 func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("id"))
 
-	var user *store.User
-	err := store.NodeGet(userID, user)
+	user := store.User{}
+	err := store.NodeGet(userID, &user)
 	if err != nil {
 		write(w, nil, err)
 		return
-	} else if user == nil {
+	} else if user.ID == 0 {
 		write(w, nil, ApiError("user not found"))
 		return
 	}

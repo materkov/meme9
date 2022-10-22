@@ -86,39 +86,33 @@ func handleUserById(_ int, url string) []interface{} {
 }
 
 // /users/:id/followers
-func handleUserFollowers(_ int, _ string) []interface{} {
+func handleUserFollowers(_ int, url string) []interface{} {
+	userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/followers"), "/users/"))
+	result, _ := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("followed_by:%d", userID)).Result()
+
 	return []interface{}{
 		Edges{
-			URL:        fmt.Sprintf("/users/%d/followers", 3),
-			TotalCount: 4,
-			NextCursor: "user4",
+			URL:        fmt.Sprintf("/users/%d/followers", userID),
+			TotalCount: int(result),
+			NextCursor: "",
 			Items: []string{
-				"5",
+				"",
 			},
-		},
-		User{
-			ID:   "5",
-			URL:  "/users/5",
-			Name: "user 5",
 		},
 	}
 }
 
 // /users/:id/following
-func handleUserFollowing(_ int, _ string) []interface{} {
+func handleUserFollowing(_ int, url string) []interface{} {
+	userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/following"), "/users/"))
+	result, _ := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("followed_by:%d", userID)).Result()
+
 	return []interface{}{
 		Edges{
-			URL:        fmt.Sprintf("/users/%d/following", 3),
-			TotalCount: 1,
-			NextCursor: "user4",
-			Items: []string{
-				"6",
-			},
-		},
-		User{
-			ID:   "6",
-			URL:  "/users/6",
-			Name: "user 6",
+			URL:        fmt.Sprintf("/users/%d/following", userID),
+			TotalCount: int(result),
+			NextCursor: "",
+			Items:      []string{},
 		},
 	}
 }
