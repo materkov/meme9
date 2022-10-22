@@ -18,7 +18,6 @@ export function LoginPage() {
             email: email,
             password: password,
         }).then((resp) => {
-            debugger;
             authorize(resp.token);
             navigate("/");
         }).catch(err => {
