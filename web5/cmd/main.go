@@ -75,15 +75,6 @@ func write(w http.ResponseWriter, data interface{}, err error) {
 	}
 }
 
-func parseIds(idsStr []string) []int {
-	result := make([]int, len(idsStr))
-	for i, idStr := range idsStr {
-		result[i], _ = strconv.Atoi(idStr)
-	}
-
-	return result
-}
-
 func handleAddPost(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
 	if text == "" {

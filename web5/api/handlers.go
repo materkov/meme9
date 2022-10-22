@@ -241,7 +241,7 @@ func handleViewer(viewerID int, _ string) []interface{} {
 	}
 
 	viewer := Viewer{
-		URL: fmt.Sprintf("/viewer"),
+		URL: "/viewer",
 	}
 	results := []interface{}{&viewer}
 

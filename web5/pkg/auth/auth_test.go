@@ -7,7 +7,7 @@ import (
 )
 
 func TestAuthEmailAuth(t *testing.T) {
-	setupRedis(t)
+	//setupRedis(t)
 
 	// Register
 	registeredUserID, err := authRegister("my@email.com", "pass")
@@ -29,7 +29,7 @@ func TestAuthEmailAuth(t *testing.T) {
 }
 
 func TestAuthCheckCredentials(t *testing.T) {
-	setupRedis(t)
+	//setupRedis(t)
 
 	_, err := authRegister("good@mail.com", "")
 	require.NoError(t, err)
