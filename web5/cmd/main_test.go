@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/materkov/meme9/web5/pkg/testutils"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
@@ -29,7 +30,7 @@ func apiRequest(t *testing.T, f http.HandlerFunc, args map[string]string) (int, 
 
 // Integration test? What is a strategy?
 func TestHandleEmailRegister(t *testing.T) {
-	setupRedis(t)
+	testutils.SetupRedis(t)
 
 	// Register
 	status, respRegBytes := apiRequest(t, handleEmailRegister, map[string]string{

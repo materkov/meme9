@@ -25,7 +25,7 @@ build-front:
 	cd front && yarn && yarn build
 
 test-all:
-	cd api && go test -v ./...
+	cd web5 && go test -v ./...
 
 lint-all:
 	cd web && test -z $$(gofmt -l . | tee /dev/stderr)

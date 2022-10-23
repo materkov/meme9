@@ -1,23 +1,14 @@
 package main
 
 import (
-	"github.com/alicebob/miniredis/v2"
-	"github.com/go-redis/redis/v9"
-	"github.com/materkov/meme9/web5/store"
+	"github.com/materkov/meme9/web5/pkg/testutils"
 	"github.com/stretchr/testify/require"
 	"strconv"
 	"testing"
 )
 
-func setupRedis(t *testing.T) {
-	s := miniredis.RunT(t)
-	store.RedisClient = redis.NewClient(&redis.Options{
-		Addr: s.Addr(),
-	})
-}
-
 func TestPosts_CRUD(t *testing.T) {
-	setupRedis(t)
+	testutils.SetupRedis(t)
 
 	postID, err := postsAdd("test post", 200)
 	require.NoError(t, err)

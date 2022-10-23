@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/api"
+	"github.com/materkov/meme9/web5/pkg/auth"
 	"github.com/materkov/meme9/web5/pkg/telegram"
 	"github.com/materkov/meme9/web5/store"
 	"io"
@@ -280,7 +281,7 @@ func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 	redirectURI := r.FormValue("redirectUri")
 
-	vkID, vkAccessToken, err := authExchangeCode(code, redirectURI)
+	vkID, vkAccessToken, err := auth.ExchangeCode(code, redirectURI)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -307,7 +308,7 @@ func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 
 	_, _ = store.RedisClient.RPush(context.Background(), "queue", user.ID).Result()
 
-	authToken, err := authCreateToken(userID)
+	authToken, err := auth.CreateToken(userID)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -327,13 +328,13 @@ func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 
 func handleEmailRegister(w http.ResponseWriter, r *http.Request) {
 	email, password := r.FormValue("email"), r.FormValue("password")
-	validateErr := authValidateCredentials(email, password)
+	validateErr := auth.ValidateCredentials(email, password)
 	if validateErr != "" {
 		write(w, nil, ApiError(validateErr))
 		return
 	}
 
-	userID, err := authRegister(email, password)
+	userID, err := auth.Register(email, password)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -341,7 +342,7 @@ func handleEmailRegister(w http.ResponseWriter, r *http.Request) {
 
 	users := usersList([]int{userID}, userID, false, false)
 
-	token, err := authCreateToken(userID)
+	token, err := auth.CreateToken(userID)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -358,8 +359,8 @@ func handleEmailRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAuthEmail(w http.ResponseWriter, r *http.Request) {
-	userID, err := authEmailAuth(r.FormValue("email"), r.FormValue("password"))
-	if err == ErrInvalidCredentials {
+	userID, err := auth.EmailAuth(r.FormValue("email"), r.FormValue("password"))
+	if err == auth.ErrInvalidCredentials {
 		write(w, nil, ApiError("invalid credentials"))
 		return
 	} else if err != nil {
@@ -367,7 +368,7 @@ func handleAuthEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := authCreateToken(userID)
+	token, err := auth.CreateToken(userID)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -464,7 +465,7 @@ func wrapper(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		authToken := r.FormValue("token")
-		userID, _ := authCheckToken(authToken)
+		userID, _ := auth.CheckToken(authToken)
 
 		viewer := &Viewer{
 			UserID: userID,

@@ -1,37 +1,38 @@
 package auth
 
 import (
+	"github.com/materkov/meme9/web5/pkg/testutils"
 	"github.com/stretchr/testify/require"
 	"strings"
 	"testing"
 )
 
 func TestAuthEmailAuth(t *testing.T) {
-	//setupRedis(t)
+	testutils.SetupRedis(t)
 
 	// Register
-	registeredUserID, err := authRegister("my@email.com", "pass")
+	registeredUserID, err := Register("my@email.com", "pass")
 	require.NoError(t, err)
 	require.NotEmpty(t, registeredUserID)
 
 	// Login, good password
-	userID, err := authEmailAuth("my@email.com", "pass")
+	userID, err := EmailAuth("my@email.com", "pass")
 	require.NoError(t, err)
 	require.Equal(t, registeredUserID, userID)
 
 	// Bad password
-	_, err = authEmailAuth("my@email.com", "bad-password")
+	_, err = EmailAuth("my@email.com", "bad-password")
 	require.Equal(t, ErrInvalidCredentials, err)
 
 	// Bad email
-	_, err = authEmailAuth("bad@email.com", "pass")
+	_, err = EmailAuth("bad@email.com", "pass")
 	require.Equal(t, ErrInvalidCredentials, err)
 }
 
 func TestAuthCheckCredentials(t *testing.T) {
-	//setupRedis(t)
+	testutils.SetupRedis(t)
 
-	_, err := authRegister("good@mail.com", "")
+	_, err := Register("good@mail.com", "")
 	require.NoError(t, err)
 
 	table := []struct {
@@ -46,7 +47,7 @@ func TestAuthCheckCredentials(t *testing.T) {
 
 	for _, item := range table {
 		t.Run(item.Err, func(t *testing.T) {
-			err := authValidateCredentials(item.Email, item.Password)
+			err := ValidateCredentials(item.Email, item.Password)
 			require.Equal(t, item.Err, err)
 		})
 	}

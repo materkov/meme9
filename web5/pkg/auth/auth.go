@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-func authExchangeCode(code string, redirectURI string) (int, string, error) {
+func ExchangeCode(code string, redirectURI string) (int, string, error) {
 	vkAppID := store.DefaultConfig.VKAppID
 	vkAppSecret := store.DefaultConfig.VKAppSecret
 
@@ -61,7 +61,7 @@ func randStringRunes(n int) string {
 	return string(b)
 }
 
-func authCreateToken(userID int) (string, error) {
+func CreateToken(userID int) (string, error) {
 	token := store.AuthToken{
 		//ID:     nextID(),
 		UserID: userID,
@@ -105,7 +105,7 @@ func CheckToken(tokenStr string) (int, error) {
 
 var ErrInvalidCredentials = fmt.Errorf("invalid credentials")
 
-func authEmailAuth(email, password string) (int, error) {
+func EmailAuth(email, password string) (int, error) {
 	userIDStr, err := store.RedisClient.Get(context.Background(), fmt.Sprintf("map_email2id:%s", email)).Result()
 	if err == redis.Nil {
 		return 0, ErrInvalidCredentials
@@ -129,7 +129,7 @@ func authEmailAuth(email, password string) (int, error) {
 	return user.ID, nil
 }
 
-func authRegister(email, password string) (int, error) {
+func Register(email, password string) (int, error) {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return 0, fmt.Errorf("error generating password hash: %w", err)
@@ -158,7 +158,7 @@ func authRegister(email, password string) (int, error) {
 	return user.ID, nil
 }
 
-func authValidateCredentials(email, password string) string {
+func ValidateCredentials(email, password string) string {
 	if email == "" {
 		return "empty email"
 	}
