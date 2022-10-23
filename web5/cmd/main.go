@@ -39,18 +39,7 @@ type User struct {
 	Avatar string `json:"avatar"`
 	Bio    string `json:"bio"`
 
-	Posts *UserPostsConnection `json:"posts"`
-
 	IsFollowing bool `json:"isFollowing,omitempty"`
-
-	FollowingCount  int `json:"followingCount,omitempty"`
-	FollowedByCount int `json:"followedByCount,omitempty"`
-}
-
-type UserPostsConnection struct {
-	Count      int     `json:"count,omitempty"`
-	Items      []*Post `json:"items,omitempty"`
-	NextCursor string  `json:"nextCursor,omitempty"`
 }
 
 type ApiError string

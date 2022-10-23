@@ -103,48 +103,8 @@ func usersList(ids []int, viewerID int, includeIsFollowing bool, includeFollower
 		chanIsFollowing <- isFollowing
 	}()
 
-	chanFollowingCount := make(chan map[int]int)
-	go func() {
-		if !includeFollowersCount {
-			chanFollowingCount <- nil
-			return
-		}
-
-		result := map[int]int{}
-		for _, id := range ids {
-			count, err := usersFollowingCount(id)
-			if err != nil {
-				log.Printf("Error getting following count: %s", err)
-			}
-			result[id] = count
-		}
-
-		chanFollowingCount <- result
-	}()
-
-	chanFollowedByCount := make(chan map[int]int)
-	go func() {
-		if !includeFollowersCount {
-			chanFollowedByCount <- nil
-			return
-		}
-
-		result := map[int]int{}
-		for _, id := range ids {
-			count, err := usersFollowedByCount(id)
-			if err != nil {
-				log.Printf("Error getting followedBy count: %s", err)
-			}
-			result[id] = count
-		}
-
-		chanFollowedByCount <- result
-	}()
-
 	usersMap := <-chanUsersMap
 	isFollowing := <-chanIsFollowing
-	followedByCount := <-chanFollowedByCount
-	followingCount := <-chanFollowingCount
 
 	apiUsers := make([]*User, len(ids))
 	for i, userID := range ids {
@@ -162,8 +122,6 @@ func usersList(ids []int, viewerID int, includeIsFollowing bool, includeFollower
 		apiUser.Name = user.Name
 		apiUser.Bio = user.Bio
 		apiUser.IsFollowing = isFollowing[userID]
-		apiUser.FollowingCount = followingCount[userID]
-		apiUser.FollowedByCount = followedByCount[userID]
 
 		if user.AvatarSha != "" {
 			apiUser.Avatar = filesGetURL(user.AvatarSha)
@@ -273,14 +231,4 @@ func usersIsFollowing(userID int, targetIds []int) (map[int]bool, error) {
 	}
 
 	return result, nil
-}
-
-func usersFollowingCount(userID int) (int, error) {
-	result, err := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("following:%d", userID)).Result()
-	return int(result), err
-}
-
-func usersFollowedByCount(userID int) (int, error) {
-	result, err := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("followed_by:%d", userID)).Result()
-	return int(result), err
 }

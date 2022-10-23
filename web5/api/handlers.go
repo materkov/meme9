@@ -9,6 +9,7 @@ import (
 	"github.com/materkov/meme9/web5/store"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -42,16 +43,25 @@ type User struct {
 }
 
 // /feed
-func handleFeed(viewerID int, _ string) []interface{} {
-	postIds, err := store.RedisClient.LRange(context.Background(), "feed", 0, 20).Result()
+func handleFeed(viewerID int, reqUrl string) []interface{} {
+	parsedURL, _ := url.Parse(reqUrl)
+	cursor, _ := strconv.Atoi(parsedURL.Query().Get("cursor"))
+	count := 10
+
+	postIds, err := store.RedisClient.LRange(context.Background(), "feed", int64(cursor), int64(cursor+count-1)).Result()
 	if err != nil {
 		log.Printf("Error getting feed: %s", err)
 	}
 
+	nextCursor := ""
+	if len(postIds) == count {
+		nextCursor = strconv.Itoa(cursor + count)
+	}
+
 	feed := Edges{
-		URL:        "/feed",
+		URL:        reqUrl,
 		TotalCount: 20,
-		NextCursor: "",
+		NextCursor: nextCursor,
 		Items:      postIds,
 	}
 
@@ -88,15 +98,33 @@ func handleUserById(_ int, url string) []interface{} {
 }
 
 // /users/:id/followers
-func handleUserFollowers(_ int, url string) []interface{} {
+func handleUserFollowers(viewerID int, url string) []interface{} {
+	type Edges struct {
+		URL         string `json:"url,omitempty"`
+		TotalCount  int    `json:"totalCount,omitempty"`
+		NextCursor  string `json:"nextCursor,omitempty"`
+		IsFollowing bool   `json:"isFollowing,omitempty"`
+
+		Items []string `json:"items,omitempty"`
+	}
+
+	pipe := store.RedisClient.Pipeline()
+
 	userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/followers"), "/users/"))
-	result, _ := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("followed_by:%d", userID)).Result()
+	cardCmd := pipe.ZCard(context.Background(), fmt.Sprintf("followed_by:%d", userID))
+	scoreCmd := pipe.ZScore(context.Background(), fmt.Sprintf("followed_by:%d", userID), strconv.Itoa(viewerID))
+
+	_, err := pipe.Exec(context.Background())
+	if err != nil {
+		log.Printf("Error redis: %s", err)
+	}
 
 	return []interface{}{
 		Edges{
-			URL:        fmt.Sprintf("/users/%d/followers", userID),
-			TotalCount: int(result),
-			NextCursor: "",
+			URL:         fmt.Sprintf("/users/%d/followers", userID),
+			TotalCount:  int(cardCmd.Val()),
+			NextCursor:  "",
+			IsFollowing: scoreCmd.Val() != 0,
 			Items: []string{
 				"",
 			},
@@ -278,7 +306,13 @@ func handleQuery(viewerID int, url string) []interface{} {
 	}
 
 	for _, r := range routes {
-		if m, _ := regexp.MatchString("^"+r.Pattern+"$", url); m {
+		path := url
+		idx := strings.Index(path, "?")
+		if idx != -1 {
+			path = path[:idx]
+		}
+
+		if m, _ := regexp.MatchString("^"+r.Pattern+"$", path); m {
 			return r.Handler(viewerID, url)
 		}
 	}

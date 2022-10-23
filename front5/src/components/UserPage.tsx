@@ -9,16 +9,16 @@ import {fetcher, queryClient} from "../store/fetcher";
 
 export function UserPage() {
     const userId = location.pathname.substring(7);
-    const {data: user, isLoading} = useQuery<User>(["/users/" + userId], fetcher);
+    const {data: user, isSuccess} = useQuery<User>(["/users/" + userId], fetcher);
     const {data: posts} = useQuery<Edges>(["/users/" + userId + "/posts"], fetcher);
-    const {data: followers} = useQuery<Edges>(["/users/" + userId + "/followers"], fetcher);
+
+    const followersQueryKey = ["/users/" + userId + "/followers"];
+    const {data: followers} = useQuery<Edges & {isFollowing: boolean}>(followersQueryKey, fetcher);
     const {data: following} = useQuery<Edges>(["/users/" + userId + "/following"], fetcher);
     const {data: viewer} = useQuery<Viewer>(["/viewer"], fetcher);
 
     const [userName, setUserName] = React.useState("");
     const [userNameUpdated, setUserNameUpdated] = React.useState(false);
-
-    const [isFollowing, setIsFollowing] = React.useState(false);
 
     const [avatarUploading, setAvatarUploading] = React.useState(false);
 
@@ -54,18 +54,36 @@ export function UserPage() {
     }
 
     const onFollow = () => {
+        const oldData = queryClient.getQueryData(followersQueryKey);
+        if (oldData) {
+            queryClient.setQueryData(followersQueryKey, {
+                ...oldData,
+                totalCount: (oldData.totalCount || 0) + 1,
+                isFollowing: true,
+            });
+        }
+
         api("/userFollow", {
-            id: user.id,
+            id: userId,
         }).then(() => {
-            setIsFollowing(true);
+            queryClient.invalidateQueries(followersQueryKey);
         })
     }
 
     const onUnfollow = () => {
+        const oldData = queryClient.getQueryData(followersQueryKey);
+        if (oldData) {
+            queryClient.setQueryData(followersQueryKey, {
+                ...oldData,
+                totalCount: (oldData.totalCount || 0) - 1,
+                isFollowing: false,
+            });
+        }
+
         api("/userUnfollow", {
-            id: user.id,
+            id: userId,
         }).then(() => {
-            setIsFollowing(false);
+            queryClient.invalidateQueries(followersQueryKey);
         })
     }
 
@@ -87,7 +105,7 @@ export function UserPage() {
 
     }
 
-    if (!user) {
+    if (!isSuccess) {
         return <>Загрузка ...</>;
     }
 
@@ -113,7 +131,7 @@ export function UserPage() {
                         <div className={styles.buttonsBlock}>
                             {viewer?.viewerId && viewer.viewerId != user.id &&
                                 <>
-                                    {isFollowing ?
+                                    {followers?.isFollowing ?
                                         <button onClick={onUnfollow}>Отписаться</button> :
                                         <button onClick={onFollow}>Подписаться</button>
                                     }
