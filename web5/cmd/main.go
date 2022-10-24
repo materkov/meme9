@@ -18,6 +18,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -465,6 +466,10 @@ func wrapper(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		authToken := r.FormValue("token")
+		if authToken == "" {
+			authToken = r.Header.Get("Authorization")
+			authToken = strings.TrimPrefix(authToken, "Bearer ")
+		}
 		userID, _ := auth.CheckToken(authToken)
 
 		viewer := &Viewer{

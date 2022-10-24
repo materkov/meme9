@@ -135,7 +135,7 @@ func handleUserFollowers(viewerID int, url string) []interface{} {
 // /users/:id/following
 func handleUserFollowing(_ int, url string) []interface{} {
 	userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/following"), "/users/"))
-	result, _ := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("followed_by:%d", userID)).Result()
+	result, _ := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("following:%d", userID)).Result()
 
 	return []interface{}{
 		Edges{
