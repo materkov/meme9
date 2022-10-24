@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/materkov/meme9/web5/pkg/auth"
 	"github.com/materkov/meme9/web5/pkg/files"
+	"github.com/materkov/meme9/web5/pkg/posts"
 	"github.com/materkov/meme9/web5/store"
 	"log"
 	"net/http"
@@ -22,6 +23,8 @@ type Post struct {
 	Date   string `json:"date,omitempty"`
 	Text   string `json:"text,omitempty"`
 	UserID string `json:"userId,omitempty"`
+
+	IsDeleted bool `json:"isDeleted,omitempty"`
 
 	CanDelete bool `json:"canDelete,omitempty"`
 }
@@ -190,8 +193,8 @@ func handlePostsId(viewerID int, url string) []interface{} {
 
 	post := store.Post{}
 	err := store.NodeGet(postID, &post)
-	if err != nil {
-		result.Text = "DELETED"
+	if err != nil || !posts.CanSee(&post, viewerID) {
+		result.IsDeleted = true
 		return []interface{}{result}
 	}
 
@@ -209,24 +212,27 @@ func handlePostsId(viewerID int, url string) []interface{} {
 }
 
 // /posts/:id/liked
-func handlePostsLiked(_ int, url string) []interface{} {
-	postID := strings.TrimPrefix(url, "/posts/")
-	postID = strings.TrimSuffix(postID, "/liked")
+func handlePostsLiked(viewerID int, url string) []interface{} {
+	postIDStr := strings.TrimPrefix(url, "/posts/")
+	postIDStr = strings.TrimSuffix(postIDStr, "/liked")
+	postID, _ := strconv.Atoi(postIDStr)
+
+	edge := Edges{
+		URL: fmt.Sprintf("/posts/%s/liked", postID),
+	}
+
+	post := &store.Post{}
+	err := store.NodeGet(postID, post)
+	if err != nil || !posts.CanSee(post, viewerID) {
+		return []interface{}{post}
+	}
 
 	key := fmt.Sprintf("postLikes:%s", postID)
 	card, _ := store.RedisClient.ZCard(context.Background(), key).Result()
 
-	edge := Edges{
-		URL:        fmt.Sprintf("/posts/%s/liked", postID),
-		TotalCount: int(card),
-		NextCursor: "",
-		Items:      []string{},
-	}
+	edge.TotalCount = int(card)
 
-	var result []interface{}
-	result = append(result, edge)
-
-	return result
+	return []interface{}{edge}
 }
 
 type PostLikeData struct {
@@ -238,25 +244,34 @@ type PostLikeData struct {
 
 // /posts/:id/isLiked
 func handlePostsIsLiked(viewerID int, url string) []interface{} {
-	postID := strings.TrimPrefix(url, "/posts/")
-	postID = strings.TrimSuffix(postID, "/isLiked")
+	postIDStr := strings.TrimPrefix(url, "/posts/")
+	postIDStr = strings.TrimSuffix(postIDStr, "/isLiked")
+	postID, _ := strconv.Atoi(postIDStr)
+
+	edge := PostLikeData{
+		URL:    url,
+		PostID: postIDStr,
+	}
+
+	post := &store.Post{}
+	err := store.NodeGet(postID, post)
+	if err != nil || !posts.CanSee(post, viewerID) {
+		log.Printf("Error: %s", err)
+		return []interface{}{edge}
+	}
 
 	key := fmt.Sprintf("postLikes:%s", postID)
 	pipe := store.RedisClient.Pipeline()
 	cardCmd := pipe.ZCard(context.Background(), key)
 	scoreCmd := pipe.ZScore(context.Background(), key, strconv.Itoa(viewerID))
 
-	_, err := pipe.Exec(context.Background())
+	_, err = pipe.Exec(context.Background())
 	if err != nil {
 		log.Printf("Error getting likes: %s", err)
 	}
 
-	edge := PostLikeData{
-		URL:        url,
-		PostID:     postID,
-		IsLiked:    scoreCmd.Val() != 0,
-		LikesCount: int(cardCmd.Val()),
-	}
+	edge.IsLiked = scoreCmd.Val() != 0
+	edge.LikesCount = int(cardCmd.Val())
 
 	var result []interface{}
 	result = append(result, edge)

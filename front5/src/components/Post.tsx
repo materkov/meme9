@@ -31,7 +31,7 @@ export function ComponentPost(props: Props) {
         })
     }
 
-    // TODO post.canDelete -> true
+    if (post.isDeleted) return <DeletedStub/>
 
     return (
         <div className={styles.post}>
@@ -56,4 +56,12 @@ export function ComponentPost(props: Props) {
             <PostLike id={props.id}/>
         </div>
     )
+}
+
+function DeletedStub() {
+    return <div className={styles.post}>
+        <div className={styles.deletedStub}>
+            Пост удален.
+        </div>
+    </div>
 }

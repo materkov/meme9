@@ -20,6 +20,7 @@ export type Post = {
     text: string;
     canDelete?: boolean;
     isLiked: boolean;
+    isDeleted?: boolean;
     likesCount: number;
 }
 
