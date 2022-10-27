@@ -39,17 +39,13 @@ export function UserPage() {
     }
 
     const onShowMore = () => {
+        // TODO
         api("/userPage/posts", {
             id: location.pathname.substring(7),
             cursor: "",
         }).then((result: [UserPostsConnection]) => {
             let r = result[0];
             //setPostsCursor(r.nextCursor || "");
-
-            for (let post of r.items || []) {
-                post.user = user;
-            }
-
         })
     }
 

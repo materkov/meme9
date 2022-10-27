@@ -17,13 +17,6 @@ export function Composer() {
 
             queryClient.setQueryData(["/posts/" + resp.id], resp);
 
-            const d: PostLikeData = {
-                postID: resp.id,
-                isLiked: false,
-                likesCount: 0,
-            }
-            queryClient.setQueryData(["/posts/" + resp.id + "/isLiked"], d);
-
             const feedData = queryClient.getQueryData<Edges>(["/feed"]);
             if (feedData) {
                 queryClient.setQueryData(["/feed"], {...feedData, items: [resp.id, ...feedData.items]});

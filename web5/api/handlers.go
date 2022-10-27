@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/pkg/auth"
 	"github.com/materkov/meme9/web5/pkg/files"
 	"github.com/materkov/meme9/web5/pkg/posts"
@@ -73,7 +74,7 @@ func handleFeed(viewerID int, reqUrl string) []interface{} {
 
 	for _, postID := range postIds {
 		results = append(results, handlePostsId(viewerID, "/posts/"+postID)...)
-		results = append(results, handlePostsIsLiked(viewerID, "/posts/"+postID+"/isLiked")...)
+		results = append(results, handlePostsLiked(viewerID, "/posts/"+postID+"/liked?count=0")...)
 	}
 
 	return results
@@ -102,13 +103,9 @@ func handleUserById(_ int, url string) []interface{} {
 
 // /users/:id/followers
 func handleUserFollowers(viewerID int, url string) []interface{} {
-	type Edges struct {
-		URL         string `json:"url,omitempty"`
-		TotalCount  int    `json:"totalCount,omitempty"`
-		NextCursor  string `json:"nextCursor,omitempty"`
-		IsFollowing bool   `json:"isFollowing,omitempty"`
-
-		Items []string `json:"items,omitempty"`
+	type FollowerEdges struct {
+		Edges
+		IsFollowing bool `json:"isFollowing,omitempty"`
 	}
 
 	pipe := store.RedisClient.Pipeline()
@@ -123,14 +120,15 @@ func handleUserFollowers(viewerID int, url string) []interface{} {
 	}
 
 	return []interface{}{
-		Edges{
-			URL:         fmt.Sprintf("/users/%d/followers", userID),
-			TotalCount:  int(cardCmd.Val()),
-			NextCursor:  "",
-			IsFollowing: scoreCmd.Val() != 0,
-			Items: []string{
-				"",
-			},
+		FollowerEdges{
+			Edges: Edges{
+				URL:        fmt.Sprintf("/users/%d/followers", userID),
+				TotalCount: int(cardCmd.Val()),
+				NextCursor: "",
+				Items: []string{
+					"",
+				},
+			}, IsFollowing: scoreCmd.Val() != 0,
 		},
 	}
 }
@@ -212,71 +210,62 @@ func handlePostsId(viewerID int, url string) []interface{} {
 }
 
 // /posts/:id/liked
-func handlePostsLiked(viewerID int, url string) []interface{} {
-	postIDStr := strings.TrimPrefix(url, "/posts/")
-	postIDStr = strings.TrimSuffix(postIDStr, "/liked")
-	postID, _ := strconv.Atoi(postIDStr)
+func handlePostsLiked(viewerID int, reqURL string) []interface{} {
+	type LikedEdges struct {
+		Edges
+		IsViewerLiked bool `json:"isViewerLiked,omitempty"`
+	}
 
-	edge := Edges{
-		URL: fmt.Sprintf("/posts/%s/liked", postID),
+	r := regexp.MustCompile(`^/posts/(\w+)/`)
+	results := r.FindStringSubmatch(reqURL)
+
+	postID, _ := strconv.Atoi(results[1])
+
+	count := 0
+	parsedURL, _ := url.Parse(reqURL)
+	if parsedURL != nil {
+		count, _ = strconv.Atoi(parsedURL.Query().Get("count"))
+	}
+
+	edge := LikedEdges{
+		Edges: Edges{URL: reqURL},
 	}
 
 	post := &store.Post{}
 	err := store.NodeGet(postID, post)
 	if err != nil || !posts.CanSee(post, viewerID) {
-		return []interface{}{post}
-	}
-
-	key := fmt.Sprintf("postLikes:%s", postID)
-	card, _ := store.RedisClient.ZCard(context.Background(), key).Result()
-
-	edge.TotalCount = int(card)
-
-	return []interface{}{edge}
-}
-
-type PostLikeData struct {
-	URL        string `json:"url"`
-	PostID     string `json:"postId,omitempty"`
-	IsLiked    bool   `json:"isLiked,omitempty"`
-	LikesCount int    `json:"likesCount,omitempty"`
-}
-
-// /posts/:id/isLiked
-func handlePostsIsLiked(viewerID int, url string) []interface{} {
-	postIDStr := strings.TrimPrefix(url, "/posts/")
-	postIDStr = strings.TrimSuffix(postIDStr, "/isLiked")
-	postID, _ := strconv.Atoi(postIDStr)
-
-	edge := PostLikeData{
-		URL:    url,
-		PostID: postIDStr,
-	}
-
-	post := &store.Post{}
-	err := store.NodeGet(postID, post)
-	if err != nil || !posts.CanSee(post, viewerID) {
-		log.Printf("Error: %s", err)
 		return []interface{}{edge}
 	}
 
-	key := fmt.Sprintf("postLikes:%s", postID)
 	pipe := store.RedisClient.Pipeline()
+
+	key := fmt.Sprintf("postLikes:%d", postID)
 	cardCmd := pipe.ZCard(context.Background(), key)
-	scoreCmd := pipe.ZScore(context.Background(), key, strconv.Itoa(viewerID))
+	isLikedCmd := pipe.ZScore(context.Background(), key, strconv.Itoa(viewerID))
+
+	var usersCmd *redis.StringSliceCmd
+	if count > 0 {
+		usersCmd = pipe.ZRevRangeByScore(context.Background(), key, &redis.ZRangeBy{
+			Min:    "-inf",
+			Max:    "+inf",
+			Offset: 0,
+			Count:  int64(count),
+		})
+	}
 
 	_, err = pipe.Exec(context.Background())
 	if err != nil {
-		log.Printf("Error getting likes: %s", err)
+		log.Printf("Error redis: %s", err)
 	}
 
-	edge.IsLiked = scoreCmd.Val() != 0
-	edge.LikesCount = int(cardCmd.Val())
+	edge.TotalCount = int(cardCmd.Val())
+	edge.IsViewerLiked = isLikedCmd.Val() != 0
 
-	var result []interface{}
-	result = append(result, edge)
+	if usersCmd != nil {
+		edge.Items = usersCmd.Val()
+	}
 
-	return result
+	return []interface{}{edge}
 }
 
 // /viewer
@@ -315,7 +304,6 @@ func handleQuery(viewerID int, url string) []interface{} {
 
 		{"/posts/(\\w+)", handlePostsId},
 		{"/posts/(\\w+)/liked", handlePostsLiked},
-		{"/posts/(\\w+)/isLiked", handlePostsIsLiked},
 
 		{"/viewer", handleViewer},
 	}

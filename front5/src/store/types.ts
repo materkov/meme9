@@ -1,27 +1,17 @@
 export type User = {
     id: string;
     name?: string;
-    posts?: UserPostsConnection;
     avatar?: string;
     bio?: string;
-}
-
-export type UserPostsConnection = {
-    count?: number;
-    items?: Post[];
-    nextCursor?: string;
 }
 
 export type Post = {
     id: string;
     userId: string;
-    user?: User;
     date: string;
     text: string;
     canDelete?: boolean;
-    isLiked: boolean;
     isDeleted?: boolean;
-    likesCount: number;
 }
 
 export function api(url: string, params: any = {}): Promise<any> {
@@ -50,9 +40,9 @@ export function api(url: string, params: any = {}): Promise<any> {
 }
 
 export interface PostLikeData {
-    postID: string
-    isLiked: boolean
-    likesCount: number
+    isViewerLiked: boolean
+    totalCount: number
+    items: string
 }
 
 export interface Edges {

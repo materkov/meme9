@@ -1,4 +1,5 @@
 .likeBtn {
+    position: relative;
     cursor: pointer;
     border-radius: 8px;
     padding: 5px 10px;
@@ -11,6 +12,10 @@
     background: #ccc;
 }
 
+.likeBtn:hover .likersPopup {
+    display: block;
+}
+
 .likeText {
     display: inline-block;
     font-weight: bold;
@@ -21,4 +26,16 @@
     vertical-align: middle;
     display: inline-block;
     width: 18px;
+}
+
+.likersPopup {
+    left: 0;
+    top: 30px;
+    z-index: 10;
+    display: none;
+    position: absolute;
+}
+
+.likersPopup__visible {
+    display: block;
 }
