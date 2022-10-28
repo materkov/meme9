@@ -10,9 +10,9 @@ import {fetcher, queryClient} from "../store/fetcher";
 export function UserPage() {
     const userId = location.pathname.substring(7);
     const {data: user, isSuccess} = useQuery<User>(["/users/" + userId], fetcher);
-    const {data: userPostsCount} = useQuery<Edges>([`/users/${userId}/posts?count=0`], fetcher);
+    const {data: userPostsCount} = useQuery<Edges>([`/users/${userId}/posts`], fetcher);
     const {data: posts, fetchNextPage, hasNextPage} = useInfiniteQuery<Edges>(
-        [`/users/${userId}/posts`],
+        [`/users/${userId}/posts?__paging`], // TODO think about this hack
         ({pageParam = ""}) => fetcher({queryKey: [`/users/${userId}/posts?cursor=${pageParam}&count=10`]}),
         {
             getNextPageParam: (lastPage) => {
@@ -150,7 +150,7 @@ export function UserPage() {
 
             {posts?.pages.map(page => (
                 <React.Fragment>
-                    {page.items.map(postId => (
+                    {page.items?.map(postId => (
                         <ComponentPost key={postId} id={postId}/>
                     ))}
                 </React.Fragment>
