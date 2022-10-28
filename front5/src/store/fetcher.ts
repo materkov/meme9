@@ -12,7 +12,7 @@ export function fetcher({queryKey}: any): Promise<any> {
     return new Promise((resolve, reject) => {
         const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me/api" : "http://localhost:8000/api";
 
-        fetch(apiHost + "?urls=" + queryKey[0], {
+        fetch(apiHost + "?urls=" + encodeURIComponent(queryKey[0]), {
             headers: {
                 'authorization': 'Bearer ' + localStorage.getItem('authToken')
             }

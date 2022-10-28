@@ -39,7 +39,7 @@ export function PostUser(props: { postId: string }) {
         >
             <div className={className}>{userDetails}</div>
 
-            <UserAvatar width={50} url={user?.avatar}/>
+            <UserAvatar width={50} userId={post?.userId || ""}/>
             <div className={styles.rightContainer}>
                 <Link href={"/users/" + user?.id} className={styles.name}>{user?.name}</Link>
                 <Link href={"/posts/" + post?.id} className={styles.href}>{dateStr}</Link>

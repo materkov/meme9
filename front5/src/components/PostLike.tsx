@@ -53,18 +53,16 @@ export const PostLike = (props: { id: string }) => {
         data?.isViewerLiked ? unlike.mutate() : like.mutate();
     }
 
-    if (!data) return null;
-
     return <div className={styles.likeBtn} onClick={onClick}
                 onMouseEnter={() => setLikersVisible(true)}
                 onMouseLeave={() => setLikersVisible(false)}
     >
-        {data.isViewerLiked ?
+        {data?.isViewerLiked ?
             <HeartRed className={styles.likeIcon}/> :
             <Heart className={styles.likeIcon}/>
         }
 
-        {data.totalCount > 0 &&
+        {data && data.totalCount > 0 &&
             <div className={styles.likeText}>{data.totalCount}</div>
         }
 

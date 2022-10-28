@@ -1,19 +1,28 @@
 import React from "react";
-import {api, Edges, User, UserPostsConnection, Viewer} from "../store/types";
+import {api, Edges, User, Viewer} from "../store/types";
 import {ComponentPost} from "./Post";
 import styles from "./UserPage.module.css";
 import {localizeCounter} from "../utils/localize";
 import {UserAvatar} from "./UserAvatar";
-import {useQuery} from "@tanstack/react-query";
+import {useInfiniteQuery, useQuery} from "@tanstack/react-query";
 import {fetcher, queryClient} from "../store/fetcher";
 
 export function UserPage() {
     const userId = location.pathname.substring(7);
     const {data: user, isSuccess} = useQuery<User>(["/users/" + userId], fetcher);
-    const {data: posts} = useQuery<Edges>(["/users/" + userId + "/posts"], fetcher);
+    const {data: userPostsCount} = useQuery<Edges>([`/users/${userId}/posts?count=0`], fetcher);
+    const {data: posts, fetchNextPage, hasNextPage} = useInfiniteQuery<Edges>(
+        [`/users/${userId}/posts`],
+        ({pageParam = ""}) => fetcher({queryKey: [`/users/${userId}/posts?cursor=${pageParam}&count=10`]}),
+        {
+            getNextPageParam: (lastPage) => {
+                return lastPage.nextCursor || undefined;
+            }
+        }
+    );
 
     const followersQueryKey = ["/users/" + userId + "/followers"];
-    const {data: followers} = useQuery<Edges & {isFollowing: boolean}>(followersQueryKey, fetcher);
+    const {data: followers} = useQuery<Edges & { isFollowing: boolean }>(followersQueryKey, fetcher);
     const {data: following} = useQuery<Edges>(["/users/" + userId + "/following"], fetcher);
     const {data: viewer} = useQuery<Viewer>(["/viewer"], fetcher);
 
@@ -38,19 +47,8 @@ export function UserPage() {
         });
     }
 
-    const onShowMore = () => {
-        // TODO
-        api("/userPage/posts", {
-            id: location.pathname.substring(7),
-            cursor: "",
-        }).then((result: [UserPostsConnection]) => {
-            let r = result[0];
-            //setPostsCursor(r.nextCursor || "");
-        })
-    }
-
     const onFollow = () => {
-        const oldData = queryClient.getQueryData(followersQueryKey);
+        const oldData = queryClient.getQueryData<Edges>(followersQueryKey);
         if (oldData) {
             queryClient.setQueryData(followersQueryKey, {
                 ...oldData,
@@ -67,7 +65,7 @@ export function UserPage() {
     }
 
     const onUnfollow = () => {
-        const oldData = queryClient.getQueryData(followersQueryKey);
+        const oldData = queryClient.getQueryData<Edges>(followersQueryKey);
         if (oldData) {
             queryClient.setQueryData(followersQueryKey, {
                 ...oldData,
@@ -108,7 +106,7 @@ export function UserPage() {
     return (
         <div>
             <div className={styles.topBlock}>
-                <UserAvatar width={100} url={user.avatar}/>
+                <UserAvatar width={100} userId={userId}/>
                 <div className={styles.infoBlock}>
                     <div className={styles.userName}>{user.name}</div>
                     <div className={styles.userBio}>
@@ -116,7 +114,7 @@ export function UserPage() {
                     </div>
                     <div className={styles.userCounters}>
                         <div className={styles.userCounter}>
-                            <b>{posts?.totalCount}</b> {localizeCounter(posts?.totalCount || 0, "публикация", "публикации", "публикаций")}
+                            <b>{userPostsCount?.totalCount}</b> {localizeCounter(posts?.totalCount || 0, "публикация", "публикации", "публикаций")}
                         </div>
                         <div className={styles.userCounter}>
                             <b>{followers?.totalCount || 0}</b> {localizeCounter(following?.totalCount || 0, "подписчик", "подписчика", "подписчиков")}
@@ -150,11 +148,15 @@ export function UserPage() {
                 {avatarUploading && <span>Загружаем аватар...</span>}
             </>}
 
-            {posts?.items?.map(postId => (
-                <ComponentPost key={postId} id={postId}/>
+            {posts?.pages.map(page => (
+                <React.Fragment>
+                    {page.items.map(postId => (
+                        <ComponentPost key={postId} id={postId}/>
+                    ))}
+                </React.Fragment>
             ))}
 
-            {<button onClick={onShowMore}>Показать еще</button>}
+            {hasNextPage && <button onClick={() => fetchNextPage()}>Показать еще</button>}
         </div>
     )
 }

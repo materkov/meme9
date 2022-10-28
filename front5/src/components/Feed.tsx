@@ -13,7 +13,8 @@ export function Feed() {
             getNextPageParam: (lastPage) => {
                 return lastPage.nextCursor || undefined;
             }
-        });
+        }
+    );
 
     const {data: viewer, isLoading: isViewerLoading} = useQuery<Viewer>("/viewer");
 

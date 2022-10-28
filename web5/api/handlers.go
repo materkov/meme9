@@ -74,7 +74,6 @@ func handleFeed(viewerID int, reqUrl string) []interface{} {
 
 	for _, postID := range postIds {
 		results = append(results, handlePostsId(viewerID, "/posts/"+postID)...)
-		results = append(results, handlePostsLiked(viewerID, "/posts/"+postID+"/liked?count=0")...)
 	}
 
 	return results
@@ -149,32 +148,53 @@ func handleUserFollowing(_ int, url string) []interface{} {
 }
 
 // /users/:id/posts
-func handleUserPosts(viewerID int, url string) []interface{} {
-	userID := strings.TrimPrefix(url, "/users/")
-	userID = strings.TrimSuffix(userID, "/posts")
+func handleUserPosts(viewerID int, reqURL string) []interface{} {
+	parsedURL, _ := url.Parse(reqURL)
+	cursor, _ := strconv.Atoi(parsedURL.Query().Get("cursor"))
+	count, _ := strconv.Atoi(parsedURL.Query().Get("count"))
+
+	r := regexp.MustCompile(`^/users/(\w+)/`)
+	regexpResults := r.FindStringSubmatch(reqURL)
+
+	userID, _ := strconv.Atoi(regexpResults[1])
 
 	pipe := store.RedisClient.Pipeline()
 
-	key := fmt.Sprintf("feed:%s", userID)
+	key := fmt.Sprintf("feed:%d", userID)
 	lenCmd := pipe.LLen(context.Background(), key)
-	rangeCmd := pipe.LRange(context.Background(), fmt.Sprintf("feed:%s", userID), 0, 20)
+
+	var rangeCmd *redis.StringSliceCmd
+	if count > 0 {
+		rangeCmd = pipe.LRange(context.Background(), fmt.Sprintf("feed:%d", userID), int64(cursor), int64(cursor+count-1))
+	}
 
 	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		log.Printf("Error getting feed: %s", err)
 	}
 
-	posts := Edges{
-		URL:        fmt.Sprintf("/users/%s/posts", userID),
+	nextCursor := ""
+	if cursor+count < int(lenCmd.Val()) {
+		nextCursor = strconv.Itoa(cursor + count)
+	}
+
+	edges := Edges{
+		URL:        reqURL,
 		TotalCount: int(lenCmd.Val()),
-		NextCursor: "",
-		Items:      rangeCmd.Val(),
+		NextCursor: nextCursor,
+	}
+
+	if rangeCmd != nil {
+		edges.Items = rangeCmd.Val()
 	}
 
 	var results []interface{}
-	results = append(results, posts)
-	for _, postID := range rangeCmd.Val() {
-		results = append(results, handlePostsId(viewerID, postID)...)
+	results = append(results, edges)
+
+	if rangeCmd != nil {
+		for _, postID := range rangeCmd.Val() {
+			results = append(results, handlePostsId(viewerID, postID)...)
+		}
 	}
 
 	return results
@@ -202,10 +222,12 @@ func handlePostsId(viewerID int, url string) []interface{} {
 	result.CanDelete = post.UserID == viewerID
 
 	user := handleUserById(viewerID, fmt.Sprintf("/users/%d", post.UserID))
+	postLiked := handlePostsLiked(viewerID, fmt.Sprintf("/posts/%d/liked?count=0", postID))
 
 	var results []interface{}
 	results = append(results, result)
 	results = append(results, user...)
+	results = append(results, postLiked...)
 	return results
 }
 

@@ -4,6 +4,7 @@ import {Link} from "./Link";
 import {useQueries, useQuery} from "@tanstack/react-query";
 import {Edges, User} from "../store/types";
 import {fetcher} from "../store/fetcher";
+import {UserAvatar} from "./UserAvatar";
 
 export function PostLikers(props: { id: string }) {
     const {data, isLoading, isStale} = useQuery<Edges>(["/posts/" + props.id + "/liked?count=10"], fetcher, {
@@ -29,8 +30,7 @@ export function PostLikers(props: { id: string }) {
 
         {!isLoading && !isStale && data && data.items?.map((userId, idx) => (
             <Link className={styles.item} href={"/users/" + userId} key={userId}>
-                <img className={styles.avatar} alt=""
-                     src={users[idx].avatar}/>
+                <UserAvatar width={40} userId={userId}/>
                 <div className={styles.name}>{users[idx].name}</div>
             </Link>
         ))}
