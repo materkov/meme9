@@ -148,8 +148,8 @@ export function UserPage() {
                 {avatarUploading && <span>Загружаем аватар...</span>}
             </>}
 
-            {posts?.pages.map(page => (
-                <React.Fragment>
+            {posts?.pages.map((page, i) => (
+                <React.Fragment key={i}>
                     {page.items?.map(postId => (
                         <ComponentPost key={postId} id={postId}/>
                     ))}
