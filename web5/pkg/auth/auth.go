@@ -65,7 +65,7 @@ func CreateToken(userID int) (string, error) {
 	token := store.AuthToken{
 		//ID:     nextID(),
 		UserID: userID,
-		Token:  randStringRunes(30),
+		Token:  randStringRunes(50),
 		Date:   int(time.Now().Unix()),
 	}
 
@@ -74,7 +74,7 @@ func CreateToken(userID int) (string, error) {
 		return "", err
 	}
 
-	_, err = store.RedisClient.Set(context.Background(), fmt.Sprintf("auth_token:%s", token.Token), tokenBytes, time.Minute*10).Result()
+	_, err = store.RedisClient.Set(context.Background(), fmt.Sprintf("auth_token:%s", token.Token), tokenBytes, time.Minute*45).Result()
 	if err != nil {
 		return "", err
 	}
