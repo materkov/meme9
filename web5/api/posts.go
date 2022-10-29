@@ -47,13 +47,10 @@ func handlePostsId(viewerID int, url string) []interface{} {
 	result.UserID = strconv.Itoa(post.UserID)
 	result.CanDelete = post.UserID == viewerID
 
-	user := handleUserById(viewerID, fmt.Sprintf("/users/%d", post.UserID))
-	postLiked := handlePostsLiked(viewerID, fmt.Sprintf("/posts/%d/liked?count=0", postID))
-
 	var results []interface{}
 	results = append(results, result)
-	results = append(results, user...)
-	results = append(results, postLiked...)
+	results = append(results, fmt.Sprintf("/users/%d", post.UserID))
+	results = append(results, fmt.Sprintf("/posts/%d/liked?count=0", postID))
 	return results
 }
 

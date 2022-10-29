@@ -20,7 +20,7 @@ type Edges struct {
 	Items []string `json:"items,omitempty"`
 }
 
-func handleQuery(viewerID int, url string) []interface{} {
+func handleQuery(requestID int, viewerID int, urls []string) []interface{} {
 	type route struct {
 		Pattern string
 		Handler func(viewerID int, url string) []interface{}
@@ -40,26 +40,59 @@ func handleQuery(viewerID int, url string) []interface{} {
 		{"/viewer", handleViewer},
 	}
 
-	path := url
-	idx := strings.Index(path, "?")
-	if idx != -1 {
-		path = path[:idx]
-	}
-
-	for _, r := range routes {
-		if m, _ := regexp.MatchString("^"+r.Pattern+"$", path); m {
-			return r.Handler(viewerID, url)
+	results := map[string]interface{}{}
+	for len(urls) > 0 {
+		url := ""
+		for _, _url := range urls {
+			url = _url
+			urls = urls[1:]
+			break
 		}
+
+		if _, alreadyResolved := results[url]; alreadyResolved {
+			continue
+		}
+
+		path := url
+		idx := strings.Index(path, "?")
+		if idx != -1 {
+			path = path[:idx]
+		}
+
+		started := time.Now()
+
+		for _, r := range routes {
+			if m, _ := regexp.MatchString("^"+r.Pattern+"$", path); m {
+				localResults := r.Handler(viewerID, url)
+				for _, result := range localResults {
+					if related, ok := result.(string); ok {
+						urls = append(urls, related)
+					} else {
+						results[url] = result
+					}
+				}
+				break
+			}
+		}
+
+		metrics.WriteSpan(requestID, url, time.Since(started))
 	}
 
-	return nil
+	resultsList := make([]interface{}, len(results))
+	idx := 0
+	for _, resource := range results {
+		resultsList[idx] = resource
+		idx++
+	}
+
+	return resultsList
 }
 
 func HandleAPI(w http.ResponseWriter, r *http.Request) {
 	started := time.Now()
 	requestID := rand.Int()
 	defer func() {
-		metrics.WriteSpan(requestID, "GET", time.Since(started))
+		metrics.WriteSpan(requestID, "API Request", time.Since(started))
 	}()
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -76,11 +109,7 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.CheckToken(authToken)
 
 	urls := strings.Split(r.URL.Query().Get("urls"), ",")
-
-	results := make([]interface{}, 0)
-	for _, query := range urls {
-		results = append(results, handleQuery(userID, query)...)
-	}
+	results := handleQuery(requestID, userID, urls)
 
 	_ = json.NewEncoder(w).Encode(results)
 }

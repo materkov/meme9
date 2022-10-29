@@ -19,7 +19,7 @@ func handleViewer(viewerID int, _ string) []interface{} {
 
 	if viewerID != 0 {
 		viewer.ViewerID = strconv.Itoa(viewerID)
-		results = append(results, handleUserById(viewerID, fmt.Sprintf("/users/%d", viewerID))...)
+		results = append(results, fmt.Sprintf("/users/%d", viewerID))
 	}
 
 	return results

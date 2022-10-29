@@ -135,7 +135,7 @@ func handleUserPosts(viewerID int, reqURL string) []interface{} {
 
 	if rangeCmd != nil {
 		for _, postID := range rangeCmd.Val() {
-			results = append(results, handlePostsId(viewerID, postID)...)
+			results = append(results, fmt.Sprintf("/posts/%s", postID))
 		}
 	}
 

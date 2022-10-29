@@ -35,7 +35,7 @@ func handleFeed(viewerID int, reqUrl string) []interface{} {
 	results = append(results, feed)
 
 	for _, postID := range postIds {
-		results = append(results, handlePostsId(viewerID, "/posts/"+postID)...)
+		results = append(results, "/posts/"+postID)
 	}
 
 	return results
