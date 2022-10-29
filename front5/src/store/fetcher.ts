@@ -16,11 +16,10 @@ function loadResources(resources: any): Promise<any> {
         fetch(apiHost, {
             method: 'POST',
             headers: {
+                'content-type': 'application/json',
                 'authorization': 'Bearer ' + localStorage.getItem('authToken')
             },
-            body: JSON.stringify({
-                resources: resources,
-            })
+            body: JSON.stringify(resources)
         })
             .then(r => r.json())
             .then(r => {

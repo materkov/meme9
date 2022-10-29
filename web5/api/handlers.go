@@ -106,23 +106,31 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := struct {
-		Resources []string `json:"resources"`
-	}{}
-	_ = json.NewDecoder(r.Body).Decode(&req)
-
-	ctx := r.Context()
-	ctx = store.WithPostStore(ctx)
-	ctx = store.WithUserStore(ctx)
-	ctx = store.WithLikedStore(ctx)
+	var resources []string
+	_ = json.NewDecoder(r.Body).Decode(&resources)
 
 	authToken := r.Header.Get("authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
 	userID, _ := auth.CheckToken(authToken)
 
-	urls := strings.Split(r.URL.Query().Get("urls"), ",")
-	urls = req.Resources
-	results := handleQuery(ctx, requestID, userID, urls)
+	resultsCh := make(chan []interface{})
+	for _, resource := range resources {
+		resourceCopy := resource
+
+		go func() {
+			ctx := r.Context()
+			ctx = store.WithPostStore(ctx)
+			ctx = store.WithUserStore(ctx)
+			ctx = store.WithLikedStore(ctx)
+
+			resultsCh <- handleQuery(ctx, requestID, userID, []string{resourceCopy})
+		}()
+	}
+
+	var results []interface{}
+	for range resources {
+		results = append(results, <-resultsCh...)
+	}
 
 	_ = json.NewEncoder(w).Encode(results)
 }
