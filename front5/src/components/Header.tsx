@@ -12,12 +12,6 @@ export function Header() {
         enabled: !!viewer?.viewerId,
     })
 
-    useEffect(() => {
-        if (viewer?.viewerId) {
-            api("/setOnline", {});
-        }
-    }, [viewer?.viewerId]);
-
     const onLogout = (e: MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 

@@ -36,19 +36,22 @@ func (o *OnlineStore) Get(id int) bool {
 
 	if len(o.needed) > 0 {
 		neededKeys := make([]string, len(o.needed))
+		neededIds := make([]int, len(o.needed))
 
 		idx := 0
 		for userID := range o.needed {
 			neededKeys[idx] = fmt.Sprintf("online:%d", userID)
+			neededIds[idx] = userID
 			idx++
 		}
+		o.needed = nil
 
 		results, err := RedisClient.MGet(context.Background(), neededKeys...).Result()
 		if err != nil {
 			log.Printf("Error getting online from redis: %s", err)
 		} else {
 			idx = 0
-			for userID := range o.needed {
+			for _, userID := range neededIds {
 				o.cache[userID] = results[idx] != nil
 				idx++
 			}

@@ -1,5 +1,6 @@
 import {emitCustomEvent} from "react-custom-events";
 import {queryClient} from "../store/fetcher";
+import {setOnline} from "../store/onlineManager";
 
 export function localizeCounter(count: number, form1: string, form234: string, form567: string) {
     const mod = count % 10;
@@ -23,4 +24,5 @@ export function authorize(token: string) {
     emitCustomEvent('onAuthorized');
 
     queryClient.invalidateQueries();
+    setOnline();
 }
