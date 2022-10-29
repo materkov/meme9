@@ -15,8 +15,8 @@ import (
 )
 
 type Post struct {
-	ID     string `json:"id,omitempty"`
 	URL    string `json:"url,omitempty"`
+	ID     string `json:"id,omitempty"`
 	Date   string `json:"date,omitempty"`
 	Text   string `json:"text,omitempty"`
 	UserID string `json:"userId,omitempty"`

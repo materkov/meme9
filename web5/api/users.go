@@ -14,8 +14,8 @@ import (
 )
 
 type User struct {
-	ID     string `json:"id,omitempty"`
 	URL    string `json:"url,omitempty"`
+	ID     string `json:"id,omitempty"`
 	Name   string `json:"name,omitempty"`
 	Bio    string `json:"bio,omitempty"`
 	Avatar string `json:"avatar,omitempty"`
@@ -36,6 +36,29 @@ func handleUserById(ctx context.Context, _ int, url string) []interface{} {
 		wrapped.Avatar = files.GetURL(user.AvatarSha)
 	} else if user.VkPhoto200 != "" {
 		wrapped.Avatar = user.VkPhoto200
+	}
+
+	return []interface{}{
+		wrapped,
+		fmt.Sprintf("/users/%d/online", userID),
+	}
+}
+
+type Online struct {
+	URL string `json:"url,omitempty"`
+
+	IsOnline bool `json:"isOnline,omitempty"`
+}
+
+// /users/:id/online
+func handleUserOnline(ctx context.Context, _ int, url string) []interface{} {
+	userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/online"), "/users/"))
+
+	isOnline := store.OnlineStoreFromCtx(ctx).Get(userID)
+
+	wrapped := Online{
+		URL:      url,
+		IsOnline: isOnline,
 	}
 
 	return []interface{}{wrapped}

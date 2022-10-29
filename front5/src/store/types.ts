@@ -55,3 +55,8 @@ export interface Viewer {
     url: string;
     viewerId: string;
 }
+
+export interface Online {
+    url: string;
+    isOnline: boolean;
+}

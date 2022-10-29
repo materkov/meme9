@@ -47,6 +47,7 @@ func handleFeed(ctx context.Context, viewerID int, reqUrl string) []interface{} 
 		post := store.PostStoreFromCtx(ctx).Get(postID)
 		if post != nil {
 			userIds = append(userIds, post.UserID)
+			store.OnlineStoreFromCtx(ctx).Preload(post.UserID)
 		}
 	}
 

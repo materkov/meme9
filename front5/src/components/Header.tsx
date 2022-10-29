@@ -1,7 +1,7 @@
-import React, {MouseEvent} from "react";
+import React, {MouseEvent, useEffect} from "react";
 import styles from "./Header.module.css";
 import {Link} from "./Link";
-import {User, Viewer} from "../store/types";
+import {api, User, Viewer} from "../store/types";
 import {authorize} from "../utils/localize";
 import {fetcher, queryClient} from "../store/fetcher";
 import {useQuery} from "@tanstack/react-query";
@@ -11,6 +11,12 @@ export function Header() {
     const {data: viewerUser} = useQuery<User>(["/users/" + viewer?.viewerId], fetcher, {
         enabled: !!viewer?.viewerId,
     })
+
+    useEffect(() => {
+        if (viewer?.viewerId) {
+            api("/setOnline", {});
+        }
+    }, [viewer?.viewerId]);
 
     const onLogout = (e: MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();

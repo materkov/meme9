@@ -89,6 +89,23 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 	write(w, posts[0], nil)
 }
 
+func handleSetOnline(w http.ResponseWriter, r *http.Request) {
+	viewer := r.Context().Value(ViewerKey).(*Viewer)
+	if viewer.UserID == 0 {
+		write(w, nil, ApiError("not authorized"))
+		return
+	}
+
+	go func() {
+		_, err := store.RedisClient.Set(context.Background(), fmt.Sprintf("online:%d", viewer.UserID), time.Now().Unix(), time.Minute*3).Result()
+		if err != nil {
+			log.Printf("Err: %s", err)
+		}
+	}()
+
+	write(w, nil, nil)
+}
+
 func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("id"))
 
@@ -508,6 +525,7 @@ func main() {
 
 	http.HandleFunc("/api", api.HandleAPI)
 
+	http.HandleFunc("/api/setOnline", wrapper(handleSetOnline))
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
 	http.HandleFunc("/api/userFollow", wrapper(handleUserFollow))

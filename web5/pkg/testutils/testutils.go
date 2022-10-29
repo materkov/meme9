@@ -20,6 +20,7 @@ func PrepareContext() context.Context {
 	ctx = store.WithPostStore(ctx)
 	ctx = store.WithUserStore(ctx)
 	ctx = store.WithLikedStore(ctx)
+	ctx = store.WithOnlineStore(ctx)
 
 	return ctx
 }
