@@ -10,6 +10,7 @@
     "@types/react-dom": "^18.0.6",
     "@types/react-query": "^1.2.9",
     "classnames": "^2.3.2",
+    "dataloader": "^2.1.0",
     "esbuild": "^0.14.53",
     "immer": "^9.0.15",
     "moize": "^6.1.1",

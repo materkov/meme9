@@ -106,6 +106,11 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	req := struct {
+		Resources []string `json:"resources"`
+	}{}
+	_ = json.NewDecoder(r.Body).Decode(&req)
+
 	ctx := r.Context()
 	ctx = store.WithPostStore(ctx)
 	ctx = store.WithUserStore(ctx)
@@ -116,6 +121,7 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.CheckToken(authToken)
 
 	urls := strings.Split(r.URL.Query().Get("urls"), ",")
+	urls = req.Resources
 	results := handleQuery(ctx, requestID, userID, urls)
 
 	_ = json.NewEncoder(w).Encode(results)
