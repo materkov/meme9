@@ -2,10 +2,14 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/materkov/meme9/web5/pkg/auth"
+	"github.com/materkov/meme9/web5/pkg/metrics"
+	"math/rand"
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type Edges struct {
@@ -52,9 +56,16 @@ func handleQuery(viewerID int, url string) []interface{} {
 }
 
 func HandleAPI(w http.ResponseWriter, r *http.Request) {
+	started := time.Now()
+	requestID := rand.Int()
+	defer func() {
+		metrics.WriteSpan(requestID, "GET", time.Since(started))
+	}()
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "authorization, content-type")
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Request-ID", fmt.Sprintf("%x", requestID))
 
 	if r.Method == "OPTIONS" {
 		return
