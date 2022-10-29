@@ -7,6 +7,7 @@ import (
 	"github.com/materkov/meme9/web5/pkg/metrics"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -20,11 +21,16 @@ type Edges struct {
 	Items []string `json:"items,omitempty"`
 }
 
-func handleQuery(requestID int, viewerID int, urls []string) []interface{} {
+func handleResource(requestID int, viewerID int, resource string) (interface{}, []string) {
 	type route struct {
 		Pattern string
 		Handler func(viewerID int, url string) []interface{}
 	}
+
+	started := time.Now()
+	defer func() {
+		metrics.WriteSpan(requestID, resource, time.Since(started))
+	}()
 
 	routes := []route{
 		{"/feed", handleFeed},
@@ -40,52 +46,29 @@ func handleQuery(requestID int, viewerID int, urls []string) []interface{} {
 		{"/viewer", handleViewer},
 	}
 
-	results := map[string]interface{}{}
-	for len(urls) > 0 {
-		url := ""
-		for _, _url := range urls {
-			url = _url
-			urls = urls[1:]
+	parsedURL, err := url.Parse(resource)
+	if err != nil {
+		return nil, nil
+	}
+
+	var result interface{}
+	var related []string
+
+	for _, r := range routes {
+		if m, _ := regexp.MatchString("^"+r.Pattern+"$", parsedURL.Path); m {
+			localResults := r.Handler(viewerID, resource)
+			for _, item := range localResults {
+				if item, ok := item.(string); ok {
+					related = append(related, item)
+				} else {
+					result = item
+				}
+			}
 			break
 		}
-
-		if _, alreadyResolved := results[url]; alreadyResolved {
-			continue
-		}
-
-		path := url
-		idx := strings.Index(path, "?")
-		if idx != -1 {
-			path = path[:idx]
-		}
-
-		started := time.Now()
-
-		for _, r := range routes {
-			if m, _ := regexp.MatchString("^"+r.Pattern+"$", path); m {
-				localResults := r.Handler(viewerID, url)
-				for _, result := range localResults {
-					if related, ok := result.(string); ok {
-						urls = append(urls, related)
-					} else {
-						results[url] = result
-					}
-				}
-				break
-			}
-		}
-
-		metrics.WriteSpan(requestID, url, time.Since(started))
 	}
 
-	resultsList := make([]interface{}, len(results))
-	idx := 0
-	for _, resource := range results {
-		resultsList[idx] = resource
-		idx++
-	}
-
-	return resultsList
+	return result, related
 }
 
 func HandleAPI(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +92,7 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.CheckToken(authToken)
 
 	urls := strings.Split(r.URL.Query().Get("urls"), ",")
-	results := handleQuery(requestID, userID, urls)
+	results := DoAsync(requestID, userID, urls)
 
 	_ = json.NewEncoder(w).Encode(results)
 }
