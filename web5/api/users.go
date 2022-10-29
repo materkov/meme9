@@ -22,11 +22,10 @@ type User struct {
 }
 
 // /users/:id
-func handleUserById(_ int, url string) []interface{} {
+func handleUserById(ctx context.Context, _ int, url string) []interface{} {
 	userID, _ := strconv.Atoi(strings.TrimPrefix(url, "/users/"))
 
-	user := store.User{}
-	_ = store.NodeGet(userID, &user)
+	user := store.UserStoreFromCtx(ctx).Get(userID)
 
 	wrapped := User{
 		ID:   strconv.Itoa(userID),
@@ -43,7 +42,7 @@ func handleUserById(_ int, url string) []interface{} {
 }
 
 // /users/:id/followers
-func handleUserFollowers(viewerID int, url string) []interface{} {
+func handleUserFollowers(_ context.Context, viewerID int, url string) []interface{} {
 	type FollowerEdges struct {
 		Edges
 		IsFollowing bool `json:"isFollowing,omitempty"`
@@ -75,7 +74,7 @@ func handleUserFollowers(viewerID int, url string) []interface{} {
 }
 
 // /users/:id/following
-func handleUserFollowing(_ int, url string) []interface{} {
+func handleUserFollowing(_ context.Context, _ int, url string) []interface{} {
 	userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/following"), "/users/"))
 	result, _ := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("following:%d", userID)).Result()
 
@@ -90,7 +89,7 @@ func handleUserFollowing(_ int, url string) []interface{} {
 }
 
 // /users/:id/posts
-func handleUserPosts(viewerID int, reqURL string) []interface{} {
+func handleUserPosts(_ context.Context, viewerID int, reqURL string) []interface{} {
 	parsedURL, _ := url.Parse(reqURL)
 	cursor, _ := strconv.Atoi(parsedURL.Query().Get("cursor"))
 	count, _ := strconv.Atoi(parsedURL.Query().Get("count"))

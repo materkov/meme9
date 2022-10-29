@@ -9,7 +9,7 @@ import (
 )
 
 // /feed
-func handleFeed(viewerID int, reqUrl string) []interface{} {
+func handleFeed(ctx context.Context, _ int, reqUrl string) []interface{} {
 	parsedURL, _ := url.Parse(reqUrl)
 	cursor, _ := strconv.Atoi(parsedURL.Query().Get("cursor"))
 	count := 10
@@ -34,9 +34,22 @@ func handleFeed(viewerID int, reqUrl string) []interface{} {
 	var results []interface{}
 	results = append(results, feed)
 
-	for _, postID := range postIds {
+	postIdsInt := make([]int, len(postIds))
+	for i, postID := range postIds {
 		results = append(results, "/posts/"+postID)
+		postIdsInt[i], _ = strconv.Atoi(postID)
 	}
+
+	var userIds []int
+	store.PostStoreFromCtx(ctx).Preload(postIdsInt)
+	for _, postID := range postIdsInt {
+		post := store.PostStoreFromCtx(ctx).Get(postID)
+		if post != nil {
+			userIds = append(userIds, post.UserID)
+		}
+	}
+
+	store.UserStoreFromCtx(ctx).Preload(userIds)
 
 	return results
 }

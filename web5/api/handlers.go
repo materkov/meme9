@@ -1,10 +1,12 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/materkov/meme9/web5/pkg/auth"
 	"github.com/materkov/meme9/web5/pkg/metrics"
+	"github.com/materkov/meme9/web5/store"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -20,10 +22,10 @@ type Edges struct {
 	Items []string `json:"items,omitempty"`
 }
 
-func handleQuery(requestID int, viewerID int, urls []string) []interface{} {
+func handleQuery(ctx context.Context, requestID int, viewerID int, urls []string) []interface{} {
 	type route struct {
 		Pattern string
-		Handler func(viewerID int, url string) []interface{}
+		Handler func(ctx context.Context, viewerID int, url string) []interface{}
 	}
 
 	routes := []route{
@@ -63,7 +65,7 @@ func handleQuery(requestID int, viewerID int, urls []string) []interface{} {
 
 		for _, r := range routes {
 			if m, _ := regexp.MatchString("^"+r.Pattern+"$", path); m {
-				localResults := r.Handler(viewerID, url)
+				localResults := r.Handler(ctx, viewerID, url)
 				for _, result := range localResults {
 					if related, ok := result.(string); ok {
 						urls = append(urls, related)
@@ -104,12 +106,16 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
+	ctx = store.WithPostStore(ctx)
+	ctx = store.WithUserStore(ctx)
+
 	authToken := r.Header.Get("authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
 	userID, _ := auth.CheckToken(authToken)
 
 	urls := strings.Split(r.URL.Query().Get("urls"), ",")
-	results := handleQuery(requestID, userID, urls)
+	results := handleQuery(ctx, requestID, userID, urls)
 
 	_ = json.NewEncoder(w).Encode(results)
 }

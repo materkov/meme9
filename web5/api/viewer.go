@@ -1,12 +1,13 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 )
 
 // /viewer
-func handleViewer(viewerID int, _ string) []interface{} {
+func handleViewer(_ context.Context, viewerID int, _ string) []interface{} {
 	type Viewer struct {
 		URL      string `json:"url,omitempty"`
 		ViewerID string `json:"viewerId,omitempty"`

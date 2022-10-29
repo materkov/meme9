@@ -27,7 +27,7 @@ type Post struct {
 }
 
 // /posts/:id
-func handlePostsId(viewerID int, url string) []interface{} {
+func handlePostsId(ctx context.Context, viewerID int, url string) []interface{} {
 	postID, _ := strconv.Atoi(strings.TrimPrefix(url, "/posts/"))
 
 	result := Post{
@@ -35,9 +35,8 @@ func handlePostsId(viewerID int, url string) []interface{} {
 		ID:  strconv.Itoa(postID),
 	}
 
-	post := store.Post{}
-	err := store.NodeGet(postID, &post)
-	if err != nil || !posts.CanSee(&post, viewerID) {
+	post := store.PostStoreFromCtx(ctx).Get(postID)
+	if post == nil || !posts.CanSee(post, viewerID) {
 		result.IsDeleted = true
 		return []interface{}{result}
 	}
@@ -55,7 +54,7 @@ func handlePostsId(viewerID int, url string) []interface{} {
 }
 
 // /posts/:id/liked
-func handlePostsLiked(viewerID int, reqURL string) []interface{} {
+func handlePostsLiked(ctx context.Context, viewerID int, reqURL string) []interface{} {
 	type LikedEdges struct {
 		Edges
 		IsViewerLiked bool `json:"isViewerLiked,omitempty"`
@@ -76,9 +75,8 @@ func handlePostsLiked(viewerID int, reqURL string) []interface{} {
 		Edges: Edges{URL: reqURL},
 	}
 
-	post := &store.Post{}
-	err := store.NodeGet(postID, post)
-	if err != nil || !posts.CanSee(post, viewerID) {
+	post := store.PostStoreFromCtx(ctx).Get(postID)
+	if !posts.CanSee(post, viewerID) {
 		return []interface{}{edge}
 	}
 
@@ -98,7 +96,7 @@ func handlePostsLiked(viewerID int, reqURL string) []interface{} {
 		})
 	}
 
-	_, err = pipe.Exec(context.Background())
+	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		log.Printf("Error redis: %s", err)
 	}
