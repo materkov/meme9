@@ -58,8 +58,8 @@ func handleResource(requestID int, viewerID int, resource string) (interface{}, 
 		if m, _ := regexp.MatchString("^"+r.Pattern+"$", parsedURL.Path); m {
 			localResults := r.Handler(viewerID, resource)
 			for _, item := range localResults {
-				if item, ok := item.(string); ok {
-					related = append(related, item)
+				if relatedItem, ok := item.(string); ok {
+					related = append(related, relatedItem)
 				} else {
 					result = item
 				}

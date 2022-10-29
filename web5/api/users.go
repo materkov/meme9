@@ -14,8 +14,8 @@ import (
 )
 
 type User struct {
-	ID     string `json:"id,omitempty"`
 	URL    string `json:"url,omitempty"`
+	ID     string `json:"id,omitempty"`
 	Name   string `json:"name,omitempty"`
 	Bio    string `json:"bio,omitempty"`
 	Avatar string `json:"avatar,omitempty"`
