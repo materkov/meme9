@@ -91,11 +91,7 @@ func handleQuery(ctx context.Context, requestID int, viewerID int, urls []string
 }
 
 func HandleAPI(w http.ResponseWriter, r *http.Request) {
-	started := time.Now()
 	requestID := rand.Int()
-	defer func() {
-		metrics.WriteSpan(requestID, "API Request", time.Since(started))
-	}()
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "authorization, content-type")
@@ -108,6 +104,11 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 
 	var resources []string
 	_ = json.NewDecoder(r.Body).Decode(&resources)
+
+	started := time.Now()
+	defer func() {
+		metrics.WriteSpan(requestID, "API Request", time.Since(started), "resources", strings.Join(resources, ","))
+	}()
 
 	authToken := r.Header.Get("authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
