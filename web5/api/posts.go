@@ -31,7 +31,7 @@ func handlePostsId(ctx context.Context, viewerID int, url string) []interface{} 
 	postID, _ := strconv.Atoi(strings.TrimPrefix(url, "/posts/"))
 
 	result := Post{
-		URL: fmt.Sprintf(url),
+		URL: url,
 		ID:  strconv.Itoa(postID),
 	}
 
