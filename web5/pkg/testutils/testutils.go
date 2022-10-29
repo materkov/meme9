@@ -1,6 +1,7 @@
 package testutils
 
 import (
+	"context"
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/store"
@@ -12,4 +13,13 @@ func SetupRedis(t *testing.T) {
 	store.RedisClient = redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	})
+}
+
+func PrepareContext() context.Context {
+	ctx := context.Background()
+	ctx = store.WithPostStore(ctx)
+	ctx = store.WithUserStore(ctx)
+	ctx = store.WithLikedStore(ctx)
+
+	return ctx
 }

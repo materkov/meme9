@@ -83,8 +83,6 @@ func handlePostsLiked(ctx context.Context, viewerID int, reqURL string) []interf
 	pipe := store.RedisClient.Pipeline()
 
 	key := fmt.Sprintf("postLikes:%d", postID)
-	cardCmd := pipe.ZCard(context.Background(), key)
-	isLikedCmd := pipe.ZScore(context.Background(), key, strconv.Itoa(viewerID))
 
 	var usersCmd *redis.StringSliceCmd
 	if count > 0 {
@@ -101,8 +99,11 @@ func handlePostsLiked(ctx context.Context, viewerID int, reqURL string) []interf
 		log.Printf("Error redis: %s", err)
 	}
 
-	edge.TotalCount = int(cardCmd.Val())
-	edge.IsViewerLiked = isLikedCmd.Val() != 0
+	likedStore := store.LikedStoreFromCtx(ctx)
+	isLiked, count := likedStore.Get(viewerID, postID)
+
+	edge.TotalCount = count
+	edge.IsViewerLiked = isLiked
 
 	if usersCmd != nil {
 		edge.Items = usersCmd.Val()

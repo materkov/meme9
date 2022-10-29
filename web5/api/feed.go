@@ -6,10 +6,11 @@ import (
 	"log"
 	"net/url"
 	"strconv"
+	"sync"
 )
 
 // /feed
-func handleFeed(ctx context.Context, _ int, reqUrl string) []interface{} {
+func handleFeed(ctx context.Context, viewerID int, reqUrl string) []interface{} {
 	parsedURL, _ := url.Parse(reqUrl)
 	cursor, _ := strconv.Atoi(parsedURL.Query().Get("cursor"))
 	count := 10
@@ -49,7 +50,17 @@ func handleFeed(ctx context.Context, _ int, reqUrl string) []interface{} {
 		}
 	}
 
-	store.UserStoreFromCtx(ctx).Preload(userIds)
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	go func() {
+		store.UserStoreFromCtx(ctx).Preload(userIds)
+		wg.Done()
+	}()
+	go func() {
+		store.LikedStoreFromCtx(ctx).Preload(viewerID, postIdsInt)
+		wg.Done()
+	}()
+	wg.Wait()
 
 	return results
 }

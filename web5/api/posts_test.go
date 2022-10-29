@@ -23,7 +23,7 @@ func TestHandlePostsId(t *testing.T) {
 	}))
 
 	t.Run("normal post", func(t *testing.T) {
-		results := handlePostsId(15, "/posts/9417")
+		results := handlePostsId(testutils.PrepareContext(), 15, "/posts/9417")
 		post := results[0].(Post)
 
 		require.Equal(t, "/posts/9417", post.URL)
@@ -36,13 +36,13 @@ func TestHandlePostsId(t *testing.T) {
 	})
 
 	t.Run("viewer is author", func(t *testing.T) {
-		results := handlePostsId(816, "/posts/9417")
+		results := handlePostsId(testutils.PrepareContext(), 816, "/posts/9417")
 		post := results[0].(Post)
 		require.True(t, post.CanDelete)
 	})
 
 	t.Run("deleted post", func(t *testing.T) {
-		results := handlePostsId(816, "/posts/9418")
+		results := handlePostsId(testutils.PrepareContext(), 816, "/posts/9418")
 		post := results[0].(Post)
 		require.True(t, post.IsDeleted)
 		require.Equal(t, "9418", post.ID)

@@ -109,6 +109,7 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx = store.WithPostStore(ctx)
 	ctx = store.WithUserStore(ctx)
+	ctx = store.WithLikedStore(ctx)
 
 	authToken := r.Header.Get("authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
