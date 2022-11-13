@@ -27,17 +27,5 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
 
-      - name: build
-        run: cd web5 && go build cmd
-
-      - name: gofmt
-        run: cd web5 && test -z $(gofmt -l . | tee /dev/stderr)
-
-      - name: linter install
-        run: cd web5 && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.49.0
-
-      - name: linter run
-        run: cd web5 && bin/golangci-lint --version && bin/golangci-lint run
-
       - name: test
         run: cd web5 && go test -v ./...
