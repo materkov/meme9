@@ -12,6 +12,7 @@ export type Post = {
     text: string;
     canDelete?: boolean;
     isDeleted?: boolean;
+    photoUrl?: string;
 }
 
 export function api(url: string, params: any = {}): Promise<any> {
@@ -32,6 +33,27 @@ export function api(url: string, params: any = {}): Promise<any> {
             .then(resp => {
                 if (resp.status == 200) {
                     resp.json().then(resolve);
+                } else {
+                    resp.text().then(reject);
+                }
+            })
+    })
+}
+
+export function uploadApi(file: File): Promise<string> {
+    const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me" : "http://localhost:8000";
+
+    return new Promise((resolve, reject) => {
+        return fetch(apiHost + "/upload", {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/octet-stream',
+            },
+            body: file,
+        })
+            .then(resp => {
+                if (resp.status == 200) {
+                    resp.json().then((res) => resolve(res.uploadToken));
                 } else {
                     resp.text().then(reject);
                 }

@@ -31,6 +31,12 @@ export function ComponentPost(props: Props) {
         })
     }
 
+    const onPhotoClick = () => {
+        if (post && post.photoUrl) {
+            window.open(post.photoUrl, '_blank');
+        }
+    }
+
     if (post.isDeleted) return <DeletedStub/>
 
     return (
@@ -52,6 +58,10 @@ export function ComponentPost(props: Props) {
             </div>
 
             <div className={styles.text}>{post.text}</div>
+
+            {post.photoUrl &&
+                <img src={post.photoUrl} onClick={onPhotoClick} className={styles.photoAttach}/>
+            }
 
             <PostLike id={props.id}/>
         </div>

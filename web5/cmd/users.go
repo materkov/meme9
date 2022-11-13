@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"github.com/materkov/meme9/web5/pkg/files"
 	"github.com/materkov/meme9/web5/store"
 	"log"
 	"net/http"
@@ -124,7 +125,7 @@ func usersList(ids []int, viewerID int, includeIsFollowing bool, includeFollower
 		apiUser.IsFollowing = isFollowing[userID]
 
 		if user.AvatarSha != "" {
-			apiUser.Avatar = filesGetURL(user.AvatarSha)
+			apiUser.Avatar = files.GetURL(user.AvatarSha)
 		} else if user.VkPhoto200 != "" {
 			apiUser.Avatar = user.VkPhoto200
 		}

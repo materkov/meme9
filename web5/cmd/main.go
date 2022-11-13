@@ -11,8 +11,10 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/api"
 	"github.com/materkov/meme9/web5/pkg/auth"
+	"github.com/materkov/meme9/web5/pkg/files"
 	"github.com/materkov/meme9/web5/pkg/telegram"
 	"github.com/materkov/meme9/web5/store"
+	"github.com/materkov/meme9/web5/upload"
 	"io"
 	"log"
 	"math/rand"
@@ -73,20 +75,21 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	photoAttach := r.FormValue("photo")
+
 	viewer := r.Context().Value(ViewerKey).(*Viewer)
 	if viewer.UserID == 0 {
 		write(w, nil, ApiError("not authorized"))
 		return
 	}
 
-	postID, err := postsAdd(text, viewer.UserID)
+	postID, err := postsAdd(text, viewer.UserID, photoAttach)
 	if err != nil {
 		write(w, nil, err)
 		return
 	}
 
-	posts := postsList([]int{postID}, viewer.UserID)
-	write(w, posts[0], nil)
+	write(w, postID, nil)
 }
 
 func handleSetOnline(w http.ResponseWriter, r *http.Request) {
@@ -420,7 +423,7 @@ func handleUploadAvatar(w http.ResponseWriter, r *http.Request) {
 	hash := sha256.Sum256(fileBytes)
 	hashHex := hex.EncodeToString(hash[:])
 
-	err = filesSelectelUpload(fileBytes, hashHex)
+	err = files.SelectelUpload(fileBytes, hashHex)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -450,7 +453,7 @@ func handleUploadAvatar(w http.ResponseWriter, r *http.Request) {
 	resp := struct {
 		Avatar string `json:"avatar"`
 	}{
-		Avatar: filesGetURL(hashHex),
+		Avatar: files.GetURL(hashHex),
 	}
 	write(w, resp, nil)
 }
@@ -524,6 +527,7 @@ func main() {
 	}
 
 	http.HandleFunc("/api", api.HandleAPI)
+	http.HandleFunc("/upload", upload.HandleUpload)
 
 	http.HandleFunc("/api/setOnline", wrapper(handleSetOnline))
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))

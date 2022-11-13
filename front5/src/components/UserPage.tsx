@@ -114,7 +114,7 @@ export function UserPage() {
                     </div>
                     <div className={styles.userCounters}>
                         <div className={styles.userCounter}>
-                            <b>{userPostsCount?.totalCount}</b> {localizeCounter(posts?.totalCount || 0, "публикация", "публикации", "публикаций")}
+                            <b>{userPostsCount?.totalCount}</b> {localizeCounter(userPostsCount?.totalCount || 0, "публикация", "публикации", "публикаций")}
                         </div>
                         <div className={styles.userCounter}>
                             <b>{followers?.totalCount || 0}</b> {localizeCounter(following?.totalCount || 0, "подписчик", "подписчика", "подписчиков")}

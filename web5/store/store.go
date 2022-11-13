@@ -14,6 +14,7 @@ type Post struct {
 	UserID int
 
 	IsDeleted bool
+	PhotoHash string
 }
 
 type User struct {

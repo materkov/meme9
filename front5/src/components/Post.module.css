@@ -12,6 +12,15 @@
     margin-top: 10px;
 }
 
+.photoAttach {
+    cursor: pointer;
+    margin-top: 5px;
+    border-radius: 5px;
+    display: block;
+    max-width: 400px;
+    max-height: 400px;
+}
+
 .menuIcon {
     justify-self: right;
     width: 20px;

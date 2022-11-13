@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"github.com/materkov/meme9/web5/pkg/files"
 	"github.com/materkov/meme9/web5/pkg/posts"
 	"github.com/materkov/meme9/web5/store"
 	"log"
@@ -23,7 +24,8 @@ type Post struct {
 
 	IsDeleted bool `json:"isDeleted,omitempty"`
 
-	CanDelete bool `json:"canDelete,omitempty"`
+	CanDelete bool   `json:"canDelete,omitempty"`
+	PhotoURL  string `json:"photoUrl,omitempty"`
 }
 
 // /posts/:id
@@ -45,6 +47,10 @@ func handlePostsId(ctx context.Context, viewerID int, url string) []interface{} 
 	result.Date = time.Unix(int64(post.Date), 0).UTC().Format(time.RFC3339)
 	result.UserID = strconv.Itoa(post.UserID)
 	result.CanDelete = post.UserID == viewerID
+
+	if post.PhotoHash != "" {
+		result.PhotoURL = files.GetURL(post.PhotoHash)
+	}
 
 	var results []interface{}
 	results = append(results, result)
