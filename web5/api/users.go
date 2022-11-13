@@ -28,10 +28,20 @@ func handleUserById(ctx context.Context, _ int, url string) []interface{} {
 	user := store.UserStoreFromCtx(ctx).Get(userID)
 
 	wrapped := User{
-		ID:   strconv.Itoa(userID),
-		URL:  fmt.Sprintf("/users/%d", userID),
-		Name: user.Name,
+		ID:  strconv.Itoa(userID),
+		URL: fmt.Sprintf("/users/%d", userID),
 	}
+
+	if user == nil || userID <= 0 {
+		wrapped.Name = "Deleted User"
+		return []interface{}{
+			wrapped,
+			fmt.Sprintf("/users/%d/online", userID),
+		}
+	}
+
+	wrapped.Name = user.Name
+
 	if user.AvatarSha != "" {
 		wrapped.Avatar = files.GetURL(user.AvatarSha)
 	} else if user.VkPhoto200 != "" {
