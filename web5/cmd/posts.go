@@ -8,15 +8,15 @@ import (
 	"time"
 )
 
-func postsAdd(text string, userID int, photoUploadToken string) (int, error) {
+func postsAdd(text string, userID int, photoID int) (int, error) {
 	nextId := int(time.Now().UnixMilli())
 
 	post := store.Post{
-		ID:        nextId,
-		Text:      text,
-		UserID:    userID,
-		Date:      int(time.Now().Unix()),
-		PhotoHash: photoUploadToken,
+		ID:      nextId,
+		Text:    text,
+		UserID:  userID,
+		Date:    int(time.Now().Unix()),
+		PhotoID: photoID,
 	}
 	err := store.NodeSave(post.ID, post)
 	if err != nil {

@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/materkov/meme9/web5/pkg/files"
+	"github.com/materkov/meme9/web5/store"
 	"image"
 	_ "image/jpeg"
 	"io"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 func HandleUpload(w http.ResponseWriter, r *http.Request) {
@@ -53,10 +56,24 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	photo := store.Photo{
+		ID:     int(time.Now().Unix()),
+		Size:   len(fileBytes),
+		Hash:   fileHash,
+		Width:  width,
+		Height: height,
+	}
+
+	err = store.NodeSave(photo.ID, &photo)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+
 	resp := struct {
 		UploadToken string `json:"uploadToken"`
 	}{
-		UploadToken: fileHash,
+		UploadToken: strconv.Itoa(photo.ID),
 	}
 	_ = json.NewEncoder(w).Encode(resp)
 }

@@ -75,7 +75,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	photoAttach := r.FormValue("photo")
+	photoID, _ := strconv.Atoi(r.FormValue("photo"))
 
 	viewer := r.Context().Value(ViewerKey).(*Viewer)
 	if viewer.UserID == 0 {
@@ -83,7 +83,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postID, err := postsAdd(text, viewer.UserID, photoAttach)
+	postID, err := postsAdd(text, viewer.UserID, photoID)
 	if err != nil {
 		write(w, nil, err)
 		return

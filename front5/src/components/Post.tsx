@@ -6,6 +6,7 @@ import {Dots3} from "./icons/Dots3";
 import classNames from "classnames";
 import {PostLike} from "./PostLike";
 import {queryClient, useQuery} from "../store/fetcher";
+import {PostPhoto} from "./PostPhoto";
 
 export type Props = {
     id: string;
@@ -18,16 +19,11 @@ export function ComponentPost(props: Props) {
     if (!post) return null;
 
     const onDelete = () => {
-        const feedData = queryClient.getQueryData<Edges>(["/feed"]);
-        if (feedData) {
-            queryClient.setQueryData(["/feed"], {
-                ...feedData,
-                items: feedData.items.filter(item => item != props.id)
-            })
-        }
 
         api("/postDelete", {
             id: props.id,
+        }).then(() => {
+            queryClient.invalidateQueries(["/feed"])
         })
     }
 
@@ -59,8 +55,8 @@ export function ComponentPost(props: Props) {
 
             <div className={styles.text}>{post.text}</div>
 
-            {post.photoUrl &&
-                <img src={post.photoUrl} onClick={onPhotoClick} className={styles.photoAttach}/>
+            {post.photoId &&
+                <PostPhoto id={post.photoId} className={styles.photoAttach}/>
             }
 
             <PostLike id={props.id}/>

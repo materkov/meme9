@@ -40,6 +40,8 @@ func handleQuery(ctx context.Context, requestID int, viewerID int, urls []string
 		{"/posts/(\\w+)", handlePostsId},
 		{"/posts/(\\w+)/liked", handlePostsLiked},
 
+		{"/photos/(\\w+)", handlePhotosId},
+
 		{"/viewer", handleViewer},
 	}
 
@@ -125,6 +127,7 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 			ctx = store.WithUserStore(ctx)
 			ctx = store.WithLikedStore(ctx)
 			ctx = store.WithOnlineStore(ctx)
+			ctx = store.WithCachedStore(ctx)
 
 			resultsCh <- handleQuery(ctx, requestID, userID, []string{resourceCopy})
 		}()

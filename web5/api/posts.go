@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v9"
-	"github.com/materkov/meme9/web5/pkg/files"
 	"github.com/materkov/meme9/web5/pkg/posts"
 	"github.com/materkov/meme9/web5/store"
 	"log"
@@ -25,7 +24,7 @@ type Post struct {
 	IsDeleted bool `json:"isDeleted,omitempty"`
 
 	CanDelete bool   `json:"canDelete,omitempty"`
-	PhotoURL  string `json:"photoUrl,omitempty"`
+	PhotoID   string `json:"photoId,omitempty"`
 }
 
 // /posts/:id
@@ -48,14 +47,20 @@ func handlePostsId(ctx context.Context, viewerID int, url string) []interface{} 
 	result.UserID = strconv.Itoa(post.UserID)
 	result.CanDelete = post.UserID == viewerID
 
-	if post.PhotoHash != "" {
-		result.PhotoURL = files.GetURL(post.PhotoHash)
+	if post.PhotoID != 0 {
+		result.PhotoID = strconv.Itoa(post.PhotoID)
 	}
 
 	var results []interface{}
 	results = append(results, result)
 	results = append(results, fmt.Sprintf("/users/%d", post.UserID))
 	results = append(results, fmt.Sprintf("/posts/%d/liked?count=0", postID))
+
+	if post.PhotoID != 0 {
+		store.CachedStoreFromCtx(ctx).Photo.Preload([]int{post.PhotoID})
+		results = append(results, fmt.Sprintf("/photos/%d", post.PhotoID))
+	}
+
 	return results
 }
 

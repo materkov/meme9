@@ -12,7 +12,15 @@ export type Post = {
     text: string;
     canDelete?: boolean;
     isDeleted?: boolean;
-    photoUrl?: string;
+    photoId?: string;
+}
+
+export type Photo = {
+    id: string;
+    url: string;
+    address: string;
+    width: number;
+    height: number;
 }
 
 export function api(url: string, params: any = {}): Promise<any> {
