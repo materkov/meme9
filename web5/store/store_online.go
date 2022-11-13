@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"fmt"
-	"github.com/materkov/meme9/web5/pkg/contextKeys"
 	"log"
 	"time"
 )
@@ -11,17 +10,6 @@ import (
 type OnlineStore struct {
 	cache  map[int]bool
 	needed map[int]bool
-}
-
-func OnlineStoreFromCtx(ctx context.Context) *OnlineStore {
-	return ctx.Value(contextKeys.OnlineStore).(*OnlineStore)
-}
-
-func WithOnlineStore(ctx context.Context) context.Context {
-	return context.WithValue(ctx, contextKeys.OnlineStore, &OnlineStore{
-		cache:  map[int]bool{},
-		needed: map[int]bool{},
-	})
 }
 
 func (o *OnlineStore) Preload(id int) {

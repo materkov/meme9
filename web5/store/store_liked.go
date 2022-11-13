@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v9"
-	"github.com/materkov/meme9/web5/pkg/contextKeys"
 	"log"
 	"strconv"
 )
@@ -16,16 +15,6 @@ type likedData struct {
 
 type LikedStore struct {
 	cache map[string]likedData
-}
-
-func LikedStoreFromCtx(ctx context.Context) *LikedStore {
-	return ctx.Value(contextKeys.LikedStore).(*LikedStore)
-}
-
-func WithLikedStore(ctx context.Context) context.Context {
-	return context.WithValue(ctx, contextKeys.LikedStore, &LikedStore{
-		cache: map[string]likedData{},
-	})
 }
 
 func (l *LikedStore) Preload(viewerID int, postIds []int) {

@@ -25,7 +25,7 @@ type User struct {
 func handleUserById(ctx context.Context, _ int, url string) []interface{} {
 	userID, _ := strconv.Atoi(strings.TrimPrefix(url, "/users/"))
 
-	user := store.UserStoreFromCtx(ctx).Get(userID)
+	user := store.CachedStoreFromCtx(ctx).User.Get(userID)
 
 	wrapped := User{
 		ID:  strconv.Itoa(userID),
@@ -64,7 +64,7 @@ type Online struct {
 func handleUserOnline(ctx context.Context, _ int, url string) []interface{} {
 	userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/online"), "/users/"))
 
-	isOnline := store.OnlineStoreFromCtx(ctx).Get(userID)
+	isOnline := store.CachedStoreFromCtx(ctx).Online.Get(userID)
 
 	wrapped := Online{
 		URL:      url,

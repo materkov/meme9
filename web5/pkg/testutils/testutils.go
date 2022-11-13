@@ -17,10 +17,7 @@ func SetupRedis(t *testing.T) {
 
 func PrepareContext() context.Context {
 	ctx := context.Background()
-	ctx = store.WithPostStore(ctx)
-	ctx = store.WithUserStore(ctx)
-	ctx = store.WithLikedStore(ctx)
-	ctx = store.WithOnlineStore(ctx)
+	ctx = store.WithCachedStore(ctx)
 
 	return ctx
 }

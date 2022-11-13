@@ -102,23 +102,23 @@ func handleFeed(ctx context.Context, viewerID int, reqUrl string) []interface{} 
 	}
 
 	var userIds []int
-	store.PostStoreFromCtx(ctx).Preload(postIds)
+	store.CachedStoreFromCtx(ctx).Post.Preload(postIds)
 	for _, postID := range postIds {
-		post := store.PostStoreFromCtx(ctx).Get(postID)
+		post := store.CachedStoreFromCtx(ctx).Post.Get(postID)
 		if post != nil {
 			userIds = append(userIds, post.UserID)
-			store.OnlineStoreFromCtx(ctx).Preload(post.UserID)
+			store.CachedStoreFromCtx(ctx).Online.Preload(post.UserID)
 		}
 	}
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 	go func() {
-		store.UserStoreFromCtx(ctx).Preload(userIds)
+		store.CachedStoreFromCtx(ctx).User.Preload(userIds)
 		wg.Done()
 	}()
 	go func() {
-		store.LikedStoreFromCtx(ctx).Preload(viewerID, postIds)
+		store.CachedStoreFromCtx(ctx).Liked.Preload(viewerID, postIds)
 		wg.Done()
 	}()
 	wg.Wait()

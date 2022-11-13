@@ -2,81 +2,39 @@ package store
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"github.com/go-redis/redis/v9"
+	"github.com/materkov/meme9/web5/pkg/contextKeys"
 )
 
-type Post struct {
-	ID     int
-	Date   int
-	Text   string
-	UserID int
+type CachedStore struct {
+	Post  GenericCachedStore[Post]
+	User  GenericCachedStore[User]
+	Photo GenericCachedStore[Photo]
 
-	IsDeleted bool
-	PhotoID   int
+	Liked  LikedStore
+	Online OnlineStore
 }
 
-type User struct {
-	ID   int
-	Name string
-	Bio  string
-
-	VkID          int
-	VkAccessToken string
-	VkPhoto200    string
-
-	Email        string
-	PasswordHash string
-
-	AvatarSha string
+func CachedStoreFromCtx(ctx context.Context) *CachedStore {
+	return ctx.Value(contextKeys.CachedStore).(*CachedStore)
 }
 
-var RedisClient *redis.Client
-
-type AuthToken struct {
-	ID     int
-	UserID int
-	Token  string
-	Date   int
-}
-
-type Config struct {
-	VKAppID     int
-	VKAppSecret string
-
-	TelegramToken string
-
-	SelectelAccountID    int
-	SelectelUserName     string
-	SelectelUserPassword string
-}
-
-var DefaultConfig = Config{}
-
-var ErrNodeNotFound = fmt.Errorf("node not found")
-
-func NodeGet(id int, obj interface{}) error {
-	objBytes, err := RedisClient.Get(context.Background(), fmt.Sprintf("node:%d", id)).Bytes()
-	if err == redis.Nil {
-		return ErrNodeNotFound
-	} else if err != nil {
-		return fmt.Errorf("error getting node from redis: %s", err)
-	}
-
-	return json.Unmarshal(objBytes, obj)
-}
-
-func NodeSave(id int, obj interface{}) error {
-	objBytes, err := json.Marshal(obj)
-	if err != nil {
-		return err
-	}
-
-	_, err = RedisClient.Set(context.Background(), fmt.Sprintf("node:%d", id), objBytes, 0).Result()
-	if err != nil {
-		return err
-	}
-
-	return nil
+func WithCachedStore(ctx context.Context) context.Context {
+	return context.WithValue(ctx, contextKeys.CachedStore, &CachedStore{
+		Post: GenericCachedStore[Post]{
+			cache: map[int]*Post{},
+		},
+		User: GenericCachedStore[User]{
+			cache: map[int]*User{},
+		},
+		Photo: GenericCachedStore[Photo]{
+			cache: map[int]*Photo{},
+		},
+		Liked: LikedStore{
+			cache: map[string]likedData{},
+		},
+		Online: OnlineStore{
+			cache:  map[int]bool{},
+			needed: map[int]bool{},
+		},
+	})
 }

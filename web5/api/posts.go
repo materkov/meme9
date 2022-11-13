@@ -36,7 +36,7 @@ func handlePostsId(ctx context.Context, viewerID int, url string) []interface{} 
 		ID:  strconv.Itoa(postID),
 	}
 
-	post := store.PostStoreFromCtx(ctx).Get(postID)
+	post := store.CachedStoreFromCtx(ctx).Post.Get(postID)
 	if post == nil || !posts.CanSee(post, viewerID) {
 		result.IsDeleted = true
 		return []interface{}{result}
@@ -86,7 +86,7 @@ func handlePostsLiked(ctx context.Context, viewerID int, reqURL string) []interf
 		Edges: Edges{URL: reqURL},
 	}
 
-	post := store.PostStoreFromCtx(ctx).Get(postID)
+	post := store.CachedStoreFromCtx(ctx).Post.Get(postID)
 	if !posts.CanSee(post, viewerID) {
 		return []interface{}{edge}
 	}
@@ -110,8 +110,7 @@ func handlePostsLiked(ctx context.Context, viewerID int, reqURL string) []interf
 		log.Printf("Error redis: %s", err)
 	}
 
-	likedStore := store.LikedStoreFromCtx(ctx)
-	isLiked, count := likedStore.Get(viewerID, postID)
+	isLiked, count := store.CachedStoreFromCtx(ctx).Liked.Get(viewerID, postID)
 
 	edge.TotalCount = count
 	edge.IsViewerLiked = isLiked

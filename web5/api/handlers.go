@@ -123,10 +123,6 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 
 		go func() {
 			ctx := r.Context()
-			ctx = store.WithPostStore(ctx)
-			ctx = store.WithUserStore(ctx)
-			ctx = store.WithLikedStore(ctx)
-			ctx = store.WithOnlineStore(ctx)
 			ctx = store.WithCachedStore(ctx)
 
 			resultsCh <- handleQuery(ctx, requestID, userID, []string{resourceCopy})
