@@ -6,7 +6,6 @@ import (
 	"github.com/materkov/meme9/web5/pkg/files"
 	"image"
 	_ "image/jpeg"
-	_ "image/png"
 	"io"
 	"log"
 	"net/http"
