@@ -2,6 +2,7 @@ import React from "react";
 import {useQuery} from "@tanstack/react-query";
 import {Photo} from "../store/types";
 import {fetcher} from "../store/fetcher";
+import {selectPhotoThumb} from "../utils/photos";
 
 export interface Props {
     className: string;
@@ -19,7 +20,7 @@ export const PostPhoto: React.FC<Props> = ({id, className}) => {
 
     if (!data) return null;
 
-    const maxWidth = 400;
+    const maxWidth = 100;
     const maxHeight = 300;
 
     let ratioWidth = maxWidth / data.width;
@@ -39,5 +40,7 @@ export const PostPhoto: React.FC<Props> = ({id, className}) => {
         height: data.height * ratio + 'px',
     };
 
-    return <img alt={""} src={data.address} onClick={onPhotoClick} style={styles} className={className}/>
+    const url = selectPhotoThumb(data, maxWidth);
+
+    return <img alt={""} src={url} onClick={onPhotoClick} style={styles} className={className}/>
 }

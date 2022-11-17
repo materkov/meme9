@@ -21,6 +21,13 @@ export type Photo = {
     address: string;
     width: number;
     height: number;
+    thumbs: PhotoThumb[];
+}
+
+export type PhotoThumb = {
+    width: number;
+    height: number;
+    address: string;
 }
 
 export function api(url: string, params: any = {}): Promise<any> {

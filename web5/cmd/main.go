@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/api"
+	"github.com/materkov/meme9/web5/imgproxy"
 	"github.com/materkov/meme9/web5/pkg/auth"
 	"github.com/materkov/meme9/web5/pkg/files"
 	"github.com/materkov/meme9/web5/pkg/telegram"
@@ -528,6 +529,7 @@ func main() {
 
 	http.HandleFunc("/api", api.HandleAPI)
 	http.HandleFunc("/upload", upload.HandleUpload)
+	http.HandleFunc("/imgproxy", imgproxy.ServeHTTP)
 
 	http.HandleFunc("/api/setOnline", wrapper(handleSetOnline))
 	http.HandleFunc("/api/addPost", wrapper(handleAddPost))
