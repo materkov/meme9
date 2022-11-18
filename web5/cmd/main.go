@@ -13,7 +13,9 @@ import (
 	"github.com/materkov/meme9/web5/imgproxy"
 	"github.com/materkov/meme9/web5/pkg/auth"
 	"github.com/materkov/meme9/web5/pkg/files"
+	"github.com/materkov/meme9/web5/pkg/posts"
 	"github.com/materkov/meme9/web5/pkg/telegram"
+	"github.com/materkov/meme9/web5/pkg/users"
 	"github.com/materkov/meme9/web5/store"
 	"github.com/materkov/meme9/web5/upload"
 	"io"
@@ -24,19 +26,6 @@ import (
 	"strings"
 	"time"
 )
-
-type Post struct {
-	ID     string `json:"id"`
-	Text   string `json:"text"`
-	Date   string `json:"date"`
-	UserID string `json:"userId"`
-	User   *User  `json:"user"`
-
-	CanDelete bool `json:"canDelete,omitempty"`
-
-	LikesCount int  `json:"likesCount,omitempty"`
-	IsLiked    bool `json:"isLiked,omitempty"`
-}
 
 type User struct {
 	ID     string `json:"id"`
@@ -84,7 +73,7 @@ func handleAddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postID, err := postsAdd(text, viewer.UserID, photoID)
+	postID, err := posts.Add(text, viewer.UserID, photoID)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -164,7 +153,7 @@ func handleUserFollow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := usersFollow(viewer.UserID, userID)
+	err := users.Follow(viewer.UserID, userID)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -177,7 +166,7 @@ func handleUserUnfollow(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("id"))
 	viewer := r.Context().Value(ViewerKey).(*Viewer)
 
-	err := usersUnfollow(viewer.UserID, userID)
+	err := users.Unfollow(viewer.UserID, userID)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -206,7 +195,7 @@ func handlePostDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !post.IsDeleted {
-		err = postsDelete(post)
+		err = posts.Delete(post)
 		if err != nil {
 			write(w, nil, err)
 			return
@@ -309,7 +298,7 @@ func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := usersGetOrCreateByVKID(vkID)
+	userID, err := users.GetOrCreateByVKID(vkID)
 	if err != nil {
 		write(w, nil, err)
 		return
@@ -559,7 +548,7 @@ func HandleWorker(queue string) {
 		log.Printf("Got queue task: %v", result)
 
 		userID, _ := strconv.Atoi(result[1])
-		err = usersRefreshFromVk(userID)
+		err = users.RefreshFromVk(userID)
 		if err != nil {
 			log.Printf("Error doing queue: %s", err)
 		}
