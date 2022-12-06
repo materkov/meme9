@@ -3,6 +3,8 @@ import {useQuery} from "@tanstack/react-query";
 import {Photo} from "../store/types";
 import {fetcher} from "../store/fetcher";
 import {selectPhotoThumb} from "../utils/photos";
+import classNames from "classnames";
+import styles from "./PostPhoto.module.css";
 
 export interface Props {
     className: string;
@@ -35,12 +37,14 @@ export const PostPhoto: React.FC<Props> = ({id, className}) => {
 
     const ratio = Math.min(ratioWidth, rationHeight);
 
-    const styles = {
+    const inlineStyles = {
         width: data.width * ratio + 'px',
         height: data.height * ratio + 'px',
     };
 
     const url = selectPhotoThumb(data, maxWidth);
 
-    return <img alt={""} src={url} onClick={onPhotoClick} style={styles} className={className}/>
+    return <img alt={""} src={url} onClick={onPhotoClick} style={inlineStyles}
+                className={classNames([className, styles.img])}
+    />
 }

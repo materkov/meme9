@@ -27,15 +27,6 @@ import (
 	"time"
 )
 
-type User struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
-	Bio    string `json:"bio"`
-
-	IsFollowing bool `json:"isFollowing,omitempty"`
-}
-
 type ApiError string
 
 func (e ApiError) Error() string {
@@ -351,8 +342,6 @@ func handleEmailRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users := usersList([]int{userID}, userID, false, false)
-
 	token, err := auth.CreateToken(userID)
 	if err != nil {
 		write(w, nil, err)
@@ -361,10 +350,8 @@ func handleEmailRegister(w http.ResponseWriter, r *http.Request) {
 
 	resp := struct {
 		Token string `json:"token"`
-		User  *User  `json:"user"`
 	}{
 		Token: token,
-		User:  users[0],
 	}
 	write(w, resp, nil)
 }
@@ -385,13 +372,9 @@ func handleAuthEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users := usersList([]int{userID}, userID, false, false)
-
 	resp := struct {
-		User  *User  `json:"user"`
 		Token string `json:"token"`
 	}{
-		User:  users[0],
 		Token: token,
 	}
 	write(w, resp, nil)

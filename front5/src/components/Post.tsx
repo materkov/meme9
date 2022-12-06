@@ -1,5 +1,5 @@
 import React from "react";
-import {api, Edges, Post} from "../store/types";
+import {api, Post} from "../store/types";
 import {PostUser} from "./PostUser";
 import styles from "./Post.module.css";
 import {Dots3} from "./icons/Dots3";
@@ -19,18 +19,11 @@ export function ComponentPost(props: Props) {
     if (!post) return null;
 
     const onDelete = () => {
-
         api("/postDelete", {
             id: props.id,
         }).then(() => {
             queryClient.invalidateQueries(["/feed"])
         })
-    }
-
-    const onPhotoClick = () => {
-        if (post && post.photoUrl) {
-            window.open(post.photoUrl, '_blank');
-        }
     }
 
     if (post.isDeleted) return <DeletedStub/>
