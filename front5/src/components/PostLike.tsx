@@ -2,68 +2,43 @@ import styles from "./PostLike.module.css";
 import {Heart} from "./icons/Heart";
 import React from "react";
 import {HeartRed} from "./icons/HeartRed";
-import {fetcher, queryClient} from "../store/fetcher";
-import {api, PostLikeData, Viewer} from "../store/types";
-import {useMutation, useQuery} from "@tanstack/react-query";
 import classNames from "classnames";
 import {PostLikers} from "./PostLikers";
+import {Global} from "../store2/store";
+import {actions} from "../store2/actions";
+import {connect} from "react-redux";
 
-export const PostLike = (props: { id: string }) => {
-    const queryKey = ["/posts/" + props.id + "/liked?count=0"];
-    const {data} = useQuery<PostLikeData>(queryKey, fetcher);
-    const {data: viewer} = useQuery<Viewer>(["/viewer"], fetcher);
+type Props = {
+    postId: string;
+    count: number;
+    isLiked: boolean;
+    viewerId: string;
+}
+
+const Component = (props: Props) => {
     const [likersVisible, setLikersVisible] = React.useState(false);
 
-    const unlike = useMutation(
-        () => (api("/postUnlike", {id: props.id})),
-        {
-            onSuccess: () => {
-                queryClient.invalidateQueries(queryKey);
-                queryClient.invalidateQueries(["/posts/" + props.id + "/liked?count=10"]);
-            },
-            onMutate: () => {
-                const prevData = queryClient.getQueryData<PostLikeData>(queryKey);
-                if (!prevData) return;
-
-                const newData = {...prevData, isViewerLiked: false, totalCount: (prevData.totalCount || 0) - 1};
-                queryClient.setQueryData(queryKey, newData);
-            }
-
-        })
-    const like = useMutation(
-        () => api("/postLike", {id: props.id}),
-        {
-            onSuccess: () => {
-                queryClient.invalidateQueries(queryKey);
-                queryClient.invalidateQueries(["/posts/" + props.id + "/liked?count=10"]);
-            },
-            onMutate: () => {
-                const prevData = queryClient.getQueryData<PostLikeData>(queryKey);
-                if (!prevData) return;
-
-                const newData = {...prevData, isViewerLiked: true, totalCount: (prevData.totalCount || 0) + 1};
-                queryClient.setQueryData(queryKey, newData);
-            }
-        }
-    )
-
     const onClick = () => {
-        if (!data || !viewer?.viewerId) return;
+        if (!props.viewerId) return;
 
-        data?.isViewerLiked ? unlike.mutate() : like.mutate();
+        if (!props.isLiked) {
+            actions.postLike(props.postId);
+        } else {
+            actions.postUnlike(props.postId);
+        }
     }
 
     return <div className={styles.likeBtn} onClick={onClick}
                 onMouseEnter={() => setLikersVisible(true)}
                 onMouseLeave={() => setLikersVisible(false)}
     >
-        {data?.isViewerLiked ?
+        {props.isLiked ?
             <HeartRed className={styles.likeIcon}/> :
             <Heart className={styles.likeIcon}/>
         }
 
-        {data && data.totalCount > 0 &&
-            <div className={styles.likeText}>{data.totalCount}</div>
+        {props.count > 0 &&
+            <div className={styles.likeText}>{props.count}</div>
         }
 
         {likersVisible &&
@@ -71,8 +46,18 @@ export const PostLike = (props: { id: string }) => {
                 [styles.likersPopup]: true,
                 [styles.likersPopup__visible]: true,
             })}>
-                <PostLikers id={props.id}/>
+                <PostLikers id={props.postId}/>
             </div>
         }
     </div>
 }
+
+
+export const PostLike = connect((state: Global, ownProps: { id: string }) => {
+    return {
+        postId: ownProps.id,
+        count: state.posts.likesCount[ownProps.id],
+        isLiked: state.posts.isLiked[ownProps.id],
+        viewerId: state.viewer.id,
+    } as Props
+})(Component);

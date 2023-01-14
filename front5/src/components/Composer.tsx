@@ -1,7 +1,6 @@
 import React from "react";
 import styles from "./Composer.module.css";
-import {api, Edges, Post, uploadApi} from "../store/types";
-import {queryClient} from "../store/fetcher";
+import {api, Post, uploadApi} from "../store/types";
 import {Close} from "./icons/Close";
 
 export function Composer() {
@@ -22,15 +21,6 @@ export function Composer() {
 
         api("/addPost", {text: text, photo: photoAttachToken}).then((resp: Post) => {
             setSuccess(true);
-
-            queryClient.setQueryData(["/posts/" + resp.id], resp);
-
-            const feedData = queryClient.getQueryData<Edges>(["/feed"]);
-            if (feedData) {
-                queryClient.setQueryData(["/feed"], {...feedData, items: [resp.id, ...feedData.items]});
-            }
-
-            queryClient.invalidateQueries(["/feed"]);
         }).catch(() => {
             setErr(true);
         })

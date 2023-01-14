@@ -1,22 +1,23 @@
 import React from "react";
-import {Edges, Post, User} from "../store/types";
 import {Link} from "./Link";
 import styles from "./PostUser.module.css";
 import {UserAvatar} from "./UserAvatar";
-import {useQuery} from "@tanstack/react-query";
-import {fetcher} from "../store/fetcher";
+import {Global} from "../store2/store";
+import * as types from "../store/types";
+import {connect} from "react-redux";
 
-export function PostUser(props: { postId: string }) {
-    const {data: post} = useQuery<Post>(["/posts/" + props.postId], fetcher);
+interface Props {
+    post: types.Post;
+    user: types.User;
+}
 
-    const {data: user} = useQuery<User>(["/users/" + post?.userId], fetcher, {
-        enabled: !!post,
-    });
+function Component(props: Props) {
     const [isVisible, setIsVisible] = React.useState(false);
 
-    const {data: userPosts} = useQuery<Edges>(["/users/" + post?.userId + "/posts"], fetcher, {
-        enabled: isVisible,
-    });
+    //const {data: userPosts} = useQuery<Edges>(["/users/" + post?.userId + "/posts"], fetcher, {
+    //    enabled: isVisible,
+    //});
+    const userPosts = null;
 
     let className = styles.userNamePopup;
     if (!isVisible) {
@@ -25,11 +26,11 @@ export function PostUser(props: { postId: string }) {
 
 
     let userDetails = '...LOADING...';
-    if (userPosts && user) {
-        userDetails = "Name: " + user.name + ", posts: " + userPosts.totalCount;
+    if (userPosts && props.user) {
+        userDetails = "Name: " + props.user.name + ", posts: " + (userPosts || 0);
     }
 
-    const date = new Date(post?.date || "");
+    const date = new Date(props.post.date || "");
     const dateStr = date.toLocaleString();
 
     return (
@@ -39,11 +40,18 @@ export function PostUser(props: { postId: string }) {
         >
             <div className={className}>{userDetails}</div>
 
-            <UserAvatar width={50} userId={post?.userId || ""}/>
+            <UserAvatar width={50} userId={props.post.userId || ""}/>
             <div className={styles.rightContainer}>
-                <Link href={"/users/" + user?.id} className={styles.name}>{user?.name}</Link>
-                <Link href={"/posts/" + post?.id} className={styles.href}>{dateStr}</Link>
+                <Link href={"/users/" + props.user.id} className={styles.name}>{props.user.name}</Link>
+                <Link href={"/posts/" + props.post.id} className={styles.href}>{dateStr}</Link>
             </div>
         </div>
     )
 }
+
+export const PostUser = connect((state: Global, ownProps: { postId: string }) => {
+    return {
+        post: state.posts.byId[ownProps.postId],
+        user: state.users.byId[state.posts.byId[ownProps.postId].userId],
+    }
+})(Component);

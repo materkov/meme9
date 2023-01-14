@@ -1,22 +1,21 @@
 import React from "react";
 import styles from "./UserAvatar.module.css";
-import {useQuery} from "@tanstack/react-query";
-import {Online, User} from "../store/types";
-import {fetcher} from "../store/fetcher";
+import {Global} from "../store2/store";
+import {connect} from "react-redux";
+import * as types from "../store/types";
 
 export type Props = {
     userId: string;
     width: number;
 }
 
-export function UserAvatar(props: Props) {
-    const {data} = useQuery<User>([`/users/${props.userId}`], fetcher, {
-        enabled: !!props.userId,
-    })
-    const {data: online} = useQuery<Online>([`/users/${props.userId}/online`], fetcher, {
-        enabled: !!props.userId,
-    })
+export interface ComponentProps {
+    user: types.User;
+    online: types.Online;
+    width: number;
+}
 
+export function Component(props: ComponentProps) {
     const style = {
         width: props.width + 'px',
         height: props.width + 'px',
@@ -35,13 +34,21 @@ export function UserAvatar(props: Props) {
     }
 
     return <div className={styles.container}>
-        {data && data.avatar ?
-            <img src={data.avatar} className={styles.avatar}
-                 alt={"Avatar " + data.name} style={style}
+        {props.user.avatar ?
+            <img src={props.user.avatar} className={styles.avatar}
+                 alt={"Avatar " + props.user.name} style={style}
             /> :
             <div className={styles.avatar} style={style}/>
         }
 
-        {online?.isOnline && <div className={styles.online} style={styleOnline}/>}
+        {props.online?.isOnline && <div className={styles.online} style={styleOnline}/>}
     </div>;
 }
+
+export const UserAvatar = connect((state: Global, ownProps: Props) => {
+    return {
+        user: state.users.byId[ownProps.userId],
+        online: state.online.byId[ownProps.userId],
+        width: ownProps.width,
+    } as ComponentProps
+})(Component);

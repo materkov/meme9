@@ -1,43 +1,36 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Composer} from "./Composer";
 import {PostsList} from "./PostsList";
-import {fetcher, useQuery} from "../store/fetcher";
-import {Edges, Viewer} from "../store/types";
-import {useInfiniteQuery} from "@tanstack/react-query";
 import classNames from "classnames";
 import styles from "./Feed.module.css";
+import {Global} from "../store2/store";
+import {actions} from "../store2/actions";
+import {connect} from "react-redux";
 
 enum FeedType {
     FEED = "FEED",
     DISCOVER = "DISCOVER",
 }
 
-export function Feed() {
+interface Props {
+    viewerId: string;
+    feed: string[];
+    isLoaded: boolean;
+}
+
+function Component(props: Props) {
     const [feedType, setFeedType] = React.useState<FeedType>(FeedType.DISCOVER);
+    const [foo, setFoo] = React.useState(0);
 
-    const {data, hasNextPage, fetchNextPage, isFetching} = useInfiniteQuery<Edges>(
-        ["/feed", feedType],
-        ({pageParam = ""}) => fetcher({queryKey: ["/feed?feedType=" + feedType + "&cursor=" + pageParam]}),
-        {
-            getNextPageParam: (lastPage) => {
-                return lastPage.nextCursor || undefined;
-            }
-        }
-    );
-
-    const {data: viewer, isLoading: isViewerLoading} = useQuery<Viewer>("/viewer");
-
-    const posts: string[] = [];
-    for (const page of data?.pages || []) {
-        for (const post of page.items) {
-            posts.push(post);
-        }
-    }
-
-    if (isViewerLoading) return <div>Loading...</div>;
+    useEffect(() => {
+        // TODO
+        actions.loadFeed().then(() => {
+            setFoo(11);
+        });
+    }, []);
 
     return <>
-        {viewer?.viewerId ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
+        {props.viewerId ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
 
         <div>Тип ленты:&nbsp;
             <a onClick={() => setFeedType(FeedType.FEED)} className={classNames({
@@ -48,11 +41,19 @@ export function Feed() {
             })}>Дискавер</a>
         </div>
 
-        {!data && <div>Loading...</div>}
-        {data &&
-            <PostsList posts={posts} onShowMore={fetchNextPage} showMore={hasNextPage}
-                       showMoreDisabled={isFetching}
-            />
-        }
+        {!props.isLoaded && <div>Loading...</div>}
+        <PostsList posts={props.feed} onShowMore={() => {
+        }} showMore={false}
+                   showMoreDisabled={true}
+        />
     </>
 }
+
+export const Feed = connect((state: Global) => {
+    return {
+        viewerId: state.viewer.id,
+        feed: state.feed.items,
+        isLoaded: state.feed.isLoaded,
+    } as Props
+})(Component);
+

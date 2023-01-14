@@ -1,5 +1,4 @@
-import {emitCustomEvent} from "react-custom-events";
-import {queryClient} from "../store/fetcher";
+//import {emitCustomEvent} from "react-custom-events";
 import {setOnline} from "../store/onlineManager";
 
 export function localizeCounter(count: number, form1: string, form234: string, form567: string) {
@@ -16,13 +15,12 @@ export function localizeCounter(count: number, form1: string, form234: string, f
 
 export function navigate(url: string) {
     window.history.pushState(null, '', url);
-    emitCustomEvent('urlChanged');
+    //emitCustomEvent('urlChanged');
 }
 
 export function authorize(token: string) {
     localStorage.setItem("authToken", token);
-    emitCustomEvent('onAuthorized');
+    //emitCustomEvent('onAuthorized');
 
-    queryClient.invalidateQueries();
     setOnline();
 }

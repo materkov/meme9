@@ -2,20 +2,18 @@ import React from "react";
 import styles from "./App.module.css";
 import {Router} from "./Router";
 import {Header} from "./Header";
-import {queryClient} from "../store/fetcher";
-import {QueryClientProvider} from "@tanstack/react-query";
-import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
+import {Provider} from "react-redux";
+import {store} from "../store2/store";
 
 export function App() {
     return (
         <React.StrictMode>
-            <QueryClientProvider client={queryClient}>
-                <ReactQueryDevtools initialIsOpen={false}/>
+            <Provider store={store}>
                 <div className={styles.app}>
                     <Header/>
                     <Router/>
                 </div>
-            </QueryClientProvider>
+            </Provider>
         </React.StrictMode>
     )
 }

@@ -1,18 +1,23 @@
 import React from "react";
-import {useCustomEventListener} from "react-custom-events";
 import {Feed} from "./Feed";
 import {UserPage} from "./UserPage";
 import {VkCallback} from "./VkCallback";
 import {PostPage} from "./PostPage";
 import {LoginPage} from "./LoginPage";
 import {RegisterPage} from "./RegisterPage";
+import {connect} from "react-redux";
+import {Global} from "../store2/store";
 
-export function Router() {
-    const [url, setUrl] = React.useState(location.pathname + location.search);
+interface Props {
+    url: string;
+}
 
-    useCustomEventListener('urlChanged', () => {
-        setUrl(location.pathname + location.search);
-    })
+function Component(props: Props) {
+    //const [url, setUrl] = React.useState(location.pathname + location.search);
+    //useCustomEventListener('urlChanged', () => {
+    //    setUrl(location.pathname + location.search);
+    //})
+    const url = props.url;
 
     if (url == "/") {
         return <Feed/>
@@ -30,3 +35,9 @@ export function Router() {
         return <>404 page</>;
     }
 }
+
+export const Router = connect((state: Global, ownProps) => {
+    return {
+        url: state.routing.url,
+    }
+})(Component);

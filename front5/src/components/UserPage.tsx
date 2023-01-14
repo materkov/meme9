@@ -1,17 +1,35 @@
-import React from "react";
-import {api, Edges, User, Viewer} from "../store/types";
+import React, {useEffect} from "react";
+import * as types from "../store/types";
+import {api} from "../store/types";
 import {ComponentPost} from "./Post";
 import styles from "./UserPage.module.css";
 import {localizeCounter} from "../utils/localize";
 import {UserAvatar} from "./UserAvatar";
-import {useInfiniteQuery, useQuery} from "@tanstack/react-query";
-import {fetcher, queryClient} from "../store/fetcher";
+import {Global} from "../store2/store";
+import {actions} from "../store2/actions";
+import {connect} from "react-redux";
 
-export function UserPage() {
+interface Props {
+    user: types.User;
+
+    posts: number;
+    postIds: string[];
+    followers: number;
+    following: number;
+    isFollowing: boolean;
+
+    viewerId: string;
+}
+
+function Component(props: Props) {
+    const [isSuccess, setIsSuccess] = React.useState(false);
     const userId = location.pathname.substring(7);
-    const {data: user, isSuccess} = useQuery<User>(["/users/" + userId], fetcher);
-    const {data: userPostsCount} = useQuery<Edges>([`/users/${userId}/posts`], fetcher);
-    const {data: posts, fetchNextPage, hasNextPage} = useInfiniteQuery<Edges>(
+    useEffect(() => {
+        actions.loadUserPage(userId).then(() => setIsSuccess(true));
+    }, []);
+    //const {data: user, isSuccess} = useQuery<User>(["/users/" + userId], fetcher);
+    //const {data: userPostsCount} = useQuery<Edges>([`/users/${userId}/posts`], fetcher);
+    /*const {data: posts, fetchNextPage, hasNextPage} = useInfiniteQuery<Edges>(
         [`/users/${userId}/posts?__paging`], // TODO think about this hack
         ({pageParam = ""}) => fetcher({queryKey: [`/users/${userId}/posts?cursor=${pageParam}&count=10`]}),
         {
@@ -19,12 +37,12 @@ export function UserPage() {
                 return lastPage.nextCursor || undefined;
             }
         }
-    );
+    );*/
 
-    const followersQueryKey = ["/users/" + userId + "/followers"];
-    const {data: followers} = useQuery<Edges & { isFollowing: boolean }>(followersQueryKey, fetcher);
-    const {data: following} = useQuery<Edges>(["/users/" + userId + "/following"], fetcher);
-    const {data: viewer} = useQuery<Viewer>(["/viewer"], fetcher);
+    //const followersQueryKey = ["/users/" + userId + "/followers"];
+    //const {data: followers} = useQuery<Edges & { isFollowing: boolean }>(followersQueryKey, fetcher);
+    //const {data: following} = useQuery<Edges>(["/users/" + userId + "/following"], fetcher);
+    //const {data: viewer} = useQuery<Viewer>(["/viewer"], fetcher);
 
     const [userName, setUserName] = React.useState("");
     const [userNameUpdated, setUserNameUpdated] = React.useState(false);
@@ -37,47 +55,40 @@ export function UserPage() {
             name: userName,
         }).then(() => {
             setUserNameUpdated(true);
-
-            const queryKey = ["/users/" + userId];
-            const user = queryClient.getQueryData<User>(queryKey);
-            if (!user) {
-                return;
-            }
-            queryClient.setQueryData(queryKey, {...user, name: userName});
         });
     }
 
     const onFollow = () => {
-        const oldData = queryClient.getQueryData<Edges>(followersQueryKey);
+        /*const oldData = queryClient.getQueryData<Edges>(followersQueryKey);
         if (oldData) {
             queryClient.setQueryData(followersQueryKey, {
                 ...oldData,
                 totalCount: (oldData.totalCount || 0) + 1,
                 isFollowing: true,
             });
-        }
+        }*/
 
         api("/userFollow", {
             id: userId,
         }).then(() => {
-            queryClient.invalidateQueries(followersQueryKey);
+            //queryClient.invalidateQueries(followersQueryKey);
         })
     }
 
     const onUnfollow = () => {
-        const oldData = queryClient.getQueryData<Edges>(followersQueryKey);
+        /*const oldData = queryClient.getQueryData<Edges>(followersQueryKey);
         if (oldData) {
             queryClient.setQueryData(followersQueryKey, {
                 ...oldData,
                 totalCount: (oldData.totalCount || 0) - 1,
                 isFollowing: false,
             });
-        }
+        }*/
 
         api("/userUnfollow", {
             id: userId,
         }).then(() => {
-            queryClient.invalidateQueries(followersQueryKey);
+            //queryClient.invalidateQueries(followersQueryKey);
         })
     }
 
@@ -93,7 +104,7 @@ export function UserPage() {
             file: file,
         }).then((resp) => {
             //setUser({...user, avatar: resp.avatar});
-            queryClient.invalidateQueries(["/users/" + userId]);
+            //queryClient.invalidateQueries(["/users/" + userId]);
             setAvatarUploading(false);
         })
 
@@ -102,6 +113,8 @@ export function UserPage() {
     if (!isSuccess) {
         return <>Загрузка ...</>;
     }
+
+    const user = props.user;
 
     return (
         <div>
@@ -114,18 +127,18 @@ export function UserPage() {
                     </div>
                     <div className={styles.userCounters}>
                         <div className={styles.userCounter}>
-                            <b>{userPostsCount?.totalCount}</b> {localizeCounter(userPostsCount?.totalCount || 0, "публикация", "публикации", "публикаций")}
+                            <b>{props.posts}</b> {localizeCounter(props.posts, "публикация", "публикации", "публикаций")}
                         </div>
                         <div className={styles.userCounter}>
-                            <b>{followers?.totalCount || 0}</b> {localizeCounter(following?.totalCount || 0, "подписчик", "подписчика", "подписчиков")}
+                            <b>{props.followers}</b> {localizeCounter(props.followers, "подписчик", "подписчика", "подписчиков")}
                         </div>
                         <div className={styles.userCounter}>
-                            <b>{following?.totalCount || 0}</b> {localizeCounter(following?.totalCount || 0, "подписка", "подписки", "подписок")}
+                            <b>{props.following}</b> {localizeCounter(props.following, "подписка", "подписки", "подписок")}
                         </div>
                         <div className={styles.buttonsBlock}>
-                            {viewer?.viewerId && viewer.viewerId != user.id &&
+                            {props.viewerId && props.viewerId != user.id &&
                                 <>
-                                    {followers?.isFollowing ?
+                                    {props.isFollowing ?
                                         <button onClick={onUnfollow}>Отписаться</button> :
                                         <button onClick={onFollow}>Подписаться</button>
                                     }
@@ -136,7 +149,7 @@ export function UserPage() {
                 </div>
             </div>
 
-            {user.id === viewer?.viewerId && <>
+            {user.id === props.viewerId && <>
                 Имя: <input type="text" value={userName} onChange={e => setUserName(e.target.value)}/>
                 <button onClick={editName}>Обновить</button>
                 {userNameUpdated && <div>Имя успешно обновлено</div>}
@@ -148,15 +161,27 @@ export function UserPage() {
                 {avatarUploading && <span>Загружаем аватар...</span>}
             </>}
 
-            {posts?.pages.map((page, i) => (
-                <React.Fragment key={i}>
-                    {page.items?.map(postId => (
-                        <ComponentPost key={postId} id={postId}/>
-                    ))}
-                </React.Fragment>
+            {props.postIds.map(postId => (
+                <ComponentPost key={postId} id={postId}/>
             ))}
 
+            {/*
             {hasNextPage && <button onClick={() => fetchNextPage()}>Показать еще</button>}
+            */}
         </div>
     )
 }
+
+export const UserPage = connect((state: Global) => {
+    const userId = location.pathname.substring(7);
+
+    return {
+        user: state.users.byId[userId],
+        posts: state.users.postsCount[userId],
+        followers: state.users.followersCount[userId],
+        following: state.users.followingCount[userId],
+        isFollowing: state.users.isFollowing[userId],
+        viewerId: state.viewer.id,
+        postIds: state.users.posts[userId],
+    } as Props
+})(Component);

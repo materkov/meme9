@@ -1,40 +1,53 @@
 import React, {MouseEvent, useEffect} from "react";
 import styles from "./Header.module.css";
 import {Link} from "./Link";
-import {api, User, Viewer} from "../store/types";
 import {authorize} from "../utils/localize";
-import {fetcher, queryClient} from "../store/fetcher";
-import {useQuery} from "@tanstack/react-query";
+import {Global} from "../store2/store";
+import {actions} from "../store2/actions";
+import {connect} from "react-redux";
+import * as types from "../store/types";
 
-export function Header() {
-    const {data: viewer, isLoading} = useQuery<Viewer>(["/viewer"], fetcher);
-    const {data: viewerUser} = useQuery<User>(["/users/" + viewer?.viewerId], fetcher, {
-        enabled: !!viewer?.viewerId,
-    })
+interface Props {
+    isLoaded: boolean;
+    viewerId: string;
+    viewer?: types.User;
+}
+
+function Component(props: Props) {
+    const [data, setData] = React.useState(false);
+
+    useEffect(() => {
+        actions.loadViewer().then(() => setData(true));
+    }, []);
 
     const onLogout = (e: MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
         authorize('');
-        queryClient.invalidateQueries(["/viewer"]);
     }
-
-    //useCustomEventListener('onAuthorized', refreshUser);
-    //useEffect(refreshUser, [])
 
     return (
         <div className={styles.header}>
             <Link href="/" className={styles.logo}>meme</Link>
 
             <div className={styles.userName}>
-                {!isLoading && !viewer?.viewerId && <Link href={"/login"}>Авторизация</Link>}
-                {!isLoading && viewer?.viewerId &&
+                {props.isLoaded && !props.viewerId && <Link href={"/login"}>Авторизация</Link>}
+                {props.isLoaded && props.viewerId &&
                     <>
-                        <Link href={"/users/" + viewer.viewerId}>{viewerUser?.name}</Link> | <a onClick={onLogout}
-                                                                                                href={"#"}>Выход</a>
+                        <Link
+                            href={"/users/" + props.viewerId}>{props.viewer?.name}</Link> | <a
+                        onClick={onLogout} href={"#"}>Выход</a>
                     </>
                 }
             </div>
         </div>
     )
 }
+
+export const Header = connect((state: Global) => {
+    return {
+        isLoaded: state.viewer.isLoaded,
+        viewerId: state.viewer.id,
+        viewer: state.viewer.id ? state.users.byId[state.viewer.id] : undefined,
+    } as Props;
+})(Component);

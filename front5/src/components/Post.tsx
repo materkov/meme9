@@ -1,28 +1,27 @@
 import React from "react";
-import {api, Post} from "../store/types";
+import * as types from "../store/types";
+import {api} from "../store/types";
 import {PostUser} from "./PostUser";
 import styles from "./Post.module.css";
 import {Dots3} from "./icons/Dots3";
 import classNames from "classnames";
 import {PostLike} from "./PostLike";
-import {queryClient, useQuery} from "../store/fetcher";
 import {PostPhoto} from "./PostPhoto";
+import {Global} from "../store2/store";
+import {connect} from "react-redux";
 
-export type Props = {
-    id: string;
+interface Props {
+    post: types.Post;
 }
 
-export function ComponentPost(props: Props) {
-    const {data: post} = useQuery<Post>("/posts/" + props.id);
+function ComponentPostInner(props: Props) {
+    const post = props.post;
     const [menuHidden, setMenuHidden] = React.useState(true);
-
-    if (!post) return null;
 
     const onDelete = () => {
         api("/postDelete", {
-            id: props.id,
+            id: post.id,
         }).then(() => {
-            queryClient.invalidateQueries(["/feed"])
         })
     }
 
@@ -31,7 +30,7 @@ export function ComponentPost(props: Props) {
     return (
         <div className={styles.post}>
             <div className={styles.topContainer}>
-                <PostUser postId={props.id}/>
+                <PostUser postId={post.id}/>
 
                 {post.canDelete && <>
                     <Dots3 className={styles.menuIcon} onClick={() => setMenuHidden(!menuHidden)}/>
@@ -52,10 +51,17 @@ export function ComponentPost(props: Props) {
                 <PostPhoto id={post.photoId} className={styles.photoAttach}/>
             }
 
-            <PostLike id={props.id}/>
+            <PostLike id={post.id}/>
         </div>
     )
 }
+
+export const ComponentPost = connect((state: Global, ownProps: { id: string }) => {
+    return {
+        post: state.posts.byId[ownProps.id],
+    } as Props
+})(ComponentPostInner);
+
 
 function DeletedStub() {
     return <div className={styles.post}>
