@@ -64,12 +64,13 @@ func handlePostsId(ctx context.Context, viewerID int, url string) []interface{} 
 	return results
 }
 
+type LikedEdges struct {
+	Edges
+	IsViewerLiked bool `json:"isViewerLiked,omitempty"`
+}
+
 // /posts/:id/liked
 func handlePostsLiked(ctx context.Context, viewerID int, reqURL string) []interface{} {
-	type LikedEdges struct {
-		Edges
-		IsViewerLiked bool `json:"isViewerLiked,omitempty"`
-	}
 
 	r := regexp.MustCompile(`^/posts/(\w+)/`)
 	results := r.FindStringSubmatch(reqURL)
@@ -146,4 +147,116 @@ func handlePostsAdd(ctx context.Context, viewerID int, req *PostsAdd) (*Post, er
 	post := result[0].(Post)
 
 	return &post, nil
+}
+
+type PostsDelete struct {
+	ID string `json:"id"`
+}
+
+func handlePostsDelete(ctx context.Context, viewerID int, req *PostsDelete) error {
+	postID, _ := strconv.Atoi(req.ID)
+
+	post := &store.Post{}
+	err := store.NodeGet(postID, post)
+	if err == store.ErrNodeNotFound {
+		return fmt.Errorf("post not found")
+	} else if err != nil {
+		return fmt.Errorf("error getting post: %w", err)
+	}
+
+	if post.UserID != viewerID {
+		return fmt.Errorf("no access to delete this post")
+	}
+
+	if !post.IsDeleted {
+		err = posts.Delete(post)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type PostsLike struct {
+	PostID string `json:"postId"`
+}
+
+func handlePostsLike(ctx context.Context, viewerID int, req *PostsLike) (*LikedEdges, error) {
+	postID, _ := strconv.Atoi(req.PostID)
+
+	post := store.Post{}
+	err := store.NodeGet(postID, &post)
+	if err == store.ErrNodeNotFound {
+		return nil, fmt.Errorf("post not found")
+	} else if err != nil {
+		return nil, err
+	}
+
+	if viewerID == 0 {
+		return nil, fmt.Errorf("not authorized")
+	}
+
+	pipe := store.RedisClient.Pipeline()
+
+	key := fmt.Sprintf("postLikes:%d", postID)
+	_ = pipe.ZAdd(context.Background(), key, redis.Z{
+		Score:  float64(time.Now().UnixMilli()),
+		Member: viewerID,
+	})
+	cardCmd := pipe.ZCard(context.Background(), key)
+
+	_, err = pipe.Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	result := LikedEdges{
+		Edges: Edges{
+			TotalCount: int(cardCmd.Val()),
+		},
+		IsViewerLiked: true,
+	}
+
+	return &result, nil
+}
+
+type PostsUnlike struct {
+	PostID string `json:"postId"`
+}
+
+func handlePostsUnlike(ctx context.Context, viewerID int, req *PostsUnlike) (*LikedEdges, error) {
+	postID, _ := strconv.Atoi(req.PostID)
+
+	post := store.Post{}
+	err := store.NodeGet(postID, &post)
+	if err == store.ErrNodeNotFound {
+		return nil, fmt.Errorf("post not found")
+	} else if err != nil {
+		return nil, err
+	}
+
+	if viewerID == 0 {
+		return nil, fmt.Errorf("not authorized")
+	}
+
+	pipe := store.RedisClient.Pipeline()
+
+	key := fmt.Sprintf("postLikes:%d", postID)
+	pipe.ZRem(context.Background(), key, viewerID)
+	cardCmd := pipe.ZCard(context.Background(), key)
+
+	_, err = pipe.Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	result := LikedEdges{
+		Edges: Edges{
+			TotalCount: int(cardCmd.Val()),
+		},
+		IsViewerLiked: false,
+	}
+
+	return &result, nil
 }

@@ -1,6 +1,5 @@
 import React from "react";
 import * as types from "../store/types";
-import {api} from "../store/types";
 import {PostUser} from "./PostUser";
 import styles from "./Post.module.css";
 import {Dots3} from "./icons/Dots3";
@@ -9,7 +8,7 @@ import {PostLike} from "./PostLike";
 import {PostPhoto} from "./PostPhoto";
 import {Global} from "../store2/store";
 import {connect} from "react-redux";
-import {actions} from "../store2/actions";
+import {deletePost} from "../store2/actions/posts";
 
 interface Props {
     post: types.Post;
@@ -20,11 +19,7 @@ function ComponentPostInner(props: Props) {
     const [menuHidden, setMenuHidden] = React.useState(true);
 
     const onDelete = () => {
-        api("/postDelete", {
-            id: post.id,
-        }).then(() => {
-            actions.deletePost(post.id);
-        })
+        deletePost(post.id);
     }
 
     if (post.isDeleted) return <DeletedStub/>

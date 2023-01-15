@@ -5,8 +5,8 @@ import {HeartRed} from "./icons/HeartRed";
 import classNames from "classnames";
 import {PostLikers} from "./PostLikers";
 import {Global} from "../store2/store";
-import {actions} from "../store2/actions";
 import {connect} from "react-redux";
+import {like, unlike} from "../store2/actions/posts";
 
 type Props = {
     postId: string;
@@ -22,9 +22,9 @@ const Component = (props: Props) => {
         if (!props.viewerId) return;
 
         if (!props.isLiked) {
-            actions.postLike(props.postId);
+            like(props.postId);
         } else {
-            actions.postUnlike(props.postId);
+            unlike(props.postId);
         }
     }
 

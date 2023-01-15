@@ -149,6 +149,7 @@ export function appendFeed(state: Global, data: AppendFeed): Global {
     return {
         ...state,
         feed: {
+            ...state.feed,
             isLoaded: true,
             items: data.prepend ? [...data.items, ...state.feed.items] : [...state.feed.items, ...data.items],
         }
@@ -178,18 +179,26 @@ export interface SetLikes {
 }
 
 export function setLikes(state: Global, data: SetLikes): Global {
+    const likesCount = {...state.posts.likesCount};
+    if (data.count > 0) {
+        likesCount[data.postId] = data.count
+    } else {
+        delete likesCount[data.postId];
+    }
+
+    const isLiked = {...state.posts.isLiked};
+    if (data.isLiked) {
+        isLiked[data.postId] = true;
+    } else {
+        delete isLiked[data.postId];
+    }
+
     return {
         ...state,
         posts: {
             ...state.posts,
-            likesCount: {
-                ...state.posts.likesCount,
-                [data.postId]: data.count,
-            },
-            isLiked: {
-                ...state.posts.isLiked,
-                [data.postId]: data.isLiked,
-            }
+            likesCount: likesCount,
+            isLiked: isLiked
         }
     }
 }

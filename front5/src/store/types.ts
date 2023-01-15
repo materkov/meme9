@@ -68,10 +68,10 @@ export function api2(method: string, args: any): Promise<any> {
         })
             .then(resp => resp.json())
             .then(resp => {
-                if (resp.data) {
-                    resolve(resp.data);
-                } else {
+                if (resp.error) {
                     reject(resp.error);
+                } else {
+                    resolve(resp.data);
                 }
             })
     })
@@ -123,4 +123,16 @@ export interface Online {
 export interface PostsAdd {
     text: string;
     photo: string;
+}
+
+export interface PostsDelete {
+    id: string;
+}
+
+export interface PostsLike {
+    postId: string;
+}
+
+export interface PostsUnlike {
+    postId: string;
 }

@@ -11,5 +11,8 @@ require("esbuild")
         plugins: [cssModulesPlugin({
             localsConvention: 'camelCase',
         })],
+        define: {
+            'process.env.NODE_ENV': '"production"',
+        }
     })
     .catch(() => process.exit(1));

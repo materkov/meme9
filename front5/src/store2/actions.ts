@@ -1,13 +1,9 @@
 import {loadAPI} from "../store/fetcher";
 import {Global, store} from "./store";
-import * as types from "../store/types";
-import {api} from "../store/types";
 import {
     AppendFeed,
     AppendLikers,
-    AppendPosts, DeleteFromFeed,
-    PostLike,
-    PostUnlike,
+    AppendPosts,
     SetLikes,
     SetOnline,
     SetPhoto,
@@ -18,15 +14,6 @@ import {
 } from "./reducers";
 
 export class Actions {
-    prependFeed(post: types.Post): void {
-        store.dispatch({type: "posts/set", post: post} as SetPost)
-        store.dispatch({type: "feed/append", items: [post.id], prepend: true} as AppendFeed)
-    }
-
-    deletePost(postId: string) {
-        store.dispatch({type: "feed/delete", postId: postId} as DeleteFromFeed)
-    }
-
     loadFeed(): Promise<undefined> {
         const st = store.getState() as Global;
         if (st.feed.isLoaded) {
@@ -37,7 +24,7 @@ export class Actions {
             loadAPI(["/feed?feedType=DISCOVER&cursor="]).then(result => {
                 for (let item of result) {
                     if (item.url.match("^/feed")) {
-                        store.dispatch({type: "feed/append", items: item.items} as AppendFeed)
+                        store.dispatch({type: "feed/append", items: item.items || []} as AppendFeed)
                     }
                     if (item.url.match("^/posts/\\d+$")) {
                         store.dispatch({type: "posts/set", post: item} as SetPost)
@@ -151,20 +138,6 @@ export class Actions {
                 }
                 resolve(undefined);
             })
-        })
-    }
-
-    public postLike(id: string) {
-        store.dispatch({type: 'posts/like', postId: id} as PostLike);
-
-        api("/postLike", {id: id}).then(data => {
-        })
-    }
-
-    public postUnlike(id: string) {
-        store.dispatch({type: 'posts/unlike', postId: id} as PostUnlike);
-
-        api("/postUnlike", {id: id}).then(data => {
         })
     }
 

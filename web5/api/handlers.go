@@ -172,6 +172,20 @@ func HandleAPI2(w http.ResponseWriter, r *http.Request) {
 		req := PostsAdd{}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		resp, err = handlePostsAdd(ctx, userID, &req)
+	case "posts.delete":
+		req := PostsDelete{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		err = handlePostsDelete(ctx, userID, &req)
+	case "posts.like":
+		req := PostsLike{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handlePostsLike(ctx, userID, &req)
+	case "posts.unlike":
+		req := PostsUnlike{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handlePostsUnlike(ctx, userID, &req)
+	default:
+		err = fmt.Errorf("unknown method")
 	}
 
 	response := struct {
