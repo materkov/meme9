@@ -1,10 +1,11 @@
 import {loadAPI} from "../store/fetcher";
-import {store} from "./store";
+import {Global, store} from "./store";
+import * as types from "../store/types";
 import {api} from "../store/types";
 import {
     AppendFeed,
     AppendLikers,
-    AppendPosts,
+    AppendPosts, DeleteFromFeed,
     PostLike,
     PostUnlike,
     SetLikes,
@@ -17,7 +18,21 @@ import {
 } from "./reducers";
 
 export class Actions {
+    prependFeed(post: types.Post): void {
+        store.dispatch({type: "posts/set", post: post} as SetPost)
+        store.dispatch({type: "feed/append", items: [post.id], prepend: true} as AppendFeed)
+    }
+
+    deletePost(postId: string) {
+        store.dispatch({type: "feed/delete", postId: postId} as DeleteFromFeed)
+    }
+
     loadFeed(): Promise<undefined> {
+        const st = store.getState() as Global;
+        if (st.feed.isLoaded) {
+            return new Promise((resolve) => resolve);
+        }
+
         return new Promise((resolve, reject) => {
             loadAPI(["/feed?feedType=DISCOVER&cursor="]).then(result => {
                 for (let item of result) {

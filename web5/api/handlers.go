@@ -7,6 +7,7 @@ import (
 	"github.com/materkov/meme9/web5/pkg/auth"
 	"github.com/materkov/meme9/web5/pkg/metrics"
 	"github.com/materkov/meme9/web5/store"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -135,4 +136,54 @@ func HandleAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.NewEncoder(w).Encode(results)
+}
+
+func HandleAPI2(w http.ResponseWriter, r *http.Request) {
+	requestID := rand.Int()
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "authorization, content-type")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Request-ID", fmt.Sprintf("%x", requestID))
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	method := strings.TrimPrefix(r.URL.Path, "/api2/")
+
+	started := time.Now()
+	defer func() {
+		metrics.WriteSpan(requestID, "API Request", time.Since(started), "method", method)
+	}()
+
+	authToken := r.Header.Get("authorization")
+	authToken = strings.TrimPrefix(authToken, "Bearer ")
+	userID, _ := auth.CheckToken(authToken)
+
+	ctx := r.Context()
+	ctx = store.WithCachedStore(ctx)
+
+	var resp interface{}
+	var err error
+
+	switch method {
+	case "posts.add":
+		req := PostsAdd{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handlePostsAdd(ctx, userID, &req)
+	}
+
+	response := struct {
+		Data  interface{} `json:"data"`
+		Error string      `json:"error,omitempty"`
+	}{
+		Data: resp,
+	}
+	if err != nil {
+		response.Error = err.Error()
+	}
+
+	err = json.NewEncoder(w).Encode(response)
+	log.Printf("%s", err)
 }

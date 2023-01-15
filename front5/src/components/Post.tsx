@@ -9,6 +9,7 @@ import {PostLike} from "./PostLike";
 import {PostPhoto} from "./PostPhoto";
 import {Global} from "../store2/store";
 import {connect} from "react-redux";
+import {actions} from "../store2/actions";
 
 interface Props {
     post: types.Post;
@@ -22,6 +23,7 @@ function ComponentPostInner(props: Props) {
         api("/postDelete", {
             id: post.id,
         }).then(() => {
+            actions.deletePost(post.id);
         })
     }
 

@@ -121,3 +121,29 @@ func handlePostsLiked(ctx context.Context, viewerID int, reqURL string) []interf
 
 	return []interface{}{edge}
 }
+
+type PostsAdd struct {
+	Text  string `json:"text"`
+	Photo string `json:"photo"`
+}
+
+func handlePostsAdd(ctx context.Context, viewerID int, req *PostsAdd) (*Post, error) {
+	if req.Text == "" {
+		return nil, fmt.Errorf("empty text")
+	}
+	if viewerID == 0 {
+		return nil, fmt.Errorf("not authorized")
+	}
+
+	photoID, _ := strconv.Atoi(req.Photo)
+
+	postID, err := posts.Add(req.Text, viewerID, photoID)
+	if err != nil {
+		return nil, fmt.Errorf("error adding post: %w", err)
+	}
+
+	result := handlePostsId(ctx, viewerID, fmt.Sprintf("/posts/%d", postID))
+	post := result[0].(Post)
+
+	return &post, nil
+}

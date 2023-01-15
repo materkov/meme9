@@ -49,30 +49,6 @@ func write(w http.ResponseWriter, data interface{}, err error) {
 	}
 }
 
-func handleAddPost(w http.ResponseWriter, r *http.Request) {
-	text := r.FormValue("text")
-	if text == "" {
-		write(w, nil, ApiError("text is empty"))
-		return
-	}
-
-	photoID, _ := strconv.Atoi(r.FormValue("photo"))
-
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-	if viewer.UserID == 0 {
-		write(w, nil, ApiError("not authorized"))
-		return
-	}
-
-	postID, err := posts.Add(text, viewer.UserID, photoID)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	write(w, postID, nil)
-}
-
 func handleSetOnline(w http.ResponseWriter, r *http.Request) {
 	viewer := r.Context().Value(ViewerKey).(*Viewer)
 	if viewer.UserID == 0 {
@@ -500,11 +476,11 @@ func main() {
 	}
 
 	http.HandleFunc("/api", api.HandleAPI)
+	http.HandleFunc("/api2/", api.HandleAPI2)
 	http.HandleFunc("/upload", upload.HandleUpload)
 	http.HandleFunc("/imgproxy", imgproxy.ServeHTTP)
 
 	http.HandleFunc("/api/setOnline", wrapper(handleSetOnline))
-	http.HandleFunc("/api/addPost", wrapper(handleAddPost))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
 	http.HandleFunc("/api/userFollow", wrapper(handleUserFollow))
 	http.HandleFunc("/api/userUnfollow", wrapper(handleUserUnfollow))

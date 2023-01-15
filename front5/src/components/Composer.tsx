@@ -1,7 +1,8 @@
 import React from "react";
 import styles from "./Composer.module.css";
-import {api, Post, uploadApi} from "../store/types";
+import {api, api2, Post, PostsAdd, uploadApi} from "../store/types";
 import {Close} from "./icons/Close";
+import {actions} from "../store2/actions";
 
 export function Composer() {
     const [text, setText] = React.useState('');
@@ -19,7 +20,8 @@ export function Composer() {
         setSuccess(false);
         setErr(false);
 
-        api("/addPost", {text: text, photo: photoAttachToken}).then((resp: Post) => {
+        api2("posts.add", {text: text, photo: photoAttachToken} as PostsAdd).then((resp: Post) => {
+            actions.prependFeed(resp);
             setSuccess(true);
         }).catch(() => {
             setErr(true);

@@ -4,7 +4,7 @@ import {
     AnyAction,
     appendFeed,
     appendLikers,
-    appendPosts,
+    appendPosts, deleteFromFeed,
     postLikeReducer,
     postUnlike,
     setLikes,
@@ -29,6 +29,7 @@ export interface Global {
     }
 
     feed: {
+        isLoading: boolean
         isLoaded: boolean
         items: string[]
     }
@@ -119,10 +120,12 @@ export const store = createStore<Global, AnyAction, any, any>((state = global, a
             return appendPosts(state, action)
         case 'viewer/set':
             return setViewer(state, action)
+        case 'feed/delete':
+            return deleteFromFeed(state, action)
         default:
             return state
     }
-})
+}, undefined, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 
 // @ts-ignore
 window.global = store;

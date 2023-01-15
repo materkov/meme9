@@ -142,6 +142,7 @@ export function setPhoto(state: Global, data: SetPhoto): Global {
 export interface AppendFeed {
     type: 'feed/append'
     items: string[]
+    prepend?: boolean
 }
 
 export function appendFeed(state: Global, data: AppendFeed): Global {
@@ -149,11 +150,25 @@ export function appendFeed(state: Global, data: AppendFeed): Global {
         ...state,
         feed: {
             isLoaded: true,
-            items: [...state.feed.items, ...data.items],
+            items: data.prepend ? [...data.items, ...state.feed.items] : [...state.feed.items, ...data.items],
         }
     }
 }
 
+export interface DeleteFromFeed {
+    type: 'feed/delete'
+    postId: string
+}
+
+export function deleteFromFeed(state: Global, data: DeleteFromFeed): Global {
+    return {
+        ...state,
+        feed: {
+            ...state.feed,
+            items: state.feed.items.filter(item => item != data.postId)
+        }
+    }
+}
 
 export interface SetLikes {
     type: 'posts/setLikes'
@@ -237,5 +252,5 @@ export function setViewer(state: Global, data: SetViewer): Global {
 
 
 export type AnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
-    | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer
+    | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed
     ;

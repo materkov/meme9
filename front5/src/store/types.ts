@@ -55,6 +55,28 @@ export function api(url: string, params: any = {}): Promise<any> {
     })
 }
 
+export function api2(method: string, args: any): Promise<any> {
+    const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me/api2/" : "http://localhost:8000/api2/";
+
+    return new Promise((resolve, reject) => {
+        return fetch(apiHost + method , {
+            method: 'POST',
+            headers: {
+                'authorization': 'Bearer ' + localStorage.getItem('authToken') || '',
+            },
+            body: JSON.stringify(args),
+        })
+            .then(resp => resp.json())
+            .then(resp => {
+                if (resp.data) {
+                    resolve(resp.data);
+                } else {
+                    reject(resp.error);
+                }
+            })
+    })
+}
+
 export function uploadApi(file: File): Promise<string> {
     const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me" : "http://localhost:8000";
 
@@ -96,4 +118,9 @@ export interface Viewer {
 export interface Online {
     url: string;
     isOnline: boolean;
+}
+
+export interface PostsAdd {
+    text: string;
+    photo: string;
 }
