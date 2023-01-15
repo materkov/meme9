@@ -3,7 +3,7 @@ import {Global, store} from "./store";
 import {
     AppendFeed,
     AppendLikers,
-    AppendPosts,
+    AppendPosts, SetIsFollowing,
     SetLikes,
     SetOnline,
     SetPhoto,
@@ -122,6 +122,10 @@ export class Actions {
                     if (item.url.match("^/users/\\d+/online$")) {
                         const parts = item.url.split("/")
                         store.dispatch({type: "online/set", online: item, userId: parts[2]} as SetOnline)
+                    }
+                    if (item.url.match("^/users/\\d+/followers")) {
+                        const parts = item.url.split("/");
+                        store.dispatch({type: "users/setIsFollowing", isFollowing: item.isFollowing || false, userId: parts[2]} as SetIsFollowing)
                     }
                     if (item.url.match("^/users/\\d+/posts")) {
                         const parts = item.url.split("/")

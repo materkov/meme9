@@ -184,6 +184,14 @@ func HandleAPI2(w http.ResponseWriter, r *http.Request) {
 		req := PostsUnlike{}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		resp, err = handlePostsUnlike(ctx, userID, &req)
+	case "users.follow":
+		req := UsersFollow{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		err = handleUsersFollow(ctx, userID, &req)
+	case "users.unfollow":
+		req := UsersUnfollow{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		err = handleUsersUnfollow(ctx, userID, &req)
 	default:
 		err = fmt.Errorf("unknown method")
 	}

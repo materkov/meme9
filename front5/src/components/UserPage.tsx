@@ -8,6 +8,7 @@ import {UserAvatar} from "./UserAvatar";
 import {Global} from "../store2/store";
 import {actions} from "../store2/actions";
 import {connect} from "react-redux";
+import {follow, unfollow} from "../store2/actions/users";
 
 interface Props {
     user: types.User;
@@ -59,37 +60,11 @@ function Component(props: Props) {
     }
 
     const onFollow = () => {
-        /*const oldData = queryClient.getQueryData<Edges>(followersQueryKey);
-        if (oldData) {
-            queryClient.setQueryData(followersQueryKey, {
-                ...oldData,
-                totalCount: (oldData.totalCount || 0) + 1,
-                isFollowing: true,
-            });
-        }*/
-
-        api("/userFollow", {
-            id: userId,
-        }).then(() => {
-            //queryClient.invalidateQueries(followersQueryKey);
-        })
+        follow(userId);
     }
 
     const onUnfollow = () => {
-        /*const oldData = queryClient.getQueryData<Edges>(followersQueryKey);
-        if (oldData) {
-            queryClient.setQueryData(followersQueryKey, {
-                ...oldData,
-                totalCount: (oldData.totalCount || 0) - 1,
-                isFollowing: false,
-            });
-        }*/
-
-        api("/userUnfollow", {
-            id: userId,
-        }).then(() => {
-            //queryClient.invalidateQueries(followersQueryKey);
-        })
+        unfollow(userId);
     }
 
     const onAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

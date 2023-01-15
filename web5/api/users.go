@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"github.com/materkov/meme9/web5/pkg/files"
+	"github.com/materkov/meme9/web5/pkg/users"
 	"github.com/materkov/meme9/web5/store"
 	"log"
 	"net/url"
@@ -172,4 +173,42 @@ func handleUserPosts(_ context.Context, viewerID int, reqURL string) []interface
 	}
 
 	return results
+}
+
+type UsersFollow struct {
+	UserID string `json:"userId"`
+}
+
+func handleUsersFollow(ctx context.Context, viewerID int, req *UsersFollow) error {
+	userID, _ := strconv.Atoi(req.UserID)
+
+	if viewerID == 0 {
+		return fmt.Errorf("not authorized")
+	} else if userID == 0 {
+		return fmt.Errorf("empty user")
+	} else if userID == viewerID {
+		return fmt.Errorf("you cannot subscribe to yourself")
+	}
+
+	err := users.Follow(viewerID, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type UsersUnfollow struct {
+	UserID string `json:"userId"`
+}
+
+func handleUsersUnfollow(ctx context.Context, viewerID int, req *UsersUnfollow) error {
+	userID, _ := strconv.Atoi(req.UserID)
+
+	err := users.Unfollow(viewerID, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

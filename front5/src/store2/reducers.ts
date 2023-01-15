@@ -259,7 +259,29 @@ export function setViewer(state: Global, data: SetViewer): Global {
     }
 }
 
+export interface SetIsFollowing {
+    type: 'users/setIsFollowing'
+    userId: string;
+    isFollowing: boolean;
+}
+
+export function setIsFollowing(state: Global, data: SetIsFollowing): Global {
+    const isFollowing = {...state.users.isFollowing};
+    if (data.isFollowing) {
+        isFollowing[data.userId] = true;
+    } else {
+        delete isFollowing[data.userId];
+    }
+
+    return {
+        ...state,
+        users: {
+            ...state.users,
+            isFollowing: isFollowing,
+        }
+    }
+}
 
 export type AnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
-    | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed
+    | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed | SetIsFollowing
     ;

@@ -136,3 +136,11 @@ export interface PostsLike {
 export interface PostsUnlike {
     postId: string;
 }
+
+export interface UsersFollow {
+    userId: string;
+}
+
+export interface UsersUnfollow {
+    userId: string;
+}

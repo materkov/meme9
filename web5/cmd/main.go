@@ -104,43 +104,6 @@ func handleUserEdit(w http.ResponseWriter, r *http.Request) {
 	write(w, nil, nil)
 }
 
-func handleUserFollow(w http.ResponseWriter, r *http.Request) {
-	userID, _ := strconv.Atoi(r.FormValue("id"))
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-
-	if viewer.UserID == 0 {
-		write(w, nil, ApiError("not authorized"))
-		return
-	} else if userID == 0 {
-		write(w, nil, ApiError("empty user"))
-		return
-	} else if userID == viewer.UserID {
-		write(w, nil, ApiError("you cannot subscribe to yourself"))
-		return
-	}
-
-	err := users.Follow(viewer.UserID, userID)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	write(w, nil, nil)
-}
-
-func handleUserUnfollow(w http.ResponseWriter, r *http.Request) {
-	userID, _ := strconv.Atoi(r.FormValue("id"))
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-
-	err := users.Unfollow(viewer.UserID, userID)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	write(w, nil, nil)
-}
-
 func handleVkCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 	redirectURI := r.FormValue("redirectUri")
@@ -368,8 +331,6 @@ func main() {
 
 	http.HandleFunc("/api/setOnline", wrapper(handleSetOnline))
 	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
-	http.HandleFunc("/api/userFollow", wrapper(handleUserFollow))
-	http.HandleFunc("/api/userUnfollow", wrapper(handleUserUnfollow))
 	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))
 	http.HandleFunc("/api/emailRegister", wrapper(handleEmailRegister))
 	http.HandleFunc("/api/emailLogin", wrapper(handleAuthEmail))

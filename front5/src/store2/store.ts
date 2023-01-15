@@ -6,7 +6,7 @@ import {
     appendLikers,
     appendPosts, deleteFromFeed,
     postLikeReducer,
-    postUnlike,
+    postUnlike, setIsFollowing,
     setLikes,
     setOnline,
     setPhoto,
@@ -122,6 +122,8 @@ export const store = createStore<Global, AnyAction, any, any>((state = global, a
             return setViewer(state, action)
         case 'feed/delete':
             return deleteFromFeed(state, action)
+        case 'users/setIsFollowing':
+            return setIsFollowing(state, action)
         default:
             return state
     }
