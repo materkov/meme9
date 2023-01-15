@@ -1,3 +1,5 @@
+import {Global, store} from "../store2/store";
+
 export type User = {
     id: string;
     name?: string;
@@ -31,8 +33,10 @@ export type PhotoThumb = {
 }
 
 export function api(url: string, params: any = {}): Promise<any> {
+    const state = store.getState() as Global;
+
     const body = new FormData();
-    body.set("token", localStorage.getItem('authToken') || '');
+    body.set("token", state.routing.accessToken);
 
     for (let key in params) {
         body.append(key, params[key]);
@@ -57,12 +61,13 @@ export function api(url: string, params: any = {}): Promise<any> {
 
 export function api2(method: string, args: any): Promise<any> {
     const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me/api2/" : "http://localhost:8000/api2/";
+    const state = store.getState() as Global;
 
     return new Promise((resolve, reject) => {
-        return fetch(apiHost + method , {
+        return fetch(apiHost + method, {
             method: 'POST',
             headers: {
-                'authorization': 'Bearer ' + localStorage.getItem('authToken') || '',
+                'authorization': 'Bearer ' + state.routing.accessToken,
             },
             body: JSON.stringify(args),
         })
@@ -143,4 +148,29 @@ export interface UsersFollow {
 
 export interface UsersUnfollow {
     userId: string;
+}
+
+export interface UsersEdit {
+    userId: string;
+    name: string;
+}
+
+export interface AuthVkCallback {
+    code: string;
+    redirectUri: string;
+}
+
+export interface Authorization {
+    token: string;
+    user: User;
+}
+
+export interface AuthEmailLogin {
+    email: string;
+    password: string;
+}
+
+export interface AuthEmailRegister {
+    email: string;
+    password: string;
 }

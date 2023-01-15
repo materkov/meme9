@@ -1,8 +1,8 @@
 import React from "react";
 import styles from "./LoginPage.module.css";
-import {api} from "../store/types";
 import {Link} from "./Link";
-import {authorize, navigate} from "../utils/localize";
+import {emailLogin} from "../store2/actions/auth";
+import {actions} from "../store2/actions";
 
 const vkURL = "https://oauth.vk.com/authorize?client_id=7260220&response_type=code&redirect_uri=" + location.origin + "/vk-callback";
 
@@ -14,12 +14,11 @@ export function LoginPage() {
     const onLogin = () => {
         setError('');
 
-        api("/emailLogin", {
+        emailLogin({
             email: email,
             password: password,
         }).then((resp) => {
-            authorize(resp.token);
-            navigate("/");
+            actions.setRoute("/");
         }).catch(err => {
             if (err === 'invalid credentials') {
                 setError('Неверный логин или пароль');

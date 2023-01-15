@@ -4,20 +4,24 @@ import {
     AnyAction,
     appendFeed,
     appendLikers,
-    appendPosts, deleteFromFeed,
+    appendPosts,
+    deleteFromFeed,
     postLikeReducer,
-    postUnlike, setIsFollowing,
+    postUnlike,
+    setIsFollowing,
     setLikes,
     setOnline,
     setPhoto,
     setPost,
     setRouteReducer,
+    setToken,
     setUser,
     setViewer
 } from "./reducers";
 
 export interface Global {
     routing: {
+        accessToken: string
         url: string
     }
 
@@ -61,6 +65,7 @@ export interface Global {
 
 const global: Global = {
     routing: {
+        accessToken: localStorage.getItem("authToken") || "",
         url: location.pathname + location.search,
     },
     posts: {
@@ -70,6 +75,7 @@ const global: Global = {
         isLiked: {},
     },
     feed: {
+        isLoading: false,
         isLoaded: false,
         items: [],
     },
@@ -124,6 +130,8 @@ export const store = createStore<Global, AnyAction, any, any>((state = global, a
             return deleteFromFeed(state, action)
         case 'users/setIsFollowing':
             return setIsFollowing(state, action)
+        case 'auth/setToken':
+            return setToken(state, action)
         default:
             return state
     }

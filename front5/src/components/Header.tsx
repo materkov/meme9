@@ -6,6 +6,7 @@ import {Global} from "../store2/store";
 import {actions} from "../store2/actions";
 import {connect} from "react-redux";
 import * as types from "../store/types";
+import {logout} from "../store2/actions/auth";
 
 interface Props {
     isLoaded: boolean;
@@ -23,6 +24,7 @@ function Component(props: Props) {
     const onLogout = (e: MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
+        logout();
         authorize('');
     }
 

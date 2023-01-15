@@ -13,7 +13,6 @@ import (
 	"github.com/materkov/meme9/web5/imgproxy"
 	"github.com/materkov/meme9/web5/pkg/auth"
 	"github.com/materkov/meme9/web5/pkg/files"
-	"github.com/materkov/meme9/web5/pkg/telegram"
 	"github.com/materkov/meme9/web5/pkg/users"
 	"github.com/materkov/meme9/web5/store"
 	"github.com/materkov/meme9/web5/upload"
@@ -63,146 +62,6 @@ func handleSetOnline(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	write(w, nil, nil)
-}
-
-func handleUserEdit(w http.ResponseWriter, r *http.Request) {
-	userID, _ := strconv.Atoi(r.FormValue("id"))
-
-	user := store.User{}
-	err := store.NodeGet(userID, &user)
-	if err != nil {
-		write(w, nil, err)
-		return
-	} else if user.ID == 0 {
-		write(w, nil, ApiError("user not found"))
-		return
-	}
-
-	viewer := r.Context().Value(ViewerKey).(*Viewer)
-	if viewer.UserID != user.ID {
-		write(w, nil, ApiError("no access to edit this user"))
-		return
-	}
-
-	name := r.FormValue("name")
-	if name == "" {
-		write(w, nil, ApiError("name is empty"))
-		return
-	} else if len(name) > 100 {
-		write(w, nil, ApiError("name is too long"))
-		return
-	}
-
-	user.Name = name
-
-	err = store.NodeSave(user.ID, user)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	write(w, nil, nil)
-}
-
-func handleVkCallback(w http.ResponseWriter, r *http.Request) {
-	code := r.FormValue("code")
-	redirectURI := r.FormValue("redirectUri")
-
-	vkID, vkAccessToken, err := auth.ExchangeCode(code, redirectURI)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	userID, err := users.GetOrCreateByVKID(vkID)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	user := &store.User{}
-	err = store.NodeGet(userID, user)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	user.VkAccessToken = vkAccessToken
-	err = store.NodeSave(user.ID, user)
-	if err != nil {
-		log.Printf("error saving user")
-	}
-
-	_, _ = store.RedisClient.RPush(context.Background(), "queue", user.ID).Result()
-
-	authToken, err := auth.CreateToken(userID)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	err = telegram.SendNotify(fmt.Sprintf("meme new login: https://vk.com/id%d", user.VkID))
-	if err != nil {
-		log.Printf("Error sending telegram notify: %s", err)
-	}
-
-	resp := []interface{}{
-		authToken,
-		userID,
-	}
-	write(w, resp, nil)
-}
-
-func handleEmailRegister(w http.ResponseWriter, r *http.Request) {
-	email, password := r.FormValue("email"), r.FormValue("password")
-	validateErr := auth.ValidateCredentials(email, password)
-	if validateErr != "" {
-		write(w, nil, ApiError(validateErr))
-		return
-	}
-
-	userID, err := auth.Register(email, password)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	token, err := auth.CreateToken(userID)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	resp := struct {
-		Token string `json:"token"`
-	}{
-		Token: token,
-	}
-	write(w, resp, nil)
-}
-
-func handleAuthEmail(w http.ResponseWriter, r *http.Request) {
-	userID, err := auth.EmailAuth(r.FormValue("email"), r.FormValue("password"))
-	if err == auth.ErrInvalidCredentials {
-		write(w, nil, ApiError("invalid credentials"))
-		return
-	} else if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	token, err := auth.CreateToken(userID)
-	if err != nil {
-		write(w, nil, err)
-		return
-	}
-
-	resp := struct {
-		Token string `json:"token"`
-	}{
-		Token: token,
-	}
-	write(w, resp, nil)
 }
 
 func handleUploadAvatar(w http.ResponseWriter, r *http.Request) {
@@ -330,10 +189,6 @@ func main() {
 	http.HandleFunc("/imgproxy", imgproxy.ServeHTTP)
 
 	http.HandleFunc("/api/setOnline", wrapper(handleSetOnline))
-	http.HandleFunc("/api/userEdit", wrapper(handleUserEdit))
-	http.HandleFunc("/api/vkCallback", wrapper(handleVkCallback))
-	http.HandleFunc("/api/emailRegister", wrapper(handleEmailRegister))
-	http.HandleFunc("/api/emailLogin", wrapper(handleAuthEmail))
 	http.HandleFunc("/api/uploadAvatar", wrapper(handleUploadAvatar))
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)

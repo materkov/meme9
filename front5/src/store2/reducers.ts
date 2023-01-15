@@ -282,6 +282,22 @@ export function setIsFollowing(state: Global, data: SetIsFollowing): Global {
     }
 }
 
+export interface SetToken {
+    type: 'auth/setToken';
+    token: string;
+}
+
+export function setToken(state: Global, data: SetToken): Global {
+    return {
+        ...state,
+        routing: {
+            ...state.routing,
+            accessToken: data.token,
+        }
+    }
+}
+
 export type AnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
     | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed | SetIsFollowing
+    | SetToken
     ;

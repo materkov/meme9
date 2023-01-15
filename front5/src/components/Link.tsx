@@ -1,5 +1,4 @@
 import React, {MouseEvent, ReactNode} from "react";
-import {navigate} from "../utils/localize";
 import {actions} from "../store2/actions";
 
 export function Link(props: { href?: string, children: ReactNode, className?: string }) {
@@ -8,8 +7,6 @@ export function Link(props: { href?: string, children: ReactNode, className?: st
 
         if (props.href) {
             actions.setRoute(props.href);
-            window.history.pushState(null, '', props.href);
-            //navigate(props.href);
         }
     }
 

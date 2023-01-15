@@ -212,3 +212,39 @@ func handleUsersUnfollow(ctx context.Context, viewerID int, req *UsersUnfollow) 
 
 	return nil
 }
+
+type UsersEdit struct {
+	UserID string
+	Name   string
+}
+
+func handleUsersEdit(ctx context.Context, viewerID int, req *UsersEdit) error {
+	userID, _ := strconv.Atoi(req.UserID)
+
+	user := store.User{}
+	err := store.NodeGet(userID, &user)
+	if err != nil {
+		return err
+	} else if user.ID == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	if viewerID != user.ID {
+		return fmt.Errorf("no access to edit this user")
+	}
+
+	if req.Name == "" {
+		return fmt.Errorf("name is empty")
+	} else if len(req.Name) > 100 {
+		return fmt.Errorf("name is too long")
+	}
+
+	user.Name = req.Name
+
+	err = store.NodeSave(user.ID, user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

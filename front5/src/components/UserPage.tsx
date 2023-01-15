@@ -8,7 +8,7 @@ import {UserAvatar} from "./UserAvatar";
 import {Global} from "../store2/store";
 import {actions} from "../store2/actions";
 import {connect} from "react-redux";
-import {follow, unfollow} from "../store2/actions/users";
+import {edit, follow, unfollow} from "../store2/actions/users";
 
 interface Props {
     user: types.User;
@@ -51,8 +51,8 @@ function Component(props: Props) {
     const [avatarUploading, setAvatarUploading] = React.useState(false);
 
     const editName = () => {
-        api("/userEdit", {
-            id: userId,
+        edit({
+            userId: userId,
             name: userName,
         }).then(() => {
             setUserNameUpdated(true);

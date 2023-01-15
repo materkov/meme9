@@ -192,6 +192,22 @@ func HandleAPI2(w http.ResponseWriter, r *http.Request) {
 		req := UsersUnfollow{}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		err = handleUsersUnfollow(ctx, userID, &req)
+	case "users.edit":
+		req := UsersEdit{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		err = handleUsersEdit(ctx, userID, &req)
+	case "auth.vkCallback":
+		req := AuthVkCallback{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handleAuthVkCallback(ctx, userID, &req)
+	case "auth.emailLogin":
+		req := AuthEmailLogin{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handleAuthEmailLogin(ctx, userID, &req)
+	case "auth.emailRegister":
+		req := AuthEmailRegister{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handleAuthEmailRegister(ctx, userID, &req)
 	default:
 		err = fmt.Errorf("unknown method")
 	}

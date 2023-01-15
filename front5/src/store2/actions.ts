@@ -146,6 +146,7 @@ export class Actions {
     }
 
     public setRoute(url: string) {
+        window.history.pushState(null, '', url);
         store.dispatch({type: 'routes/set', url: url} as SetRoute);
     }
 }

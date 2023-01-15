@@ -1,17 +1,14 @@
 import React, {useEffect} from "react";
-import {api} from "../store/types";
-import {authorize, navigate} from "../utils/localize";
+import {vkCallback} from "../store2/actions/auth";
+import {actions} from "../store2/actions";
 
 export function VkCallback() {
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search.substring(1));
+        const code = urlParams.get("code") || "";
 
-        api("/vkCallback", {
-            code: urlParams.get("code") || "",
-            redirectUri: location.origin + location.pathname,
-        }).then(r => {
-            navigate("/");
-            authorize(r[0]);
+        vkCallback(code).then(() => {
+            actions.setRoute("/");
         })
     }, [])
 

@@ -14,12 +14,11 @@ export function localizeCounter(count: number, form1: string, form234: string, f
 }
 
 export function navigate(url: string) {
-    window.history.pushState(null, '', url);
+    //window.history.pushState(null, '', url);
     //emitCustomEvent('urlChanged');
 }
 
 export function authorize(token: string) {
-    localStorage.setItem("authToken", token);
     //emitCustomEvent('onAuthorized');
 
     setOnline();
