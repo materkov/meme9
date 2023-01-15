@@ -1,4 +1,4 @@
-import {api2, UsersEdit, UsersFollow, UsersUnfollow} from "../../store/types";
+import {api2, User, UsersEdit, UsersFollow, UsersSetAvatar, UsersUnfollow} from "../../store/types";
 import {Global, store} from "../store";
 import {SetIsFollowing, SetUser} from "../reducers";
 
@@ -35,5 +35,22 @@ export function edit(data: UsersEdit): Promise<void> {
         } as SetUser);
 
         api2("users.edit", data).then(() => resolve());
+    })
+}
+
+export function usersSetOnline() {
+    api2("users.setOnline", {});
+}
+
+export function usersSetAvatar(uploadToken: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        api2("users.setAvatar", {uploadToken: uploadToken} as UsersSetAvatar)
+            .then((user: User) => {
+                store.dispatch({
+                    type: 'users/set',
+                    user: user,
+                } as SetUser);
+                resolve();
+            })
     })
 }

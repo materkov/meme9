@@ -1,6 +1,6 @@
-import {api, api2, Edges, Post, PostLikeData, PostsAdd, PostsDelete, PostsLike, PostsUnlike} from "../../store/types";
+import {api2, Post, PostLikeData, PostsAdd, PostsDelete, PostsLike, PostsUnlike} from "../../store/types";
 import {Global, store} from "../store";
-import {AppendFeed, DeleteFromFeed, PostLike, SetLikes, SetPost} from "../reducers";
+import {AppendFeed, DeleteFromFeed, SetLikes, SetPost} from "../reducers";
 
 export function deletePost(postId: string) {
     api2("posts.delete", {

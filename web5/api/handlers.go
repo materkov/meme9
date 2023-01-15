@@ -208,6 +208,14 @@ func HandleAPI2(w http.ResponseWriter, r *http.Request) {
 		req := AuthEmailRegister{}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		resp, err = handleAuthEmailRegister(ctx, userID, &req)
+	case "users.setOnline":
+		req := UsersSetOnline{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		err = handleUsersSetOnline(ctx, userID, &req)
+	case "users.setAvatar":
+		req := UsersSetAvatar{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handleUsersSetAvatar(ctx, userID, &req)
 	default:
 		err = fmt.Errorf("unknown method")
 	}

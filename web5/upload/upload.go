@@ -15,6 +15,7 @@ import (
 )
 
 func HandleUpload(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "authorization, content-type")
 
@@ -22,7 +23,13 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileBytes, err := io.ReadAll(r.Body)
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+
+	fileBytes, err := io.ReadAll(file)
 	if err != nil || len(fileBytes) == 0 {
 		w.WriteHeader(400)
 		return

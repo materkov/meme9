@@ -1,5 +1,5 @@
 import * as types from "../../store/types";
-import {api2, AuthEmailLogin, Authorization, AuthVkCallback} from "../../store/types";
+import {api2, AuthEmailLogin, AuthEmailRegister, Authorization, AuthVkCallback} from "../../store/types";
 import {store} from "../store";
 import {SetToken, SetUser, SetViewer} from "../reducers";
 
@@ -33,6 +33,17 @@ export function logout() {
 export function emailLogin(req: AuthEmailLogin): Promise<void> {
     return new Promise((resolve, reject) => {
         api2("auth.emailLogin", req).then((r: Authorization) => {
+            setAuth(r);
+            resolve();
+        }).catch(err => {
+            reject();
+        })
+    })
+}
+
+export function emailRegister(req: AuthEmailRegister): Promise<void> {
+    return new Promise((resolve, reject) => {
+        api2("auth.emailRegister", req).then((r: Authorization) => {
             setAuth(r);
             resolve();
         }).catch(err => {

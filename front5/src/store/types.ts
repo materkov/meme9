@@ -32,33 +32,6 @@ export type PhotoThumb = {
     address: string;
 }
 
-export function api(url: string, params: any = {}): Promise<any> {
-    const state = store.getState() as Global;
-
-    const body = new FormData();
-    body.set("token", state.routing.accessToken);
-
-    for (let key in params) {
-        body.append(key, params[key]);
-    }
-
-    const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me/api" : "http://localhost:8000/api";
-
-    return new Promise((resolve, reject) => {
-        return fetch(apiHost + url, {
-            method: 'POST',
-            body: body,
-        })
-            .then(resp => {
-                if (resp.status == 200) {
-                    resp.json().then(resolve);
-                } else {
-                    resp.text().then(reject);
-                }
-            })
-    })
-}
-
 export function api2(method: string, args: any): Promise<any> {
     const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me/api2/" : "http://localhost:8000/api2/";
     const state = store.getState() as Global;
@@ -85,13 +58,14 @@ export function api2(method: string, args: any): Promise<any> {
 export function uploadApi(file: File): Promise<string> {
     const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me" : "http://localhost:8000";
 
+    const form = new FormData();
+    form.set("file", file);
+
     return new Promise((resolve, reject) => {
         return fetch(apiHost + "/upload", {
             method: 'POST',
-            headers: {
-                'content-type': 'application/octet-stream',
-            },
-            body: file,
+            headers: {},
+            body: form,
         })
             .then(resp => {
                 if (resp.status == 200) {
@@ -173,4 +147,8 @@ export interface AuthEmailLogin {
 export interface AuthEmailRegister {
     email: string;
     password: string;
+}
+
+export interface UsersSetAvatar {
+    uploadToken: string;
 }

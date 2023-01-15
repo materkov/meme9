@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type User struct {
@@ -247,4 +248,57 @@ func handleUsersEdit(ctx context.Context, viewerID int, req *UsersEdit) error {
 	}
 
 	return nil
+}
+
+type UsersSetOnline struct {
+}
+
+func handleUsersSetOnline(ctx context.Context, viewerID int, req *UsersSetOnline) error {
+	if viewerID == 0 {
+		return nil
+	}
+
+	go func() {
+		_, err := store.RedisClient.Set(context.Background(), fmt.Sprintf("online:%d", viewerID), time.Now().Unix(), time.Minute*3).Result()
+		if err != nil {
+			log.Printf("Err: %s", err)
+		}
+	}()
+
+	return nil
+}
+
+type UsersSetAvatar struct {
+	UploadToken string `json:"uploadToken"`
+}
+
+func handleUsersSetAvatar(ctx context.Context, viewerID int, req *UsersSetAvatar) (*User, error) {
+	if viewerID == 0 {
+		return nil, fmt.Errorf("not authorized")
+	}
+
+	user := &store.User{}
+	err := store.NodeGet(viewerID, user)
+	if err != nil {
+		return nil, fmt.Errorf("error getting user")
+	}
+
+	photoID, _ := strconv.Atoi(req.UploadToken)
+	photo := &store.Photo{}
+	err = store.NodeGet(photoID, photo)
+	if err != nil {
+		return nil, fmt.Errorf("error getting photo")
+	}
+
+	user.AvatarSha = photo.Hash
+
+	err = store.NodeSave(user.ID, user)
+	if err != nil {
+		return nil, fmt.Errorf("error saving user")
+	}
+
+	result := handleUserById(ctx, user.ID, fmt.Sprintf("/users/%d", user.ID))
+	userWrapped := result[0].(User)
+
+	return &userWrapped, nil
 }

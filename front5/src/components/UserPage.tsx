@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import * as types from "../store/types";
-import {api} from "../store/types";
+import {uploadApi} from "../store/types";
 import {ComponentPost} from "./Post";
 import styles from "./UserPage.module.css";
 import {localizeCounter} from "../utils/localize";
@@ -8,7 +8,7 @@ import {UserAvatar} from "./UserAvatar";
 import {Global} from "../store2/store";
 import {actions} from "../store2/actions";
 import {connect} from "react-redux";
-import {edit, follow, unfollow} from "../store2/actions/users";
+import {edit, follow, unfollow, usersSetAvatar} from "../store2/actions/users";
 
 interface Props {
     user: types.User;
@@ -75,14 +75,11 @@ function Component(props: Props) {
         setAvatarUploading(true);
         const file = e.target.files[0];
 
-        api("/uploadAvatar", {
-            file: file,
-        }).then((resp) => {
-            //setUser({...user, avatar: resp.avatar});
-            //queryClient.invalidateQueries(["/users/" + userId]);
-            setAvatarUploading(false);
+        uploadApi(file).then(uploadToken => {
+            usersSetAvatar(uploadToken).then(() => {
+                setAvatarUploading(false);
+            });
         })
-
     }
 
     if (!isSuccess) {

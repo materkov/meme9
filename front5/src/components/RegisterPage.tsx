@@ -1,8 +1,8 @@
 import React from "react";
-import {api} from "../store/types";
-import {authorize, navigate} from "../utils/localize";
 import styles from "./RegisterPage.module.css";
 import {Link} from "./Link";
+import {emailRegister} from "../store2/actions/auth";
+import {actions} from "../store2/actions";
 
 export function RegisterPage() {
     const [email, setEmail] = React.useState("test@email.com");
@@ -16,13 +16,12 @@ export function RegisterPage() {
 
         setError('');
 
-        api("/emailRegister", {
+        emailRegister({
             email: email,
             password: password,
-        }).then((resp) => {
-            authorize(resp.token);
-            navigate("/");
-        }).catch(err => {
+        }).then(() => {
+            actions.setRoute("/");
+        }).catch((err) => {
             if (err === 'email already registered') {
                 setError('Этот емейл уже зарегистрирован')
             }
