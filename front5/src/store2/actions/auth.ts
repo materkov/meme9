@@ -1,5 +1,5 @@
 import * as types from "../../store/types";
-import {api2, AuthEmailLogin, AuthEmailRegister, Authorization, AuthVkCallback} from "../../store/types";
+import {api2, AuthEmailLogin, AuthEmailRegister, Authorization, AuthVkCallback, User} from "../../store/types";
 import {store} from "../store";
 import {SetToken, SetUser, SetViewer} from "../reducers";
 
@@ -48,6 +48,19 @@ export function emailRegister(req: AuthEmailRegister): Promise<void> {
             resolve();
         }).catch(err => {
             reject();
+        })
+    })
+}
+
+export function loadViewer(): Promise<undefined> {
+    return new Promise((resolve, reject) => {
+        api2("auth.viewer", {}).then((u: User) => {
+            if (u) {
+                store.dispatch({type: "users/set", user: u} as SetUser)
+                store.dispatch({type: "viewer/set", userId: u.id} as SetViewer)
+            } else {
+                store.dispatch({type: "viewer/set", userId: ''} as SetViewer)
+            }
         })
     })
 }

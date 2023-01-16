@@ -152,3 +152,15 @@ export interface AuthEmailRegister {
 export interface UsersSetAvatar {
     uploadToken: string;
 }
+
+export interface PostsGetLikesConnection {
+    postId: string
+    count: number
+}
+
+export interface PostsLikesConnection {
+    totalCount: number
+    isViewerLiked: boolean
+
+    items: User[]
+}

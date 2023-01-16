@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./RegisterPage.module.css";
 import {Link} from "./Link";
 import {emailRegister} from "../store2/actions/auth";
-import {actions} from "../store2/actions";
+import {setRoute} from "../store2/actions/route";
 
 export function RegisterPage() {
     const [email, setEmail] = React.useState("test@email.com");
@@ -20,7 +20,7 @@ export function RegisterPage() {
             email: email,
             password: password,
         }).then(() => {
-            actions.setRoute("/");
+            setRoute("/");
         }).catch((err) => {
             if (err === 'email already registered') {
                 setError('Этот емейл уже зарегистрирован')

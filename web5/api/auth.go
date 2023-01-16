@@ -134,3 +134,16 @@ func handleAuthEmailRegister(ctx context.Context, viewerID int, req *AuthEmailRe
 
 	return &auth, nil
 }
+
+type AuthViewer struct{}
+
+func handleAuthViewer(ctx context.Context, viewerID int, req *AuthViewer) (*User, error) {
+	if viewerID == 0 {
+		return nil, nil
+	}
+
+	result := handleUserById(ctx, viewerID, fmt.Sprintf("/users/%d", viewerID))
+	wrappedUser := result[0].(User)
+
+	return &wrappedUser, nil
+}

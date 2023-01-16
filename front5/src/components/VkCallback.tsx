@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import {vkCallback} from "../store2/actions/auth";
-import {actions} from "../store2/actions";
+import {setRoute} from "../store2/actions/route";
 
 export function VkCallback() {
     useEffect(() => {
@@ -8,7 +8,7 @@ export function VkCallback() {
         const code = urlParams.get("code") || "";
 
         vkCallback(code).then(() => {
-            actions.setRoute("/");
+            setRoute("/");
         })
     }, [])
 

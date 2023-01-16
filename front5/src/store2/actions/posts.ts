@@ -1,6 +1,16 @@
-import {api2, Post, PostLikeData, PostsAdd, PostsDelete, PostsLike, PostsUnlike} from "../../store/types";
+import {
+    api2,
+    Post,
+    PostLikeData,
+    PostsAdd,
+    PostsDelete,
+    PostsGetLikesConnection,
+    PostsLike,
+    PostsLikesConnection,
+    PostsUnlike
+} from "../../store/types";
 import {Global, store} from "../store";
-import {AppendFeed, DeleteFromFeed, SetLikes, SetPost} from "../reducers";
+import {AppendFeed, AppendLikers, DeleteFromFeed, SetLikes, SetPost, SetUser} from "../reducers";
 
 export function deletePost(postId: string) {
     api2("posts.delete", {
@@ -61,4 +71,26 @@ export function unlike(postId: string) {
             isLiked: false,
         } as SetLikes);
     });
+}
+
+export function loadLikers(postId: string): Promise<undefined> {
+    return new Promise((resolve, reject) => {
+        api2("posts.getLikesConnection", {
+            postId: postId,
+            count: 10
+        } as PostsGetLikesConnection).then((resp: PostsLikesConnection) => {
+            for (let user of resp.items) {
+                store.dispatch({type: "users/set", user: user} as SetUser)
+            }
+
+            const likers: string[] = resp.items.map(u => u.id);
+            store.dispatch({
+                type: "posts/appendLikers",
+                users: likers,
+                postId: postId
+            } as AppendLikers);
+
+            resolve(undefined);
+        })
+    })
 }

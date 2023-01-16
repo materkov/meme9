@@ -260,3 +260,59 @@ func handlePostsUnlike(ctx context.Context, viewerID int, req *PostsUnlike) (*Li
 
 	return &result, nil
 }
+
+type PostsGetLikesConnection struct {
+	PostID string `json:"postId"`
+	Count  int    `json:"count"`
+}
+
+type PostsLikesConnection struct {
+	TotalCount    int  `json:"totalCount,omitempty"`
+	IsViewerLiked bool `json:"isViewerLiked,omitempty"`
+
+	Items []*User `json:"items,omitempty"`
+}
+
+func handlePostsLikesConnection(ctx context.Context, viewerID int, req *PostsGetLikesConnection) (*PostsLikesConnection, error) {
+	postID, _ := strconv.Atoi(req.PostID)
+
+	post := store.CachedStoreFromCtx(ctx).Post.Get(postID)
+	if !posts.CanSee(post, viewerID) {
+		return nil, fmt.Errorf("no access to post")
+	}
+
+	pipe := store.RedisClient.Pipeline()
+
+	key := fmt.Sprintf("postLikes:%d", postID)
+
+	var usersCmd *redis.StringSliceCmd
+	if req.Count > 0 {
+		usersCmd = pipe.ZRevRangeByScore(context.Background(), key, &redis.ZRangeBy{
+			Min:    "-inf",
+			Max:    "+inf",
+			Offset: 0,
+			Count:  int64(req.Count),
+		})
+	}
+
+	_, err := pipe.Exec(context.Background())
+	if err != nil {
+		log.Printf("Error redis: %s", err)
+	}
+
+	isLiked, count := store.CachedStoreFromCtx(ctx).Liked.Get(viewerID, postID)
+
+	result := PostsLikesConnection{
+		TotalCount:    count,
+		IsViewerLiked: isLiked,
+	}
+
+	for _, userID := range usersCmd.Val() {
+		users := handleUserById(ctx, viewerID, fmt.Sprintf("/users/%s", userID))
+		user := users[0].(User)
+
+		result.Items = append(result.Items, &user)
+	}
+
+	return &result, nil
+}

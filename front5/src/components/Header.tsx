@@ -3,10 +3,9 @@ import styles from "./Header.module.css";
 import {Link} from "./Link";
 import {authorize} from "../utils/localize";
 import {Global} from "../store2/store";
-import {actions} from "../store2/actions";
 import {connect} from "react-redux";
 import * as types from "../store/types";
-import {logout} from "../store2/actions/auth";
+import {loadViewer, logout} from "../store2/actions/auth";
 
 interface Props {
     isLoaded: boolean;
@@ -15,10 +14,8 @@ interface Props {
 }
 
 function Component(props: Props) {
-    const [data, setData] = React.useState(false);
-
     useEffect(() => {
-        actions.loadViewer().then(() => setData(true));
+        loadViewer();
     }, []);
 
     const onLogout = (e: MouseEvent<HTMLAnchorElement>) => {

@@ -42,8 +42,6 @@ func handleQuery(ctx context.Context, requestID int, viewerID int, urls []string
 		{"/posts/(\\w+)/liked", handlePostsLiked},
 
 		{"/photos/(\\w+)", handlePhotosId},
-
-		{"/viewer", handleViewer},
 	}
 
 	results := map[string]interface{}{}
@@ -184,6 +182,10 @@ func HandleAPI2(w http.ResponseWriter, r *http.Request) {
 		req := PostsUnlike{}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		resp, err = handlePostsUnlike(ctx, userID, &req)
+	case "posts.getLikesConnection":
+		req := PostsGetLikesConnection{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handlePostsLikesConnection(ctx, userID, &req)
 	case "users.follow":
 		req := UsersFollow{}
 		_ = json.NewDecoder(r.Body).Decode(&req)
@@ -208,6 +210,10 @@ func HandleAPI2(w http.ResponseWriter, r *http.Request) {
 		req := AuthEmailRegister{}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		resp, err = handleAuthEmailRegister(ctx, userID, &req)
+	case "auth.viewer":
+		req := AuthViewer{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handleAuthViewer(ctx, userID, &req)
 	case "users.setOnline":
 		req := UsersSetOnline{}
 		_ = json.NewDecoder(r.Body).Decode(&req)

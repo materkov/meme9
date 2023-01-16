@@ -1,17 +1,6 @@
 import {loadAPI} from "../store/fetcher";
 import {Global, store} from "./store";
-import {
-    AppendFeed,
-    AppendLikers,
-    AppendPosts, SetIsFollowing,
-    SetLikes,
-    SetOnline,
-    SetPhoto,
-    SetPost,
-    SetRoute,
-    SetUser,
-    SetViewer
-} from "./reducers";
+import {AppendFeed, AppendPosts, SetIsFollowing, SetLikes, SetOnline, SetPhoto, SetPost, SetUser} from "./reducers";
 
 export class Actions {
     loadFeed(): Promise<undefined> {
@@ -56,44 +45,6 @@ export class Actions {
         });
     }
 
-    loadViewer(): Promise<undefined> {
-        return new Promise((resolve, reject) => {
-            loadAPI(["/viewer"]).then(result => {
-                for (let item of result) {
-                    if (item.url == "/viewer") {
-                        store.dispatch({type: "viewer/set", userId: item.viewerId || ""} as SetViewer)
-                    }
-                    if (item.url.match("^/users/\\d+$")) {
-                        store.dispatch({type: "users/set", user: item} as SetUser)
-                    }
-                }
-                resolve(undefined);
-            })
-        })
-    }
-
-    loadLikers(postId: string): Promise<undefined> {
-        return new Promise((resolve, reject) => {
-            loadAPI(["/posts/" + postId + "/liked?count=10"]).then(result => {
-                for (let item of result) {
-                    if (item.url.startsWith("/users/")) {
-                        store.dispatch({type: "users/set", user: item} as SetUser)
-                    }
-                    if (item.url.startsWith("/posts/")) {
-                        const parts = item.url.split("/");
-                        store.dispatch({
-                            type: "posts/appendLikers",
-                            users: item.items || [],
-                            postId: parts[2]
-                        } as AppendLikers)
-                    }
-                }
-
-                resolve(undefined);
-            });
-        })
-    }
-
     loadUserPage(userId: string): Promise<undefined> {
         return new Promise((resolve, reject) => {
             loadAPI([
@@ -125,7 +76,11 @@ export class Actions {
                     }
                     if (item.url.match("^/users/\\d+/followers")) {
                         const parts = item.url.split("/");
-                        store.dispatch({type: "users/setIsFollowing", isFollowing: item.isFollowing || false, userId: parts[2]} as SetIsFollowing)
+                        store.dispatch({
+                            type: "users/setIsFollowing",
+                            isFollowing: item.isFollowing || false,
+                            userId: parts[2]
+                        } as SetIsFollowing)
                     }
                     if (item.url.match("^/users/\\d+/posts")) {
                         const parts = item.url.split("/")
@@ -144,12 +99,6 @@ export class Actions {
             })
         })
     }
-
-    public setRoute(url: string) {
-        window.history.pushState(null, '', url);
-        store.dispatch({type: 'routes/set', url: url} as SetRoute);
-    }
 }
-
 
 export const actions = new Actions();
