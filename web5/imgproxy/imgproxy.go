@@ -13,6 +13,7 @@ import (
 
 func ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/jpeg")
+	w.Header().Set("Cache-Control", "max-age=3600")
 
 	hash := r.URL.Query().Get("hash")
 	if hash == "" {
@@ -61,5 +62,5 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetURL(hash string, width int) string {
-	return fmt.Sprintf("https://meme.mmaks.me/imgproxy?hash=%s&w=%d", hash, width)
+	return fmt.Sprintf("https://3c6ef5be-e5f9-4e47-9a68-bd635323a374.selcdn.net/imgproxy?hash=%s&w=%d", hash, width)
 }

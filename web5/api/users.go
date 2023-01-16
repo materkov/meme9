@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v9"
-	"github.com/materkov/meme9/web5/pkg/files"
+	"github.com/materkov/meme9/web5/imgproxy"
 	"github.com/materkov/meme9/web5/pkg/users"
 	"github.com/materkov/meme9/web5/store"
 	"log"
@@ -45,7 +45,7 @@ func handleUserById(ctx context.Context, _ int, url string) []interface{} {
 	wrapped.Name = user.Name
 
 	if user.AvatarSha != "" {
-		wrapped.Avatar = files.GetURL(user.AvatarSha)
+		wrapped.Avatar = imgproxy.GetURL(user.AvatarSha, 200)
 	} else if user.VkPhoto200 != "" {
 		wrapped.Avatar = user.VkPhoto200
 	}
