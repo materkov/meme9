@@ -5,16 +5,21 @@ export type User = {
     name?: string;
     avatar?: string;
     bio?: string;
+    online?: Online;
 }
 
 export type Post = {
     id: string;
     userId: string;
+    user?: User;
     date: string;
     text: string;
     canDelete?: boolean;
     isDeleted?: boolean;
     photoId?: string;
+    photo?: Photo;
+
+    likesConnection?: PostsLikesConnection;
 }
 
 export type Photo = {
@@ -33,7 +38,7 @@ export type PhotoThumb = {
 }
 
 export function api2(method: string, args: any): Promise<any> {
-    const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me/api2/" : "http://localhost:8000/api2/";
+    const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me/api2?method=" : "http://localhost:8000/api2?method=";
     const state = store.getState() as Global;
 
     return new Promise((resolve, reject) => {
@@ -163,4 +168,22 @@ export interface PostsLikesConnection {
     isViewerLiked: boolean
 
     items: User[]
+}
+
+export enum FeedType {
+    FEED = 'FEED',
+    DISCOVER = 'DISCOVER',
+}
+
+export interface FeedList {
+    feedType: FeedType
+}
+
+export interface PostsList {
+    items: Post[]
+    nextCursor: string
+}
+
+export interface UsersPostsList {
+    userId: string;
 }

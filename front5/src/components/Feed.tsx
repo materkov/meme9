@@ -4,8 +4,8 @@ import {PostsList} from "./PostsList";
 import classNames from "classnames";
 import styles from "./Feed.module.css";
 import {Global} from "../store2/store";
-import {actions} from "../store2/actions";
 import {connect} from "react-redux";
+import {loadFeed} from "../store2/actions/feed";
 
 enum FeedType {
     FEED = "FEED",
@@ -20,13 +20,9 @@ interface Props {
 
 function Component(props: Props) {
     const [feedType, setFeedType] = React.useState<FeedType>(FeedType.DISCOVER);
-    const [foo, setFoo] = React.useState(0);
 
     useEffect(() => {
-        // TODO
-        actions.loadFeed().then(() => {
-            setFoo(11);
-        });
+        loadFeed();
     }, []);
 
     return <>

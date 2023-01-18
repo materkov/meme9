@@ -41,8 +41,7 @@ func main() {
 		return
 	}
 
-	http.HandleFunc("/api", api.HandleAPI)
-	http.HandleFunc("/api2/", api.HandleAPI2)
+	http.HandleFunc("/api2", api.HandleAPI2)
 	http.HandleFunc("/upload", upload.HandleUpload)
 	http.HandleFunc("/imgproxy", imgproxy.ServeHTTP)
 

@@ -1,6 +1,16 @@
-import {api2, User, UsersEdit, UsersFollow, UsersSetAvatar, UsersUnfollow} from "../../store/types";
+import {
+    api2,
+    PostsList,
+    User,
+    UsersEdit,
+    UsersFollow,
+    UsersPostsList,
+    UsersSetAvatar,
+    UsersUnfollow
+} from "../../store/types";
 import {Global, store} from "../store";
-import {SetIsFollowing, SetUser} from "../reducers";
+import {AppendPosts, SetIsFollowing, SetUser} from "../reducers";
+import {parsePostsList} from "../helpers/posts";
 
 export function follow(userId: string) {
     store.dispatch({
@@ -54,3 +64,20 @@ export function usersSetAvatar(uploadToken: string): Promise<void> {
             })
     })
 }
+
+export function loadUserPage(userId: string): Promise<undefined> {
+    return new Promise((resolve, reject) => {
+        api2("users.posts.list", {userId: userId} as UsersPostsList).then((resp: PostsList) => {
+            parsePostsList(resp);
+
+            store.dispatch({
+                type: "users/appendPosts",
+                userId: userId,
+                posts: resp.items.map(post => post.id)
+            } as AppendPosts)
+
+            resolve(undefined);
+        })
+    })
+}
+

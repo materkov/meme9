@@ -6,9 +6,8 @@ import styles from "./UserPage.module.css";
 import {localizeCounter} from "../utils/localize";
 import {UserAvatar} from "./UserAvatar";
 import {Global} from "../store2/store";
-import {actions} from "../store2/actions";
 import {connect} from "react-redux";
-import {edit, follow, unfollow, usersSetAvatar} from "../store2/actions/users";
+import {edit, follow, loadUserPage, unfollow, usersSetAvatar} from "../store2/actions/users";
 
 interface Props {
     user: types.User;
@@ -26,24 +25,8 @@ function Component(props: Props) {
     const [isSuccess, setIsSuccess] = React.useState(false);
     const userId = location.pathname.substring(7);
     useEffect(() => {
-        actions.loadUserPage(userId).then(() => setIsSuccess(true));
+        loadUserPage(userId).then(() => setIsSuccess(true));
     }, []);
-    //const {data: user, isSuccess} = useQuery<User>(["/users/" + userId], fetcher);
-    //const {data: userPostsCount} = useQuery<Edges>([`/users/${userId}/posts`], fetcher);
-    /*const {data: posts, fetchNextPage, hasNextPage} = useInfiniteQuery<Edges>(
-        [`/users/${userId}/posts?__paging`], // TODO think about this hack
-        ({pageParam = ""}) => fetcher({queryKey: [`/users/${userId}/posts?cursor=${pageParam}&count=10`]}),
-        {
-            getNextPageParam: (lastPage) => {
-                return lastPage.nextCursor || undefined;
-            }
-        }
-    );*/
-
-    //const followersQueryKey = ["/users/" + userId + "/followers"];
-    //const {data: followers} = useQuery<Edges & { isFollowing: boolean }>(followersQueryKey, fetcher);
-    //const {data: following} = useQuery<Edges>(["/users/" + userId + "/following"], fetcher);
-    //const {data: viewer} = useQuery<Viewer>(["/viewer"], fetcher);
 
     const [userName, setUserName] = React.useState("");
     const [userNameUpdated, setUserNameUpdated] = React.useState(false);

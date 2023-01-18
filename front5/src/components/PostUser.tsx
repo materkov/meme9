@@ -14,9 +14,6 @@ interface Props {
 function Component(props: Props) {
     const [isVisible, setIsVisible] = React.useState(false);
 
-    //const {data: userPosts} = useQuery<Edges>(["/users/" + post?.userId + "/posts"], fetcher, {
-    //    enabled: isVisible,
-    //});
     const userPosts = null;
 
     let className = styles.userNamePopup;

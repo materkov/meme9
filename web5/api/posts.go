@@ -20,11 +20,20 @@ type Post struct {
 	Date   string `json:"date,omitempty"`
 	Text   string `json:"text,omitempty"`
 	UserID string `json:"userId,omitempty"`
+	User   *User  `json:"user,omitempty"`
 
 	IsDeleted bool `json:"isDeleted,omitempty"`
 
 	CanDelete bool   `json:"canDelete,omitempty"`
 	PhotoID   string `json:"photoId,omitempty"`
+	Photo     *Photo `json:"photo,omitempty"`
+
+	LikesConnection *PostsLikesConnection `json:"likesConnection,omitempty"`
+}
+
+type PostsList struct {
+	Items      []*Post `json:"items,omitempty"`
+	NextCursor string  `json:"nextCursor,omitempty"`
 }
 
 // /posts/:id

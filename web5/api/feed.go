@@ -125,3 +125,52 @@ func handleFeed(ctx context.Context, viewerID int, reqUrl string) []interface{} 
 
 	return results
 }
+
+type FeedList struct {
+	FeedType string `json:"feedType"`
+}
+
+func handleFeedList(ctx context.Context, viewerID int, req *FeedList) (*PostsList, error) {
+	result := handleFeed(ctx, viewerID, "/feed")
+	edges := result[0].(Edges)
+
+	response := PostsList{}
+
+	response.Items = wrapPostsList(ctx, viewerID, edges.Items)
+
+	return &response, nil
+}
+
+func wrapPostsList(ctx context.Context, viewerID int, postIds []string) []*Post {
+	var posts []*Post
+
+	for _, postID := range postIds {
+		result := handlePostsId(ctx, viewerID, fmt.Sprintf("/posts/%s", postID))
+		post := result[0].(Post)
+
+		result2 := handleUserById(ctx, viewerID, fmt.Sprintf("/users/%s", post.UserID))
+		user := result2[0].(User)
+		post.User = &user
+
+		result4 := handleUserOnline(ctx, viewerID, fmt.Sprintf("/users/%s/online", post.UserID))
+		online := result4[0].(Online)
+		post.User.Online = &online
+
+		result5 := handlePostsLiked(ctx, viewerID, fmt.Sprintf("/posts/%s/liked", postID))
+		liked := result5[0].(LikedEdges)
+		post.LikesConnection = &PostsLikesConnection{
+			TotalCount:    liked.TotalCount,
+			IsViewerLiked: liked.IsViewerLiked,
+		}
+
+		if post.PhotoID != "" {
+			result3 := handlePhotosId(ctx, viewerID, fmt.Sprintf("/photos/%s", post.PhotoID))
+			photo := result3[0].(Photo)
+			post.Photo = &photo
+		}
+
+		posts = append(posts, &post)
+	}
+
+	return posts
+}

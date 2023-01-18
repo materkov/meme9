@@ -21,6 +21,8 @@ type User struct {
 	Name   string `json:"name,omitempty"`
 	Bio    string `json:"bio,omitempty"`
 	Avatar string `json:"avatar,omitempty"`
+
+	Online *Online `json:"online,omitempty"`
 }
 
 // /users/:id
@@ -301,4 +303,18 @@ func handleUsersSetAvatar(ctx context.Context, viewerID int, req *UsersSetAvatar
 	userWrapped := result[0].(User)
 
 	return &userWrapped, nil
+}
+
+type UsersPostsList struct {
+	UserID string `json:"userId,omitempty"`
+}
+
+func handleUsersPostsList(ctx context.Context, viewerID int, req *UsersPostsList) (*PostsList, error) {
+	result := handleUserPosts(ctx, viewerID, fmt.Sprintf("/users/%s/posts?count=10", req.UserID))
+	edges := result[0].(Edges)
+
+	response := PostsList{}
+	response.Items = wrapPostsList(ctx, viewerID, edges.Items)
+
+	return &response, nil
 }
