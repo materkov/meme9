@@ -34,6 +34,7 @@ type Post struct {
 type PostsList struct {
 	Items      []*Post `json:"items,omitempty"`
 	NextCursor string  `json:"nextCursor,omitempty"`
+	TotalCount int     `json:"totalCount,omitempty"`
 }
 
 // /posts/:id

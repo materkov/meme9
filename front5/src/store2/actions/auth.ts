@@ -1,7 +1,9 @@
 import * as types from "../../store/types";
 import {api2, AuthEmailLogin, AuthEmailRegister, Authorization, AuthVkCallback, User} from "../../store/types";
 import {store} from "../store";
-import {SetToken, SetUser, SetViewer} from "../reducers";
+import {SetUser} from "../reducers/users";
+import {SetToken} from "../reducers/auth";
+import {SetViewer} from "../reducers/viewer";
 
 function setAuth(auth: Authorization) {
     store.dispatch({type: 'users/set', user: auth.user} as SetUser)

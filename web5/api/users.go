@@ -307,14 +307,16 @@ func handleUsersSetAvatar(ctx context.Context, viewerID int, req *UsersSetAvatar
 
 type UsersPostsList struct {
 	UserID string `json:"userId,omitempty"`
+	Count  int    `json:"count"`
 }
 
 func handleUsersPostsList(ctx context.Context, viewerID int, req *UsersPostsList) (*PostsList, error) {
-	result := handleUserPosts(ctx, viewerID, fmt.Sprintf("/users/%s/posts?count=10", req.UserID))
+	result := handleUserPosts(ctx, viewerID, fmt.Sprintf("/users/%s/posts?count=%d", req.UserID, req.Count))
 	edges := result[0].(Edges)
 
 	response := PostsList{}
 	response.Items = wrapPostsList(ctx, viewerID, edges.Items)
+	response.TotalCount = edges.TotalCount
 
 	return &response, nil
 }

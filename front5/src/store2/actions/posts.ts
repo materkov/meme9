@@ -10,7 +10,9 @@ import {
     PostsUnlike
 } from "../../store/types";
 import {Global, store} from "../store";
-import {AppendFeed, AppendLikers, DeleteFromFeed, SetLikes, SetPost, SetUser} from "../reducers";
+import {AppendFeed, DeleteFromFeed} from "../reducers/feed";
+import {AppendLikers, SetLikes, SetPost} from "../reducers/posts";
+import {SetUser} from "../reducers/users";
 
 export function deletePost(postId: string) {
     api2("posts.delete", {

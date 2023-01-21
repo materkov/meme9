@@ -1,23 +1,33 @@
 import {createStore} from "redux";
 import * as types from "../store/types";
 import {
-    AnyAction,
-    appendFeed,
+    AppendLikers,
     appendLikers,
-    appendPosts,
-    deleteFromFeed,
+    PostLike,
     postLikeReducer,
+    PostUnlike,
     postUnlike,
-    setIsFollowing,
+    SetLikes,
     setLikes,
-    setOnline,
-    setPhoto,
-    setPost,
-    setRouteReducer,
-    setToken,
-    setUser,
-    setViewer
-} from "./reducers";
+    SetPost,
+    setPost
+} from "./reducers/posts";
+import {
+    AppendPosts,
+    appendPosts,
+    SetIsFollowing,
+    setIsFollowing,
+    SetPostsCount,
+    setPostsCount,
+    SetUser,
+    setUser
+} from "./reducers/users";
+import {SetRoute, setRouteReducer} from "./reducers/routes";
+import {SetViewer, setViewer} from "./reducers/viewer";
+import {AppendFeed, appendFeed, DeleteFromFeed, deleteFromFeed} from "./reducers/feed";
+import {SetOnline, setOnline} from "./reducers/online";
+import {SetPhoto, setPhoto} from "./reducers/photos";
+import {SetToken, setToken} from "./reducers/auth";
 
 export interface Global {
     routing: {
@@ -41,7 +51,7 @@ export interface Global {
     users: {
         byId: { [id: string]: types.User }
 
-        postsCount: { [id: string]: number }
+        postsCount: { [id: string]: number | null }
         followersCount: { [id: string]: number }
         followingCount: { [id: string]: number }
 
@@ -100,6 +110,12 @@ const global: Global = {
     }
 }
 
+export type AnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
+    | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed | SetIsFollowing
+    | SetToken | SetPostsCount
+    ;
+
+
 export const store = createStore<Global, AnyAction, any, any>((state = global, action: AnyAction) => {
     switch (action.type) {
         case 'posts/like':
@@ -130,11 +146,14 @@ export const store = createStore<Global, AnyAction, any, any>((state = global, a
             return deleteFromFeed(state, action)
         case 'users/setIsFollowing':
             return setIsFollowing(state, action)
+        case 'users/setPostsCount':
+            return setPostsCount(state, action)
         case 'auth/setToken':
             return setToken(state, action)
         default:
             return state
     }
+// @ts-ignore
 }, undefined, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 
 // @ts-ignore

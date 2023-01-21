@@ -181,9 +181,11 @@ export interface FeedList {
 
 export interface PostsList {
     items: Post[]
+    totalCount: number;
     nextCursor: string
 }
 
 export interface UsersPostsList {
     userId: string;
+    count: number;
 }

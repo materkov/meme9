@@ -1,7 +1,7 @@
 import {Global, store} from "../store";
-import {AppendFeed, SetLikes, SetOnline, SetPhoto, SetPost, SetUser} from "../reducers";
 import {api2, FeedList, FeedType, PostsList} from "../../store/types";
 import {parsePostsList} from "../helpers/posts";
+import {AppendFeed} from "../reducers/feed";
 
 export function loadFeed(): Promise<undefined> {
     const st = store.getState() as Global;
