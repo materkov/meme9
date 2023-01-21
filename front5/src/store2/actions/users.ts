@@ -82,7 +82,7 @@ export function loadUserPage(userId: string): Promise<void> {
 export function loadUserPostsCount(userId: string): Promise<void> {
     return new Promise((resolve, reject) => {
         const state = store.getState();
-        if (state.users.postsCount[userId] === undefined) {
+        if (state.users.postsCount[userId] !== undefined) {
             resolve();
             return
         }
