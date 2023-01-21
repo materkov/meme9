@@ -1,10 +1,9 @@
 import React, {MouseEvent, useEffect} from "react";
 import styles from "./Header.module.css";
 import {Link} from "./Link";
-import {authorize} from "../utils/localize";
 import {Global} from "../store2/store";
 import {connect} from "react-redux";
-import * as types from "../store/types";
+import * as types from "../api/types";
 import {loadViewer, logout} from "../store2/actions/auth";
 
 interface Props {
@@ -22,7 +21,6 @@ function Component(props: Props) {
         e.preventDefault();
 
         logout();
-        authorize('');
     }
 
     return (

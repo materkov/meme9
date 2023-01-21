@@ -1,42 +1,33 @@
-import {
-    api2,
-    Post,
-    PostLikeData,
-    PostsAdd,
-    PostsDelete,
-    PostsGetLikesConnection,
-    PostsLike,
-    PostsLikesConnection,
-    PostsUnlike
-} from "../../store/types";
-import {Global, store} from "../store";
+import * as types from "../../api/types";
+import {store} from "../store";
 import {AppendFeed, DeleteFromFeed} from "../reducers/feed";
 import {AppendLikers, SetLikes, SetPost} from "../reducers/posts";
 import {SetUser} from "../reducers/users";
+import {api} from "../../api/api";
 
 export function deletePost(postId: string) {
-    api2("posts.delete", {
+    api("posts.delete", {
         id: postId,
-    } as PostsDelete);
+    } as types.PostsDelete);
 
     store.dispatch({type: "feed/delete", postId: postId} as DeleteFromFeed)
 }
 
-export function add(data: PostsAdd): Promise<void> {
+export function add(data: types.PostsAdd): Promise<void> {
     return new Promise((resolve, reject) => {
-        api2("posts.add", data).then((post: Post) => {
+        api("posts.add", data).then((post: types.Post) => {
             store.dispatch({type: "posts/set", post: post} as SetPost)
             store.dispatch({type: "feed/append", items: [post.id], prepend: true} as AppendFeed)
 
-            return resolve();
+            resolve();
         }).catch(() => {
-            return resolve();
+            reject();
         })
     })
 }
 
 export function like(postId: string) {
-    const state = store.getState() as Global;
+    const state = store.getState();
 
     store.dispatch({
         type: 'posts/setLikes',
@@ -45,7 +36,7 @@ export function like(postId: string) {
         isLiked: true,
     } as SetLikes);
 
-    api2("posts.like", {postId: postId} as PostsLike).then((resp: PostLikeData) => {
+    api("posts.like", {postId: postId} as types.PostsLike).then((resp: types.PostLikeData) => {
         store.dispatch({
             type: 'posts/setLikes',
             postId: postId,
@@ -56,7 +47,7 @@ export function like(postId: string) {
 }
 
 export function unlike(postId: string) {
-    const state = store.getState() as Global;
+    const state = store.getState();
 
     store.dispatch({
         type: 'posts/setLikes',
@@ -65,7 +56,7 @@ export function unlike(postId: string) {
         isLiked: false,
     } as SetLikes);
 
-    api2("posts.unlike", {postId: postId} as PostsUnlike).then((resp: PostLikeData) => {
+    api("posts.unlike", {postId: postId} as types.PostsUnlike).then((resp: types.PostLikeData) => {
         store.dispatch({
             type: 'posts/setLikes',
             postId: postId,
@@ -75,12 +66,12 @@ export function unlike(postId: string) {
     });
 }
 
-export function loadLikers(postId: string): Promise<undefined> {
+export function loadLikers(postId: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        api2("posts.getLikesConnection", {
+        api("posts.getLikesConnection", {
             postId: postId,
             count: 10
-        } as PostsGetLikesConnection).then((resp: PostsLikesConnection) => {
+        } as types.PostsGetLikesConnection).then((resp: types.PostsLikesConnection) => {
             for (let user of resp.items) {
                 store.dispatch({type: "users/set", user: user} as SetUser)
             }
@@ -92,7 +83,7 @@ export function loadLikers(postId: string): Promise<undefined> {
                 postId: postId
             } as AppendLikers);
 
-            resolve(undefined);
+            resolve();
         })
     })
 }

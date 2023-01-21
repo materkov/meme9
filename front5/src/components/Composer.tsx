@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./Composer.module.css";
-import {uploadApi} from "../store/types";
+import {uploadApi} from "../api/api";
 import {Close} from "./icons/Close";
 import {add} from "../store2/actions/posts";
 

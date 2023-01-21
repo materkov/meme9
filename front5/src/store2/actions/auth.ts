@@ -1,11 +1,11 @@
-import * as types from "../../store/types";
-import {api2, AuthEmailLogin, AuthEmailRegister, Authorization, AuthVkCallback, User} from "../../store/types";
+import * as types from "../../api/types";
 import {store} from "../store";
 import {SetUser} from "../reducers/users";
 import {SetToken} from "../reducers/auth";
 import {SetViewer} from "../reducers/viewer";
+import {api} from "../../api/api";
 
-function setAuth(auth: Authorization) {
+function setAuth(auth: types.Authorization) {
     store.dispatch({type: 'users/set', user: auth.user} as SetUser)
     store.dispatch({type: 'auth/setToken', token: auth.token} as SetToken)
     store.dispatch({type: 'viewer/set', userId: auth.user.id} as SetViewer)
@@ -15,10 +15,10 @@ function setAuth(auth: Authorization) {
 
 export function vkCallback(code: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        api2("auth.vkCallback", {
+        api("auth.vkCallback", {
             code: code,
             redirectUri: location.origin + location.pathname,
-        } as AuthVkCallback).then((r: types.Authorization) => {
+        } as types.AuthVkCallback).then((r: types.Authorization) => {
             setAuth(r);
             resolve();
         })
@@ -32,9 +32,9 @@ export function logout() {
     localStorage.removeItem("authToken");
 }
 
-export function emailLogin(req: AuthEmailLogin): Promise<void> {
+export function emailLogin(req: types.AuthEmailLogin): Promise<void> {
     return new Promise((resolve, reject) => {
-        api2("auth.emailLogin", req).then((r: Authorization) => {
+        api("auth.emailLogin", req).then((r: types.Authorization) => {
             setAuth(r);
             resolve();
         }).catch(err => {
@@ -43,9 +43,9 @@ export function emailLogin(req: AuthEmailLogin): Promise<void> {
     })
 }
 
-export function emailRegister(req: AuthEmailRegister): Promise<void> {
+export function emailRegister(req: types.AuthEmailRegister): Promise<void> {
     return new Promise((resolve, reject) => {
-        api2("auth.emailRegister", req).then((r: Authorization) => {
+        api("auth.emailRegister", req).then((r: types.Authorization) => {
             setAuth(r);
             resolve();
         }).catch(err => {
@@ -54,15 +54,13 @@ export function emailRegister(req: AuthEmailRegister): Promise<void> {
     })
 }
 
-export function loadViewer(): Promise<undefined> {
-    return new Promise((resolve, reject) => {
-        api2("auth.viewer", {}).then((u: User) => {
-            if (u) {
-                store.dispatch({type: "users/set", user: u} as SetUser)
-                store.dispatch({type: "viewer/set", userId: u.id} as SetViewer)
-            } else {
-                store.dispatch({type: "viewer/set", userId: ''} as SetViewer)
-            }
-        })
+export function loadViewer() {
+    api("auth.viewer", {}).then((u: types.User) => {
+        if (u) {
+            store.dispatch({type: "users/set", user: u} as SetUser)
+            store.dispatch({type: "viewer/set", userId: u.id} as SetViewer)
+        } else {
+            store.dispatch({type: "viewer/set", userId: ''} as SetViewer)
+        }
     })
 }

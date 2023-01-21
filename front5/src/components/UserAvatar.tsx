@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./UserAvatar.module.css";
 import {Global} from "../store2/store";
 import {connect} from "react-redux";
-import * as types from "../store/types";
+import * as types from "../api/types";
 
 export type Props = {
     userId: string;

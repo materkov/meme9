@@ -1,5 +1,5 @@
 import React from "react";
-import * as types from "../store/types";
+import * as types from "../api/types";
 import {PostUser} from "./PostUser";
 import styles from "./Post.module.css";
 import {Dots3} from "./icons/Dots3";

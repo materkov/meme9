@@ -4,7 +4,7 @@ import {Link} from "./Link";
 import {UserAvatar} from "./UserAvatar";
 import {Global} from "../store2/store";
 import {connect} from "react-redux";
-import * as types from "../store/types";
+import * as types from "../api/types";
 import {loadLikers} from "../store2/actions/posts";
 
 interface Props {

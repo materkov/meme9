@@ -1,8 +1,11 @@
 import {store} from "../store";
-import {SetLikes, SetOnline, SetPhoto, SetPost, SetUser} from "../reducers";
-import {PostsList} from "../../store/types";
+import * as types from "../../api/types";
+import {SetUser} from "../reducers/users";
+import {SetOnline} from "../reducers/online";
+import {SetPhoto} from "../reducers/photos";
+import {SetLikes, SetPost} from "../reducers/posts";
 
-export function parsePostsList(posts: PostsList) {
+export function parsePostsList(posts: types.PostsList) {
     posts.items.forEach(post => {
         if (post.user) {
             store.dispatch({type: "users/set", user: post.user} as SetUser);

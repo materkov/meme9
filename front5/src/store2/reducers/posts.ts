@@ -1,5 +1,5 @@
 import {Global} from "../store";
-import * as types from "../../store/types";
+import * as types from "../../api/types";
 
 export interface PostLike {
     type: 'posts/like';

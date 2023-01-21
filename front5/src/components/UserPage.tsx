@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
-import * as types from "../store/types";
-import {uploadApi} from "../store/types";
+import * as types from "../api/types";
+import {uploadApi} from "../api/api";
 import {ComponentPost} from "./Post";
 import styles from "./UserPage.module.css";
 import {localizeCounter} from "../utils/localize";

@@ -1,16 +1,8 @@
-import {
-    api2,
-    PostsList,
-    User,
-    UsersEdit,
-    UsersFollow,
-    UsersPostsList,
-    UsersSetAvatar,
-    UsersUnfollow
-} from "../../store/types";
-import {Global, store} from "../store";
+import * as types from "../../api/types";
+import {store} from "../store";
 import {parsePostsList} from "../helpers/posts";
 import {AppendPosts, SetIsFollowing, SetPostsCount, SetUser} from "../reducers/users";
+import {api} from "../../api/api";
 
 export function follow(userId: string) {
     store.dispatch({
@@ -19,7 +11,7 @@ export function follow(userId: string) {
         isFollowing: true,
     } as SetIsFollowing);
 
-    api2("users.follow", {userId: userId} as UsersFollow);
+    api("users.follow", {userId: userId} as types.UsersFollow);
 }
 
 export function unfollow(userId: string) {
@@ -29,12 +21,12 @@ export function unfollow(userId: string) {
         isFollowing: false,
     } as SetIsFollowing);
 
-    api2("users.unfollow", {userId: userId} as UsersUnfollow);
+    api("users.unfollow", {userId: userId} as types.UsersUnfollow);
 }
 
-export function edit(data: UsersEdit): Promise<void> {
+export function edit(data: types.UsersEdit): Promise<void> {
     return new Promise((resolve, reject) => {
-        const state = store.getState() as Global;
+        const state = store.getState();
 
         const user = {...state.users.byId[data.userId]};
         user.name = data.name;
@@ -44,18 +36,18 @@ export function edit(data: UsersEdit): Promise<void> {
             user: user,
         } as SetUser);
 
-        api2("users.edit", data).then(() => resolve());
+        api("users.edit", data).then(() => resolve());
     })
 }
 
 export function usersSetOnline() {
-    api2("users.setOnline", {});
+    api("users.setOnline", {});
 }
 
 export function usersSetAvatar(uploadToken: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        api2("users.setAvatar", {uploadToken: uploadToken} as UsersSetAvatar)
-            .then((user: User) => {
+        api("users.setAvatar", {uploadToken: uploadToken} as types.UsersSetAvatar)
+            .then((user: types.User) => {
                 store.dispatch({
                     type: 'users/set',
                     user: user,
@@ -65,9 +57,9 @@ export function usersSetAvatar(uploadToken: string): Promise<void> {
     })
 }
 
-export function loadUserPage(userId: string): Promise<undefined> {
+export function loadUserPage(userId: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        api2("users.posts.list", {userId: userId, count: 10} as UsersPostsList).then((resp: PostsList) => {
+        api("users.posts.list", {userId: userId, count: 10} as types.UsersPostsList).then((resp: types.PostsList) => {
             parsePostsList(resp);
 
             store.dispatch({
@@ -82,15 +74,15 @@ export function loadUserPage(userId: string): Promise<undefined> {
                 count: resp.totalCount || 0,
             } as SetPostsCount);
 
-            resolve(undefined);
+            resolve();
         })
     })
 }
 
 export function loadUserPostsCount(userId: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        const state = store.getState() as Global;
-        if (state.users.postsCount.hasOwnProperty(userId)) {
+        const state = store.getState();
+        if (state.users.postsCount[userId] === undefined) {
             resolve();
             return
         }
@@ -101,7 +93,7 @@ export function loadUserPostsCount(userId: string): Promise<void> {
             count: null,
         } as SetPostsCount);
 
-        api2("users.posts.list", {userId: userId, count: 0} as UsersPostsList).then((resp: PostsList) => {
+        api("users.posts.list", {userId: userId, count: 0} as types.UsersPostsList).then((resp: types.PostsList) => {
             store.dispatch({
                 type: "users/setPostsCount",
                 userId: userId,

@@ -1,4 +1,4 @@
-import * as types from "../../store/types";
+import * as types from "../../api/types";
 import {Global} from "../store";
 
 export interface SetOnline {

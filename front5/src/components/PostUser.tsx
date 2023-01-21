@@ -3,7 +3,7 @@ import {Link} from "./Link";
 import styles from "./PostUser.module.css";
 import {UserAvatar} from "./UserAvatar";
 import {Global} from "../store2/store";
-import * as types from "../store/types";
+import * as types from "../api/types";
 import {connect} from "react-redux";
 import {loadUserPostsCount} from "../store2/actions/users";
 

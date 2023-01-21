@@ -3,7 +3,7 @@ import {selectPhotoThumb} from "../utils/photos";
 import classNames from "classnames";
 import styles from "./PostPhoto.module.css";
 import {Global} from "../store2/store";
-import * as types from "../store/types";
+import * as types from "../api/types";
 import {connect} from "react-redux";
 
 export interface OwnProps {

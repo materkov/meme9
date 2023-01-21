@@ -1,6 +1,6 @@
-import {Photo} from "../store/types";
+import * as types from "../api/types";
 
-export function selectPhotoThumb(photo: Photo, width: number): string {
+export function selectPhotoThumb(photo: types.Photo, width: number): string {
     const actualWidth = Math.floor(width * window.devicePixelRatio);
 
     if (photo.thumbs) {

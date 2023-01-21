@@ -1,6 +1,3 @@
-//import {emitCustomEvent} from "react-custom-events";
-import {setOnline} from "../store/onlineManager";
-
 export function localizeCounter(count: number, form1: string, form234: string, form567: string) {
     const mod = count % 10;
 
@@ -11,15 +8,4 @@ export function localizeCounter(count: number, form1: string, form234: string, f
     } else {
         return form567;
     }
-}
-
-export function navigate(url: string) {
-    //window.history.pushState(null, '', url);
-    //emitCustomEvent('urlChanged');
-}
-
-export function authorize(token: string) {
-    //emitCustomEvent('onAuthorized');
-
-    setOnline();
 }

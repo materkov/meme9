@@ -1,5 +1,5 @@
 import {createStore} from "redux";
-import * as types from "../store/types";
+import * as types from "../api/types";
 import {
     AppendLikers,
     appendLikers,
@@ -116,7 +116,7 @@ export type AnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | S
     ;
 
 
-export const store = createStore<Global, AnyAction, any, any>((state = global, action: AnyAction) => {
+export const store = createStore<Global, AnyAction, void, void>((state = global, action: AnyAction) => {
     switch (action.type) {
         case 'posts/like':
             return postLikeReducer(state, action)

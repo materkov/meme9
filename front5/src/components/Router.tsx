@@ -13,10 +13,6 @@ interface Props {
 }
 
 function Component(props: Props) {
-    //const [url, setUrl] = React.useState(location.pathname + location.search);
-    //useCustomEventListener('urlChanged', () => {
-    //    setUrl(location.pathname + location.search);
-    //})
     const url = props.url;
 
     if (url == "/") {
@@ -36,7 +32,7 @@ function Component(props: Props) {
     }
 }
 
-export const Router = connect((state: Global, ownProps) => {
+export const Router = connect((state: Global) => {
     return {
         url: state.routing.url,
     }
