@@ -2,7 +2,7 @@ import React from "react";
 import {selectPhotoThumb} from "../utils/photos";
 import classNames from "classnames";
 import styles from "./PostPhoto.module.css";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 import * as types from "../api/types";
 import {connect} from "react-redux";
 

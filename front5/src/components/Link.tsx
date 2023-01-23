@@ -1,5 +1,5 @@
 import React, {MouseEvent, ReactNode} from "react";
-import {setRoute} from "../store2/actions/route";
+import {setRoute} from "../store/actions/route";
 
 export function Link(props: { href?: string, children: ReactNode, className?: string }) {
     const onClick = (e: MouseEvent<HTMLAnchorElement>) => {

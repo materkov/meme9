@@ -2,10 +2,10 @@ import React, {useEffect} from "react";
 import {Link} from "./Link";
 import styles from "./PostUser.module.css";
 import {UserAvatar} from "./UserAvatar";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 import * as types from "../api/types";
 import {connect} from "react-redux";
-import {loadUserPostsCount} from "../store2/actions/users";
+import {loadUserPostsCount} from "../store/actions/users";
 
 interface Props {
     post: types.Post;

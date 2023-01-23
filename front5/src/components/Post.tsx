@@ -6,9 +6,9 @@ import {Dots3} from "./icons/Dots3";
 import classNames from "classnames";
 import {PostLike} from "./PostLike";
 import {PostPhoto} from "./PostPhoto";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 import {connect} from "react-redux";
-import {deletePost} from "../store2/actions/posts";
+import {deletePost} from "../store/actions/posts";
 
 interface Props {
     post: types.Post;

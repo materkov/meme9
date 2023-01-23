@@ -5,9 +5,9 @@ import {ComponentPost} from "./Post";
 import styles from "./UserPage.module.css";
 import {localizeCounter} from "../utils/localize";
 import {UserAvatar} from "./UserAvatar";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 import {connect} from "react-redux";
-import {edit, follow, loadUserPage, unfollow, usersSetAvatar} from "../store2/actions/users";
+import {edit, follow, loadUserPage, unfollow, usersSetAvatar} from "../store/actions/users";
 
 interface Props {
     user: types.User;

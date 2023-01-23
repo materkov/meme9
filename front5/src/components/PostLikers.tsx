@@ -2,10 +2,10 @@ import React, {useEffect} from "react";
 import styles from "./PostLikers.module.css";
 import {Link} from "./Link";
 import {UserAvatar} from "./UserAvatar";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 import {connect} from "react-redux";
 import * as types from "../api/types";
-import {loadLikers} from "../store2/actions/posts";
+import {loadLikers} from "../store/actions/posts";
 
 interface Props {
     postId: string;

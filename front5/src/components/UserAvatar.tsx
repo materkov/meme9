@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./UserAvatar.module.css";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 import {connect} from "react-redux";
 import * as types from "../api/types";
 

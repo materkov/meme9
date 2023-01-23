@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./Composer.module.css";
 import {uploadApi} from "../api/api";
 import {Close} from "./icons/Close";
-import {add} from "../store2/actions/posts";
+import {add} from "../store/actions/posts";
 
 export function Composer() {
     const [text, setText] = React.useState('');

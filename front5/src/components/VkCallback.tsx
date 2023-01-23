@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
-import {vkCallback} from "../store2/actions/auth";
-import {setRoute} from "../store2/actions/route";
+import {vkCallback} from "../store/actions/auth";
+import {setRoute} from "../store/actions/route";
 
 export function VkCallback() {
     useEffect(() => {

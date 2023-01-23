@@ -1,8 +1,8 @@
 import React from "react";
 import styles from "./RegisterPage.module.css";
 import {Link} from "./Link";
-import {emailRegister} from "../store2/actions/auth";
-import {setRoute} from "../store2/actions/route";
+import {emailRegister} from "../store/actions/auth";
+import {setRoute} from "../store/actions/route";
 
 export function RegisterPage() {
     const [email, setEmail] = React.useState("test@email.com");

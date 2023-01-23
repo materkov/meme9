@@ -3,7 +3,7 @@ import styles from "./App.module.css";
 import {Router} from "./Router";
 import {Header} from "./Header";
 import {Provider} from "react-redux";
-import {store} from "../store2/store";
+import {store} from "../store/store";
 
 export function App() {
     return (

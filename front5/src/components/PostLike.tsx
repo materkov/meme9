@@ -4,9 +4,9 @@ import React from "react";
 import {HeartRed} from "./icons/HeartRed";
 import classNames from "classnames";
 import {PostLikers} from "./PostLikers";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 import {connect} from "react-redux";
-import {like, unlike} from "../store2/actions/posts";
+import {like, unlike} from "../store/actions/posts";
 
 type Props = {
     postId: string;

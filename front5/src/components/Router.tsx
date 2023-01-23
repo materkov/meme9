@@ -6,7 +6,7 @@ import {PostPage} from "./PostPage";
 import {LoginPage} from "./LoginPage";
 import {RegisterPage} from "./RegisterPage";
 import {connect} from "react-redux";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 
 interface Props {
     url: string;

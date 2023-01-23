@@ -1,10 +1,10 @@
 import React, {MouseEvent, useEffect} from "react";
 import styles from "./Header.module.css";
 import {Link} from "./Link";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 import {connect} from "react-redux";
 import * as types from "../api/types";
-import {loadViewer, logout} from "../store2/actions/auth";
+import {loadViewer, logout} from "../store/actions/auth";
 
 interface Props {
     isLoaded: boolean;

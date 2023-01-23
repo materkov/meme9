@@ -3,9 +3,9 @@ import {Composer} from "./Composer";
 import {PostsList} from "./PostsList";
 import classNames from "classnames";
 import styles from "./Feed.module.css";
-import {Global} from "../store2/store";
+import {Global} from "../store/store";
 import {connect} from "react-redux";
-import {loadFeed} from "../store2/actions/feed";
+import {loadFeed} from "../store/actions/feed";
 
 enum FeedType {
     FEED = "FEED",
