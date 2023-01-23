@@ -15,7 +15,6 @@ import (
 )
 
 type Post struct {
-	URL    string `json:"url,omitempty"`
 	ID     string `json:"id,omitempty"`
 	Date   string `json:"date,omitempty"`
 	Text   string `json:"text,omitempty"`
@@ -42,8 +41,7 @@ func handlePostsId(ctx context.Context, viewerID int, url string) []interface{} 
 	postID, _ := strconv.Atoi(strings.TrimPrefix(url, "/posts/"))
 
 	result := Post{
-		URL: url,
-		ID:  strconv.Itoa(postID),
+		ID: strconv.Itoa(postID),
 	}
 
 	post := store.CachedStoreFromCtx(ctx).Post.Get(postID)
@@ -94,7 +92,7 @@ func handlePostsLiked(ctx context.Context, viewerID int, reqURL string) []interf
 	}
 
 	edge := LikedEdges{
-		Edges: Edges{URL: reqURL},
+		Edges: Edges{},
 	}
 
 	post := store.CachedStoreFromCtx(ctx).Post.Get(postID)

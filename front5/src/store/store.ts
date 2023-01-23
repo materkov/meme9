@@ -24,10 +24,16 @@ import {
 } from "./reducers/users";
 import {SetRoute, setRouteReducer} from "./reducers/routes";
 import {SetViewer, setViewer} from "./reducers/viewer";
-import {AppendFeed, appendFeed, DeleteFromFeed, deleteFromFeed} from "./reducers/feed";
+import {AppendFeed, appendFeed, DeleteFromFeed, deleteFromFeed, setLoadingState, SetState} from "./reducers/feed";
 import {SetOnline, setOnline} from "./reducers/online";
 import {SetPhoto, setPhoto} from "./reducers/photos";
 import {SetToken, setToken} from "./reducers/auth";
+
+export enum LoadingState {
+    NONE,
+    LOADING,
+    DONE,
+}
 
 export interface Global {
     routing: {
@@ -45,6 +51,7 @@ export interface Global {
     feed: {
         isLoading: boolean
         isLoaded: boolean
+        state: LoadingState
         items: string[]
     }
 
@@ -85,6 +92,7 @@ const global: Global = {
         isLiked: {},
     },
     feed: {
+        state: LoadingState.NONE,
         isLoading: false,
         isLoaded: false,
         items: [],
@@ -112,7 +120,7 @@ const global: Global = {
 
 export type AnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
     | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed | SetIsFollowing
-    | SetToken | SetPostsCount
+    | SetToken | SetPostsCount | SetState
     ;
 
 
@@ -150,6 +158,8 @@ export const store = createStore<Global, AnyAction, void, void>((state = global,
             return setPostsCount(state, action)
         case 'auth/setToken':
             return setToken(state, action)
+        case 'feed/setState':
+            return setLoadingState(state, action)
         default:
             return state
     }

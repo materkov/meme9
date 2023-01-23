@@ -14,7 +14,6 @@ import (
 )
 
 type Edges struct {
-	URL        string `json:"url,omitempty"`
 	TotalCount int    `json:"totalCount,omitempty"`
 	NextCursor string `json:"nextCursor,omitempty"`
 

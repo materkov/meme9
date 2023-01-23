@@ -26,7 +26,6 @@ func TestHandlePostsId(t *testing.T) {
 		results := handlePostsId(testutils.PrepareContext(), 15, "/posts/9417")
 		post := results[0].(Post)
 
-		require.Equal(t, "/posts/9417", post.URL)
 		require.Equal(t, "9417", post.ID)
 		require.Equal(t, "2022-10-28T16:09:51Z", post.Date)
 		require.Equal(t, "test post", post.Text)

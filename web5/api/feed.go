@@ -88,7 +88,6 @@ func handleFeed(ctx context.Context, viewerID int, reqUrl string) []interface{} 
 	}
 
 	feed := Edges{
-		URL:        reqUrl,
 		TotalCount: 20,
 		NextCursor: nextCursor,
 		Items:      utils.IntToStrArray(postIds),

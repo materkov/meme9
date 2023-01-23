@@ -16,7 +16,6 @@ import (
 )
 
 type User struct {
-	URL    string `json:"url,omitempty"`
 	ID     string `json:"id,omitempty"`
 	Name   string `json:"name,omitempty"`
 	Bio    string `json:"bio,omitempty"`
@@ -32,8 +31,7 @@ func handleUserById(ctx context.Context, _ int, url string) []interface{} {
 	user := store.CachedStoreFromCtx(ctx).User.Get(userID)
 
 	wrapped := User{
-		ID:  strconv.Itoa(userID),
-		URL: fmt.Sprintf("/users/%d", userID),
+		ID: strconv.Itoa(userID),
 	}
 
 	if user == nil || userID <= 0 {
@@ -59,8 +57,6 @@ func handleUserById(ctx context.Context, _ int, url string) []interface{} {
 }
 
 type Online struct {
-	URL string `json:"url,omitempty"`
-
 	IsOnline bool `json:"isOnline,omitempty"`
 }
 
@@ -71,7 +67,6 @@ func handleUserOnline(ctx context.Context, _ int, url string) []interface{} {
 	isOnline := store.CachedStoreFromCtx(ctx).Online.Get(userID)
 
 	wrapped := Online{
-		URL:      url,
 		IsOnline: isOnline,
 	}
 
@@ -99,7 +94,6 @@ func handleUserFollowers(_ context.Context, viewerID int, url string) []interfac
 	return []interface{}{
 		FollowerEdges{
 			Edges: Edges{
-				URL:        fmt.Sprintf("/users/%d/followers", userID),
 				TotalCount: int(cardCmd.Val()),
 				NextCursor: "",
 				Items: []string{
@@ -117,7 +111,6 @@ func handleUserFollowing(_ context.Context, _ int, url string) []interface{} {
 
 	return []interface{}{
 		Edges{
-			URL:        fmt.Sprintf("/users/%d/following", userID),
 			TotalCount: int(result),
 			NextCursor: "",
 			Items:      []string{},
@@ -157,7 +150,6 @@ func handleUserPosts(_ context.Context, viewerID int, reqURL string) []interface
 	}
 
 	edges := Edges{
-		URL:        reqURL,
 		TotalCount: int(lenCmd.Val()),
 		NextCursor: nextCursor,
 	}

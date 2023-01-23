@@ -49,7 +49,7 @@ export const Feed = connect((state: Global) => {
     return {
         viewerId: state.viewer.id,
         feed: state.feed.items,
-        isLoaded: state.feed.isLoaded,
+        isLoaded: state.feed.state == 'loaded',
     } as Props
 })(Component);
 

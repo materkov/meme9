@@ -10,8 +10,7 @@ import (
 )
 
 type Photo struct {
-	URL string `json:"url,omitempty"`
-	ID  string `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 
 	Address string `json:"address,omitempty"`
 	Width   int    `json:"width,omitempty"`
@@ -31,8 +30,7 @@ func handlePhotosId(ctx context.Context, viewerID int, url string) []interface{}
 	photoID, _ := strconv.Atoi(strings.TrimPrefix(url, "/photos/"))
 
 	result := Photo{
-		URL: url,
-		ID:  strconv.Itoa(photoID),
+		ID: strconv.Itoa(photoID),
 	}
 
 	photo := store.CachedStoreFromCtx(ctx).Photo.Get(photoID)
