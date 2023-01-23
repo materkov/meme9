@@ -1,5 +1,5 @@
-import {store} from "../store2/store";
-import {usersSetOnline} from "../store2/actions/users";
+import {store} from "../store/store";
+import {usersSetOnline} from "../store/actions/users";
 
 const PING_INTERVAL = 179 * 60 * 1000; // 2 min 59 sec
 

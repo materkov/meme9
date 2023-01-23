@@ -1,4 +1,4 @@
-import {store} from "../store2/store";
+import {store} from "../store/store";
 
 export function api(method: string, args: any): Promise<any> {
     const apiHost = location.host == "meme.mmaks.me" ? "https://meme.mmaks.me/api2?method=" : "http://localhost:8000/api2?method=";
