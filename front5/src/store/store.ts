@@ -15,6 +15,10 @@ import {
 import {
     AppendPosts,
     appendPosts,
+    SetFollowersCount,
+    setFollowersCount,
+    SetFollowingCount,
+    setFollowingCount,
     SetIsFollowing,
     setIsFollowing,
     SetPostsCount,
@@ -120,7 +124,7 @@ const global: Global = {
 
 export type AnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
     | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed | SetIsFollowing
-    | SetToken | SetPostsCount | SetState
+    | SetToken | SetPostsCount | SetState | SetFollowingCount | SetFollowersCount
     ;
 
 
@@ -156,6 +160,10 @@ export const store = createStore<Global, AnyAction, void, void>((state = global,
             return setIsFollowing(state, action)
         case 'users/setPostsCount':
             return setPostsCount(state, action)
+        case 'users/setFollowersCount':
+            return setFollowersCount(state, action)
+        case 'users/setFollowingCount':
+            return setFollowingCount(state, action)
         case 'auth/setToken':
             return setToken(state, action)
         case 'feed/setState':

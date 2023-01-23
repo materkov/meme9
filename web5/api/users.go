@@ -73,49 +73,52 @@ func handleUserOnline(ctx context.Context, _ int, url string) []interface{} {
 	return []interface{}{wrapped}
 }
 
-// /users/:id/followers
-func handleUserFollowers(_ context.Context, viewerID int, url string) []interface{} {
-	type FollowerEdges struct {
-		Edges
-		IsFollowing bool `json:"isFollowing,omitempty"`
-	}
+type UserFollowers struct {
+	UserID string `json:"userId"`
+}
 
+type FollowerEdges struct {
+	Edges
+	IsFollowing bool `json:"isFollowing,omitempty"`
+}
+
+// /users/:id/followers
+func handleUserFollowers(_ context.Context, viewerID int, req *UserFollowers) (*FollowerEdges, error) {
 	pipe := store.RedisClient.Pipeline()
 
-	userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/followers"), "/users/"))
-	cardCmd := pipe.ZCard(context.Background(), fmt.Sprintf("followed_by:%d", userID))
-	scoreCmd := pipe.ZScore(context.Background(), fmt.Sprintf("followed_by:%d", userID), strconv.Itoa(viewerID))
+	//userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/followers"), "/users/"))
+	cardCmd := pipe.ZCard(context.Background(), fmt.Sprintf("followed_by:%s", req.UserID))
+	scoreCmd := pipe.ZScore(context.Background(), fmt.Sprintf("followed_by:%s", req.UserID), strconv.Itoa(viewerID))
 
 	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		log.Printf("Error redis: %s", err)
 	}
 
-	return []interface{}{
-		FollowerEdges{
-			Edges: Edges{
-				TotalCount: int(cardCmd.Val()),
-				NextCursor: "",
-				Items: []string{
-					"",
-				},
-			}, IsFollowing: scoreCmd.Val() != 0,
-		},
-	}
+	return &FollowerEdges{
+		Edges: Edges{
+			TotalCount: int(cardCmd.Val()),
+			NextCursor: "",
+			Items: []string{
+				"",
+			},
+		}, IsFollowing: scoreCmd.Val() != 0,
+	}, nil
+}
+
+type UserFollowing struct {
+	UserID string `json:"userId"`
 }
 
 // /users/:id/following
-func handleUserFollowing(_ context.Context, _ int, url string) []interface{} {
-	userID, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimSuffix(url, "/following"), "/users/"))
-	result, _ := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("following:%d", userID)).Result()
+func handleUserFollowing(_ context.Context, _ int, req *UserFollowing) (*Edges, error) {
+	result, _ := store.RedisClient.ZCard(context.Background(), fmt.Sprintf("following:%s", req.UserID)).Result()
 
-	return []interface{}{
-		Edges{
-			TotalCount: int(result),
-			NextCursor: "",
-			Items:      []string{},
-		},
-	}
+	return &Edges{
+		TotalCount: int(result),
+		NextCursor: "",
+		Items:      []string{},
+	}, nil
 }
 
 // /users/:id/posts

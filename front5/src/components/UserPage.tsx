@@ -7,7 +7,15 @@ import {localizeCounter} from "../utils/localize";
 import {UserAvatar} from "./UserAvatar";
 import {Global} from "../store/store";
 import {connect} from "react-redux";
-import {edit, follow, loadUserPage, unfollow, usersSetAvatar} from "../store/actions/users";
+import {
+    edit,
+    fetchFollowersCount,
+    fetchFollowingCount,
+    follow,
+    loadUserPage,
+    unfollow,
+    usersSetAvatar
+} from "../store/actions/users";
 
 interface Props {
     user: types.User;
@@ -26,6 +34,8 @@ function Component(props: Props) {
     const userId = location.pathname.substring(7);
     useEffect(() => {
         loadUserPage(userId).then(() => setIsSuccess(true));
+        fetchFollowingCount(userId);
+        fetchFollowersCount(userId);
     }, []);
 
     const [userName, setUserName] = React.useState("");

@@ -82,6 +82,14 @@ func HandleAPI2(w http.ResponseWriter, r *http.Request) {
 		req := UsersEdit{}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		err = handleUsersEdit(ctx, userID, &req)
+	case "users.followers.list":
+		req := UserFollowers{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handleUserFollowers(ctx, userID, &req)
+	case "users.following.list":
+		req := UserFollowing{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handleUserFollowing(ctx, userID, &req)
 	case "auth.vkCallback":
 		req := AuthVkCallback{}
 		_ = json.NewDecoder(r.Body).Decode(&req)

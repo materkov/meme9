@@ -48,6 +48,13 @@ export interface Edges {
     nextCursor: string
 }
 
+export interface FollowersEdges {
+    totalCount: number
+    items: string[]
+    nextCursor: string
+    isFollowing: boolean
+}
+
 export interface Viewer {
     url: string;
     viewerId: string;
@@ -142,4 +149,12 @@ export interface PostsList {
 export interface UsersPostsList {
     userId: string;
     count: number;
+}
+
+export interface UserFollowingCount {
+    userId: string;
+}
+
+export interface UserFollowersCount {
+    userId: string;
 }

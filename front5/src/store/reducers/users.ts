@@ -81,3 +81,41 @@ export function setIsFollowing(state: Global, data: SetIsFollowing): Global {
         }
     }
 }
+
+export interface SetFollowingCount {
+    type: 'users/setFollowingCount'
+    userId: string;
+    count: number;
+}
+
+export function setFollowingCount(state: Global, data: SetFollowingCount): Global {
+    return {
+        ...state,
+        users: {
+            ...state.users,
+            followingCount: {
+                ...state.users.followingCount,
+                [data.userId]: data.count,
+            }
+        }
+    }
+}
+
+export interface SetFollowersCount {
+    type: 'users/setFollowersCount'
+    userId: string;
+    count: number;
+}
+
+export function setFollowersCount(state: Global, data: SetFollowersCount): Global {
+    return {
+        ...state,
+        users: {
+            ...state.users,
+            followersCount: {
+                ...state.users.followersCount,
+                [data.userId]: data.count,
+            }
+        }
+    }
+}

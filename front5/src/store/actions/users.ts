@@ -1,7 +1,14 @@
 import * as types from "../../api/types";
 import {store} from "../store";
 import {parsePostsList} from "../helpers/posts";
-import {AppendPosts, SetIsFollowing, SetPostsCount, SetUser} from "../reducers/users";
+import {
+    AppendPosts,
+    SetFollowersCount,
+    SetFollowingCount,
+    SetIsFollowing,
+    SetPostsCount,
+    SetUser
+} from "../reducers/users";
 import {api} from "../../api/api";
 
 export function follow(userId: string) {
@@ -99,6 +106,34 @@ export function loadUserPostsCount(userId: string): Promise<void> {
                 userId: userId,
                 count: resp.totalCount || 0,
             } as SetPostsCount);
+
+            resolve();
+        })
+    })
+}
+
+export function fetchFollowersCount(userId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        api("users.followers.list", {userId: userId, count: 0} as types.UserFollowersCount).then((resp: types.FollowersEdges) => {
+            store.dispatch({
+                type: "users/setFollowersCount",
+                userId: userId,
+                count: resp.totalCount || 0,
+            } as SetFollowersCount);
+
+            resolve();
+        })
+    })
+}
+
+export function fetchFollowingCount(userId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        api("users.following.list", {userId: userId, count: 0} as types.UserFollowersCount).then((resp: types.Edges) => {
+            store.dispatch({
+                type: "users/setFollowingCount",
+                userId: userId,
+                count: resp.totalCount || 0,
+            } as SetFollowingCount);
 
             resolve();
         })
