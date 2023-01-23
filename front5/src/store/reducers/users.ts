@@ -105,6 +105,7 @@ export interface SetFollowersCount {
     type: 'users/setFollowersCount'
     userId: string;
     count: number;
+    isViewerFollowing: boolean;
 }
 
 export function setFollowersCount(state: Global, data: SetFollowersCount): Global {
@@ -115,6 +116,10 @@ export function setFollowersCount(state: Global, data: SetFollowersCount): Globa
             followersCount: {
                 ...state.users.followersCount,
                 [data.userId]: data.count,
+            },
+            isFollowing: {
+                ...state.users.isFollowing,
+                [data.userId]: data.isViewerFollowing
             }
         }
     }

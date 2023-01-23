@@ -18,6 +18,14 @@ export function follow(userId: string) {
         isFollowing: true,
     } as SetIsFollowing);
 
+    const oldCount = store.getState().users.followersCount[userId] || 0;
+    store.dispatch({
+        type: 'users/setFollowersCount',
+        userId: userId,
+        count: oldCount + 1,
+        isViewerFollowing: true,
+    } as SetFollowersCount);
+
     api("users.follow", {userId: userId} as types.UsersFollow);
 }
 
@@ -27,6 +35,14 @@ export function unfollow(userId: string) {
         userId: userId,
         isFollowing: false,
     } as SetIsFollowing);
+
+    const oldCount = store.getState().users.followersCount[userId] || 0;
+    store.dispatch({
+        type: 'users/setFollowersCount',
+        userId: userId,
+        count: oldCount - 1,
+        isViewerFollowing: false,
+    } as SetFollowersCount);
 
     api("users.unfollow", {userId: userId} as types.UsersUnfollow);
 }
@@ -119,6 +135,7 @@ export function fetchFollowersCount(userId: string): Promise<void> {
                 type: "users/setFollowersCount",
                 userId: userId,
                 count: resp.totalCount || 0,
+                isViewerFollowing: resp.isFollowing || false,
             } as SetFollowersCount);
 
             resolve();
