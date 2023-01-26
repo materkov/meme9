@@ -26,7 +26,7 @@ import {
     SetUser,
     setUser
 } from "./reducers/users";
-import {SetRoute, setRouteReducer} from "./reducers/routes";
+import {setFetchLocker, SetFetchLocker, SetRoute, setRouteReducer} from "./reducers/routes";
 import {SetViewer, setViewer} from "./reducers/viewer";
 import {AppendFeed, appendFeed, DeleteFromFeed, deleteFromFeed, setLoadingState, SetState} from "./reducers/feed";
 import {SetOnline, setOnline} from "./reducers/online";
@@ -43,6 +43,7 @@ export interface Global {
     routing: {
         accessToken: string
         url: string
+        fetchLockers: { [key: string]: LoadingState }
     }
 
     posts: {
@@ -53,8 +54,6 @@ export interface Global {
     }
 
     feed: {
-        isLoading: boolean
-        isLoaded: boolean
         state: LoadingState
         items: string[]
     }
@@ -88,6 +87,7 @@ const global: Global = {
     routing: {
         accessToken: localStorage.getItem("authToken") || "",
         url: location.pathname + location.search,
+        fetchLockers: {},
     },
     posts: {
         byId: {},
@@ -124,7 +124,7 @@ const global: Global = {
 
 export type AnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
     | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed | SetIsFollowing
-    | SetToken | SetPostsCount | SetState | SetFollowingCount | SetFollowersCount
+    | SetToken | SetPostsCount | SetState | SetFollowingCount | SetFollowersCount | SetFetchLocker
     ;
 
 
@@ -136,6 +136,8 @@ export const store = createStore<Global, AnyAction, void, void>((state = global,
             return postUnlike(state, action)
         case 'routes/set':
             return setRouteReducer(state, action)
+        case 'routes/setFetchLocker':
+            return setFetchLocker(state, action)
         case 'posts/set':
             return setPost(state, action)
         case 'users/set':

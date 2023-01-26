@@ -25,6 +25,7 @@ func HandleAPI2(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "authorization, content-type")
+	w.Header().Set("Access-Control-Max-Age", "3600")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Request-ID", fmt.Sprintf("%x", requestID))
 

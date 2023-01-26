@@ -11,8 +11,8 @@ import {
     edit,
     fetchFollowersCount,
     fetchFollowingCount,
+    fetchUserPosts,
     follow,
-    loadUserPage,
     unfollow,
     usersSetAvatar
 } from "../store/actions/users";
@@ -30,10 +30,9 @@ interface Props {
 }
 
 function Component(props: Props) {
-    const [isSuccess, setIsSuccess] = React.useState(false);
     const userId = location.pathname.substring(7);
     useEffect(() => {
-        loadUserPage(userId).then(() => setIsSuccess(true));
+        fetchUserPosts(userId);
         fetchFollowingCount(userId);
         fetchFollowersCount(userId);
     }, []);
@@ -76,7 +75,7 @@ function Component(props: Props) {
         })
     }
 
-    if (!isSuccess) {
+    if (!props.user) {
         return <>Загрузка ...</>;
     }
 

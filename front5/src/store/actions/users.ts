@@ -1,14 +1,6 @@
 import * as types from "../../api/types";
-import {store} from "../store";
+import {LoadingState, store} from "../store";
 import {parsePostsList} from "../helpers/posts";
-import {
-    AppendPosts,
-    SetFollowersCount,
-    SetFollowingCount,
-    SetIsFollowing,
-    SetPostsCount,
-    SetUser
-} from "../reducers/users";
 import {api} from "../../api/api";
 
 export function follow(userId: string) {
@@ -80,8 +72,14 @@ export function usersSetAvatar(uploadToken: string): Promise<void> {
     })
 }
 
-export function loadUserPage(userId: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+export function fetchUserPosts(userId: string): Promise<void> {
+    return new Promise((resolve) => {
+        const key = "fetchUserPosts:" + userId;
+        if (store.getState().routing.fetchLockers[key]) {
+            return;
+        }
+        store.dispatch({type: "routes/setFetchLocker", key: key, state: LoadingState.LOADING});
+
         api("users.posts.list", {userId: userId, count: 10} as types.UsersPostsList).then((resp: types.PostsList) => {
             parsePostsList(resp);
 
@@ -128,31 +126,43 @@ export function loadUserPostsCount(userId: string): Promise<void> {
     })
 }
 
-export function fetchFollowersCount(userId: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        api("users.followers.list", {userId: userId, count: 0} as types.UserFollowersCount).then((resp: types.FollowersEdges) => {
-            store.dispatch({
-                type: "users/setFollowersCount",
-                userId: userId,
-                count: resp.totalCount || 0,
-                isViewerFollowing: resp.isFollowing || false,
-            });
+export function fetchFollowersCount(userId: string) {
+    const key = "fetchFollowersCount:" + userId;
 
-            resolve();
-        })
+    if (store.getState().routing.fetchLockers[key]) {
+        return;
+    }
+    store.dispatch({type: "routes/setFetchLocker", key: key, state: LoadingState.LOADING});
+
+    api("users.followers.list", {
+        userId: userId,
+        count: 0
+    } as types.UserFollowersCount).then((resp: types.FollowersEdges) => {
+        store.dispatch({
+            type: "users/setFollowersCount",
+            userId: userId,
+            count: resp.totalCount || 0,
+            isViewerFollowing: resp.isFollowing || false,
+        });
     })
 }
 
-export function fetchFollowingCount(userId: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        api("users.following.list", {userId: userId, count: 0} as types.UserFollowersCount).then((resp: types.Edges) => {
-            store.dispatch({
-                type: "users/setFollowingCount",
-                userId: userId,
-                count: resp.totalCount || 0,
-            });
+export function fetchFollowingCount(userId: string) {
+    const key = "fetchFollowingCount:" + userId;
 
-            resolve();
-        })
+    if (store.getState().routing.fetchLockers[key]) {
+        return;
+    }
+    store.dispatch({type: "routes/setFetchLocker", key: key, state: LoadingState.LOADING});
+
+    api("users.following.list", {
+        userId: userId,
+        count: 0
+    } as types.UserFollowersCount).then((resp: types.Edges) => {
+        store.dispatch({
+            type: "users/setFollowingCount",
+            userId: userId,
+            count: resp.totalCount || 0,
+        });
     })
 }

@@ -176,5 +176,5 @@ export interface UserFollowersCount {
 export type ApiRequest = PostsAdd | PostsDelete | PostsLike | PostsUnlike |
     UsersFollow | UsersUnfollow | UsersEdit | UsersSetAvatar |
     AuthVkCallback | AuthEmailLogin | AuthEmailRegister |
-    PostsGetLikesConnection | FeedList | UsersPostsList
+    PostsGetLikesConnection | FeedList | UsersPostsList | UserFollowersCount | UserFollowersCount
     ;
