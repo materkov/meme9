@@ -53,10 +53,10 @@ function ComponentPostInner(props: Props) {
     )
 }
 
-export const ComponentPost = connect((state: Global, ownProps: { id: string }) => {
+export const ComponentPost = connect((state: Global, ownProps: { id: string }): Props => {
     return {
         post: state.posts.byId[ownProps.id],
-    } as Props
+    }
 })(ComponentPostInner);
 
 

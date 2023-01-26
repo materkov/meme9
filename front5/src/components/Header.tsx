@@ -41,10 +41,10 @@ function Component(props: Props) {
     )
 }
 
-export const Header = connect((state: Global) => {
+export const Header = connect((state: Global): Props => {
     return {
         isLoaded: state.viewer.isLoaded,
         viewerId: state.viewer.id,
         viewer: state.viewer.id ? state.users.byId[state.viewer.id] : undefined,
-    } as Props;
+    };
 })(Component);

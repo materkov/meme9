@@ -66,36 +66,44 @@ export interface Online {
 }
 
 export interface PostsAdd {
+    method: 'posts.add';
     text: string;
     photo: string;
 }
 
 export interface PostsDelete {
+    method: 'posts.delete';
     id: string;
 }
 
 export interface PostsLike {
+    method: 'posts.like';
     postId: string;
 }
 
 export interface PostsUnlike {
+    method: 'posts.unlike';
     postId: string;
 }
 
 export interface UsersFollow {
+    method: 'users.follow';
     userId: string;
 }
 
 export interface UsersUnfollow {
+    method: 'users.unfollow';
     userId: string;
 }
 
 export interface UsersEdit {
+    method: 'users.edit';
     userId: string;
     name: string;
 }
 
 export interface AuthVkCallback {
+    method: 'auth.vkCallback';
     code: string;
     redirectUri: string;
 }
@@ -106,20 +114,24 @@ export interface Authorization {
 }
 
 export interface AuthEmailLogin {
+    method: 'auth.emailLogin';
     email: string;
     password: string;
 }
 
 export interface AuthEmailRegister {
+    method: 'auth.emailRegister';
     email: string;
     password: string;
 }
 
 export interface UsersSetAvatar {
+    method: 'users.setAvatar';
     uploadToken: string;
 }
 
 export interface PostsGetLikesConnection {
+    method: 'posts.getLikes';
     postId: string
     count: number
 }
@@ -137,6 +149,7 @@ export enum FeedType {
 }
 
 export interface FeedList {
+    method: 'feed.list';
     feedType: FeedType
 }
 
@@ -147,6 +160,7 @@ export interface PostsList {
 }
 
 export interface UsersPostsList {
+    method: 'users.posts.list';
     userId: string;
     count: number;
 }
@@ -158,3 +172,9 @@ export interface UserFollowingCount {
 export interface UserFollowersCount {
     userId: string;
 }
+
+export type ApiRequest = PostsAdd | PostsDelete | PostsLike | PostsUnlike |
+    UsersFollow | UsersUnfollow | UsersEdit | UsersSetAvatar |
+    AuthVkCallback | AuthEmailLogin | AuthEmailRegister |
+    PostsGetLikesConnection | FeedList | UsersPostsList
+    ;

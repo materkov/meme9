@@ -1,8 +1,5 @@
 import * as types from "../../api/types";
 import {store} from "../store";
-import {AppendFeed, DeleteFromFeed} from "../reducers/feed";
-import {AppendLikers, SetLikes, SetPost} from "../reducers/posts";
-import {SetUser} from "../reducers/users";
 import {api} from "../../api/api";
 
 export function deletePost(postId: string) {
@@ -10,14 +7,14 @@ export function deletePost(postId: string) {
         id: postId,
     } as types.PostsDelete);
 
-    store.dispatch({type: "feed/delete", postId: postId} as DeleteFromFeed)
+    store.dispatch({type: "feed/delete", postId: postId})
 }
 
-export function add(data: types.PostsAdd): Promise<void> {
+export function addPost(data: types.PostsAdd): Promise<void> {
     return new Promise((resolve, reject) => {
         api("posts.add", data).then((post: types.Post) => {
-            store.dispatch({type: "posts/set", post: post} as SetPost)
-            store.dispatch({type: "feed/append", items: [post.id], prepend: true} as AppendFeed)
+            store.dispatch({type: "posts/set", post: post})
+            store.dispatch({type: "feed/append", items: [post.id], prepend: true})
 
             resolve();
         }).catch(() => {
@@ -34,7 +31,7 @@ export function like(postId: string) {
         postId: postId,
         count: (state.posts.likesCount[postId] || 0) + 1,
         isLiked: true,
-    } as SetLikes);
+    });
 
     api("posts.like", {postId: postId} as types.PostsLike).then((resp: types.PostLikeData) => {
         store.dispatch({
@@ -42,7 +39,7 @@ export function like(postId: string) {
             postId: postId,
             count: resp.totalCount || 0,
             isLiked: true,
-        } as SetLikes);
+        });
     });
 }
 
@@ -54,7 +51,7 @@ export function unlike(postId: string) {
         postId: postId,
         count: (state.posts.likesCount[postId] || 0) - 1,
         isLiked: false,
-    } as SetLikes);
+    });
 
     api("posts.unlike", {postId: postId} as types.PostsUnlike).then((resp: types.PostLikeData) => {
         store.dispatch({
@@ -62,18 +59,18 @@ export function unlike(postId: string) {
             postId: postId,
             count: resp.totalCount || 0,
             isLiked: false,
-        } as SetLikes);
+        });
     });
 }
 
 export function loadLikers(postId: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         api("posts.getLikesConnection", {
             postId: postId,
             count: 10
         } as types.PostsGetLikesConnection).then((resp: types.PostsLikesConnection) => {
             for (let user of resp.items) {
-                store.dispatch({type: "users/set", user: user} as SetUser)
+                store.dispatch({type: "users/set", user: user})
             }
 
             const likers: string[] = resp.items.map(u => u.id);
@@ -81,7 +78,7 @@ export function loadLikers(postId: string): Promise<void> {
                 type: "posts/appendLikers",
                 users: likers,
                 postId: postId
-            } as AppendLikers);
+            });
 
             resolve();
         })

@@ -50,9 +50,9 @@ export const Component: React.FC<Props> = (props: Props) => {
     />
 }
 
-export const PostPhoto = connect((state: Global, ownProps: OwnProps) => {
+export const PostPhoto = connect((state: Global, ownProps: OwnProps): Props => {
     return {
         className: ownProps.className,
         photo: state.photos.byId[ownProps.id],
-    } as Props
+    }
 })(Component);

@@ -34,11 +34,11 @@ function Component(props: Props) {
     </div>
 }
 
-export const PostLikers = connect((state: Global, ownProps: { id: string }) => {
+export const PostLikers = connect((state: Global, ownProps: { id: string }): Props => {
     return {
         postId: ownProps.id,
         count: state.posts.likesCount[ownProps.id],
         isLiked: state.posts.isLiked[ownProps.id],
         likers: (state.posts.likers[ownProps.id] || []).map(userId => state.users.byId[userId]),
-    } as Props
+    }
 })(Component);

@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./Composer.module.css";
 import {uploadApi} from "../api/api";
 import {Close} from "./icons/Close";
-import {add} from "../store/actions/posts";
+import {addPost} from "../store/actions/posts";
 
 export function Composer() {
     const [text, setText] = React.useState('');
@@ -20,7 +20,7 @@ export function Composer() {
         setSuccess(false);
         setErr(false);
 
-        add({text: text, photo: photoAttachToken})
+        addPost({method: "posts.add", text: text, photo: photoAttachToken})
             .then(() => setSuccess(true))
             .catch(() => setErr(true));
 

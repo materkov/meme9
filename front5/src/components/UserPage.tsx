@@ -45,6 +45,7 @@ function Component(props: Props) {
 
     const editName = () => {
         edit({
+            method: "users.edit",
             userId: userId,
             name: userName,
         }).then(() => {
@@ -137,16 +138,16 @@ function Component(props: Props) {
     )
 }
 
-export const UserPage = connect((state: Global) => {
+export const UserPage = connect((state: Global): Props => {
     const userId = location.pathname.substring(7);
 
     return {
         user: state.users.byId[userId],
-        posts: state.users.postsCount[userId],
+        posts: state.users.postsCount[userId] || 0,
         followers: state.users.followersCount[userId],
         following: state.users.followingCount[userId],
         isFollowing: state.users.isFollowing[userId],
         viewerId: state.viewer.id,
         postIds: state.users.posts[userId],
-    } as Props
+    }
 })(Component);

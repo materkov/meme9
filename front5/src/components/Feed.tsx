@@ -3,9 +3,9 @@ import {Composer} from "./Composer";
 import {PostsList} from "./PostsList";
 import classNames from "classnames";
 import styles from "./Feed.module.css";
-import {Global} from "../store/store";
+import {Global, LoadingState} from "../store/store";
 import {connect} from "react-redux";
-import {loadFeed} from "../store/actions/feed";
+import {fetchFeed} from "../store/actions/feed";
 
 enum FeedType {
     FEED = "FEED",
@@ -22,7 +22,7 @@ function Component(props: Props) {
     const [feedType, setFeedType] = React.useState<FeedType>(FeedType.DISCOVER);
 
     useEffect(() => {
-        loadFeed();
+        fetchFeed();
     }, []);
 
     return <>
@@ -45,11 +45,9 @@ function Component(props: Props) {
     </>
 }
 
-export const Feed = connect((state: Global) => {
-    return {
-        viewerId: state.viewer.id,
-        feed: state.feed.items,
-        isLoaded: state.feed.state == 'loaded',
-    } as Props
-})(Component);
+export const Feed = connect((state: Global): Props => ({
+    viewerId: state.viewer.id,
+    feed: state.feed.items,
+    isLoaded: state.feed.state == LoadingState.DONE,
+}))(Component);
 

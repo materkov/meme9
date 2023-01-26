@@ -4,18 +4,18 @@ import {Global} from "../store/store";
 import {connect} from "react-redux";
 import * as types from "../api/types";
 
-export type Props = {
+export type OwnProps = {
     userId: string;
     width: number;
 }
 
-export interface ComponentProps {
+export interface Props {
     user: types.User;
     online: types.Online;
     width: number;
 }
 
-export function Component(props: ComponentProps) {
+export function Component(props: Props) {
     const style = {
         width: props.width + 'px',
         height: props.width + 'px',
@@ -45,10 +45,10 @@ export function Component(props: ComponentProps) {
     </div>;
 }
 
-export const UserAvatar = connect((state: Global, ownProps: Props) => {
+export const UserAvatar = connect((state: Global, ownProps: OwnProps): Props => {
     return {
         user: state.users.byId[ownProps.userId],
         online: state.online.byId[ownProps.userId],
         width: ownProps.width,
-    } as ComponentProps
+    }
 })(Component);

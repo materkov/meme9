@@ -16,7 +16,7 @@ export function follow(userId: string) {
         type: 'users/setIsFollowing',
         userId: userId,
         isFollowing: true,
-    } as SetIsFollowing);
+    });
 
     const oldCount = store.getState().users.followersCount[userId] || 0;
     store.dispatch({
@@ -24,7 +24,7 @@ export function follow(userId: string) {
         userId: userId,
         count: oldCount + 1,
         isViewerFollowing: true,
-    } as SetFollowersCount);
+    });
 
     api("users.follow", {userId: userId} as types.UsersFollow);
 }
@@ -34,7 +34,7 @@ export function unfollow(userId: string) {
         type: 'users/setIsFollowing',
         userId: userId,
         isFollowing: false,
-    } as SetIsFollowing);
+    });
 
     const oldCount = store.getState().users.followersCount[userId] || 0;
     store.dispatch({
@@ -42,7 +42,7 @@ export function unfollow(userId: string) {
         userId: userId,
         count: oldCount - 1,
         isViewerFollowing: false,
-    } as SetFollowersCount);
+    });
 
     api("users.unfollow", {userId: userId} as types.UsersUnfollow);
 }
@@ -57,7 +57,7 @@ export function edit(data: types.UsersEdit): Promise<void> {
         store.dispatch({
             type: 'users/set',
             user: user,
-        } as SetUser);
+        });
 
         api("users.edit", data).then(() => resolve());
     })
@@ -74,7 +74,7 @@ export function usersSetAvatar(uploadToken: string): Promise<void> {
                 store.dispatch({
                     type: 'users/set',
                     user: user,
-                } as SetUser);
+                });
                 resolve();
             })
     })
@@ -89,13 +89,13 @@ export function loadUserPage(userId: string): Promise<void> {
                 type: "users/appendPosts",
                 userId: userId,
                 posts: resp.items.map(post => post.id)
-            } as AppendPosts);
+            });
 
             store.dispatch({
                 type: "users/setPostsCount",
                 userId: userId,
                 count: resp.totalCount || 0,
-            } as SetPostsCount);
+            });
 
             resolve();
         })
@@ -114,14 +114,14 @@ export function loadUserPostsCount(userId: string): Promise<void> {
             type: "users/setPostsCount",
             userId: userId,
             count: null,
-        } as SetPostsCount);
+        });
 
         api("users.posts.list", {userId: userId, count: 0} as types.UsersPostsList).then((resp: types.PostsList) => {
             store.dispatch({
                 type: "users/setPostsCount",
                 userId: userId,
                 count: resp.totalCount || 0,
-            } as SetPostsCount);
+            });
 
             resolve();
         })
@@ -136,7 +136,7 @@ export function fetchFollowersCount(userId: string): Promise<void> {
                 userId: userId,
                 count: resp.totalCount || 0,
                 isViewerFollowing: resp.isFollowing || false,
-            } as SetFollowersCount);
+            });
 
             resolve();
         })
@@ -150,7 +150,7 @@ export function fetchFollowingCount(userId: string): Promise<void> {
                 type: "users/setFollowingCount",
                 userId: userId,
                 count: resp.totalCount || 0,
-            } as SetFollowingCount);
+            });
 
             resolve();
         })

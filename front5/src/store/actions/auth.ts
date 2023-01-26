@@ -1,14 +1,12 @@
 import * as types from "../../api/types";
 import {store} from "../store";
-import {SetUser} from "../reducers/users";
-import {SetToken} from "../reducers/auth";
-import {SetViewer} from "../reducers/viewer";
 import {api} from "../../api/api";
+import {AuthVkCallback} from "../../api/types";
 
 function setAuth(auth: types.Authorization) {
-    store.dispatch({type: 'users/set', user: auth.user} as SetUser)
-    store.dispatch({type: 'auth/setToken', token: auth.token} as SetToken)
-    store.dispatch({type: 'viewer/set', userId: auth.user.id} as SetViewer)
+    store.dispatch({type: 'users/set', user: auth.user})
+    store.dispatch({type: 'auth/setToken', token: auth.token})
+    store.dispatch({type: 'viewer/set', userId: auth.user.id})
 
     localStorage.setItem("authToken", auth.token);
 }
@@ -26,8 +24,8 @@ export function vkCallback(code: string): Promise<void> {
 }
 
 export function logout() {
-    store.dispatch({type: 'auth/setToken', token: ''} as SetToken)
-    store.dispatch({type: 'viewer/set', userId: ''} as SetViewer)
+    store.dispatch({type: 'auth/setToken', token: ''})
+    store.dispatch({type: 'viewer/set', userId: ''})
 
     localStorage.removeItem("authToken");
 }
@@ -55,12 +53,12 @@ export function emailRegister(req: types.AuthEmailRegister): Promise<void> {
 }
 
 export function loadViewer() {
-    api("auth.viewer", {}).then((u: types.User) => {
+    api("auth.viewer", {} as AuthVkCallback).then((u: types.User) => {
         if (u) {
-            store.dispatch({type: "users/set", user: u} as SetUser)
-            store.dispatch({type: "viewer/set", userId: u.id} as SetViewer)
+            store.dispatch({type: "users/set", user: u})
+            store.dispatch({type: "viewer/set", userId: u.id})
         } else {
-            store.dispatch({type: "viewer/set", userId: ''} as SetViewer)
+            store.dispatch({type: "viewer/set", userId: ''})
         }
     })
 }

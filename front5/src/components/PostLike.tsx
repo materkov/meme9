@@ -53,11 +53,11 @@ const Component = (props: Props) => {
 }
 
 
-export const PostLike = connect((state: Global, ownProps: { id: string }) => {
+export const PostLike = connect((state: Global, ownProps: { id: string }): Props => {
     return {
         postId: ownProps.id,
         count: state.posts.likesCount[ownProps.id],
         isLiked: state.posts.isLiked[ownProps.id],
         viewerId: state.viewer.id,
-    } as Props
+    }
 })(Component);

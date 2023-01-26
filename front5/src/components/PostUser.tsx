@@ -52,11 +52,11 @@ function Component(props: Props) {
     )
 }
 
-export const PostUser = connect((state: Global, ownProps: { postId: string }) => {
+export const PostUser = connect((state: Global, ownProps: { postId: string }): Props => {
     const userId = state.posts.byId[ownProps.postId].userId;
     return {
         post: state.posts.byId[ownProps.postId],
         user: state.users.byId[userId],
         userPostsCount: state.users.postsCount[userId]
-    } as Props
+    }
 })(Component);
