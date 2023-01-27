@@ -39,11 +39,14 @@ func (p *GenericCachedStore[T]) Preload(ids []int) {
 
 	for rows.Next() {
 		id := 0
-		var data []byte
+		var data string
 		_ = rows.Scan(&id, &data)
 
+		// TODO: fixme
+		data = strings.Replace(data, "\"ID\": 0", fmt.Sprintf("\"ID\":%d", id), 1)
+
 		obj := new(T)
-		err = json.Unmarshal(data, obj)
+		err = json.Unmarshal([]byte(data), obj)
 		if err != nil {
 			log.Printf("Error unmarshaling obj: %s", err)
 		}

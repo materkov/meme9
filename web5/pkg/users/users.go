@@ -35,24 +35,17 @@ func GetOrCreateByVKID(vkID int) (int, error) {
 }
 
 func Add(vkID int) (int, error) {
-	id := nextID()
-
 	user := store.User{
-		ID:   id,
 		VkID: vkID,
 		Name: fmt.Sprintf("User #%d", vkID),
 	}
 
-	err := store.NodeSave(id, store.ObjectTypeUser, user)
+	id, err := store.NodeInsert(store.ObjectTypeUser, user)
 	if err != nil {
 		return 0, fmt.Errorf("error saving user: %w", err)
 	}
 
 	return id, nil
-}
-
-func nextID() int {
-	return int(time.Now().UnixMilli())
 }
 
 func RefreshFromVk(ctx context.Context, id int) error {
@@ -91,7 +84,7 @@ func RefreshFromVk(ctx context.Context, id int) error {
 	user.VkPhoto200 = body.Response[0].Photo200
 	user.Name = fmt.Sprintf("%s %s", body.Response[0].FirstName, body.Response[0].LastName)
 
-	err = store.NodeSave(user.ID, store.ObjectTypeUser, user)
+	err = store.NodeUpdate(user.ID, user)
 	if err != nil {
 		return err
 	}

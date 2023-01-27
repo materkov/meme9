@@ -134,17 +134,17 @@ func Register(email, password string) (int, error) {
 		return 0, fmt.Errorf("error generating password hash: %w", err)
 	}
 
-	id := int(time.Now().UnixMilli())
 	user := store.User{
-		ID:           id,
-		Name:         fmt.Sprintf("User #%d", id),
+		Name:         fmt.Sprintf("User ###"),
 		Email:        email,
 		PasswordHash: string(passwordHash),
 	}
-	err = store.NodeSave(user.ID, store.ObjectTypeUser, user)
+	id, err := store.NodeInsert(store.ObjectTypeUser, user)
 	if err != nil {
 		return 0, fmt.Errorf("error saving user: %w", err)
 	}
+
+	user.ID = id
 
 	key := fmt.Sprintf("map_email2id:%s", email)
 	wasSet, err := store.RedisClient.SetNX(context.Background(), key, user.ID, 0).Result()

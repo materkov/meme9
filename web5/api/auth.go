@@ -40,7 +40,7 @@ func handleAuthVkCallback(ctx context.Context, viewerID int, req *AuthVkCallback
 	}
 
 	user.VkAccessToken = vkAccessToken
-	err = store.NodeSave(user.ID, store.ObjectTypeUser, user)
+	err = store.NodeUpdate(user.ID, user)
 	if err != nil {
 		log.Printf("error saving user")
 	}

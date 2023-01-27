@@ -28,19 +28,18 @@ func CanEdit(post *store.Post, viewerID int) bool {
 }
 
 func Add(text string, userID int, photoID int) (int, error) {
-	nextId := int(time.Now().UnixMilli())
-
 	post := store.Post{
-		ID:      nextId,
 		Text:    text,
 		UserID:  userID,
 		Date:    int(time.Now().Unix()),
 		PhotoID: photoID,
 	}
-	err := store.NodeSave(post.ID, store.ObjectTypePost, post)
+	id, err := store.NodeInsert(store.ObjectTypePost, post)
 	if err != nil {
 		return 0, fmt.Errorf("error creating post node: %w", err)
 	}
+
+	post.ID = id
 
 	doneFeed := make(chan bool)
 	doneUserFeed := make(chan bool)
@@ -76,7 +75,7 @@ func Delete(post *store.Post) error {
 	}
 
 	post.IsDeleted = true
-	err = store.NodeSave(post.ID, store.ObjectTypePost, post)
+	err = store.NodeUpdate(post.ID, post)
 	if err != nil {
 		return fmt.Errorf("error updating post node: %w", err)
 	}

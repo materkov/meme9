@@ -4,29 +4,32 @@ import (
 	"github.com/materkov/meme9/web5/pkg/testutils"
 	"github.com/materkov/meme9/web5/store"
 	"github.com/stretchr/testify/require"
+	"strconv"
 	"testing"
 )
 
 func TestHandlePostsId(t *testing.T) {
 	testutils.SetupRedis(t)
 
-	require.NoError(t, store.NodeSave(9417, store.Post{
-		ID:     9417,
+	id1, err := store.NodeInsert(store.ObjectTypePost, store.Post{
 		Date:   1666973391,
 		Text:   "test post",
 		UserID: 816,
-	}))
-	require.NoError(t, store.NodeSave(9418, store.Post{
+	})
+	require.NoError(t, err)
+
+	_, err = store.NodeInsert(store.ObjectTypePost, store.Post{
 		IsDeleted: true,
 		Text:      "test post",
 		UserID:    816,
-	}))
+	})
+	require.NoError(t, err)
 
 	t.Run("normal post", func(t *testing.T) {
-		results := handlePostsId(testutils.PrepareContext(), 15, "/posts/9417")
+		results := handlePostsId(testutils.PrepareContext(), 15, "/posts/"+strconv.Itoa(id1))
 		post := results[0].(Post)
 
-		require.Equal(t, "9417", post.ID)
+		require.Equal(t, strconv.Itoa(id1), post.ID)
 		require.Equal(t, "2022-10-28T16:09:51Z", post.Date)
 		require.Equal(t, "test post", post.Text)
 		require.Equal(t, "816", post.UserID)

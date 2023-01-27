@@ -236,7 +236,7 @@ func handleUsersEdit(ctx context.Context, viewerID int, req *UsersEdit) error {
 
 	user.Name = req.Name
 
-	err := store.NodeSave(user.ID, store.ObjectTypeUser, user)
+	err := store.NodeUpdate(user.ID, user)
 	if err != nil {
 		return err
 	}
@@ -284,7 +284,7 @@ func handleUsersSetAvatar(ctx context.Context, viewerID int, req *UsersSetAvatar
 
 	user.AvatarSha = photo.Hash
 
-	err := store.NodeSave(user.ID, store.ObjectTypeUser, user)
+	err := store.NodeUpdate(user.ID, user)
 	if err != nil {
 		return nil, fmt.Errorf("error saving user")
 	}

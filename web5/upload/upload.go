@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 func HandleUpload(w http.ResponseWriter, r *http.Request) {
@@ -64,18 +63,19 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	photo := store.Photo{
-		ID:     int(time.Now().Unix()),
 		Size:   len(fileBytes),
 		Hash:   fileHash,
 		Width:  width,
 		Height: height,
 	}
 
-	err = store.NodeSave(photo.ID, store.ObjectTypePhoto, &photo)
+	id, err := store.NodeInsert(store.ObjectTypePhoto, &photo)
 	if err != nil {
 		w.WriteHeader(400)
 		return
 	}
+
+	photo.ID = id
 
 	resp := struct {
 		UploadToken string `json:"uploadToken"`
