@@ -105,7 +105,7 @@ func CheckToken(tokenStr string) (int, error) {
 
 var ErrInvalidCredentials = fmt.Errorf("invalid credentials")
 
-func EmailAuth(email, password string) (int, error) {
+func EmailAuth(ctx context.Context, email, password string) (int, error) {
 	userIDStr, err := store.RedisClient.Get(context.Background(), fmt.Sprintf("map_email2id:%s", email)).Result()
 	if err == redis.Nil {
 		return 0, ErrInvalidCredentials
@@ -115,10 +115,9 @@ func EmailAuth(email, password string) (int, error) {
 
 	userID, _ := strconv.Atoi(userIDStr)
 
-	user := store.User{}
-	err = store.NodeGet(userID, &user)
-	if err != nil {
-		return 0, fmt.Errorf("error getting user: %s", err)
+	user := store.CachedStoreFromCtx(ctx).User.Get(userID)
+	if user == nil {
+		return 0, fmt.Errorf("user not found")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
@@ -142,7 +141,7 @@ func Register(email, password string) (int, error) {
 		Email:        email,
 		PasswordHash: string(passwordHash),
 	}
-	err = store.NodeSave(user.ID, user)
+	err = store.NodeSave(user.ID, store.ObjectTypeUser, user)
 	if err != nil {
 		return 0, fmt.Errorf("error saving user: %w", err)
 	}

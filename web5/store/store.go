@@ -21,13 +21,16 @@ func CachedStoreFromCtx(ctx context.Context) *CachedStore {
 func WithCachedStore(ctx context.Context) context.Context {
 	return context.WithValue(ctx, contextKeys.CachedStore, &CachedStore{
 		Post: GenericCachedStore[Post]{
-			cache: map[int]*Post{},
+			cache:   map[int]*Post{},
+			objType: ObjectTypePost,
 		},
 		User: GenericCachedStore[User]{
-			cache: map[int]*User{},
+			cache:   map[int]*User{},
+			objType: ObjectTypeUser,
 		},
 		Photo: GenericCachedStore[Photo]{
-			cache: map[int]*Photo{},
+			cache:   map[int]*Photo{},
+			objType: ObjectTypePhoto,
 		},
 		Liked: LikedStore{
 			cache: map[string]likedData{},

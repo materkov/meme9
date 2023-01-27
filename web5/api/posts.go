@@ -164,12 +164,9 @@ type PostsDelete struct {
 func handlePostsDelete(ctx context.Context, viewerID int, req *PostsDelete) error {
 	postID, _ := strconv.Atoi(req.ID)
 
-	post := &store.Post{}
-	err := store.NodeGet(postID, post)
-	if err == store.ErrNodeNotFound {
+	post := store.CachedStoreFromCtx(ctx).Post.Get(postID)
+	if post == nil {
 		return fmt.Errorf("post not found")
-	} else if err != nil {
-		return fmt.Errorf("error getting post: %w", err)
 	}
 
 	if post.UserID != viewerID {
@@ -177,7 +174,7 @@ func handlePostsDelete(ctx context.Context, viewerID int, req *PostsDelete) erro
 	}
 
 	if !post.IsDeleted {
-		err = posts.Delete(post)
+		err := posts.Delete(post)
 		if err != nil {
 			return err
 		}
@@ -193,12 +190,9 @@ type PostsLike struct {
 func handlePostsLike(ctx context.Context, viewerID int, req *PostsLike) (*LikedEdges, error) {
 	postID, _ := strconv.Atoi(req.PostID)
 
-	post := store.Post{}
-	err := store.NodeGet(postID, &post)
-	if err == store.ErrNodeNotFound {
+	post := store.CachedStoreFromCtx(ctx).Post.Get(postID)
+	if post == nil {
 		return nil, fmt.Errorf("post not found")
-	} else if err != nil {
-		return nil, err
 	}
 
 	if viewerID == 0 {
@@ -214,7 +208,7 @@ func handlePostsLike(ctx context.Context, viewerID int, req *PostsLike) (*LikedE
 	})
 	cardCmd := pipe.ZCard(context.Background(), key)
 
-	_, err = pipe.Exec(context.Background())
+	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -236,12 +230,9 @@ type PostsUnlike struct {
 func handlePostsUnlike(ctx context.Context, viewerID int, req *PostsUnlike) (*LikedEdges, error) {
 	postID, _ := strconv.Atoi(req.PostID)
 
-	post := store.Post{}
-	err := store.NodeGet(postID, &post)
-	if err == store.ErrNodeNotFound {
+	post := store.CachedStoreFromCtx(ctx).Post.Get(postID)
+	if post == nil {
 		return nil, fmt.Errorf("post not found")
-	} else if err != nil {
-		return nil, err
 	}
 
 	if viewerID == 0 {
@@ -254,7 +245,7 @@ func handlePostsUnlike(ctx context.Context, viewerID int, req *PostsUnlike) (*Li
 	pipe.ZRem(context.Background(), key, viewerID)
 	cardCmd := pipe.ZCard(context.Background(), key)
 
-	_, err = pipe.Exec(context.Background())
+	_, err := pipe.Exec(context.Background())
 	if err != nil {
 		return nil, err
 	}

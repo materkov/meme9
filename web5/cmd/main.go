@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"flag"
 	"github.com/go-redis/redis/v9"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/materkov/meme9/web5/api"
 	"github.com/materkov/meme9/web5/imgproxy"
 	"github.com/materkov/meme9/web5/pkg/users"
@@ -23,6 +25,12 @@ func main() {
 	flag.Parse()
 
 	rand.Seed(time.Now().UnixNano())
+
+	var err error
+	store.SqlClient, err = sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/meme9")
+	if err != nil {
+		log.Fatalf("Error opening mysql: %s", err)
+	}
 
 	store.RedisClient = redis.NewClient(&redis.Options{})
 
@@ -60,7 +68,7 @@ func HandleWorker(queue string) {
 		log.Printf("Got queue task: %v", result)
 
 		userID, _ := strconv.Atoi(result[1])
-		err = users.RefreshFromVk(userID)
+		err = users.RefreshFromVk(context.Background(), userID)
 		if err != nil {
 			log.Printf("Error doing queue: %s", err)
 		}

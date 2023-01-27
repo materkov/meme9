@@ -219,11 +219,8 @@ type UsersEdit struct {
 func handleUsersEdit(ctx context.Context, viewerID int, req *UsersEdit) error {
 	userID, _ := strconv.Atoi(req.UserID)
 
-	user := store.User{}
-	err := store.NodeGet(userID, &user)
-	if err != nil {
-		return err
-	} else if user.ID == 0 {
+	user := store.CachedStoreFromCtx(ctx).User.Get(userID)
+	if user == nil {
 		return fmt.Errorf("user not found")
 	}
 
@@ -239,7 +236,7 @@ func handleUsersEdit(ctx context.Context, viewerID int, req *UsersEdit) error {
 
 	user.Name = req.Name
 
-	err = store.NodeSave(user.ID, user)
+	err := store.NodeSave(user.ID, store.ObjectTypeUser, user)
 	if err != nil {
 		return err
 	}
@@ -274,22 +271,20 @@ func handleUsersSetAvatar(ctx context.Context, viewerID int, req *UsersSetAvatar
 		return nil, fmt.Errorf("not authorized")
 	}
 
-	user := &store.User{}
-	err := store.NodeGet(viewerID, user)
-	if err != nil {
+	user := store.CachedStoreFromCtx(ctx).User.Get(viewerID)
+	if user == nil {
 		return nil, fmt.Errorf("error getting user")
 	}
 
 	photoID, _ := strconv.Atoi(req.UploadToken)
-	photo := &store.Photo{}
-	err = store.NodeGet(photoID, photo)
-	if err != nil {
+	photo := store.CachedStoreFromCtx(ctx).Photo.Get(photoID)
+	if photo == nil {
 		return nil, fmt.Errorf("error getting photo")
 	}
 
 	user.AvatarSha = photo.Hash
 
-	err = store.NodeSave(user.ID, user)
+	err := store.NodeSave(user.ID, store.ObjectTypeUser, user)
 	if err != nil {
 		return nil, fmt.Errorf("error saving user")
 	}

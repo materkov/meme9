@@ -34,14 +34,13 @@ func handleAuthVkCallback(ctx context.Context, viewerID int, req *AuthVkCallback
 		return nil, err
 	}
 
-	user := &store.User{}
-	err = store.NodeGet(userID, user)
-	if err != nil {
-		return nil, err
+	user := store.CachedStoreFromCtx(ctx).User.Get(userID)
+	if user == nil {
+		return nil, fmt.Errorf("user not found")
 	}
 
 	user.VkAccessToken = vkAccessToken
-	err = store.NodeSave(user.ID, user)
+	err = store.NodeSave(user.ID, store.ObjectTypeUser, user)
 	if err != nil {
 		log.Printf("error saving user")
 	}
@@ -77,7 +76,7 @@ type AuthEmailLogin struct {
 }
 
 func handleAuthEmailLogin(ctx context.Context, viewerID int, req *AuthEmailLogin) (*Authorization, error) {
-	userID, err := auth.EmailAuth(req.Email, req.Password)
+	userID, err := auth.EmailAuth(ctx, req.Email, req.Password)
 	if err == auth.ErrInvalidCredentials {
 		return nil, fmt.Errorf("invalid credentials")
 	} else if err != nil {

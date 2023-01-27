@@ -71,7 +71,7 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 		Height: height,
 	}
 
-	err = store.NodeSave(photo.ID, &photo)
+	err = store.NodeSave(photo.ID, store.ObjectTypePhoto, &photo)
 	if err != nil {
 		w.WriteHeader(400)
 		return

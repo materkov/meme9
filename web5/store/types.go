@@ -1,5 +1,11 @@
 package store
 
+const (
+	ObjectTypePost  = 1
+	ObjectTypeUser  = 2
+	ObjectTypePhoto = 3
+)
+
 type Post struct {
 	ID     int
 	Date   int

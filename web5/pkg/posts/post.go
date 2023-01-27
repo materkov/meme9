@@ -37,7 +37,7 @@ func Add(text string, userID int, photoID int) (int, error) {
 		Date:    int(time.Now().Unix()),
 		PhotoID: photoID,
 	}
-	err := store.NodeSave(post.ID, post)
+	err := store.NodeSave(post.ID, store.ObjectTypePost, post)
 	if err != nil {
 		return 0, fmt.Errorf("error creating post node: %w", err)
 	}
@@ -76,7 +76,7 @@ func Delete(post *store.Post) error {
 	}
 
 	post.IsDeleted = true
-	err = store.NodeSave(post.ID, post)
+	err = store.NodeSave(post.ID, store.ObjectTypePost, post)
 	if err != nil {
 		return fmt.Errorf("error updating post node: %w", err)
 	}

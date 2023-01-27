@@ -43,7 +43,7 @@ func Add(vkID int) (int, error) {
 		Name: fmt.Sprintf("User #%d", vkID),
 	}
 
-	err := store.NodeSave(id, user)
+	err := store.NodeSave(id, store.ObjectTypeUser, user)
 	if err != nil {
 		return 0, fmt.Errorf("error saving user: %w", err)
 	}
@@ -55,11 +55,10 @@ func nextID() int {
 	return int(time.Now().UnixMilli())
 }
 
-func RefreshFromVk(id int) error {
-	user := store.User{}
-	err := store.NodeGet(id, &user)
-	if err != nil {
-		return fmt.Errorf("error getting user: %w", err)
+func RefreshFromVk(ctx context.Context, id int) error {
+	user := store.CachedStoreFromCtx(ctx).User.Get(id)
+	if user == nil {
+		return fmt.Errorf("user not found")
 	}
 
 	args := fmt.Sprintf("v=5.180&access_token=%s&user_ids=%d&fields=photo_200", user.VkAccessToken, user.VkID)
@@ -92,7 +91,7 @@ func RefreshFromVk(id int) error {
 	user.VkPhoto200 = body.Response[0].Photo200
 	user.Name = fmt.Sprintf("%s %s", body.Response[0].FirstName, body.Response[0].LastName)
 
-	err = store.NodeSave(user.ID, user)
+	err = store.NodeSave(user.ID, store.ObjectTypeUser, user)
 	if err != nil {
 		return err
 	}

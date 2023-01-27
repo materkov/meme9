@@ -1,10 +1,11 @@
 package store
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 )
 
 type CachedObject interface {
@@ -12,11 +13,12 @@ type CachedObject interface {
 }
 
 type GenericCachedStore[T CachedObject] struct {
-	cache map[int]*T
+	cache   map[int]*T
+	objType int
 }
 
 func (p *GenericCachedStore[T]) Preload(ids []int) {
-	var keys []string
+	var neededIds []string
 	for _, id := range ids {
 		if id <= 0 {
 			continue
@@ -25,29 +27,33 @@ func (p *GenericCachedStore[T]) Preload(ids []int) {
 			continue
 		}
 
-		keys = append(keys, fmt.Sprintf("node:%d", id))
+		neededIds = append(neededIds, strconv.Itoa(id))
 	}
-	if len(keys) == 0 {
+	if len(neededIds) == 0 {
 		return
 	}
 
-	results, err := RedisClient.MGet(context.Background(), keys...).Result()
-	if err != nil {
-		log.Printf("Error loading posts from redis: %s", err)
-		results = make([]interface{}, len(ids))
+	query := "select id, data from objects where id in (%s) and obj_type = %d"
+	query = fmt.Sprintf(query, strings.Join(neededIds, ","), p.objType)
+	rows, err := SqlClient.Query(query)
+
+	for rows.Next() {
+		id := 0
+		var data []byte
+		_ = rows.Scan(&id, &data)
+
+		obj := new(T)
+		err = json.Unmarshal(data, obj)
+		if err != nil {
+			log.Printf("Error unmarshaling obj: %s", err)
+		}
+
+		p.cache[id] = obj
 	}
 
-	for i, result := range results {
-		if result == nil {
-			p.cache[ids[i]] = nil
-		} else {
-			post := new(T)
-			err = json.Unmarshal([]byte(result.(string)), post)
-			if err != nil {
-				log.Printf("Error unmarshaling post: %s", err)
-			}
-
-			p.cache[ids[i]] = post
+	for _, id := range ids {
+		if _, ok := p.cache[id]; !ok {
+			p.cache[id] = nil
 		}
 	}
 }
