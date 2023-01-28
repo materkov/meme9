@@ -151,6 +151,7 @@ export enum FeedType {
 export interface FeedList {
     method: 'feed.list';
     feedType: FeedType
+    cursor: string
 }
 
 export interface PostsList {
@@ -173,8 +174,13 @@ export interface UserFollowersCount {
     userId: string;
 }
 
+export interface UsersList {
+    method: 'users.list'
+    userIds: string[];
+}
+
 export type ApiRequest = PostsAdd | PostsDelete | PostsLike | PostsUnlike |
     UsersFollow | UsersUnfollow | UsersEdit | UsersSetAvatar |
     AuthVkCallback | AuthEmailLogin | AuthEmailRegister |
-    PostsGetLikesConnection | FeedList | UsersPostsList | UserFollowersCount | UserFollowersCount
+    PostsGetLikesConnection | FeedList | UsersPostsList | UserFollowersCount | UserFollowersCount | UsersList
     ;

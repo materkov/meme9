@@ -127,15 +127,17 @@ func handleFeed(ctx context.Context, viewerID int, reqUrl string) []interface{} 
 
 type FeedList struct {
 	FeedType string `json:"feedType"`
+	Cursor   string `json:"cursor"`
 }
 
 func handleFeedList(ctx context.Context, viewerID int, req *FeedList) (*PostsList, error) {
-	result := handleFeed(ctx, viewerID, "/feed")
+	result := handleFeed(ctx, viewerID, "/feed?cursor="+req.Cursor)
 	edges := result[0].(Edges)
 
 	response := PostsList{}
 
 	response.Items = wrapPostsList(ctx, viewerID, edges.Items)
+	response.NextCursor = edges.NextCursor
 
 	return &response, nil
 }

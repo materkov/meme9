@@ -54,8 +54,8 @@ export interface Global {
     }
 
     feed: {
-        state: LoadingState
         items: string[]
+        nextCursor: undefined | string
     }
 
     users: {
@@ -96,10 +96,8 @@ const global: Global = {
         isLiked: {},
     },
     feed: {
-        state: LoadingState.NONE,
-        isLoading: false,
-        isLoaded: false,
         items: [],
+        nextCursor: undefined,
     },
     users: {
         byId: {},

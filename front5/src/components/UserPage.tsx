@@ -10,7 +10,7 @@ import {connect} from "react-redux";
 import {
     edit,
     fetchFollowersCount,
-    fetchFollowingCount,
+    fetchFollowingCount, fetchUser,
     fetchUserPosts,
     follow,
     unfollow,
@@ -32,6 +32,7 @@ interface Props {
 function Component(props: Props) {
     const userId = location.pathname.substring(7);
     useEffect(() => {
+        fetchUser(userId);
         fetchUserPosts(userId);
         fetchFollowingCount(userId);
         fetchFollowersCount(userId);
@@ -147,6 +148,6 @@ export const UserPage = connect((state: Global): Props => {
         following: state.users.followingCount[userId],
         isFollowing: state.users.isFollowing[userId],
         viewerId: state.viewer.id,
-        postIds: state.users.posts[userId],
+        postIds: state.users.posts[userId] || [],
     }
 })(Component);

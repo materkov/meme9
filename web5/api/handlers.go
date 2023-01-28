@@ -123,6 +123,10 @@ func HandleAPI2(w http.ResponseWriter, r *http.Request) {
 		req := UsersPostsList{}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		resp, err = handleUsersPostsList(ctx, userID, &req)
+	case "users.list":
+		req := UsersList{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		resp, err = handleUsersList(ctx, userID, &req)
 	default:
 		err = fmt.Errorf("unknown method")
 	}

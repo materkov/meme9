@@ -16,6 +16,7 @@ interface Props {
     viewerId: string;
     feed: string[];
     isLoaded: boolean;
+    hasMore: boolean;
 }
 
 function Component(props: Props) {
@@ -38,16 +39,15 @@ function Component(props: Props) {
         </div>
 
         {!props.isLoaded && <div>Loading...</div>}
-        <PostsList posts={props.feed} onShowMore={() => {
-        }} showMore={false}
-                   showMoreDisabled={true}
-        />
+
+        <PostsList posts={props.feed} onShowMore={fetchFeed} showMore={props.hasMore} showMoreDisabled={false}/>
     </>
 }
 
 export const Feed = connect((state: Global): Props => ({
     viewerId: state.viewer.id,
     feed: state.feed.items,
-    isLoaded: state.feed.state == LoadingState.DONE,
+    isLoaded: state.routing.fetchLockers["fetchFeed"] == LoadingState.DONE,
+    hasMore: !!state.feed.nextCursor,
 }))(Component);
 

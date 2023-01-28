@@ -56,7 +56,7 @@ export function edit(data: types.UsersEdit): Promise<void> {
 }
 
 export function usersSetOnline() {
-    api("users.setOnline", {});
+    api("users.setOnline", {} as types.PostsGetLikesConnection);
 }
 
 export function usersSetAvatar(uploadToken: string): Promise<void> {
@@ -165,4 +165,17 @@ export function fetchFollowingCount(userId: string) {
             count: resp.totalCount || 0,
         });
     })
+}
+
+export function fetchUser(userId: string) {
+    api("users.list", {
+        userIds: [userId],
+    } as types.UsersList).then((resp: types.User[]) => {
+        resp.forEach(item => {
+            store.dispatch({
+                type: "users/set",
+                user: item,
+            });
+        })
+    });
 }

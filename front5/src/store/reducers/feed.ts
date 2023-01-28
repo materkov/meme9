@@ -19,6 +19,7 @@ export interface AppendFeed {
     type: 'feed/append'
     items: string[]
     prepend?: boolean
+    nextCursor: string
 }
 
 export function appendFeed(state: Global, data: AppendFeed): Global {
@@ -27,6 +28,7 @@ export function appendFeed(state: Global, data: AppendFeed): Global {
         feed: {
             ...state.feed,
             items: data.prepend ? [...data.items, ...state.feed.items] : [...state.feed.items, ...data.items],
+            nextCursor: data.nextCursor,
         }
     }
 }

@@ -310,3 +310,33 @@ func handleUsersPostsList(ctx context.Context, viewerID int, req *UsersPostsList
 
 	return &response, nil
 }
+
+type UsersList struct {
+	UserIds []string `json:"userIds"`
+}
+
+func handleUsersList(ctx context.Context, viewerID int, req *UsersList) ([]*User, error) {
+	var ids []int
+	for _, idStr := range req.UserIds {
+		id, _ := strconv.Atoi(idStr)
+		if id > 0 {
+			ids = append(ids, id)
+		}
+	}
+
+	store.CachedStoreFromCtx(ctx).User.Preload(ids)
+
+	var results []*User
+	for _, userID := range ids {
+		user := store.CachedStoreFromCtx(ctx).User.Get(userID)
+		if user == nil {
+			continue
+		}
+
+		xresults := handleUserById(ctx, viewerID, fmt.Sprintf("/users/%d", userID))
+		wrappedUser := xresults[0].(User)
+		results = append(results, &wrappedUser)
+	}
+
+	return results, nil
+}
