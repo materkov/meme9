@@ -7,6 +7,8 @@ conn = http.client.HTTPSConnection("meme.mmaks.me")
 #conn = http.client.HTTPConnection("127.0.0.1", port=8000)
 
 token = ""
+user1_id = ""
+user2_id = ""
 
 
 def api(method, params=dict({})):
@@ -21,7 +23,7 @@ def api(method, params=dict({})):
     resp = conn.getresponse()
     resp = resp.read()
 
-    print('<--', url, params)
+    print('<--', method, params)
     print('-->', resp)
     print('')
 
@@ -32,8 +34,9 @@ def api(method, params=dict({})):
 # user1: test@test.ru
 # user2: test2@test.ru
 
-def test_follow():
-    global token
+
+def auth():
+    global token, user1_id, user2_id
     login_resp, err = api("auth.emailLogin", {
         "email": "test@test.ru",
         "password": "1234"
@@ -56,6 +59,8 @@ def test_follow():
     assert err == None
     assert resp['id'] == login_resp['user']['id']
 
+
+def test_follow():
     _, err = api("users.follow", {
         "userId": user2_id
     })
@@ -80,4 +85,36 @@ def test_follow():
     assert err == None
     assert resp.get('totalCount', 0) == 0
 
+
+def test_posting():
+    post, err = api("posts.add", {
+        "text": "Test post text"
+    })
+    assert err == None
+    assert post["id"]
+    assert post["text"] == "Test post text"
+    assert post["userId"] == user1_id
+
+    like_data, err = api("posts.like", {
+        "postId": post["id"]
+    })
+    assert err == None
+    assert like_data['totalCount'] == 1
+    assert like_data['isViewerLiked'] == True
+
+    like_data, err = api("posts.unlike", {
+        "postId": post["id"]
+    })
+    assert err == None
+    assert not like_data.get('totalCount', 0)
+    assert not like_data.get('isViewerLiked', False)
+
+    resp, err = api("posts.delete", {
+        "id": post["id"]
+    })
+    assert err == None
+
+
+auth()
 test_follow()
+test_posting()
