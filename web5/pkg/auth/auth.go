@@ -135,7 +135,7 @@ func Register(email, password string) (int, error) {
 	}
 
 	user := store.User{
-		Name:         fmt.Sprintf("User ###"),
+		Name:         "User ###",
 		Email:        email,
 		PasswordHash: string(passwordHash),
 	}
