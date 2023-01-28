@@ -26,24 +26,22 @@ import {
     SetUser,
     setUser
 } from "./reducers/users";
-import {setFetchLocker, SetFetchLocker, SetRoute, setRouteReducer} from "./reducers/routes";
+import {SetRoute, setRouteReducer} from "./reducers/routes";
 import {SetViewer, setViewer} from "./reducers/viewer";
-import {AppendFeed, appendFeed, DeleteFromFeed, deleteFromFeed, setLoadingState, SetState} from "./reducers/feed";
+import {AppendFeed, appendFeed, DeleteFromFeed, deleteFromFeed} from "./reducers/feed";
 import {SetOnline, setOnline} from "./reducers/online";
 import {SetPhoto, setPhoto} from "./reducers/photos";
 import {SetToken, setToken} from "./reducers/auth";
 
-export enum LoadingState {
-    NONE,
-    LOADING,
-    DONE,
+export interface Page {
+    items: string[]
+    nextCursor: string
 }
 
 export interface Global {
     routing: {
         accessToken: string
         url: string
-        fetchLockers: { [key: string]: LoadingState }
     }
 
     posts: {
@@ -54,8 +52,7 @@ export interface Global {
     }
 
     feed: {
-        items: string[]
-        nextCursor: undefined | string
+        pages: Page[]
     }
 
     users: {
@@ -87,7 +84,6 @@ const global: Global = {
     routing: {
         accessToken: localStorage.getItem("authToken") || "",
         url: location.pathname + location.search,
-        fetchLockers: {},
     },
     posts: {
         byId: {},
@@ -96,8 +92,7 @@ const global: Global = {
         isLiked: {},
     },
     feed: {
-        items: [],
-        nextCursor: undefined,
+        pages: [],
     },
     users: {
         byId: {},
@@ -120,13 +115,13 @@ const global: Global = {
     }
 }
 
-export type AnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
+export type MyAnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
     | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed | SetIsFollowing
-    | SetToken | SetPostsCount | SetState | SetFollowingCount | SetFollowersCount | SetFetchLocker
+    | SetToken | SetPostsCount | SetFollowingCount | SetFollowersCount
     ;
 
 
-export const store = createStore<Global, AnyAction, void, void>((state = global, action: AnyAction) => {
+export const store = createStore<Global, MyAnyAction, void, void>((state = global, action: MyAnyAction) => {
     switch (action.type) {
         case 'posts/like':
             return postLikeReducer(state, action)
@@ -134,8 +129,6 @@ export const store = createStore<Global, AnyAction, void, void>((state = global,
             return postUnlike(state, action)
         case 'routes/set':
             return setRouteReducer(state, action)
-        case 'routes/setFetchLocker':
-            return setFetchLocker(state, action)
         case 'posts/set':
             return setPost(state, action)
         case 'users/set':
@@ -166,8 +159,6 @@ export const store = createStore<Global, AnyAction, void, void>((state = global,
             return setFollowingCount(state, action)
         case 'auth/setToken':
             return setToken(state, action)
-        case 'feed/setState':
-            return setLoadingState(state, action)
         default:
             return state
     }

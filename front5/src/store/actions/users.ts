@@ -1,5 +1,5 @@
 import * as types from "../../api/types";
-import {LoadingState, store} from "../store";
+import {store} from "../store";
 import {parsePostsList} from "../helpers/posts";
 import {api} from "../../api/api";
 
@@ -74,12 +74,6 @@ export function usersSetAvatar(uploadToken: string): Promise<void> {
 
 export function fetchUserPosts(userId: string): Promise<void> {
     return new Promise((resolve) => {
-        const key = "fetchUserPosts:" + userId;
-        if (store.getState().routing.fetchLockers[key]) {
-            return;
-        }
-        store.dispatch({type: "routes/setFetchLocker", key: key, state: LoadingState.LOADING});
-
         api("users.posts.list", {userId: userId, count: 10} as types.UsersPostsList).then((resp: types.PostsList) => {
             parsePostsList(resp);
 
@@ -127,13 +121,6 @@ export function loadUserPostsCount(userId: string): Promise<void> {
 }
 
 export function fetchFollowersCount(userId: string) {
-    const key = "fetchFollowersCount:" + userId;
-
-    if (store.getState().routing.fetchLockers[key]) {
-        return;
-    }
-    store.dispatch({type: "routes/setFetchLocker", key: key, state: LoadingState.LOADING});
-
     api("users.followers.list", {
         userId: userId,
         count: 0
@@ -148,13 +135,6 @@ export function fetchFollowersCount(userId: string) {
 }
 
 export function fetchFollowingCount(userId: string) {
-    const key = "fetchFollowingCount:" + userId;
-
-    if (store.getState().routing.fetchLockers[key]) {
-        return;
-    }
-    store.dispatch({type: "routes/setFetchLocker", key: key, state: LoadingState.LOADING});
-
     api("users.following.list", {
         userId: userId,
         count: 0

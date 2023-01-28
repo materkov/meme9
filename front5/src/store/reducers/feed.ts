@@ -1,19 +1,4 @@
-import {Global, LoadingState} from "../store";
-
-export interface SetState {
-    type: 'feed/setState'
-    state: LoadingState
-}
-
-export function setLoadingState(state: Global, data: SetState): Global {
-    return {
-        ...state,
-        feed: {
-            ...state.feed,
-            state: data.state,
-        }
-    }
-}
+import {Global, Page} from "../store";
 
 export interface AppendFeed {
     type: 'feed/append'
@@ -23,12 +8,16 @@ export interface AppendFeed {
 }
 
 export function appendFeed(state: Global, data: AppendFeed): Global {
+    const newItem: Page = {
+        items: [...data.items],
+        nextCursor: data.nextCursor,
+    }
+
     return {
         ...state,
         feed: {
             ...state.feed,
-            items: data.prepend ? [...data.items, ...state.feed.items] : [...state.feed.items, ...data.items],
-            nextCursor: data.nextCursor,
+            pages: data.prepend ? [newItem, ...state.feed.pages] : [...state.feed.pages, newItem],
         }
     }
 }
@@ -39,11 +28,22 @@ export interface DeleteFromFeed {
 }
 
 export function deleteFromFeed(state: Global, data: DeleteFromFeed): Global {
+    let pages = [];
+    for (let page of state.feed.pages) {
+        const newPage: Page = {
+            ...page,
+            items: page.items.filter(item => item != data.postId)
+        };
+        if (newPage.items.length > 0) {
+            pages.push(newPage);
+        }
+    }
+
     return {
         ...state,
         feed: {
             ...state.feed,
-            items: state.feed.items.filter(item => item != data.postId)
+            pages: pages,
         }
     }
 }

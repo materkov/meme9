@@ -17,6 +17,7 @@ export function RegisterPage() {
         setError('');
 
         emailRegister({
+            method: 'auth.emailRegister',
             email: email,
             password: password,
         }).then(() => {

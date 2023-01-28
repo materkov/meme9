@@ -1,7 +1,7 @@
 import * as types from "../../api/types";
+import {AuthVkCallback} from "../../api/types";
 import {store} from "../store";
 import {api} from "../../api/api";
-import {AuthVkCallback} from "../../api/types";
 
 function setAuth(auth: types.Authorization) {
     store.dispatch({type: 'users/set', user: auth.user})
@@ -12,7 +12,7 @@ function setAuth(auth: types.Authorization) {
 }
 
 export function vkCallback(code: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         api("auth.vkCallback", {
             code: code,
             redirectUri: location.origin + location.pathname,
@@ -35,7 +35,7 @@ export function emailLogin(req: types.AuthEmailLogin): Promise<void> {
         api("auth.emailLogin", req).then((r: types.Authorization) => {
             setAuth(r);
             resolve();
-        }).catch(err => {
+        }).catch(() => {
             reject();
         })
     })
@@ -46,7 +46,7 @@ export function emailRegister(req: types.AuthEmailRegister): Promise<void> {
         api("auth.emailRegister", req).then((r: types.Authorization) => {
             setAuth(r);
             resolve();
-        }).catch(err => {
+        }).catch(() => {
             reject();
         })
     })

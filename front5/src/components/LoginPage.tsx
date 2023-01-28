@@ -15,6 +15,7 @@ export function LoginPage() {
         setError('');
 
         emailLogin({
+            method: 'auth.emailLogin',
             email: email,
             password: password,
         }).then((resp) => {

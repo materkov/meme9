@@ -3,7 +3,7 @@ import {Composer} from "./Composer";
 import {PostsList} from "./PostsList";
 import classNames from "classnames";
 import styles from "./Feed.module.css";
-import {Global, LoadingState} from "../store/store";
+import {Global} from "../store/store";
 import {connect} from "react-redux";
 import {fetchFeed} from "../store/actions/feed";
 
@@ -14,7 +14,7 @@ enum FeedType {
 
 interface Props {
     viewerId: string;
-    feed: string[];
+    postIds: string[];
     isLoaded: boolean;
     hasMore: boolean;
 }
@@ -40,14 +40,26 @@ function Component(props: Props) {
 
         {!props.isLoaded && <div>Loading...</div>}
 
-        <PostsList posts={props.feed} onShowMore={fetchFeed} showMore={props.hasMore} showMoreDisabled={false}/>
+        <PostsList posts={props.postIds} onShowMore={fetchFeed} showMore={props.hasMore} showMoreDisabled={false}/>
     </>
 }
 
-export const Feed = connect((state: Global): Props => ({
-    viewerId: state.viewer.id,
-    feed: state.feed.items,
-    isLoaded: state.routing.fetchLockers["fetchFeed"] == LoadingState.DONE,
-    hasMore: !!state.feed.nextCursor,
-}))(Component);
+export const Feed = connect((state: Global): Props => {
+    let postIds = [];
+    let lastCursor = '';
+    for (const page of state.feed.pages) {
+        for (const id of page.items) {
+            postIds.push(id);
+        }
+        lastCursor = page.nextCursor;
+    }
+
+    state.feed.pages.forEach(page => page.items)
+    return {
+        viewerId: state.viewer.id,
+        postIds: postIds,
+        isLoaded: state.feed.pages.length > 0,
+        hasMore: !!lastCursor,
+    }
+})(Component);
 

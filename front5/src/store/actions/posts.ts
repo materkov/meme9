@@ -14,7 +14,7 @@ export function addPost(data: types.PostsAdd): Promise<void> {
     return new Promise((resolve, reject) => {
         api("posts.add", data).then((post: types.Post) => {
             store.dispatch({type: "posts/set", post: post})
-            store.dispatch({type: "feed/append", items: [post.id], prepend: true})
+            store.dispatch({type: "feed/append", items: [post.id], prepend: true, nextCursor: ''})
 
             resolve();
         }).catch(() => {
