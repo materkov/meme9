@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"github.com/materkov/meme9/web5/pkg/testutils"
 	"github.com/stretchr/testify/require"
 	"strings"
@@ -16,16 +17,16 @@ func TestAuthEmailAuth(t *testing.T) {
 	require.NotEmpty(t, registeredUserID)
 
 	// Login, good password
-	userID, err := EmailAuth("my@email.com", "pass")
+	userID, err := EmailAuth(context.Background(), "my@email.com", "pass")
 	require.NoError(t, err)
 	require.Equal(t, registeredUserID, userID)
 
 	// Bad password
-	_, err = EmailAuth("my@email.com", "bad-password")
+	_, err = EmailAuth(context.Background(), "my@email.com", "bad-password")
 	require.Equal(t, ErrInvalidCredentials, err)
 
 	// Bad email
-	_, err = EmailAuth("bad@email.com", "pass")
+	_, err = EmailAuth(context.Background(), "bad@email.com", "pass")
 	require.Equal(t, ErrInvalidCredentials, err)
 }
 

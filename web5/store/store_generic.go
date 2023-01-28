@@ -36,6 +36,9 @@ func (p *GenericCachedStore[T]) Preload(ids []int) {
 	query := "select id, data from objects where id in (%s) and obj_type = %d"
 	query = fmt.Sprintf(query, strings.Join(neededIds, ","), p.objType)
 	rows, err := SqlClient.Query(query)
+	if err != nil {
+		return
+	}
 
 	for rows.Next() {
 		id := 0
