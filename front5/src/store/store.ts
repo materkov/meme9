@@ -28,7 +28,15 @@ import {
 } from "./reducers/users";
 import {SetRoute, setRouteReducer} from "./reducers/routes";
 import {SetViewer, setViewer} from "./reducers/viewer";
-import {AppendFeed, appendFeed, DeleteFromFeed, deleteFromFeed} from "./reducers/feed";
+import {
+    AppendFeed,
+    appendFeed,
+    DeleteFromFeed,
+    deleteFromFeed, setCurrentFeed,
+    SetCurrentFeed, SetFeedDiscoverState, setFeedDiscoverState,
+    setFeedState,
+    SetFeedState
+} from "./reducers/feed";
 import {SetOnline, setOnline} from "./reducers/online";
 import {SetPhoto, setPhoto} from "./reducers/photos";
 import {SetToken, setToken} from "./reducers/auth";
@@ -36,6 +44,17 @@ import {SetToken, setToken} from "./reducers/auth";
 export interface Page {
     items: string[]
     nextCursor: string
+}
+
+export enum LoadingState {
+    NONE = "NONE",
+    FETCHING = "FETCHING",
+    DONE = "DONE"
+}
+
+export enum CurrentFeed {
+    FEED = "FEED",
+    DISCOVER = "DISCOVER",
 }
 
 export interface Global {
@@ -52,7 +71,11 @@ export interface Global {
     }
 
     feed: {
+        currentFeed: CurrentFeed
         pages: Page[]
+        discoverPages: Page[]
+        stateFeed: LoadingState
+        stateDiscover: LoadingState
     }
 
     users: {
@@ -92,7 +115,11 @@ const global: Global = {
         isLiked: {},
     },
     feed: {
+        currentFeed: CurrentFeed.FEED,
         pages: [],
+        discoverPages: [],
+        stateFeed: LoadingState.NONE,
+        stateDiscover: LoadingState.NONE,
     },
     users: {
         byId: {},
@@ -117,7 +144,7 @@ const global: Global = {
 
 export type MyAnyAction = PostLike | PostUnlike | SetRoute | SetPost | SetUser | SetOnline | AppendFeed
     | SetPhoto | SetLikes | AppendLikers | AppendPosts | SetViewer | DeleteFromFeed | SetIsFollowing
-    | SetToken | SetPostsCount | SetFollowingCount | SetFollowersCount
+    | SetToken | SetPostsCount | SetFollowingCount | SetFollowersCount | SetFeedState | SetCurrentFeed | SetFeedDiscoverState
     ;
 
 
@@ -139,6 +166,12 @@ export const store = createStore<Global, MyAnyAction, void, void>((state = globa
             return setPhoto(state, action)
         case 'feed/append':
             return appendFeed(state, action)
+        case "feed/setState":
+            return setFeedState(state, action)
+        case "feed/setCurrentFeed":
+            return setCurrentFeed(state, action)
+        case "feed/setFeedDiscoverState":
+            return setFeedDiscoverState(state, action)
         case 'posts/setLikes':
             return setLikes(state, action)
         case 'posts/appendLikers':

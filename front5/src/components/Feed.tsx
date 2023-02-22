@@ -3,16 +3,12 @@ import {Composer} from "./Composer";
 import {PostsList} from "./PostsList";
 import classNames from "classnames";
 import styles from "./Feed.module.css";
-import {Global} from "../store/store";
+import {CurrentFeed, Global, store} from "../store/store";
 import {connect} from "react-redux";
-import {fetchFeed} from "../store/actions/feed";
-
-enum FeedType {
-    FEED = "FEED",
-    DISCOVER = "DISCOVER",
-}
+import {fetchDiscover, fetchFeed} from "../store/actions/feed";
 
 interface Props {
+    currentFeed: CurrentFeed;
     viewerId: string;
     postIds: string[];
     isLoaded: boolean;
@@ -20,27 +16,40 @@ interface Props {
 }
 
 function Component(props: Props) {
-    const [feedType, setFeedType] = React.useState<FeedType>(FeedType.DISCOVER);
+    function setFeedType(feed: CurrentFeed) {
+        store.dispatch({type: "feed/setCurrentFeed", feed: feed});
 
-    useEffect(() => {
-        fetchFeed();
-    }, []);
+        if (feed == CurrentFeed.FEED) {
+            fetchFeed("firstPage");
+        } else if (feed == CurrentFeed.DISCOVER) {
+            fetchDiscover("firstPage");
+        }
+    }
+
+    if (props.currentFeed == CurrentFeed.FEED) {
+        fetchFeed("firstPage");
+    } else if (props.currentFeed == CurrentFeed.DISCOVER) {
+        fetchDiscover("firstPage");
+    }
 
     return <>
         {props.viewerId ? <Composer/> : <i>Авторизуйтесь, чтобы написать пост</i>}
 
         <div>Тип ленты:&nbsp;
-            <a onClick={() => setFeedType(FeedType.FEED)} className={classNames({
-                [styles.currentFeedType]: feedType == FeedType.FEED
-            })}>Мои подписки</a> |&nbsp;
-            <a onClick={() => setFeedType(FeedType.DISCOVER)} className={classNames({
-                [styles.currentFeedType]: feedType == FeedType.DISCOVER
-            })}>Дискавер</a>
+            <a onClick={() => setFeedType(CurrentFeed.FEED)}
+               className={classNames({
+                   [styles.currentFeedType]: props.currentFeed == CurrentFeed.FEED
+               })}>Мои подписки</a> |&nbsp;
+            <a onClick={() => setFeedType(CurrentFeed.DISCOVER)}
+               className={classNames({
+                   [styles.currentFeedType]: props.currentFeed == CurrentFeed.DISCOVER
+               })}>Дискавер</a>
         </div>
 
         {!props.isLoaded && <div>Loading...</div>}
 
-        <PostsList posts={props.postIds} onShowMore={fetchFeed} showMore={props.hasMore} showMoreDisabled={false}/>
+        <PostsList posts={props.postIds} onShowMore={() => fetchFeed("nextPage")} showMore={props.hasMore}
+                   showMoreDisabled={false}/>
     </>
 }
 
@@ -56,6 +65,7 @@ export const Feed = connect((state: Global): Props => {
 
     state.feed.pages.forEach(page => page.items)
     return {
+        currentFeed: state.feed.currentFeed,
         viewerId: state.viewer.id,
         postIds: postIds,
         isLoaded: state.feed.pages.length > 0,

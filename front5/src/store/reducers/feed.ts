@@ -1,4 +1,49 @@
-import {Global, Page} from "../store";
+import {CurrentFeed, Global, LoadingState, Page} from "../store";
+
+export interface SetFeedState {
+    type: 'feed/setState'
+    state: LoadingState
+}
+
+export function setFeedState(state: Global, data: SetFeedState) {
+    return {
+        ...state,
+        feed: {
+            ...state.feed,
+            stateFeed: data.state,
+        }
+    }
+}
+
+export interface SetFeedDiscoverState {
+    type: 'feed/setFeedDiscoverState'
+    state: LoadingState
+}
+
+export function setFeedDiscoverState(state: Global, data: SetFeedDiscoverState) {
+    return {
+        ...state,
+        feed: {
+            ...state.feed,
+            stateDiscover: data.state,
+        }
+    }
+}
+
+export interface SetCurrentFeed {
+    type: 'feed/setCurrentFeed'
+    feed: CurrentFeed
+}
+
+export function setCurrentFeed(state: Global, data: SetCurrentFeed): Global {
+    return {
+        ...state,
+        feed: {
+            ...state.feed,
+            currentFeed: data.feed,
+        }
+    }
+}
 
 export interface AppendFeed {
     type: 'feed/append'
