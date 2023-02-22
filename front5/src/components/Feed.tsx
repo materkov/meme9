@@ -18,12 +18,6 @@ interface Props {
 function Component(props: Props) {
     function setFeedType(feed: CurrentFeed) {
         store.dispatch({type: "feed/setCurrentFeed", feed: feed});
-
-        if (feed == CurrentFeed.FEED) {
-            fetchFeed("firstPage");
-        } else if (feed == CurrentFeed.DISCOVER) {
-            fetchDiscover("firstPage");
-        }
     }
 
     if (props.currentFeed == CurrentFeed.FEED) {
