@@ -5,7 +5,7 @@ export interface SetFeedState {
     state: LoadingState
 }
 
-export function setFeedState(state: Global, data: SetFeedState) {
+export function setFeedState(state: Global, data: SetFeedState): Global {
     return {
         ...state,
         feed: {
@@ -20,7 +20,7 @@ export interface SetFeedDiscoverState {
     state: LoadingState
 }
 
-export function setFeedDiscoverState(state: Global, data: SetFeedDiscoverState) {
+export function setFeedDiscoverState(state: Global, data: SetFeedDiscoverState): Global {
     return {
         ...state,
         feed: {

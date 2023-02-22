@@ -26,7 +26,7 @@ export interface SetPostsCount {
     count: number | null
 }
 
-export function setPostsCount(state: Global, data: SetPostsCount) {
+export function setPostsCount(state: Global, data: SetPostsCount): Global {
     return {
         ...state,
         users: {

@@ -6,7 +6,7 @@ export interface PostLike {
     postId: string;
 }
 
-export function postLikeReducer(state: Global, data: PostLike) {
+export function postLikeReducer(state: Global, data: PostLike): Global {
     return {
         ...state,
         posts: {
@@ -28,7 +28,7 @@ export interface PostUnlike {
     postId: string;
 }
 
-export function postUnlike(state: Global, data: PostUnlike) {
+export function postUnlike(state: Global, data: PostUnlike): Global {
     const isLiked = {...state.posts.isLiked};
     delete isLiked[data.postId];
 
