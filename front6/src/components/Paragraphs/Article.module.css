@@ -1,0 +1,9 @@
+.article {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.title {
+    font-size: 30px;
+    margin: 16px 0;
+}

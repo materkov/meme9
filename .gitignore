@@ -5,9 +5,12 @@ front5/node_modules
 front5/dist/bundle
 legacy/web/config.json
 web5/config.json
+front6/node_modules
+front6/dist/bundle/
 mongotest
 pythontest
 test.json
 test2.json
 docker
 __pycache__
+test.http
