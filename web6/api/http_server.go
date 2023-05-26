@@ -49,8 +49,11 @@ func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resp, _ := h.Api.ArticlesList(&articlesListReq{ID: strconv.Itoa(articleID)})
+
 	articleImage := ""
 	paragraphsHtml := ""
+	articleDescription := ""
 	for _, paragraph := range article.Paragraphs {
 		if paragraph.ParagraphImage != nil {
 			paragraphsHtml += "<img src=\"" + html.EscapeString(paragraph.ParagraphImage.URL) + "\" />"
@@ -60,6 +63,10 @@ func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
 			}
 		} else if paragraph.ParagraphText != nil {
 			paragraphsHtml += "<p>" + html.EscapeString(paragraph.ParagraphText.Text) + "</p>"
+
+			if articleDescription == "" {
+				articleDescription = paragraph.ParagraphText.Text
+			}
 		}
 	}
 
@@ -67,10 +74,10 @@ func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
 	result += "<html><head>"
 	result += "<meta charset=\"UTF-8\">"
 	result += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
-	result += "<link href=\"http://localhost:3000/index.css\" rel=\"stylesheet\">"
-	result += "<link href=\"http://localhost:3000/bundle/index.css\" rel=\"stylesheet\">"
+	result += "<link href=\"/bundle/index.css\" rel=\"stylesheet\">"
 	result += "<title>" + html.EscapeString(article.Title) + "</title>"
 	result += fmt.Sprintf(`<meta property="og:title" content="%s" />`, html.EscapeString(article.Title))
+	result += fmt.Sprintf(`<meta property="og:description" content="%s" />`, html.EscapeString(articleDescription))
 	result += fmt.Sprintf(`<meta property="og:url" content="%s" />`, r.URL.RequestURI())
 
 	if articleImage != "" {
@@ -86,7 +93,10 @@ func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
 		result += paragraphsHtml
 	}
 
-	result += "<script src=\"http://localhost:3000/bundle/index.js\"></script>"
+	respBytes, _ := json.Marshal(resp)
+	result += "<script>window.__prefetchApi =" + string(respBytes) + "</script>"
+
+	result += "<script src=\"/bundle/index.js\"></script>"
 	result += "</body></html>"
 
 	w.Write([]byte(result))
@@ -95,6 +105,7 @@ func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
 func (h *HttpServer) writeResp(w http.ResponseWriter, resp interface{}, err error) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Version", pkg.BuildTime)
 
 	if err != nil {
 		w.WriteHeader(400)
@@ -125,6 +136,7 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/api/articles.list", h.articlesList)
 	http.HandleFunc("/api/articles.save", h.articlesSave)
 	http.HandleFunc("/article/", h.articlePage)
+	http.Handle("/bundle/", http.FileServer(http.Dir("../front6/dist")))
 
 	http.ListenAndServe("127.0.0.1:8000", nil)
 }

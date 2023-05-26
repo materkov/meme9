@@ -10,13 +10,17 @@ export function Text(paragraph: types.ParagraphText) {
 
     const [localText, setLocalText] = React.useState('');
     const onFocus = (e: React.FocusEvent) => {
-        setLocalText(e.target.textContent || "");
+        const currentText = e.target.textContent || "";
+
+        setLocalText(currentText);
     };
 
     const onBlur = (e: React.FocusEvent) => {
-        if (localText !== e.target.textContent) {
-            setText(paragraph.id, e.target.textContent);
-            setLocalText(e.target.textContent || "");
+        const currentText = e.target.textContent || "";
+
+        if (localText !== currentText) {
+            setText(paragraph.id, currentText);
+            setLocalText(currentText);
         }
     };
 

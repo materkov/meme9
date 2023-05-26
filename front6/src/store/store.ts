@@ -45,13 +45,13 @@ export function saveArticle(article: ArticlesSave): Promise<undefined> {
 }
 
 export interface ArticlePage {
-    article: types.Article | undefined
+    article: types.Article
     setArticle: (article: types.Article) => void
     setText: (paragraphId: string, text: string) => void
 }
 
 export const useArticlePage = create<ArticlePage>()(set => ({
-    article: undefined,
+    article: new types.Article(),
     setArticle: (article: types.Article) => set(() => ({article: article})),
     setText: (paragraphId: string, text: string) => set((state: ArticlePage) => {
         const copyArticle = structuredClone(state.article);

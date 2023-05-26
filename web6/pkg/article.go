@@ -15,6 +15,7 @@ type Article struct {
 
 const (
 	objTypeArticle = 1
+	objTypeConfig  = 2
 )
 
 const (
@@ -41,40 +42,41 @@ var SqlClient *sql.DB
 
 var ErrObjectNotFound = fmt.Errorf("object not found")
 
-func GetArticle(id int) (*Article, error) {
+func getObject(id int, objType int, obj interface{}) error {
 	var data []byte
-	err := SqlClient.QueryRow("select data from objects where id = ? and obj_type = 1", id).Scan(&data)
+	err := SqlClient.QueryRow("select data from objects where id = ? and obj_type = ?", id, objType).Scan(&data)
 	if err == sql.ErrNoRows {
-		return nil, ErrObjectNotFound
+		return ErrObjectNotFound
 	} else if err != nil {
-		return nil, fmt.Errorf("error selecting database: %w", err)
+		return fmt.Errorf("error selecting database: %w", err)
 	}
 
-	article := Article{}
-	err = json.Unmarshal(data, &article)
+	err = json.Unmarshal(data, obj)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling data: %w", err)
+		return fmt.Errorf("error unmarshaling object %d: %w", objType, err)
 	}
 
-	return &article, nil
-}
-
-func GetConfig() error {
-	var data []byte
-	err := SqlClient.QueryRow("select data from objects where id = 5").Scan(&data)
-	if err != nil {
-		return err
-	}
-
-	_ = json.Unmarshal(data, &GlobalConfig)
 	return nil
 }
 
-func SaveArticle(article *Article) error {
-	data, _ := json.Marshal(article)
-	_, err := SqlClient.Exec("update objects set data = ? where id = ?", data, article.ID)
+func GetArticle(id int) (*Article, error) {
+	article := &Article{}
+	err := getObject(id, objTypeArticle, article)
+	return article, err
+}
+
+func GetConfig() (*Config, error) {
+	obj := &Config{}
+	err := getObject(5, objTypeConfig, obj)
+	return obj, err
+}
+
+func UpdateObject(object interface{}, id int) error {
+	data, _ := json.Marshal(object)
+	_, err := SqlClient.Exec("update objects set data = ? where id = ?", data, id)
 	if err != nil {
 		return fmt.Errorf("error updating row: %w", err)
 	}
+
 	return nil
 }

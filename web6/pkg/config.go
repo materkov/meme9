@@ -4,4 +4,6 @@ type Config struct {
 	SaveSecret string
 }
 
-var GlobalConfig = Config{}
+var GlobalConfig = &Config{}
+
+var BuildTime = ""

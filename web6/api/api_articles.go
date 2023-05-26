@@ -126,7 +126,7 @@ func (a *API) ArticlesSave(r *InputArticle) (*Void, error) {
 		paragraphID++
 	}
 
-	err := pkg.SaveArticle(&article)
+	err := pkg.UpdateObject(&article, article.ID)
 	if err != nil {
 		return nil, err
 	}

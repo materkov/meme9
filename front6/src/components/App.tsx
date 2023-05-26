@@ -14,15 +14,19 @@ export function App() {
     const setArticle = useArticlePage((state: ArticlePage) => state.setArticle);
 
     useEffect(() => {
-        getArticle(articleId)
-            .then(setArticle)
-            .catch((error) => {
-                if (error.code == 404) {
-                    setError("Статья не существует или была удалена")
-                } else {
-                    setError("Не удалось загрузить статью")
-                }
-            })
+        if (window.__prefetchApi) {
+            setArticle(window.__prefetchApi)
+        } else {
+            getArticle(articleId)
+                .then(setArticle)
+                .catch((error) => {
+                    if (error.code == 404) {
+                        setError("Статья не существует или была удалена")
+                    } else {
+                        setError("Не удалось загрузить статью")
+                    }
+                })
+        }
     }, [])
 
     return (

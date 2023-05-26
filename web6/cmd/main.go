@@ -15,7 +15,7 @@ func main() {
 		log.Fatalf("Error opening mysql: %s", err)
 	}
 
-	err = pkg.GetConfig()
+	pkg.GlobalConfig, err = pkg.GetConfig()
 	if err != nil {
 		log.Fatalf("Error reading config: %s", err)
 	}
