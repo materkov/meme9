@@ -5,6 +5,7 @@ import (
 	"github.com/materkov/meme9/web6/pkg"
 	"log"
 	"strconv"
+	"time"
 )
 
 //go:generate easyjson -all -lower_camel_case -omit_empty api_articles.go
@@ -12,6 +13,9 @@ import (
 type Article struct {
 	ID    string
 	Title string
+	User  *User
+
+	CreatedAt string
 
 	Paragraphs []*Paragraph
 }
@@ -46,9 +50,17 @@ func (a *API) ArticlesList(r *articlesListReq) (*Article, error) {
 	}
 
 	wrappedArticle := &Article{
-		ID:    strconv.Itoa(article.ID),
-		Title: article.Title,
+		ID:        strconv.Itoa(article.ID),
+		Title:     article.Title,
+		CreatedAt: transformDate(article.Date),
 	}
+
+	user, err := pkg.GetUser(article.UserID)
+	if err != nil {
+		log.Printf("[ERROR] Error loading user: %s", err)
+	}
+
+	wrappedArticle.User = transformUser(article.UserID, user)
 
 	wrappedArticle.Paragraphs = make([]*Paragraph, len(article.Paragraphs))
 	for i, p := range article.Paragraphs {
@@ -102,6 +114,7 @@ func (a *API) ArticlesSave(r *InputArticle) (*Void, error) {
 
 	article.ID = id
 	article.Title = r.Title
+	article.UpdatedAt = int(time.Now().Unix())
 
 	paragraphID := 1
 	for _, paragraph := range r.Paragraphs {

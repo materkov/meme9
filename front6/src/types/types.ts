@@ -2,13 +2,17 @@ export class Article {
     type = Article.name
     id = ""
     title = ""
+    user: User | null = null
+    createdAt = ""
     paragraphs: Paragraph[] = []
 
     static fromJSON(raw: any): Article {
         const o = new Article();
         o.id = String(raw.id || "")
         o.title = String(raw.title || "")
+        o.createdAt = String(raw.createdAt || "")
         o.paragraphs = (raw.paragraphs || []).map(Paragraph.fromJSON)
+        o.user = raw.user ? User.fromJSON(raw.user) : null
         return o;
     }
 }
@@ -51,6 +55,18 @@ export class ParagraphImage {
         const o = new ParagraphImage();
         o.id = String(raw.id || "")
         o.url = String(raw.url || "")
+        return o
+    }
+}
+
+export class User {
+    id = ""
+    name = ""
+
+    static fromJSON(raw: any): User {
+        const o = new User();
+        o.id = String(raw.id || "")
+        o.name = String(raw.name || "")
         return o
     }
 }

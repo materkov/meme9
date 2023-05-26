@@ -5,5 +5,16 @@
 
 .title {
     font-size: 30px;
-    margin: 16px 0;
+    margin: 5px 0 8px 0;
+}
+
+.author {
+    font-size: 14px;
+    color: #888888;
+    margin: 5px 0 10px 0;
+}
+
+.time {
+    margin-left: 10px;
+    display: inline-block;
 }

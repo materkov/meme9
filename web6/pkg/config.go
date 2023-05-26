@@ -5,5 +5,4 @@ type Config struct {
 }
 
 var GlobalConfig = &Config{}
-
-var BuildTime = ""
+var BuildTime = "dev"

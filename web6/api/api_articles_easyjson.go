@@ -781,6 +781,18 @@ func easyjson8336a586DecodeGithubComMaterkovMeme9Web6Api9(in *jlexer.Lexer, out 
 			out.ID = string(in.String())
 		case "title":
 			out.Title = string(in.String())
+		case "user":
+			if in.IsNull() {
+				in.Skip()
+				out.User = nil
+			} else {
+				if out.User == nil {
+					out.User = new(User)
+				}
+				easyjson8336a586DecodeGithubComMaterkovMeme9Web6Api10(in, out.User)
+			}
+		case "createdAt":
+			out.CreatedAt = string(in.String())
 		case "paragraphs":
 			if in.IsNull() {
 				in.Skip()
@@ -842,6 +854,26 @@ func easyjson8336a586EncodeGithubComMaterkovMeme9Web6Api9(out *jwriter.Writer, i
 		}
 		out.String(string(in.Title))
 	}
+	if in.User != nil {
+		const prefix string = ",\"user\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		easyjson8336a586EncodeGithubComMaterkovMeme9Web6Api10(out, *in.User)
+	}
+	if in.CreatedAt != "" {
+		const prefix string = ",\"createdAt\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.CreatedAt))
+	}
 	if len(in.Paragraphs) != 0 {
 		const prefix string = ",\"paragraphs\":"
 		if first {
@@ -890,4 +922,59 @@ func (v *Article) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Article) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson8336a586DecodeGithubComMaterkovMeme9Web6Api9(l, v)
+}
+func easyjson8336a586DecodeGithubComMaterkovMeme9Web6Api10(in *jlexer.Lexer, out *User) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = string(in.String())
+		case "name":
+			out.Name = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson8336a586EncodeGithubComMaterkovMeme9Web6Api10(out *jwriter.Writer, in User) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	if in.ID != "" {
+		const prefix string = ",\"id\":"
+		first = false
+		out.RawString(prefix[1:])
+		out.String(string(in.ID))
+	}
+	if in.Name != "" {
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Name))
+	}
+	out.RawByte('}')
 }

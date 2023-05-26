@@ -4,6 +4,7 @@ import {Text} from "./Text";
 import React from "react";
 import * as styles from "./Article.module.css";
 import {ArticlePage, saveArticle, useArticlePage} from "../../store/store";
+import {formatDate} from "../../utils/date";
 
 export function Article() {
     const article = useArticlePage((state: ArticlePage) => state.article);
@@ -39,6 +40,11 @@ export function Article() {
 
     return <div className={styles.article}>
         <h1 className={styles.title}>{article.title}</h1>
+
+        <div className={styles.author}>
+            {article.user?.name}
+            <div className={styles.time}>{formatDate(article.createdAt)}</div>
+        </div>
 
         {items}
         <button onClick={onSave}>Save</button>

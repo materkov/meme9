@@ -7,8 +7,12 @@ import (
 )
 
 type Article struct {
-	ID    int
-	Title string
+	ID     int
+	Title  string
+	UserID int
+	Date   int
+
+	UpdatedAt int
 
 	Paragraphs []Paragraph
 }
@@ -16,6 +20,7 @@ type Article struct {
 const (
 	objTypeArticle = 1
 	objTypeConfig  = 2
+	objTypeUser    = 3
 )
 
 const (
