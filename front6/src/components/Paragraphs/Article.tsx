@@ -1,10 +1,12 @@
-import {InputParagraph, InputParagraphImage, InputParagraphText} from "../../types/types";
+import {ArticlesSave, InputParagraph, InputParagraphImage, InputParagraphText} from "../../types/types";
 import {Image} from "./Image";
 import {Text} from "./Text";
 import React from "react";
 import * as styles from "./Article.module.css";
-import {ArticlePage, saveArticle, useArticlePage} from "../../store/store";
+import {ArticlePage, useArticlePage} from "../../store/articlePage";
 import {formatDate} from "../../utils/date";
+import {Link} from "../Link";
+import {api} from "../../store/api";
 
 export function Article() {
     const article = useArticlePage((state: ArticlePage) => state.article);
@@ -20,7 +22,7 @@ export function Article() {
     })
 
     const onSave = () => {
-        saveArticle({
+        const req: ArticlesSave = {
             id: article.id,
             title: article.title,
             paragraphs: article.paragraphs.map(p => {
@@ -35,14 +37,18 @@ export function Article() {
 
                 return outer;
             })
-        })
+        };
+
+        api<void>("articles.save", req)
     }
 
     return <div className={styles.article}>
         <h1 className={styles.title}>{article.title}</h1>
 
         <div className={styles.author}>
-            {article.user?.name}
+            <Link href={"/users/" + article.user?.id}>
+                {article.user?.name}
+            </Link>
             <div className={styles.time}>{formatDate(article.createdAt)}</div>
         </div>
 

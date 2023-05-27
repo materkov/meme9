@@ -1,7 +1,7 @@
 import * as types from "../../types/types";
 import React from "react";
 import * as styles from "./Text.module.css";
-import {ArticlePage, useArticlePage} from "../../store/store";
+import {ArticlePage, useArticlePage} from "../../store/articlePage";
 
 export function Text(paragraph: types.ParagraphText) {
     if (!paragraph.text) return null;

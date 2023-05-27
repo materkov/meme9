@@ -1,6 +1,6 @@
 .error {
     margin: 50px auto;
-    color: #888;
+    color: #888111;
     text-align: center;
 }
 
@@ -13,4 +13,9 @@ body {
 
 :root {
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.app {
+    max-width: 1000px;
+    margin: 0 auto;
 }

@@ -23,6 +23,20 @@ func (h *HttpServer) articlesList(w http.ResponseWriter, r *http.Request) {
 	h.writeResp(w, resp, err)
 }
 
+func (h *HttpServer) articlesListPostedByUser(w http.ResponseWriter, r *http.Request) {
+	req := &ListPostedByUserReq{}
+	_ = json.NewDecoder(r.Body).Decode(req)
+	resp, err := h.Api.listPostedByUser(req)
+	h.writeResp(w, resp, err)
+}
+
+func (h *HttpServer) usersList(w http.ResponseWriter, r *http.Request) {
+	req := &UsersListReq{}
+	_ = json.NewDecoder(r.Body).Decode(req)
+	resp, err := h.Api.usersList(req)
+	h.writeResp(w, resp, err)
+}
+
 func (h *HttpServer) articlesSave(w http.ResponseWriter, r *http.Request) {
 	authToken := r.Header.Get("authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
@@ -38,6 +52,20 @@ func (h *HttpServer) articlesSave(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(req)
 	resp, err := h.Api.ArticlesSave(req)
 	h.writeResp(w, resp, err)
+}
+
+func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request) {
+	result := "<!DOCTYPE html>"
+	result += "<html><head>"
+	result += "<meta charset=\"UTF-8\">"
+	result += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+	result += "<link href=\"/bundle/index.css\" rel=\"stylesheet\">"
+	result += "</head><body>"
+	result += "<div id=\"root\"/>"
+	result += "<script src=\"/bundle/index.js\"></script>"
+	result += "</body></html>"
+
+	w.Write([]byte(result))
 }
 
 func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
@@ -133,9 +161,12 @@ func (h *HttpServer) writeResp(w http.ResponseWriter, resp interface{}, err erro
 }
 
 func (h *HttpServer) Serve() {
+	http.HandleFunc("/api/users.list", h.usersList)
 	http.HandleFunc("/api/articles.list", h.articlesList)
+	http.HandleFunc("/api/articles.listPostedByUser", h.articlesListPostedByUser)
 	http.HandleFunc("/api/articles.save", h.articlesSave)
 	http.HandleFunc("/article/", h.articlePage)
+	http.HandleFunc("/users/", h.userPage)
 	http.Handle("/bundle/", http.FileServer(http.Dir("../front6/dist")))
 
 	http.ListenAndServe("127.0.0.1:8000", nil)

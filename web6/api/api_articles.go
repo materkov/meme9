@@ -39,16 +39,7 @@ type articlesListReq struct {
 	ID string
 }
 
-func (a *API) ArticlesList(r *articlesListReq) (*Article, error) {
-	id, _ := strconv.Atoi(r.ID)
-	log.Printf("Article %d", id)
-	article, err := pkg.GetArticle(id)
-	if err == pkg.ErrObjectNotFound {
-		return nil, &Error{Code: 404, Message: "article not found"}
-	} else if err != nil {
-		return nil, err
-	}
-
+func transformArticle(article *pkg.Article) *Article {
 	wrappedArticle := &Article{
 		ID:        strconv.Itoa(article.ID),
 		Title:     article.Title,
@@ -77,6 +68,20 @@ func (a *API) ArticlesList(r *articlesListReq) (*Article, error) {
 		}
 	}
 
+	return wrappedArticle
+}
+
+func (a *API) ArticlesList(r *articlesListReq) (*Article, error) {
+	id, _ := strconv.Atoi(r.ID)
+	log.Printf("Article %d", id)
+	article, err := pkg.GetArticle(id)
+	if err == pkg.ErrObjectNotFound {
+		return nil, &Error{Code: 404, Message: "article not found"}
+	} else if err != nil {
+		return nil, err
+	}
+
+	wrappedArticle := transformArticle(article)
 	return wrappedArticle, nil
 }
 
@@ -145,4 +150,47 @@ func (a *API) ArticlesSave(r *InputArticle) (*Void, error) {
 	}
 
 	return &Void{}, err
+}
+
+type ListPostedByUserReq struct {
+	UserId string
+}
+
+func (a *API) listPostedByUser(r *ListPostedByUserReq) ([]*Article, error) {
+	userID, _ := strconv.Atoi(r.UserId)
+	articleIds, err := pkg.GetEdges(userID, pkg.EdgeTypePosted)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*Article
+	for _, articleId := range articleIds {
+		article, err := pkg.GetArticle(articleId)
+		if err != nil {
+			continue
+		}
+		wrappedArticle := transformArticle(article)
+		result = append(result, wrappedArticle)
+	}
+
+	return result, nil
+}
+
+type UsersListReq struct {
+	UserIds []string
+}
+
+func (a *API) usersList(r *UsersListReq) ([]*User, error) {
+	result := make([]*User, len(r.UserIds))
+	for i, userIdStr := range r.UserIds {
+		userId, _ := strconv.Atoi(userIdStr)
+		user, err := pkg.GetUser(userId)
+		if err != nil {
+			log.Printf("[ERROR] Error loading user: %s", err)
+		}
+
+		result[i] = transformUser(userId, user)
+	}
+
+	return result, nil
 }

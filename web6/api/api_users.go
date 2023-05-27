@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+//go:generate easyjson -all -lower_camel_case -omit_empty api_users.go
+
 type User struct {
 	ID   string
 	Name string

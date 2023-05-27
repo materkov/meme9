@@ -21,6 +21,8 @@ const (
 	objTypeArticle = 1
 	objTypeConfig  = 2
 	objTypeUser    = 3
+
+	EdgeTypePosted = 1
 )
 
 const (
