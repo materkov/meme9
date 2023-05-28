@@ -39,12 +39,16 @@ type articlesListReq struct {
 	ID string
 }
 
-func transformArticle(article *pkg.Article) *Article {
+func transformArticle(articleId string, article *pkg.Article) *Article {
 	wrappedArticle := &Article{
-		ID:        strconv.Itoa(article.ID),
-		Title:     article.Title,
-		CreatedAt: transformDate(article.Date),
+		ID: articleId,
 	}
+	if article == nil {
+		return wrappedArticle
+	}
+
+	wrappedArticle.Title = article.Title
+	wrappedArticle.CreatedAt = transformDate(article.Date)
 
 	user, err := pkg.GetUser(article.UserID)
 	if err != nil {
@@ -81,8 +85,27 @@ func (a *API) ArticlesList(r *articlesListReq) (*Article, error) {
 		return nil, err
 	}
 
-	wrappedArticle := transformArticle(article)
+	wrappedArticle := transformArticle(r.ID, article)
 	return wrappedArticle, nil
+}
+
+func (a *API) ArticlesLastPosted(r *Void) ([]*Article, error) {
+	articleIds, err := pkg.GetEdges(pkg.FakeObjPosted, pkg.EdgeTypeLastPosted)
+	if err != nil {
+		log.Printf("[ERROR] Error getting last posted: %s", err)
+	}
+
+	result := make([]*Article, len(articleIds))
+	for i, id := range articleIds {
+		article, err := pkg.GetArticle(id)
+		if err != nil {
+			log.Printf("[ERROR] Error getting article: %s", err)
+		}
+
+		result[i] = transformArticle(strconv.Itoa(id), article)
+	}
+
+	return result, err
 }
 
 type InputArticle struct {
@@ -169,7 +192,7 @@ func (a *API) listPostedByUser(r *ListPostedByUserReq) ([]*Article, error) {
 		if err != nil {
 			continue
 		}
-		wrappedArticle := transformArticle(article)
+		wrappedArticle := transformArticle(strconv.Itoa(articleId), article)
 		result = append(result, wrappedArticle)
 	}
 

@@ -3,7 +3,7 @@ package pkg
 import "fmt"
 
 func GetEdges(fromID int, edgeType int) ([]int, error) {
-	rows, err := SqlClient.Query("select to_id from edges where from_id = ? and edge_type = ?", fromID, edgeType)
+	rows, err := SqlClient.Query("select to_id from edges where from_id = ? and edge_type = ? order by id desc", fromID, edgeType)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting rows: %w", err)
 	}

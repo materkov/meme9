@@ -18,11 +18,14 @@ type Article struct {
 }
 
 const (
+	FakeObjPosted = 8
+
 	objTypeArticle = 1
 	objTypeConfig  = 2
 	objTypeUser    = 3
 
-	EdgeTypePosted = 1
+	EdgeTypePosted     = 1
+	EdgeTypeLastPosted = 2
 )
 
 const (

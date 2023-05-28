@@ -19,3 +19,14 @@ body {
     max-width: 1000px;
     margin: 0 auto;
 }
+
+.header {
+    padding: 0 5px 8px 5px;
+    background: #888888;
+    font-size: 40px;
+}
+
+.headerLink {
+    color: black;
+    text-decoration: none;
+}
