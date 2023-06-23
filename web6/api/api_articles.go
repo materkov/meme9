@@ -1,10 +1,14 @@
 package api
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/materkov/meme9/web6/pkg"
 	"log"
+	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -49,10 +53,6 @@ const (
 	ListTypeOrdered   ListType = "ORDERED"
 	ListTypeUnordered ListType = "UNORDERED"
 )
-
-type articlesListReq struct {
-	ID string
-}
 
 func transformArticle(articleId string, article *pkg.Article) *Article {
 	wrappedArticle := &Article{
@@ -106,8 +106,51 @@ func transformListType(t pkg.ListType) ListType {
 	}
 }
 
-func (a *API) ArticlesList(r *articlesListReq) (*Article, error) {
-	id, _ := strconv.Atoi(r.ID)
+type apiHandler func(w http.ResponseWriter, r *http.Request) (interface{}, error)
+
+func wrapAPI(handler apiHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("X-Version", pkg.BuildTime)
+
+		resp, err := handler(w, r)
+		if err != nil {
+			w.WriteHeader(400)
+			log.Printf("Error: %s", err)
+
+			code := 0
+			message := ""
+
+			var publicErr *Error
+			if ok := errors.As(err, &publicErr); ok {
+				code = publicErr.Code
+				message = publicErr.Message
+			} else {
+				code = 400
+				message = "Internal server error"
+			}
+
+			resp = map[string]interface{}{
+				"code":    code,
+				"message": message,
+			}
+		}
+
+		_ = json.NewEncoder(w).Encode(resp)
+	}
+}
+
+func (*HttpServer) ArticlesList(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	req := struct {
+		ID string
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return nil, &Error{Code: 400, Message: "cannot parse request"}
+	}
+
+	id, _ := strconv.Atoi(req.ID)
 	log.Printf("Article %d", id)
 	article, err := pkg.GetArticle(id)
 	if err == pkg.ErrObjectNotFound {
@@ -116,11 +159,11 @@ func (a *API) ArticlesList(r *articlesListReq) (*Article, error) {
 		return nil, err
 	}
 
-	wrappedArticle := transformArticle(r.ID, article)
+	wrappedArticle := transformArticle(req.ID, article)
 	return wrappedArticle, nil
 }
 
-func (a *API) ArticlesLastPosted(r *Void) ([]*Article, error) {
+func (*HttpServer) ArticlesLastPosted(w http.ResponseWriter, r *http.Request) (interface{}, error) {
 	articleIds, err := pkg.GetEdges(pkg.FakeObjPosted, pkg.EdgeTypeLastPosted)
 	if err != nil {
 		log.Printf("[ERROR] Error getting last posted: %s", err)
@@ -160,23 +203,31 @@ type InputParagraphImage struct {
 
 type Void struct{}
 
-func (a *API) ArticlesSave(r *InputArticle) (*Void, error) {
-	article := pkg.Article{
-		ID:         0,
-		Title:      "",
-		Paragraphs: nil,
+func (*HttpServer) ArticlesSave(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	authToken := r.Header.Get("authorization")
+	authToken = strings.TrimPrefix(authToken, "Bearer ")
+	if authToken != pkg.GlobalConfig.SaveSecret {
+		return nil, &Error{403, "no access"}
 	}
-	id, _ := strconv.Atoi(r.ID)
+
+	req := &InputArticle{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		return nil, &Error{400, "failed parsing request"}
+	}
+
+	article := pkg.Article{}
+	id, _ := strconv.Atoi(req.ID)
 	if id <= 0 {
 		return nil, &Error{Code: 404, Message: "article not found"}
 	}
 
 	article.ID = id
-	article.Title = r.Title
+	article.Title = req.Title
 	article.UpdatedAt = int(time.Now().Unix())
 
 	paragraphID := 1
-	for _, paragraph := range r.Paragraphs {
+	for _, paragraph := range req.Paragraphs {
 		if paragraph.InputParagraphText != nil {
 			article.Paragraphs = append(article.Paragraphs, pkg.Paragraph{
 				ID: paragraphID,
@@ -198,7 +249,7 @@ func (a *API) ArticlesSave(r *InputArticle) (*Void, error) {
 		paragraphID++
 	}
 
-	err := pkg.UpdateObject(&article, article.ID)
+	err = pkg.UpdateObject(&article, article.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -206,12 +257,16 @@ func (a *API) ArticlesSave(r *InputArticle) (*Void, error) {
 	return &Void{}, err
 }
 
-type ListPostedByUserReq struct {
-	UserId string
-}
+func (*HttpServer) listPostedByUser(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	req := struct {
+		UserId string
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return nil, &Error{400, "failed parsing request"}
+	}
 
-func (a *API) listPostedByUser(r *ListPostedByUserReq) ([]*Article, error) {
-	userID, _ := strconv.Atoi(r.UserId)
+	userID, _ := strconv.Atoi(req.UserId)
 	articleIds, err := pkg.GetEdges(userID, pkg.EdgeTypePosted)
 	if err != nil {
 		return nil, err
@@ -230,13 +285,17 @@ func (a *API) listPostedByUser(r *ListPostedByUserReq) ([]*Article, error) {
 	return result, nil
 }
 
-type UsersListReq struct {
-	UserIds []string
-}
+func (*HttpServer) usersList(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	req := struct {
+		UserIds []string
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return nil, &Error{400, "error parsing request"}
+	}
 
-func (a *API) usersList(r *UsersListReq) ([]*User, error) {
-	result := make([]*User, len(r.UserIds))
-	for i, userIdStr := range r.UserIds {
+	result := make([]*User, len(req.UserIds))
+	for i, userIdStr := range req.UserIds {
 		userId, _ := strconv.Atoi(userIdStr)
 		user, err := pkg.GetUser(userId)
 		if err != nil {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {ArticlePage} from "./ArticlePage";
 import {Profile} from "./Profile/Profile";
 import * as styles from "./App.module.css";
@@ -20,6 +20,13 @@ export function App() {
     } else {
         page = <div>404 page</div>;
     }
+
+    useEffect(() => {
+        const serverRender = document.querySelector('#server-render');
+        if (serverRender) {
+            serverRender.parentElement?.removeChild(serverRender);
+        }
+    }, [])
 
     return <div className={styles.app}>
         <div className={styles.header}>

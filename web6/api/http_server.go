@@ -2,91 +2,82 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/materkov/meme9/web6/pkg"
 	"html"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
-type HttpServer struct {
-	Api *API
+type renderOpts struct {
+	Title         string
+	OGDescription string
+	OGUrl         string
+	OGImage       string
+
+	Content  string
+	Prefetch interface{}
 }
 
-func (h *HttpServer) articlesList(w http.ResponseWriter, r *http.Request) {
-	req := &articlesListReq{}
-	_ = json.NewDecoder(r.Body).Decode(req)
-	resp, err := h.Api.ArticlesList(req)
-	h.writeResp(w, resp, err)
-}
-
-func (h *HttpServer) articlesListPostedByUser(w http.ResponseWriter, r *http.Request) {
-	req := &ListPostedByUserReq{}
-	_ = json.NewDecoder(r.Body).Decode(req)
-	resp, err := h.Api.listPostedByUser(req)
-	h.writeResp(w, resp, err)
-}
-
-func (h *HttpServer) ArticlesLastPosted(w http.ResponseWriter, r *http.Request) {
-	req := &Void{}
-	_ = json.NewDecoder(r.Body).Decode(req)
-	resp, err := h.Api.ArticlesLastPosted(req)
-	h.writeResp(w, resp, err)
-}
-
-func (h *HttpServer) usersList(w http.ResponseWriter, r *http.Request) {
-	req := &UsersListReq{}
-	_ = json.NewDecoder(r.Body).Decode(req)
-	resp, err := h.Api.usersList(req)
-	h.writeResp(w, resp, err)
-}
-
-func (h *HttpServer) articlesSave(w http.ResponseWriter, r *http.Request) {
-	authToken := r.Header.Get("authorization")
-	authToken = strings.TrimPrefix(authToken, "Bearer ")
-	if authToken != pkg.GlobalConfig.SaveSecret {
-		h.writeResp(w, nil, &Error{
-			Code:    403,
-			Message: "no access",
-		})
-		return
+func wrapPage(opts renderOpts) string {
+	openGraph := ""
+	if opts.Title != "" {
+		openGraph += fmt.Sprintf(`<meta property="og:title" content="%s" />`, html.EscapeString(opts.Title))
+	}
+	if opts.OGDescription != "" {
+		openGraph += fmt.Sprintf(`<meta property="og:description" content="%s" />`, html.EscapeString(opts.OGDescription))
+	}
+	if opts.OGImage != "" {
+		openGraph += fmt.Sprintf(`<meta property="og:image" content="%s" />`, html.EscapeString(opts.OGImage))
 	}
 
-	req := &InputArticle{}
-	_ = json.NewDecoder(r.Body).Decode(req)
-	resp, err := h.Api.ArticlesSave(req)
-	h.writeResp(w, resp, err)
+	title := ""
+	if opts.Title != "" {
+		title += "<title>" + html.EscapeString(opts.Title) + "</title>"
+	}
+
+	prefetch := ""
+	if opts.Prefetch != nil {
+		prefetchBytes, _ := json.Marshal(opts.Prefetch)
+		prefetch = fmt.Sprintf("<script>window.__prefetchApi = %s</script>", prefetchBytes)
+	}
+
+	page := `
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="/bundle/index.css" rel="stylesheet">
+	%s %s
+</head>
+<body>
+	<div id="server-render">%s</div>
+	<div id="root"/>
+	<script src="/bundle/index.js"></script>
+
+	%s
+</body>
+</html>`
+
+	return fmt.Sprintf(page,
+		title,
+		openGraph,
+		opts.Content,
+		prefetch,
+	)
+}
+
+type HttpServer struct {
 }
 
 func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request) {
-	result := "<!DOCTYPE html>"
-	result += "<html><head>"
-	result += "<meta charset=\"UTF-8\">"
-	result += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
-	result += "<link href=\"/bundle/index.css\" rel=\"stylesheet\">"
-	result += "</head><body>"
-	result += "<div id=\"root\"/>"
-	result += "<script src=\"/bundle/index.js\"></script>"
-	result += "</body></html>"
-
-	w.Write([]byte(result))
+	_, _ = fmt.Fprint(w, wrapPage(renderOpts{}))
 }
 
 func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request) {
-	result := "<!DOCTYPE html>"
-	result += "<html><head>"
-	result += "<meta charset=\"UTF-8\">"
-	result += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
-	result += "<link href=\"/bundle/index.css\" rel=\"stylesheet\">"
-	result += "</head><body>"
-	result += "<div id=\"root\"/>"
-	result += "<script src=\"/bundle/index.js\"></script>"
-	result += "</body></html>"
-
-	w.Write([]byte(result))
+	_, _ = fmt.Fprint(w, wrapPage(renderOpts{}))
 }
 
 func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
@@ -98,10 +89,10 @@ func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, _ := h.Api.ArticlesList(&articlesListReq{ID: strconv.Itoa(articleID)})
-
 	articleImage := ""
 	paragraphsHtml := ""
+	paragraphsHtml += "<h1>" + html.EscapeString(article.Title) + "</h1>"
+
 	articleDescription := ""
 	for _, paragraph := range article.Paragraphs {
 		if paragraph.ParagraphImage != nil {
@@ -119,77 +110,32 @@ func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	result := "<!DOCTYPE html>"
-	result += "<html><head>"
-	result += "<meta charset=\"UTF-8\">"
-	result += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
-	result += "<link href=\"/bundle/index.css\" rel=\"stylesheet\">"
-	result += "<title>" + html.EscapeString(article.Title) + "</title>"
-	result += fmt.Sprintf(`<meta property="og:title" content="%s" />`, html.EscapeString(article.Title))
-	result += fmt.Sprintf(`<meta property="og:description" content="%s" />`, html.EscapeString(articleDescription))
-	result += fmt.Sprintf(`<meta property="og:url" content="%s" />`, r.URL.RequestURI())
+	wrappedArticle := transformArticle(strconv.Itoa(article.ID), article)
 
-	if articleImage != "" {
-		result += fmt.Sprintf(`<meta property="og:image" content="%s" />`, html.EscapeString(articleImage))
-	}
-
-	result += "</head><body>"
-	result += "<div id=\"root\"/>"
-
-	isSearchBot := pkg.IsSearchBot(r.UserAgent())
-	if isSearchBot {
-		result += "<h1>" + html.EscapeString(article.Title) + "</h1>"
-		result += paragraphsHtml
-	}
-
-	respBytes, _ := json.Marshal(resp)
-	result += "<script>window.__prefetchApi =" + string(respBytes) + "</script>"
-
-	result += "<script src=\"/bundle/index.js\"></script>"
-	result += "</body></html>"
-
-	w.Write([]byte(result))
-}
-
-func (h *HttpServer) writeResp(w http.ResponseWriter, resp interface{}, err error) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("X-Version", pkg.BuildTime)
-
-	if err != nil {
-		w.WriteHeader(400)
-		log.Printf("Error: %s", err)
-
-		code := 0
-		message := ""
-
-		var publicErr *Error
-		if ok := errors.As(err, &publicErr); ok {
-			code = publicErr.Code
-			message = publicErr.Message
-		} else {
-			code = 400
-			message = "Internal server error"
-		}
-
-		resp = map[string]interface{}{
-			"code":    code,
-			"message": message,
-		}
-	}
-
-	_ = json.NewEncoder(w).Encode(resp)
+	page := wrapPage(renderOpts{
+		Title:         article.Title,
+		OGDescription: articleDescription,
+		OGImage:       articleImage,
+		Content:       paragraphsHtml,
+		Prefetch:      wrappedArticle,
+	})
+	_, _ = fmt.Fprint(w, page)
 }
 
 func (h *HttpServer) Serve() {
-	http.HandleFunc("/api/users.list", h.usersList)
-	http.HandleFunc("/api/articles.list", h.articlesList)
-	http.HandleFunc("/api/articles.listPostedByUser", h.articlesListPostedByUser)
-	http.HandleFunc("/api/articles.save", h.articlesSave)
-	http.HandleFunc("/api/articles.lastPosted", h.ArticlesLastPosted)
+	// API
+	http.HandleFunc("/api/users.list", wrapAPI(h.usersList))
+	http.HandleFunc("/api/articles.list", wrapAPI(h.ArticlesList))
+	http.HandleFunc("/api/articles.listPostedByUser", wrapAPI(h.listPostedByUser))
+	http.HandleFunc("/api/articles.save", wrapAPI(h.ArticlesSave))
+	http.HandleFunc("/api/articles.lastPosted", wrapAPI(h.ArticlesLastPosted))
+
+	// Web
 	http.HandleFunc("/article/", h.articlePage)
 	http.HandleFunc("/users/", h.userPage)
 	http.HandleFunc("/", h.discoverPage)
+
+	// Static (for dev only)
 	http.Handle("/bundle/", http.FileServer(http.Dir("../front6/dist")))
 
 	http.ListenAndServe("127.0.0.1:8000", nil)

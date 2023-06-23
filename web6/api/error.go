@@ -2,9 +2,6 @@ package api
 
 import "fmt"
 
-type API struct {
-}
-
 type Error struct {
 	Code    int
 	Message string

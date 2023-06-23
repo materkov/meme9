@@ -20,8 +20,6 @@ func main() {
 		log.Fatalf("Error reading config: %s", err)
 	}
 
-	s := &api.HttpServer{
-		Api: &api.API{},
-	}
+	s := &api.HttpServer{}
 	s.Serve()
 }
