@@ -9,7 +9,7 @@ export function ArticlePage() {
 
     useEffect(() => {
         articleState.fetch(articleId);
-    }, [])
+    }, []);
 
     return (
         <div>

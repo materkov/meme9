@@ -23,6 +23,7 @@ type Article struct {
 type Paragraph struct {
 	Text  *ParagraphText
 	Image *ParagraphImage
+	List  *ParagraphList
 }
 
 type ParagraphText struct {
@@ -34,6 +35,20 @@ type ParagraphImage struct {
 	ID  string
 	URL string
 }
+
+type ParagraphList struct {
+	ID    string
+	Items []string
+	Type  ListType
+}
+
+type ListType string
+
+const (
+	ListTypeUnknown   ListType = ""
+	ListTypeOrdered   ListType = "ORDERED"
+	ListTypeUnordered ListType = "UNORDERED"
+)
 
 type articlesListReq struct {
 	ID string
@@ -69,10 +84,26 @@ func transformArticle(articleId string, article *pkg.Article) *Article {
 				ID:  strconv.Itoa(p.ID),
 				URL: p.ParagraphImage.URL,
 			}}
+		} else if p.ParagraphList != nil {
+			wrappedArticle.Paragraphs[i] = &Paragraph{List: &ParagraphList{
+				ID:    strconv.Itoa(p.ID),
+				Type:  transformListType(p.ParagraphList.Type),
+				Items: p.ParagraphList.Items,
+			}}
 		}
 	}
 
 	return wrappedArticle
+}
+
+func transformListType(t pkg.ListType) ListType {
+	if t == pkg.ListTypeOrdered {
+		return ListTypeOrdered
+	} else if t == pkg.ListTypeUnordered {
+		return ListTypeUnordered
+	} else {
+		return ListTypeUnknown
+	}
 }
 
 func (a *API) ArticlesList(r *articlesListReq) (*Article, error) {

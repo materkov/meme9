@@ -38,6 +38,7 @@ type Paragraph struct {
 
 	ParagraphText  *ParagraphText
 	ParagraphImage *ParagraphImage
+	ParagraphList  *ParagraphList
 }
 
 type ParagraphText struct {
@@ -47,6 +48,19 @@ type ParagraphText struct {
 type ParagraphImage struct {
 	URL string
 }
+
+type ParagraphList struct {
+	Items []string
+	Type  ListType
+}
+
+type ListType int
+
+const (
+	ListTypeUnknown ListType = iota
+	ListTypeOrdered
+	ListTypeUnordered
+)
 
 var SqlClient *sql.DB
 

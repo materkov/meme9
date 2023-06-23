@@ -7,7 +7,7 @@ import {Discover} from "./Discover/Discover";
 import {Link} from "./Link";
 
 export function App() {
-    let page = null;
+    let page: React.ReactNode;
 
     const navState = useNavigation(state => state);
 
@@ -23,8 +23,11 @@ export function App() {
 
     return <div className={styles.app}>
         <div className={styles.header}>
-            <Link href={"/"} className={styles.headerLink}>meme</Link>
+            <Link href={"/"} className={styles.headerLink}>
+                meme
+            </Link>
         </div>
+
         {page}
     </div>;
 }

@@ -20,6 +20,7 @@ export class Article {
 export class Paragraph {
     text: ParagraphText | undefined
     image: ParagraphImage | undefined
+    list: ParagraphList | undefined
 
     static fromJSON(raw: any): Paragraph {
         const o = new Paragraph();
@@ -57,6 +58,18 @@ export class ParagraphImage {
         o.url = String(raw.url || "")
         return o
     }
+}
+
+export class ParagraphList {
+    id = ""
+    type: ListType = ListType.UNKNOWN
+    items: string[] = []
+}
+
+export enum ListType {
+    UNKNOWN = "",
+    ORDERED = "ORDERED",
+    UNORDERED = "UNORDERED",
 }
 
 export class User {

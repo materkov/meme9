@@ -7,6 +7,7 @@ import {ArticlePage, useArticlePage} from "../../store/articlePage";
 import {formatDate} from "../../utils/date";
 import {Link} from "../Link";
 import {api} from "../../store/api";
+import {List} from "./Link";
 
 export function Article() {
     const article = useArticlePage((state: ArticlePage) => state.article);
@@ -16,6 +17,8 @@ export function Article() {
             return <Image key={p.image.id} {...p.image}/>
         } else if (p.text) {
             return <Text key={p.text.id} {...p.text}/>;
+        } else if (p.list) {
+            return <List key={p.list.id} {...p.list}/>;
         } else {
             return null;
         }
