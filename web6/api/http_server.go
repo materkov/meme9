@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/materkov/meme9/web6/pkg"
 	"html"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -39,7 +40,10 @@ func wrapPage(opts renderOpts) string {
 
 	prefetch := ""
 	if opts.Prefetch != nil {
-		prefetchBytes, _ := json.Marshal(opts.Prefetch)
+		prefetchBytes, err := json.Marshal(opts.Prefetch)
+		if err != nil {
+			log.Printf("Error marshaling to json: %s", err)
+		}
 		prefetch = fmt.Sprintf("<script>window.__prefetchApi = %s</script>", prefetchBytes)
 	}
 
@@ -53,19 +57,19 @@ func wrapPage(opts renderOpts) string {
 	%s %s
 </head>
 <body>
+	<div id="server-prefetch">%s</div>
 	<div id="server-render">%s</div>
 	<div id="root"/>
 	<script src="/bundle/index.js"></script>
 
-	%s
 </body>
 </html>`
 
 	return fmt.Sprintf(page,
 		title,
 		openGraph,
-		opts.Content,
 		prefetch,
+		opts.Content,
 	)
 }
 
@@ -111,6 +115,10 @@ func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	wrappedArticle := transformArticle(strconv.Itoa(article.ID), article)
+
+	if !pkg.IsSearchBot(r.Header.Get("User-Agent")) {
+		paragraphsHtml = ""
+	}
 
 	page := wrapPage(renderOpts{
 		Title:         article.Title,
