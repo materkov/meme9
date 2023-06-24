@@ -6,7 +6,7 @@ import * as styles from "./Article.module.css";
 import {ArticlePage, useArticlePage} from "../../store/articlePage";
 import {formatDate} from "../../utils/date";
 import {Link} from "../Link";
-import {api} from "../../store/api";
+import {articlesSave} from "../../store/api";
 import {List} from "./Link";
 
 export function Article() {
@@ -42,7 +42,7 @@ export function Article() {
             })
         };
 
-        api<void>("articles.save", req)
+        articlesSave(req)
     }
 
     return <div className={styles.article}>

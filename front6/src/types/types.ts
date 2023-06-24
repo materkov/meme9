@@ -84,6 +84,10 @@ export class User {
     }
 }
 
+export class ArticlesList {
+    id: string = ""
+}
+
 export class ArticlesSave {
     id: string = ""
     title: string = ""

@@ -1,6 +1,6 @@
 import * as types from "../types/types";
 import {create} from "zustand";
-import {api} from "./api";
+import {articlesList} from "./api";
 
 export interface ArticlePage {
     article: types.Article
@@ -30,7 +30,7 @@ export const useArticlePage = create<ArticlePage>()(set => ({
             return;
         }
 
-        api<types.Article>('articles.list', {id: id})
+        articlesList({id: id})
             .then(data => set({
                 article: data,
             }))

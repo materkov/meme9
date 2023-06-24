@@ -117,24 +117,13 @@ func wrapAPI(handler apiHandler) http.HandlerFunc {
 		resp, err := handler(w, r)
 		if err != nil {
 			w.WriteHeader(400)
-			log.Printf("Error: %s", err)
-
-			code := 0
-			message := ""
-
 			var publicErr *Error
 			if ok := errors.As(err, &publicErr); ok {
-				code = publicErr.Code
-				message = publicErr.Message
+				fmt.Fprint(w, publicErr.Message)
 			} else {
-				code = 400
-				message = "Internal server error"
+				fmt.Fprint(w, "Internal server error")
 			}
-
-			resp = map[string]interface{}{
-				"code":    code,
-				"message": message,
-			}
+			return
 		}
 
 		_ = json.NewEncoder(w).Encode(resp)

@@ -1,4 +1,6 @@
-export function api<T>(method: string, args: any): Promise<T> {
+import * as types from "../types/types";
+
+function api<T>(method: string, args: any): Promise<T> {
     return new Promise((resolve, reject) => {
         fetch("/api/" + method, {
             method: 'POST',
@@ -17,4 +19,24 @@ export function api<T>(method: string, args: any): Promise<T> {
             })
             .catch(reject)
     })
+}
+
+export function articlesSave(req: types.ArticlesSave): Promise<void> {
+    return api("articles.save", req)
+}
+
+export function articlesList(req: types.ArticlesList): Promise<types.Article> {
+    return api("articles.list", req)
+}
+
+export function articlesLastPosted(): Promise<types.Article[]> {
+    return api('articles.lastPosted', {})
+}
+
+export function articlesListPostedByUser(req: { userId: string }): Promise<types.Article[]> {
+    return api("articles.listPostedByUser", req);
+}
+
+export function usersList(req: { userIds: string[] }): Promise<types.User[]> {
+    return api("users.list", req);
 }

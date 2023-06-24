@@ -1,6 +1,6 @@
 import * as types from "../types/types";
 import {create} from "zustand";
-import {api} from "./api";
+import {articlesListPostedByUser, usersList} from "./api";
 
 export interface Profile {
     user: types.User;
@@ -20,10 +20,10 @@ export const useProfile = create<Profile>()(set => ({
         user: user,
     })),
     fetch: (userId: string) => {
-        api<types.Article[]>("articles.listPostedByUser", {"userId": userId}).then(r => {
+        articlesListPostedByUser({"userId": userId}).then(r => {
             set({articles: r});
         })
-        api<types.User[]>("users.list", {"userIds": [userId]}).then(r => {
+        usersList({"userIds": [userId]}).then(r => {
             set({user: r[0]})
         })
     },
