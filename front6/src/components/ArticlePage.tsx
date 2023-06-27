@@ -14,7 +14,7 @@ export function ArticlePage() {
     return (
         <div>
             {!articleState.error ?
-                <Article/> :
+                <Article articleId={articleId}/> :
                 <div className={styles.error}>error</div>
             }
         </div>

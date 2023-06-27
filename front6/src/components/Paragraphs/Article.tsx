@@ -9,14 +9,18 @@ import {Link} from "../Link";
 import {articlesSave} from "../../store/api";
 import {List} from "./Link";
 
-export function Article() {
-    const article = useArticlePage((state: ArticlePage) => state.article);
+export function Article(props: {articleId: string}) {
+    const article = useArticlePage((state: ArticlePage) => state.articles[props.articleId]);
+    if (!article) {
+        return <div>Loading...</div>;
+    }
+    console.log(article);
 
     const items = article.paragraphs.map(p => {
         if (p.image) {
             return <Image key={p.image.id} {...p.image}/>
         } else if (p.text) {
-            return <Text key={p.text.id} {...p.text}/>;
+            return <Text key={p.text.id} articleId={article.id} paragraph={p.text}/>;
         } else if (p.list) {
             return <List key={p.list.id} {...p.list}/>;
         } else {

@@ -4,12 +4,20 @@ import {articlesLastPosted} from "./api";
 
 export interface DiscoverPage {
     articles: types.Article[]
+    fetched: boolean
     fetch: () => void
 }
 
-export const useDiscoverPage = create<DiscoverPage>()(set => ({
+export const useDiscoverPage = create<DiscoverPage>()((set, get) => ({
     articles: [],
+    fetched: false,
     fetch: () => {
+        if (get().fetched) return;
+
+        set(() => ({
+            fetched: true,
+        }));
+
         articlesLastPosted().then(articles =>
             set({articles: articles})
         );

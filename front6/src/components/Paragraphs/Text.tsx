@@ -1,12 +1,13 @@
 import * as types from "../../types/types";
 import React from "react";
 import * as styles from "./Text.module.css";
-import {ArticlePage, useArticlePage} from "../../store/articlePage";
+import {useArticlePage} from "../../store/articlePage";
 
-export function Text(paragraph: types.ParagraphText) {
-    if (!paragraph.text) return null;
+export function Text(props: {articleId: string, paragraph: types.ParagraphText}) {
+    if (!props.paragraph.text) return null;
 
-    const setText = useArticlePage((state: ArticlePage) => state.setText);
+    //const setText = useArticlePage((state: ArticlePage) => state.setText);
+    const articlePage = useArticlePage();
 
     const [localText, setLocalText] = React.useState('');
     const onFocus = (e: React.FocusEvent) => {
@@ -19,7 +20,7 @@ export function Text(paragraph: types.ParagraphText) {
         const currentText = e.target.textContent || "";
 
         if (localText !== currentText) {
-            setText(paragraph.id, currentText);
+            articlePage.setText(props.articleId, props.paragraph.id, currentText);
             setLocalText(currentText);
         }
     };
@@ -28,6 +29,6 @@ export function Text(paragraph: types.ParagraphText) {
     return (
         <p contentEditable={true} className={styles.text}
            onFocus={onFocus} onBlur={onBlur}
-        >{paragraph.text}</p>
+        >{props.paragraph.text}</p>
     )
 }

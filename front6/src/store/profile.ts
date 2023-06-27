@@ -5,21 +5,24 @@ import {articlesListPostedByUser, usersList} from "./api";
 export interface Profile {
     user: types.User;
     articles: types.Article[];
-    setArticles: (articles: types.Article[]) => void;
-    setUser: (user: types.User) => void;
+    fetched: { [id: string]: boolean };
     fetch: (userId: string) => void;
 }
 
-export const useProfile = create<Profile>()(set => ({
+export const useProfile = create<Profile>()((set, get) => ({
     user: new types.User(),
+    fetched: {},
     articles: [],
-    setArticles: (articles: types.Article[]) => set(() => ({
-        articles: articles
-    })),
-    setUser: (user: types.User) => set(() => ({
-        user: user,
-    })),
     fetch: (userId: string) => {
+        if (get().fetched[userId]) {
+            return
+        }
+        set({
+            fetched: {
+                ...get().fetched, [userId]: true,
+            }
+        });
+
         articlesListPostedByUser({"userId": userId}).then(r => {
             set({articles: r});
         })
