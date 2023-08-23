@@ -1,0 +1,10 @@
+.newPost {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+}
+
+.newPostContainer {
+    margin: 8px 0;
+}

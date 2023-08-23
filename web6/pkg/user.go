@@ -7,6 +7,6 @@ type User struct {
 
 func GetUser(id int) (*User, error) {
 	obj := &User{}
-	err := getObject(id, objTypeUser, obj)
+	err := getObject(id, ObjTypeUser, obj)
 	return obj, err
 }

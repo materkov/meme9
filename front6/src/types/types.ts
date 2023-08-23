@@ -106,3 +106,15 @@ export class InputParagraphText {
 export class InputParagraphImage {
     url: string = ""
 }
+
+export class PostsAddReq {
+    text: string = ""
+}
+
+export class Post {
+    id: string = ""
+    userId: string = ""
+    date: string = ""
+    text: string = ""
+    user?: User = undefined
+}

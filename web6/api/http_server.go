@@ -138,6 +138,9 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/api/articles.save", wrapAPI(h.ArticlesSave))
 	http.HandleFunc("/api/articles.lastPosted", wrapAPI(h.ArticlesLastPosted))
 
+	http.HandleFunc("/api/posts.add", wrapAPI(h.PostsAdd))
+	http.HandleFunc("/api/posts.list", wrapAPI(h.PostsList))
+
 	// Web
 	http.HandleFunc("/article/", h.articlePage)
 	http.HandleFunc("/users/", h.userPage)

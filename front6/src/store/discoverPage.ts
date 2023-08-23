@@ -1,15 +1,16 @@
 import * as types from "../types/types";
 import {create} from "zustand";
-import {articlesLastPosted} from "./api";
+import {postsList} from "./api";
 
 export interface DiscoverPage {
-    articles: types.Article[]
+    posts: types.Post[]
     fetched: boolean
     fetch: () => void
+    refetch: () => void
 }
 
 export const useDiscoverPage = create<DiscoverPage>()((set, get) => ({
-    articles: [],
+    posts: [],
     fetched: false,
     fetch: () => {
         if (get().fetched) return;
@@ -18,8 +19,11 @@ export const useDiscoverPage = create<DiscoverPage>()((set, get) => ({
             fetched: true,
         }));
 
-        articlesLastPosted().then(articles =>
-            set({articles: articles})
+        get().refetch();
+    },
+    refetch: () => {
+        postsList().then(posts =>
+            set({posts: posts})
         );
     }
 }));

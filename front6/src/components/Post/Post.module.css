@@ -1,0 +1,15 @@
+.post {
+    margin: 8px 0;
+}
+
+.date {
+    display: inline-block;
+    color: #999999;
+    margin-right: 5px;
+}
+
+.name {
+    display: inline-block;
+    color: #999999;
+    margin-right: 5px;
+}

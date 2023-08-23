@@ -25,6 +25,14 @@ export function articlesSave(req: types.ArticlesSave): Promise<void> {
     return api("articles.save", req)
 }
 
+export function postsAdd(req: types.PostsAddReq): Promise<void> {
+    return api("posts.add", req)
+}
+
+export function postsList(): Promise<types.Post[]> {
+    return api("posts.list", {})
+}
+
 export function articlesList(req: types.ArticlesList): Promise<types.Article> {
     return api("articles.list", req)
 }

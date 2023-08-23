@@ -18,14 +18,17 @@ type Article struct {
 }
 
 const (
-	FakeObjPosted = 8
+	FakeObjPosted     = 8
+	FakeObjPostedPost = -1
 
-	objTypeArticle = 1
-	objTypeConfig  = 2
-	objTypeUser    = 3
+	ObjTypeArticle = 1
+	ObjTypeConfig  = 2
+	ObjTypeUser    = 3
+	ObjTypePost    = 4
 
 	EdgeTypePosted     = 1
 	EdgeTypeLastPosted = 2
+	EdgeTypePostedPost = 3
 )
 
 const (
@@ -85,13 +88,13 @@ func getObject(id int, objType int, obj interface{}) error {
 
 func GetArticle(id int) (*Article, error) {
 	article := &Article{}
-	err := getObject(id, objTypeArticle, article)
+	err := getObject(id, ObjTypeArticle, article)
 	return article, err
 }
 
 func GetConfig() (*Config, error) {
 	obj := &Config{}
-	err := getObject(5, objTypeConfig, obj)
+	err := getObject(5, ObjTypeConfig, obj)
 	return obj, err
 }
 
@@ -103,4 +106,16 @@ func UpdateObject(object interface{}, id int) error {
 	}
 
 	return nil
+}
+
+func AddObject(objType int, object interface{}) (int, error) {
+	data, _ := json.Marshal(object)
+	res, err := SqlClient.Exec("insert into objects(obj_type, data) values (?, ?)", objType, data)
+	if err != nil {
+		return 0, fmt.Errorf("error inserting row: %w", err)
+	}
+
+	objId, _ := res.LastInsertId()
+
+	return int(objId), nil
 }
