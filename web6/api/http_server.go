@@ -45,6 +45,8 @@ func wrapPage(opts renderOpts) string {
 			log.Printf("Error marshaling to json: %s", err)
 		}
 		prefetch = fmt.Sprintf("<script>window.__prefetchApi = %s</script>", prefetchBytes)
+	} else {
+		prefetch = fmt.Sprintf("<script>window.__prefetchApi = {};</script>")
 	}
 
 	page := `
@@ -82,6 +84,75 @@ func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request) {
 	_, _ = fmt.Fprint(w, wrapPage(renderOpts{}))
+}
+
+func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+		return
+	}
+
+	proto := r.Header.Get("X-Forwarded-Proto")
+	if proto == "" {
+		proto = "http"
+	}
+
+	requestURI := fmt.Sprintf("%s://%s%s", proto, r.Host, r.URL.Path)
+	vkUserID, accessToken, err := pkg.ExchangeCode(code, requestURI)
+	if err != nil {
+		_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+		return
+	}
+
+	userName, err := pkg.RefreshFromVk(accessToken, vkUserID)
+	if err != nil {
+		_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+		return
+	}
+
+	userID, err := pkg.GetEdgeByUniqueKey(pkg.FakeObjVkAuth, pkg.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
+	if err != nil {
+		_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+		return
+	}
+
+	if userID == 0 {
+		userID, err = pkg.AddObject(pkg.ObjTypeUser, &User{
+			Name: "VK Auth user",
+		})
+		if err != nil {
+			_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+			return
+		}
+
+		err = pkg.AddEdge(pkg.FakeObjVkAuth, userID, pkg.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
+		if err != nil {
+			_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+			return
+		}
+	} else {
+		user, err := pkg.GetUser(userID)
+		if err != nil {
+			_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+			return
+		}
+
+		user.Name = userName
+
+		// Already authorized
+		pkg.UpdateObject(user, user.ID)
+	}
+
+	token := pkg.AuthToken{UserID: userID}
+
+	_, _ = fmt.Fprint(w, wrapPage(renderOpts{
+		Prefetch: map[string]interface{}{
+			"authToken":  token.ToString(),
+			"viewerId":   strconv.Itoa(userID),
+			"viewerName": fmt.Sprintf("User %d", userID),
+		},
+	}))
 }
 
 func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
@@ -145,6 +216,7 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/article/", h.articlePage)
 	http.HandleFunc("/users/", h.userPage)
 	http.HandleFunc("/", h.discoverPage)
+	http.HandleFunc("/vk-callback", h.vkCallback)
 
 	// Static (for dev only)
 	http.Handle("/bundle/", http.FileServer(http.Dir("../front6/dist")))

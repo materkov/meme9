@@ -106,7 +106,7 @@ func transformListType(t pkg.ListType) ListType {
 	}
 }
 
-type apiHandler func(w http.ResponseWriter, r *http.Request) (interface{}, error)
+type apiHandler func(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) (interface{}, error)
 
 func wrapAPI(handler apiHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -114,7 +114,15 @@ func wrapAPI(handler apiHandler) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("X-Version", pkg.BuildTime)
 
-		resp, err := handler(w, r)
+		var authToken *pkg.AuthToken
+
+		authHeader := r.Header.Get("authorization")
+		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
+		if authHeader != "" {
+			authToken = pkg.ParseAuthToken(authHeader)
+		}
+
+		resp, err := handler(w, r, authToken)
 		if err != nil {
 			w.WriteHeader(400)
 			var publicErr *Error
@@ -130,7 +138,7 @@ func wrapAPI(handler apiHandler) http.HandlerFunc {
 	}
 }
 
-func (*HttpServer) ArticlesList(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+func (*HttpServer) ArticlesList(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
 	req := struct {
 		ID string
 	}{}
@@ -152,7 +160,7 @@ func (*HttpServer) ArticlesList(w http.ResponseWriter, r *http.Request) (interfa
 	return wrappedArticle, nil
 }
 
-func (*HttpServer) ArticlesLastPosted(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+func (*HttpServer) ArticlesLastPosted(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
 	articleIds, err := pkg.GetEdges(pkg.FakeObjPosted, pkg.EdgeTypeLastPosted)
 	if err != nil {
 		log.Printf("[ERROR] Error getting last posted: %s", err)
@@ -192,7 +200,7 @@ type InputParagraphImage struct {
 
 type Void struct{}
 
-func (*HttpServer) ArticlesSave(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+func (*HttpServer) ArticlesSave(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
 	authToken := r.Header.Get("authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
 	if authToken != pkg.GlobalConfig.SaveSecret {
@@ -246,7 +254,7 @@ func (*HttpServer) ArticlesSave(w http.ResponseWriter, r *http.Request) (interfa
 	return &Void{}, err
 }
 
-func (*HttpServer) listPostedByUser(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+func (*HttpServer) listPostedByUser(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
 	req := struct {
 		UserId string
 	}{}
@@ -274,7 +282,7 @@ func (*HttpServer) listPostedByUser(w http.ResponseWriter, r *http.Request) (int
 	return result, nil
 }
 
-func (*HttpServer) usersList(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+func (*HttpServer) usersList(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
 	req := struct {
 		UserIds []string
 	}{}

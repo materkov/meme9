@@ -22,12 +22,19 @@ body {
 }
 
 .header {
-    padding: 0 5px 8px 5px;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 5px 8px 5px;
     background: #888888;
-    font-size: 40px;
 }
 
 .headerLink {
+    font-size: 40px;
+    font-weight: bold;
     color: black;
     text-decoration: none;
+}
+
+.authInfo {
+    line-height: 47px;
 }

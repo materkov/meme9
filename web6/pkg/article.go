@@ -20,6 +20,7 @@ type Article struct {
 const (
 	FakeObjPosted     = 8
 	FakeObjPostedPost = -1
+	FakeObjVkAuth     = -2
 
 	ObjTypeArticle = 1
 	ObjTypeConfig  = 2
@@ -29,6 +30,7 @@ const (
 	EdgeTypePosted     = 1
 	EdgeTypeLastPosted = 2
 	EdgeTypePostedPost = 3
+	EdgeTypeVkAuth     = 4
 )
 
 const (

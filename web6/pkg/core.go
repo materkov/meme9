@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -36,4 +37,16 @@ func AddEdge(fromID, toID, edgeType int, uniqueKey string) error {
 	}
 
 	return nil
+}
+
+func GetEdgeByUniqueKey(fromID int, edgeType int, uniqueKey string) (int, error) {
+	toID := 0
+	err := SqlClient.QueryRow("select to_id from edges where from_id = ? and edge_type = ? and unique_key = ? limit 1", fromID, edgeType, uniqueKey).Scan(&toID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, nil
+	} else if err != nil {
+		return 0, fmt.Errorf("error selecting row: %w", err)
+	}
+
+	return toID, nil
 }

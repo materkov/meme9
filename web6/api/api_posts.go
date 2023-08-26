@@ -31,7 +31,7 @@ func transformPost(post *pkg.Post, user *pkg.User) *Post {
 	}
 }
 
-func (h *HttpServer) PostsAdd(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+func (h *HttpServer) PostsAdd(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
 	req := PostsAddReq{}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -40,9 +40,12 @@ func (h *HttpServer) PostsAdd(w http.ResponseWriter, r *http.Request) (interface
 	if req.Text == "" {
 		return nil, &Error{Code: 400, Message: "empty text"}
 	}
+	if t == nil {
+		return nil, &Error{Code: 400, Message: "not authorized"}
+	}
 
 	post := pkg.Post{
-		UserID: 6, // TODO
+		UserID: t.UserID,
 		Date:   int(time.Now().Unix()),
 		Text:   req.Text,
 	}
@@ -64,7 +67,7 @@ type PostsListReq struct {
 	Text string `json:"text"`
 }
 
-func (h *HttpServer) PostsList(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+func (h *HttpServer) PostsList(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
 	req := PostsAddReq{}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
