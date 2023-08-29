@@ -57,18 +57,18 @@ func (h *HttpServer) PostsAdd(w http.ResponseWriter, r *http.Request, t *pkg.Aut
 	post.ID = postID
 
 	_ = pkg.AddEdge(pkg.FakeObjPostedPost, postID, pkg.EdgeTypePostedPost, "")
+	_ = pkg.AddEdge(post.UserID, postID, pkg.EdgeTypePosted, "")
 
 	user, _ := pkg.GetUser(post.UserID)
 
 	return transformPost(&post, user), nil
 }
 
-type PostsListReq struct {
-	Text string `json:"text"`
+type PostsList struct {
 }
 
 func (h *HttpServer) PostsList(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
-	req := PostsAddReq{}
+	req := PostsList{}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		return nil, &Error{Code: 400, Message: "cannot parse request"}
@@ -92,4 +92,96 @@ func (h *HttpServer) PostsList(w http.ResponseWriter, r *http.Request, t *pkg.Au
 	}
 
 	return result, nil
+}
+
+type PostsListById struct {
+	ID string `json:"id"`
+}
+
+func (h *HttpServer) PostsListByID(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
+	req := PostsListById{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return nil, &Error{Code: 400, Message: "cannot parse request"}
+	}
+
+	postID, _ := strconv.Atoi(req.ID)
+
+	post, err := pkg.GetPost(postID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting post: %w", err)
+	} else if post == nil {
+		return nil, &Error{Code: 400, Message: "post not found"}
+	}
+
+	user, _ := pkg.GetUser(post.UserID)
+
+	return transformPost(post, user), nil
+}
+
+type PostsListByUserReq struct {
+	UserID string `json:"userId"`
+}
+
+func (h *HttpServer) PostsListByUser(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
+	req := PostsListByUserReq{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return nil, &Error{Code: 400, Message: "cannot parse request"}
+	}
+
+	userID, _ := strconv.Atoi(req.UserID)
+	if userID <= 0 {
+		return nil, &Error{Code: 400, Message: "incorrect user id"}
+	}
+
+	postIds, err := pkg.GetEdges(userID, pkg.EdgeTypePosted)
+	if err != nil {
+		return nil, fmt.Errorf("error getting posted edges: %w", err)
+	}
+
+	result := make([]*Post, 0)
+	for _, postID := range postIds {
+		post, err := pkg.GetPost(postID)
+		if err != nil {
+			continue
+		}
+
+		user, _ := pkg.GetUser(post.UserID)
+
+		result = append(result, transformPost(post, user))
+	}
+
+	return result, nil
+}
+
+type PostsDeleteReq struct {
+	ID string `json:"id"`
+}
+
+func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
+	req := PostsDeleteReq{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return nil, &Error{Code: 400, Message: "cannot parse request"}
+	}
+
+	postID, _ := strconv.Atoi(req.ID)
+
+	post, err := pkg.GetPost(postID)
+	if err != nil {
+		return nil, err
+	} else if post == nil {
+		return nil, &Error{Code: 400, Message: "post not found"}
+	}
+	if t == nil {
+		return nil, &Error{Code: 400, Message: "not authorized"}
+	}
+	if post.UserID != t.UserID {
+		return nil, &Error{Code: 400, Message: "no access to this post"}
+	}
+
+	_ = pkg.DelEdge(post.UserID, pkg.EdgeTypePosted, post.ID)
+
+	return Void{}, nil
 }

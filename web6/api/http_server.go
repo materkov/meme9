@@ -18,10 +18,10 @@ type renderOpts struct {
 	OGImage       string
 
 	Content  string
-	Prefetch interface{}
+	Prefetch map[string]interface{}
 }
 
-func wrapPage(opts renderOpts) string {
+func wrapPage(token *pkg.AuthToken, opts renderOpts) string {
 	openGraph := ""
 	if opts.Title != "" {
 		openGraph += fmt.Sprintf(`<meta property="og:title" content="%s" />`, html.EscapeString(opts.Title))
@@ -36,6 +36,21 @@ func wrapPage(opts renderOpts) string {
 	title := ""
 	if opts.Title != "" {
 		title += "<title>" + html.EscapeString(opts.Title) + "</title>"
+	}
+
+	if opts.Prefetch == nil {
+		opts.Prefetch = map[string]interface{}{}
+	}
+
+	if token != nil {
+		opts.Prefetch["authToken"] = token.ToString()
+		opts.Prefetch["viewerId"] = token.UserID
+		opts.Prefetch["viewerName"] = ""
+
+		user, _ := pkg.GetUser(token.UserID)
+		if user != nil {
+			opts.Prefetch["viewerName"] = user.Name
+		}
 	}
 
 	prefetch := ""
@@ -78,18 +93,18 @@ func wrapPage(opts renderOpts) string {
 type HttpServer struct {
 }
 
-func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprint(w, wrapPage(renderOpts{}))
+func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) {
+	_, _ = fmt.Fprint(w, wrapPage(token, renderOpts{}))
 }
 
-func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprint(w, wrapPage(renderOpts{}))
+func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) {
+	_, _ = fmt.Fprint(w, wrapPage(token, renderOpts{}))
 }
 
 func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 		return
 	}
 
@@ -101,19 +116,19 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 	requestURI := fmt.Sprintf("%s://%s%s", proto, r.Host, r.URL.Path)
 	vkUserID, accessToken, err := pkg.ExchangeCode(code, requestURI)
 	if err != nil {
-		_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 		return
 	}
 
 	userName, err := pkg.RefreshFromVk(accessToken, vkUserID)
 	if err != nil {
-		_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 		return
 	}
 
 	userID, err := pkg.GetEdgeByUniqueKey(pkg.FakeObjVkAuth, pkg.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
 	if err != nil {
-		_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 		return
 	}
 
@@ -122,19 +137,19 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 			Name: "VK Auth user",
 		})
 		if err != nil {
-			_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+			_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 			return
 		}
 
 		err = pkg.AddEdge(pkg.FakeObjVkAuth, userID, pkg.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
 		if err != nil {
-			_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+			_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 			return
 		}
 	} else {
 		user, err := pkg.GetUser(userID)
 		if err != nil {
-			_, _ = fmt.Fprint(w, wrapPage(renderOpts{Content: "VK auth fail"}))
+			_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 			return
 		}
 
@@ -146,7 +161,14 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 
 	token := pkg.AuthToken{UserID: userID}
 
-	_, _ = fmt.Fprint(w, wrapPage(renderOpts{
+	http.SetCookie(w, &http.Cookie{
+		Name:     "authToken",
+		Value:    token.ToString(),
+		Path:     "/",
+		HttpOnly: true,
+	})
+
+	_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{
 		Prefetch: map[string]interface{}{
 			"authToken":  token.ToString(),
 			"viewerId":   strconv.Itoa(userID),
@@ -155,48 +177,36 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 	}))
 }
 
-func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
-	articleID, _ := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/article/"))
+func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) {
+	postID, _ := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/posts/"))
 
-	article, err := pkg.GetArticle(articleID)
+	post, err := pkg.GetPost(postID)
 	if err != nil {
 		w.WriteHeader(404)
 		return
 	}
 
-	articleImage := ""
+	user, err := pkg.GetUser(post.UserID)
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
 	paragraphsHtml := ""
-	paragraphsHtml += "<h1>" + html.EscapeString(article.Title) + "</h1>"
+	paragraphsHtml += "<p>" + html.EscapeString(post.Text) + "</p>"
 
-	articleDescription := ""
-	for _, paragraph := range article.Paragraphs {
-		if paragraph.ParagraphImage != nil {
-			paragraphsHtml += "<img src=\"" + html.EscapeString(paragraph.ParagraphImage.URL) + "\" />"
+	//if !pkg.IsSearchBot(r.Header.Get("User-Agent")) {
+	//	paragraphsHtml = ""
+	//}
 
-			if articleImage == "" {
-				articleImage = paragraph.ParagraphImage.URL
-			}
-		} else if paragraph.ParagraphText != nil {
-			paragraphsHtml += "<p>" + html.EscapeString(paragraph.ParagraphText.Text) + "</p>"
-
-			if articleDescription == "" {
-				articleDescription = paragraph.ParagraphText.Text
-			}
-		}
-	}
-
-	wrappedArticle := transformArticle(strconv.Itoa(article.ID), article)
-
-	if !pkg.IsSearchBot(r.Header.Get("User-Agent")) {
-		paragraphsHtml = ""
-	}
-
-	page := wrapPage(renderOpts{
-		Title:         article.Title,
-		OGDescription: articleDescription,
-		OGImage:       articleImage,
+	page := wrapPage(token, renderOpts{
+		Title:         "Post by " + user.Name,
+		OGDescription: post.Text,
+		OGImage:       "",
 		Content:       paragraphsHtml,
-		Prefetch:      wrappedArticle,
+		Prefetch: map[string]interface{}{
+			"__postPagePost": transformPost(post, user),
+		},
 	})
 	_, _ = fmt.Fprint(w, page)
 }
@@ -204,18 +214,17 @@ func (h *HttpServer) articlePage(w http.ResponseWriter, r *http.Request) {
 func (h *HttpServer) Serve() {
 	// API
 	http.HandleFunc("/api/users.list", wrapAPI(h.usersList))
-	http.HandleFunc("/api/articles.list", wrapAPI(h.ArticlesList))
-	http.HandleFunc("/api/articles.listPostedByUser", wrapAPI(h.listPostedByUser))
-	http.HandleFunc("/api/articles.save", wrapAPI(h.ArticlesSave))
-	http.HandleFunc("/api/articles.lastPosted", wrapAPI(h.ArticlesLastPosted))
 
 	http.HandleFunc("/api/posts.add", wrapAPI(h.PostsAdd))
 	http.HandleFunc("/api/posts.list", wrapAPI(h.PostsList))
+	http.HandleFunc("/api/posts.listPostedByUser", wrapAPI(h.PostsListByUser))
+	http.HandleFunc("/api/posts.listById", wrapAPI(h.PostsListByID))
+	http.HandleFunc("/api/posts.delete", wrapAPI(h.PostsDelete))
 
 	// Web
-	http.HandleFunc("/article/", h.articlePage)
-	http.HandleFunc("/users/", h.userPage)
-	http.HandleFunc("/", h.discoverPage)
+	http.HandleFunc("/posts/", wrapWeb(h.postPage))
+	http.HandleFunc("/users/", wrapWeb(h.userPage))
+	http.HandleFunc("/", wrapWeb(h.discoverPage))
 	http.HandleFunc("/vk-callback", h.vkCallback)
 
 	// Static (for dev only)

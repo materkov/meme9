@@ -50,3 +50,12 @@ func GetEdgeByUniqueKey(fromID int, edgeType int, uniqueKey string) (int, error)
 
 	return toID, nil
 }
+
+func DelEdge(fromID, edgeType, toID int) error {
+	_, err := SqlClient.Exec("delete from edges where from_id = ? and edge_type = ? and to_id = ?", fromID, edgeType, toID)
+	if err != nil {
+		return fmt.Errorf("error deleteing edge: %w", err)
+	}
+
+	return nil
+}

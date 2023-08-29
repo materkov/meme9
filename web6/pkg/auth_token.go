@@ -3,6 +3,7 @@ package pkg
 import (
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -19,11 +20,13 @@ func (a *AuthToken) ToString() string {
 		return ""
 	}
 
+	tokenStr := base64.RawURLEncoding.EncodeToString(tokenBytes)
+
 	h := hmac.New(sha256.New, []byte(GlobalConfig.AuthTokenSecret))
-	h.Write(tokenBytes)
+	h.Write([]byte(tokenStr))
 	calculatedHash := hex.EncodeToString(h.Sum(nil))
 
-	return fmt.Sprintf("%s.%s", tokenBytes, calculatedHash)
+	return fmt.Sprintf("%s.%s", tokenStr, calculatedHash)
 }
 
 func ParseAuthToken(tokenStr string) *AuthToken {
@@ -40,8 +43,13 @@ func ParseAuthToken(tokenStr string) *AuthToken {
 		return nil
 	}
 
+	partBytes, err := base64.RawURLEncoding.DecodeString(parts[0])
+	if err != nil {
+		return nil
+	}
+
 	token := AuthToken{}
-	err := json.Unmarshal([]byte(parts[0]), &token)
+	err = json.Unmarshal(partBytes, &token)
 	if err != nil || token.UserID == 0 {
 		return nil
 	}

@@ -6,17 +6,6 @@ import (
 	"fmt"
 )
 
-type Article struct {
-	ID     int
-	Title  string
-	UserID int
-	Date   int
-
-	UpdatedAt int
-
-	Paragraphs []Paragraph
-}
-
 const (
 	FakeObjPosted     = 8
 	FakeObjPostedPost = -1
@@ -31,40 +20,6 @@ const (
 	EdgeTypeLastPosted = 2
 	EdgeTypePostedPost = 3
 	EdgeTypeVkAuth     = 4
-)
-
-const (
-	paragraphText  = 1
-	paragraphImage = 2
-)
-
-type Paragraph struct {
-	ID int
-
-	ParagraphText  *ParagraphText
-	ParagraphImage *ParagraphImage
-	ParagraphList  *ParagraphList
-}
-
-type ParagraphText struct {
-	Text string
-}
-
-type ParagraphImage struct {
-	URL string
-}
-
-type ParagraphList struct {
-	Items []string
-	Type  ListType
-}
-
-type ListType int
-
-const (
-	ListTypeUnknown ListType = iota
-	ListTypeOrdered
-	ListTypeUnordered
 )
 
 var SqlClient *sql.DB
@@ -86,12 +41,6 @@ func getObject(id int, objType int, obj interface{}) error {
 	}
 
 	return nil
-}
-
-func GetArticle(id int) (*Article, error) {
-	article := &Article{}
-	err := getObject(id, ObjTypeArticle, article)
-	return article, err
 }
 
 func GetConfig() (*Config, error) {

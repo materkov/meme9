@@ -21,10 +21,6 @@ function api<T>(method: string, args: any): Promise<T> {
     })
 }
 
-export function articlesSave(req: types.ArticlesSave): Promise<void> {
-    return api("articles.save", req)
-}
-
 export function postsAdd(req: types.PostsAddReq): Promise<void> {
     return api("posts.add", req)
 }
@@ -33,16 +29,12 @@ export function postsList(): Promise<types.Post[]> {
     return api("posts.list", {})
 }
 
-export function articlesList(req: types.ArticlesList): Promise<types.Article> {
-    return api("articles.list", req)
+export function postsListPostedByUser(req: types.PostsListPostedByUser): Promise<types.Post[]> {
+    return api("posts.listPostedByUser", req)
 }
 
-export function articlesLastPosted(): Promise<types.Article[]> {
-    return api('articles.lastPosted', {})
-}
-
-export function articlesListPostedByUser(req: { userId: string }): Promise<types.Article[]> {
-    return api("articles.listPostedByUser", req);
+export function postsListById(req: types.PostsListById): Promise<types.Post | undefined> {
+    return api("posts.listById", req)
 }
 
 export function usersList(req: { userIds: string[] }): Promise<types.User[]> {

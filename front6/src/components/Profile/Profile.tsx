@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import {useProfile} from "../../store/profile";
-import {ArticleSnippet} from "../ArticleSnippet/ArticleSnippet";
+import {Post} from "../Post/Post";
 
 export function Profile() {
     const userId = document.location.pathname.substring(7);
@@ -18,8 +18,8 @@ export function Profile() {
         <h1>{profileState.user.name}</h1>
         <hr/>
 
-        {profileState.articles.map(article => (
-            <ArticleSnippet article={article} key={article.id}/>
+        {profileState.posts.map(post => (
+            <Post post={post} key={post.id}/>
         ))}
     </div>
 }
