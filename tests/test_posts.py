@@ -31,11 +31,15 @@ def api(method, params=dict({})):
 
 
 def test_posting():
-    resp, err = api("posts.list", {})
-    assert err == None
+    _, err = api("posts.add", {
+        "text": "",
+    })
+    assert err == "empty text"
 
-    _, err = api("posts.add", {})
-    assert err == None
+    _, err = api("posts.add", {
+        "text": "Hello",
+    })
+    assert err == "not authorized"
 
 
 test_posting()

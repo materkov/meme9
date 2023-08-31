@@ -3,6 +3,8 @@
     box-sizing: border-box;
     font-family: var(--font-family);
     font-size: var(--font-size);
+    resize: none;
+    padding: 4px;
 }
 
 .newPostContainer {

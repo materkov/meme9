@@ -1,5 +1,5 @@
 .post {
-    margin: 8px 0;
+    margin: 15px 0;
 }
 
 .date {
@@ -12,4 +12,9 @@
     display: inline-block;
     color: #999999;
     margin-right: 5px;
+}
+
+.deleteLink {
+    display: inline-block;
+    font-size: 12px;
 }

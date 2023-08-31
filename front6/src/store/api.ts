@@ -37,6 +37,14 @@ export function postsListById(req: types.PostsListById): Promise<types.Post | un
     return api("posts.listById", req)
 }
 
+export class PostsDeleteReq {
+    postId: string = ""
+}
+
+export function postsDelete(req: PostsDeleteReq): Promise<types.Void> {
+    return api("posts.delete", req);
+}
+
 export function usersList(req: { userIds: string[] }): Promise<types.User[]> {
     return api("users.list", req);
 }

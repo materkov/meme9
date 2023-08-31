@@ -156,7 +156,7 @@ func (h *HttpServer) PostsListByUser(w http.ResponseWriter, r *http.Request, t *
 }
 
 type PostsDeleteReq struct {
-	ID string `json:"id"`
+	PostID string `json:"postId"`
 }
 
 func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
@@ -166,7 +166,7 @@ func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request, t *pkg.
 		return nil, &Error{Code: 400, Message: "cannot parse request"}
 	}
 
-	postID, _ := strconv.Atoi(req.ID)
+	postID, _ := strconv.Atoi(req.PostID)
 
 	post, err := pkg.GetPost(postID)
 	if err != nil {
@@ -181,6 +181,7 @@ func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request, t *pkg.
 		return nil, &Error{Code: 400, Message: "no access to this post"}
 	}
 
+	_ = pkg.DelEdge(pkg.FakeObjPostedPost, pkg.EdgeTypePostedPost, post.ID)
 	_ = pkg.DelEdge(post.UserID, pkg.EdgeTypePosted, post.ID)
 
 	return Void{}, nil

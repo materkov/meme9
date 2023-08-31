@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/materkov/meme9/web6/pkg"
+	"hash/crc32"
 	"html"
 	"log"
 	"net/http"
@@ -64,29 +65,35 @@ func wrapPage(token *pkg.AuthToken, opts renderOpts) string {
 		prefetch = fmt.Sprintf("<script>window.__prefetchApi = {};</script>")
 	}
 
+	buildTime := pkg.BuildTime
+	buildCrc := strconv.Itoa(int(crc32.Checksum([]byte(buildTime), crc32.MakeTable(crc32.IEEE))))
+
 	page := `
 <!DOCTYPE html>
 <html>
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="/bundle/index.css" rel="stylesheet">
+	<link rel="icon" type="image/x-icon" href="/dist/favicon.ico?3">
+	<link rel="stylesheet" href="/dist/bundle/index.css?%s">
 	%s %s
 </head>
 <body>
 	<div id="server-prefetch">%s</div>
 	<div id="server-render">%s</div>
 	<div id="root"/>
-	<script src="/bundle/index.js"></script>
+	<script src="/dist/bundle/index.js?%s"></script>
 
 </body>
 </html>`
 
 	return fmt.Sprintf(page,
+		buildCrc,
 		title,
 		openGraph,
 		prefetch,
 		opts.Content,
+		buildCrc,
 	)
 }
 
@@ -228,7 +235,7 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/vk-callback", h.vkCallback)
 
 	// Static (for dev only)
-	http.Handle("/bundle/", http.FileServer(http.Dir("../front6/dist")))
+	http.Handle("/dist/", http.FileServer(http.Dir("../front6/dist/..")))
 
 	http.ListenAndServe("127.0.0.1:8000", nil)
 }

@@ -29,3 +29,6 @@ export class PostsListPostedByUser {
 export class PostsListById {
     id: string = ""
 }
+
+export class Void {
+}
