@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package meme;
-option go_package = "/pb";
-
-import "api2.proto";
-import "login.proto";
-import "posts.proto";
-import "renderer.proto";
