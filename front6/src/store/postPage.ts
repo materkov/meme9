@@ -16,13 +16,13 @@ export const usePostPage = create<PostPage>()((set, get) => ({
             return;
         }
 
-        if ((window as any).__prefetchApi.__postPagePost) {
+        if (window.__prefetchApi.__postPagePost) {
             set({
                 posts: {
-                    ...get().posts, [(window as any).__prefetchApi.__postPagePost.id]: (window as any).__prefetchApi.__postPagePost
+                    ...get().posts, [window.__prefetchApi.__postPagePost.id]: (window as any).__prefetchApi.__postPagePost
                 }
             });
-            delete (window as any).__prefetchApi.__postPagePost;
+            delete window.__prefetchApi.__postPagePost;
             return;
         }
 

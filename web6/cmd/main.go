@@ -21,6 +21,8 @@ func main() {
 	}
 	log.Printf("Starting http server")
 
-	s := &api.HttpServer{}
+	s := &api.HttpServer{
+		Api: &api.API{},
+	}
 	s.Serve()
 }

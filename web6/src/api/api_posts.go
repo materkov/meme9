@@ -1,11 +1,8 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
-	"net/http"
 	"strconv"
 	"time"
 )
@@ -32,23 +29,18 @@ func transformPost(post *store.Post, user *store.User) *Post {
 	}
 }
 
-func (h *HttpServer) PostsAdd(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
-	req := PostsAddReq{}
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		return nil, &Error{Code: 400, Message: "cannot parse request"}
-	}
-	if req.Text == "" {
+func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
+	if r.Text == "" {
 		return nil, &Error{Code: 400, Message: "empty text"}
 	}
-	if t == nil {
+	if viewer.UserID == 0 {
 		return nil, &Error{Code: 400, Message: "not authorized"}
 	}
 
 	post := store.Post{
-		UserID: t.UserID,
+		UserID: viewer.UserID,
 		Date:   int(time.Now().Unix()),
-		Text:   req.Text,
+		Text:   r.Text,
 	}
 
 	postID, err := store.AddObject(store.ObjTypePost, &post)
@@ -65,16 +57,10 @@ func (h *HttpServer) PostsAdd(w http.ResponseWriter, r *http.Request, t *pkg.Aut
 	return transformPost(&post, user), nil
 }
 
-type PostsList struct {
+type PostsListReq struct {
 }
 
-func (h *HttpServer) PostsList(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
-	req := PostsList{}
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		return nil, &Error{Code: 400, Message: "cannot parse request"}
-	}
-
+func (h *API) PostsList(_ *Viewer, r *PostsListReq) ([]*Post, error) {
 	postIds, err := store.GetEdges(store.FakeObjPostedPost, store.EdgeTypePostedPost)
 	if err != nil {
 		return nil, fmt.Errorf("error getting posted edges: %w", err)
@@ -95,18 +81,12 @@ func (h *HttpServer) PostsList(w http.ResponseWriter, r *http.Request, t *pkg.Au
 	return result, nil
 }
 
-type PostsListById struct {
+type PostsListByIdReq struct {
 	ID string `json:"id"`
 }
 
-func (h *HttpServer) PostsListByID(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
-	req := PostsListById{}
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		return nil, &Error{Code: 400, Message: "cannot parse request"}
-	}
-
-	postID, _ := strconv.Atoi(req.ID)
+func (h *API) PostsListByID(_ *Viewer, r *PostsListByIdReq) (*Post, error) {
+	postID, _ := strconv.Atoi(r.ID)
 
 	post, err := store.GetPost(postID)
 	if err != nil {
@@ -124,14 +104,8 @@ type PostsListByUserReq struct {
 	UserID string `json:"userId"`
 }
 
-func (h *HttpServer) PostsListByUser(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
-	req := PostsListByUserReq{}
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		return nil, &Error{Code: 400, Message: "cannot parse request"}
-	}
-
-	userID, _ := strconv.Atoi(req.UserID)
+func (h *API) PostsListByUser(_ *Viewer, r *PostsListByUserReq) ([]*Post, error) {
+	userID, _ := strconv.Atoi(r.UserID)
 	if userID <= 0 {
 		return nil, &Error{Code: 400, Message: "incorrect user id"}
 	}
@@ -160,14 +134,8 @@ type PostsDeleteReq struct {
 	PostID string `json:"postId"`
 }
 
-func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
-	req := PostsDeleteReq{}
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		return nil, &Error{Code: 400, Message: "cannot parse request"}
-	}
-
-	postID, _ := strconv.Atoi(req.PostID)
+func (h *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (interface{}, error) {
+	postID, _ := strconv.Atoi(r.PostID)
 
 	post, err := store.GetPost(postID)
 	if err != nil {
@@ -175,10 +143,10 @@ func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request, t *pkg.
 	} else if post == nil {
 		return nil, &Error{Code: 400, Message: "post not found"}
 	}
-	if t == nil {
+	if viewer.UserID == 0 {
 		return nil, &Error{Code: 400, Message: "not authorized"}
 	}
-	if post.UserID != t.UserID {
+	if post.UserID != viewer.UserID {
 		return nil, &Error{Code: 400, Message: "no access to this post"}
 	}
 

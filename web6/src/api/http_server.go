@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
@@ -23,7 +24,7 @@ type renderOpts struct {
 	Prefetch map[string]interface{}
 }
 
-func wrapPage(token *pkg.AuthToken, opts renderOpts) string {
+func wrapPage(viewer *Viewer, opts renderOpts) string {
 	openGraph := ""
 	if opts.Title != "" {
 		openGraph += fmt.Sprintf(`<meta property="og:title" content="%s" />`, html.EscapeString(opts.Title))
@@ -44,12 +45,12 @@ func wrapPage(token *pkg.AuthToken, opts renderOpts) string {
 		opts.Prefetch = map[string]interface{}{}
 	}
 
-	if token != nil {
-		opts.Prefetch["authToken"] = token.ToString()
-		opts.Prefetch["viewerId"] = token.UserID
+	if viewer.UserID != 0 {
+		opts.Prefetch["authToken"] = viewer.AuthToken
+		opts.Prefetch["viewerId"] = viewer.UserID
 		opts.Prefetch["viewerName"] = ""
 
-		user, _ := store.GetUser(token.UserID)
+		user, _ := store.GetUser(viewer.UserID)
 		if user != nil {
 			opts.Prefetch["viewerName"] = user.Name
 		}
@@ -99,124 +100,7 @@ func wrapPage(token *pkg.AuthToken, opts renderOpts) string {
 }
 
 type HttpServer struct {
-}
-
-func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) {
-	_, _ = fmt.Fprint(w, wrapPage(token, renderOpts{}))
-}
-
-func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) {
-	_, _ = fmt.Fprint(w, wrapPage(token, renderOpts{}))
-}
-
-func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Query().Get("code")
-	if code == "" {
-		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
-		return
-	}
-
-	proto := r.Header.Get("X-Forwarded-Proto")
-	if proto == "" {
-		proto = "http"
-	}
-
-	requestURI := fmt.Sprintf("%s://%s%s", proto, r.Host, r.URL.Path)
-	vkUserID, accessToken, err := pkg.ExchangeCode(code, requestURI)
-	if err != nil {
-		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
-		return
-	}
-
-	userName, err := pkg.RefreshFromVk(accessToken, vkUserID)
-	if err != nil {
-		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
-		return
-	}
-
-	userID, err := store.GetEdgeByUniqueKey(store.FakeObjVkAuth, store.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
-	if err != nil {
-		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
-		return
-	}
-
-	if userID == 0 {
-		userID, err = store.AddObject(store.ObjTypeUser, &User{
-			Name: "VK Auth user",
-		})
-		if err != nil {
-			_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
-			return
-		}
-
-		err = store.AddEdge(store.FakeObjVkAuth, userID, store.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
-		if err != nil {
-			_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
-			return
-		}
-	} else {
-		user, err := store.GetUser(userID)
-		if err != nil {
-			_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
-			return
-		}
-
-		user.Name = userName
-
-		// Already authorized
-		store.UpdateObject(user, user.ID)
-	}
-
-	token := pkg.AuthToken{UserID: userID}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "authToken",
-		Value:    token.ToString(),
-		Path:     "/",
-		HttpOnly: true,
-	})
-
-	_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{
-		Prefetch: map[string]interface{}{
-			"authToken":  token.ToString(),
-			"viewerId":   strconv.Itoa(userID),
-			"viewerName": fmt.Sprintf("User %d", userID),
-		},
-	}))
-}
-
-func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) {
-	postID, _ := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/posts/"))
-
-	post, err := store.GetPost(postID)
-	if err != nil {
-		w.WriteHeader(404)
-		return
-	}
-
-	user, err := store.GetUser(post.UserID)
-	if err != nil {
-		w.WriteHeader(404)
-		return
-	}
-
-	paragraphsHtml := ""
-	paragraphsHtml += "<p>" + html.EscapeString(post.Text) + "</p>"
-
-	//if !pkg.IsSearchBot(r.Header.Get("User-Agent")) {
-	//	paragraphsHtml = ""
-	//}
-
-	page := wrapPage(token, renderOpts{
-		Title:         "Post by " + user.Name,
-		OGDescription: post.Text,
-		OGImage:       "",
-		Content:       paragraphsHtml,
-		Prefetch: map[string]interface{}{
-			"__postPagePost": transformPost(post, user),
-		},
-	})
-	_, _ = fmt.Fprint(w, page)
+	Api *API
 }
 
 func (h *HttpServer) Serve() {
@@ -234,9 +118,56 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/users/", wrapWeb(h.userPage))
 	http.HandleFunc("/", wrapWeb(h.discoverPage))
 	http.HandleFunc("/vk-callback", h.vkCallback)
+	http.HandleFunc("/logout", h.logout)
 
 	// Static (for dev only)
 	http.Handle("/dist/", http.FileServer(http.Dir("../front6/dist/..")))
 
-	http.ListenAndServe("127.0.0.1:8000", nil)
+	_ = http.ListenAndServe("127.0.0.1:8000", nil)
+}
+
+func wrapAPI(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("X-Version", pkg.BuildTime)
+
+		userID := 0
+		authHeader := r.Header.Get("authorization")
+		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
+		if authHeader != "" {
+			authToken := pkg.ParseAuthToken(authHeader)
+			if authToken != nil {
+				userID = authToken.UserID
+			}
+		}
+
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, "viewer", &Viewer{
+			UserID: userID,
+		})
+
+		handler(w, r.WithContext(ctx))
+	}
+}
+
+type webHandler func(w http.ResponseWriter, r *http.Request, viewer *Viewer)
+
+func wrapWeb(handler webHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Version", pkg.BuildTime)
+
+		viewer := &Viewer{}
+
+		authCookie, _ := r.Cookie("authToken")
+		if authCookie != nil {
+			authToken := pkg.ParseAuthToken(authCookie.Value)
+			if authToken != nil {
+				viewer.UserID = authToken.UserID
+				viewer.AuthToken = authCookie.Value
+			}
+		}
+
+		handler(w, r, viewer)
+	}
 }

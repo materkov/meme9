@@ -34,11 +34,6 @@ export function App() {
     const redirectURL = location.origin + "/vk-callback";
     const vkAuthURL = "https://oauth.vk.com/authorize?client_id=7260220&response_type=code&v=5.131&redirect_uri=" + encodeURIComponent(redirectURL);
 
-    const onLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        globals.logout();
-        e.preventDefault();
-    };
-
     return <div className={styles.app}>
         <div className={styles.header}>
             <Link href={"/"} className={styles.headerLink}>
@@ -48,7 +43,7 @@ export function App() {
             <div className={styles.authInfo}>
                 {!globals.viewerId && <a href={vkAuthURL}>Войти через VK</a>}
                 {globals.viewerId && <span>
-                    {globals.viewerName} | <a href="/logout" onClick={onLogout}>Выйти</a>
+                    {globals.viewerName} | <a href="/logout">Выйти</a>
                 </span>}
             </div>
         </div>

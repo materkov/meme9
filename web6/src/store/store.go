@@ -10,13 +10,13 @@ const (
 	FakeObjPostedPost = -1
 	FakeObjVkAuth     = -2
 
-	ObjTypeArticle = 1
+	ObjTypeArticle = 1 // not used
 	ObjTypeConfig  = 2
 	ObjTypeUser    = 3
 	ObjTypePost    = 4
 
 	EdgeTypePosted     = 1
-	EdgeTypeLastPosted = 2 // not user
+	EdgeTypeLastPosted = 2 // not used
 	EdgeTypePostedPost = 3
 	EdgeTypeVkAuth     = 4
 )

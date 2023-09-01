@@ -1,11 +1,8 @@
 package api
 
 import (
-	"encoding/json"
-	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
 	"log"
-	"net/http"
 	"strconv"
 )
 
@@ -27,17 +24,13 @@ func transformUser(userID int, user *store.User) *User {
 	return result
 }
 
-func (*HttpServer) usersList(w http.ResponseWriter, r *http.Request, t *pkg.AuthToken) (interface{}, error) {
-	req := struct {
-		UserIds []string
-	}{}
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		return nil, &Error{400, "error parsing request"}
-	}
+type UsersListReq struct {
+	UserIds []string `json:"userIds"`
+}
 
-	result := make([]*User, len(req.UserIds))
-	for i, userIdStr := range req.UserIds {
+func (*API) usersList(v *Viewer, r *UsersListReq) (interface{}, error) {
+	result := make([]*User, len(r.UserIds))
+	for i, userIdStr := range r.UserIds {
 		userId, _ := strconv.Atoi(userIdStr)
 		user, err := store.GetUser(userId)
 		if err != nil {

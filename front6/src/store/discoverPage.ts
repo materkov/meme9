@@ -19,6 +19,12 @@ export const useDiscoverPage = create<DiscoverPage>()((set, get) => ({
             fetched: true,
         }));
 
+        if (window.__prefetchApi.__postsList) {
+            set({posts: window.__prefetchApi.__postsList});
+            delete window.__prefetchApi.__postsList;
+            return;
+        }
+
         get().refetch();
     },
     refetch: () => {
