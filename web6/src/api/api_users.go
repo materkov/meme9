@@ -7,8 +7,8 @@ import (
 )
 
 type User struct {
-	ID   string
-	Name string
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 func transformUser(userID int, user *store.User) *User {
