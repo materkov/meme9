@@ -32,7 +32,7 @@ export function App() {
     }, []);
 
     const redirectURL = location.origin + "/vk-callback";
-    const vkAuthURL = "https://oauth.vk.com/authorize?client_id=7260220&response_type=code&v=5.131&redirect_uri=" + redirectURL;
+    const vkAuthURL = "https://oauth.vk.com/authorize?client_id=7260220&response_type=code&v=5.131&redirect_uri=" + encodeURIComponent(redirectURL);
 
     const onLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
         globals.logout();

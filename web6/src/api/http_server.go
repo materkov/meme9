@@ -3,7 +3,8 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/materkov/meme9/web6/pkg"
+	pkg2 "github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/store"
 	"hash/crc32"
 	"html"
 	"log"
@@ -22,7 +23,7 @@ type renderOpts struct {
 	Prefetch map[string]interface{}
 }
 
-func wrapPage(token *pkg.AuthToken, opts renderOpts) string {
+func wrapPage(token *pkg2.AuthToken, opts renderOpts) string {
 	openGraph := ""
 	if opts.Title != "" {
 		openGraph += fmt.Sprintf(`<meta property="og:title" content="%s" />`, html.EscapeString(opts.Title))
@@ -48,7 +49,7 @@ func wrapPage(token *pkg.AuthToken, opts renderOpts) string {
 		opts.Prefetch["viewerId"] = token.UserID
 		opts.Prefetch["viewerName"] = ""
 
-		user, _ := pkg.GetUser(token.UserID)
+		user, _ := store.GetUser(token.UserID)
 		if user != nil {
 			opts.Prefetch["viewerName"] = user.Name
 		}
@@ -65,7 +66,7 @@ func wrapPage(token *pkg.AuthToken, opts renderOpts) string {
 		prefetch = fmt.Sprintf("<script>window.__prefetchApi = {};</script>")
 	}
 
-	buildTime := pkg.BuildTime
+	buildTime := pkg2.BuildTime
 	buildCrc := strconv.Itoa(int(crc32.Checksum([]byte(buildTime), crc32.MakeTable(crc32.IEEE))))
 
 	page := `
@@ -100,11 +101,11 @@ func wrapPage(token *pkg.AuthToken, opts renderOpts) string {
 type HttpServer struct {
 }
 
-func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) {
+func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, token *pkg2.AuthToken) {
 	_, _ = fmt.Fprint(w, wrapPage(token, renderOpts{}))
 }
 
-func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) {
+func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request, token *pkg2.AuthToken) {
 	_, _ = fmt.Fprint(w, wrapPage(token, renderOpts{}))
 }
 
@@ -121,26 +122,26 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	requestURI := fmt.Sprintf("%s://%s%s", proto, r.Host, r.URL.Path)
-	vkUserID, accessToken, err := pkg.ExchangeCode(code, requestURI)
+	vkUserID, accessToken, err := pkg2.ExchangeCode(code, requestURI)
 	if err != nil {
 		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 		return
 	}
 
-	userName, err := pkg.RefreshFromVk(accessToken, vkUserID)
+	userName, err := pkg2.RefreshFromVk(accessToken, vkUserID)
 	if err != nil {
 		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 		return
 	}
 
-	userID, err := pkg.GetEdgeByUniqueKey(pkg.FakeObjVkAuth, pkg.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
+	userID, err := store.GetEdgeByUniqueKey(store.FakeObjVkAuth, store.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
 	if err != nil {
 		_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 		return
 	}
 
 	if userID == 0 {
-		userID, err = pkg.AddObject(pkg.ObjTypeUser, &User{
+		userID, err = store.AddObject(store.ObjTypeUser, &User{
 			Name: "VK Auth user",
 		})
 		if err != nil {
@@ -148,13 +149,13 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = pkg.AddEdge(pkg.FakeObjVkAuth, userID, pkg.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
+		err = store.AddEdge(store.FakeObjVkAuth, userID, store.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
 		if err != nil {
 			_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 			return
 		}
 	} else {
-		user, err := pkg.GetUser(userID)
+		user, err := store.GetUser(userID)
 		if err != nil {
 			_, _ = fmt.Fprint(w, wrapPage(nil, renderOpts{Content: "VK auth fail"}))
 			return
@@ -163,10 +164,10 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 		user.Name = userName
 
 		// Already authorized
-		pkg.UpdateObject(user, user.ID)
+		store.UpdateObject(user, user.ID)
 	}
 
-	token := pkg.AuthToken{UserID: userID}
+	token := pkg2.AuthToken{UserID: userID}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "authToken",
@@ -184,16 +185,16 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 	}))
 }
 
-func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) {
+func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, token *pkg2.AuthToken) {
 	postID, _ := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/posts/"))
 
-	post, err := pkg.GetPost(postID)
+	post, err := store.GetPost(postID)
 	if err != nil {
 		w.WriteHeader(404)
 		return
 	}
 
-	user, err := pkg.GetUser(post.UserID)
+	user, err := store.GetUser(post.UserID)
 	if err != nil {
 		w.WriteHeader(404)
 		return

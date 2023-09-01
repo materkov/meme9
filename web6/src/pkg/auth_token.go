@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/materkov/meme9/web6/src/store"
 	"strings"
 )
 
@@ -22,7 +23,7 @@ func (a *AuthToken) ToString() string {
 
 	tokenStr := base64.RawURLEncoding.EncodeToString(tokenBytes)
 
-	h := hmac.New(sha256.New, []byte(GlobalConfig.AuthTokenSecret))
+	h := hmac.New(sha256.New, []byte(store.GlobalConfig.AuthTokenSecret))
 	h.Write([]byte(tokenStr))
 	calculatedHash := hex.EncodeToString(h.Sum(nil))
 
@@ -35,7 +36,7 @@ func ParseAuthToken(tokenStr string) *AuthToken {
 		return nil
 	}
 
-	h := hmac.New(sha256.New, []byte(GlobalConfig.AuthTokenSecret))
+	h := hmac.New(sha256.New, []byte(store.GlobalConfig.AuthTokenSecret))
 	h.Write([]byte(parts[0]))
 	calculatedHash := hex.EncodeToString(h.Sum(nil))
 

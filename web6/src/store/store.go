@@ -1,4 +1,4 @@
-package pkg
+package store
 
 import (
 	"database/sql"
@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	FakeObjPosted     = 8
 	FakeObjPostedPost = -1
 	FakeObjVkAuth     = -2
 
@@ -17,7 +16,7 @@ const (
 	ObjTypePost    = 4
 
 	EdgeTypePosted     = 1
-	EdgeTypeLastPosted = 2
+	EdgeTypeLastPosted = 2 // not user
 	EdgeTypePostedPost = 3
 	EdgeTypeVkAuth     = 4
 )
@@ -43,12 +42,6 @@ func getObject(id int, objType int, obj interface{}) error {
 	return nil
 }
 
-func GetConfig() (*Config, error) {
-	obj := &Config{}
-	err := getObject(5, ObjTypeConfig, obj)
-	return obj, err
-}
-
 func UpdateObject(object interface{}, id int) error {
 	data, _ := json.Marshal(object)
 	_, err := SqlClient.Exec("update objects set data = ? where id = ?", data, id)
@@ -70,3 +63,5 @@ func AddObject(objType int, object interface{}) (int, error) {
 
 	return int(objId), nil
 }
+
+var GlobalConfig = &Config{}

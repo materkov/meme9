@@ -3,7 +3,8 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/materkov/meme9/web6/pkg"
+	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/store"
 	"net/http"
 	"strconv"
 	"time"
@@ -21,7 +22,7 @@ type PostsAddReq struct {
 	Text string `json:"text"`
 }
 
-func transformPost(post *pkg.Post, user *pkg.User) *Post {
+func transformPost(post *store.Post, user *store.User) *Post {
 	return &Post{
 		ID:     strconv.Itoa(post.ID),
 		UserID: strconv.Itoa(post.UserID),
@@ -44,22 +45,22 @@ func (h *HttpServer) PostsAdd(w http.ResponseWriter, r *http.Request, t *pkg.Aut
 		return nil, &Error{Code: 400, Message: "not authorized"}
 	}
 
-	post := pkg.Post{
+	post := store.Post{
 		UserID: t.UserID,
 		Date:   int(time.Now().Unix()),
 		Text:   req.Text,
 	}
 
-	postID, err := pkg.AddObject(pkg.ObjTypePost, &post)
+	postID, err := store.AddObject(store.ObjTypePost, &post)
 	if err != nil {
 		return nil, fmt.Errorf("error saving post: %w", err)
 	}
 	post.ID = postID
 
-	_ = pkg.AddEdge(pkg.FakeObjPostedPost, postID, pkg.EdgeTypePostedPost, "")
-	_ = pkg.AddEdge(post.UserID, postID, pkg.EdgeTypePosted, "")
+	_ = store.AddEdge(store.FakeObjPostedPost, postID, store.EdgeTypePostedPost, "")
+	_ = store.AddEdge(post.UserID, postID, store.EdgeTypePosted, "")
 
-	user, _ := pkg.GetUser(post.UserID)
+	user, _ := store.GetUser(post.UserID)
 
 	return transformPost(&post, user), nil
 }
@@ -74,19 +75,19 @@ func (h *HttpServer) PostsList(w http.ResponseWriter, r *http.Request, t *pkg.Au
 		return nil, &Error{Code: 400, Message: "cannot parse request"}
 	}
 
-	postIds, err := pkg.GetEdges(pkg.FakeObjPostedPost, pkg.EdgeTypePostedPost)
+	postIds, err := store.GetEdges(store.FakeObjPostedPost, store.EdgeTypePostedPost)
 	if err != nil {
 		return nil, fmt.Errorf("error getting posted edges: %w", err)
 	}
 
 	result := make([]*Post, 0)
 	for _, postID := range postIds {
-		post, err := pkg.GetPost(postID)
+		post, err := store.GetPost(postID)
 		if err != nil {
 			continue
 		}
 
-		user, _ := pkg.GetUser(post.UserID)
+		user, _ := store.GetUser(post.UserID)
 
 		result = append(result, transformPost(post, user))
 	}
@@ -107,14 +108,14 @@ func (h *HttpServer) PostsListByID(w http.ResponseWriter, r *http.Request, t *pk
 
 	postID, _ := strconv.Atoi(req.ID)
 
-	post, err := pkg.GetPost(postID)
+	post, err := store.GetPost(postID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting post: %w", err)
 	} else if post == nil {
 		return nil, &Error{Code: 400, Message: "post not found"}
 	}
 
-	user, _ := pkg.GetUser(post.UserID)
+	user, _ := store.GetUser(post.UserID)
 
 	return transformPost(post, user), nil
 }
@@ -135,19 +136,19 @@ func (h *HttpServer) PostsListByUser(w http.ResponseWriter, r *http.Request, t *
 		return nil, &Error{Code: 400, Message: "incorrect user id"}
 	}
 
-	postIds, err := pkg.GetEdges(userID, pkg.EdgeTypePosted)
+	postIds, err := store.GetEdges(userID, store.EdgeTypePosted)
 	if err != nil {
 		return nil, fmt.Errorf("error getting posted edges: %w", err)
 	}
 
 	result := make([]*Post, 0)
 	for _, postID := range postIds {
-		post, err := pkg.GetPost(postID)
+		post, err := store.GetPost(postID)
 		if err != nil {
 			continue
 		}
 
-		user, _ := pkg.GetUser(post.UserID)
+		user, _ := store.GetUser(post.UserID)
 
 		result = append(result, transformPost(post, user))
 	}
@@ -168,7 +169,7 @@ func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request, t *pkg.
 
 	postID, _ := strconv.Atoi(req.PostID)
 
-	post, err := pkg.GetPost(postID)
+	post, err := store.GetPost(postID)
 	if err != nil {
 		return nil, err
 	} else if post == nil {
@@ -181,8 +182,8 @@ func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request, t *pkg.
 		return nil, &Error{Code: 400, Message: "no access to this post"}
 	}
 
-	_ = pkg.DelEdge(pkg.FakeObjPostedPost, pkg.EdgeTypePostedPost, post.ID)
-	_ = pkg.DelEdge(post.UserID, pkg.EdgeTypePosted, post.ID)
+	_ = store.DelEdge(store.FakeObjPostedPost, store.EdgeTypePostedPost, post.ID)
+	_ = store.DelEdge(post.UserID, store.EdgeTypePosted, post.ID)
 
 	return Void{}, nil
 }

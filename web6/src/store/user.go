@@ -1,4 +1,4 @@
-package pkg
+package store
 
 type User struct {
 	ID   int

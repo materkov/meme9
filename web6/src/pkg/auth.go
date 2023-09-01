@@ -3,6 +3,7 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/materkov/meme9/web6/src/store"
 	"io"
 	"net/http"
 	"net/url"
@@ -10,8 +11,8 @@ import (
 )
 
 func ExchangeCode(code string, redirectURI string) (int, string, error) {
-	vkAppID := GlobalConfig.VKAppID
-	vkAppSecret := GlobalConfig.VKAppSecret
+	vkAppID := store.GlobalConfig.VKAppID
+	vkAppSecret := store.GlobalConfig.VKAppSecret
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
 		"client_id":     []string{strconv.Itoa(vkAppID)},

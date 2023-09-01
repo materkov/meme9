@@ -1,4 +1,4 @@
-package pkg
+package store
 
 type Post struct {
 	ID     int
