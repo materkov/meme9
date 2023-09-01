@@ -4,25 +4,25 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	pkg2 "github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/pkg"
 	"net/http"
 	"strings"
 )
 
-type apiHandler func(w http.ResponseWriter, r *http.Request, token *pkg2.AuthToken) (interface{}, error)
+type apiHandler func(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken) (interface{}, error)
 
 func wrapAPI(handler apiHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("X-Version", pkg2.BuildTime)
+		w.Header().Set("X-Version", pkg.BuildTime)
 
-		var authToken *pkg2.AuthToken
+		var authToken *pkg.AuthToken
 
 		authHeader := r.Header.Get("authorization")
 		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 		if authHeader != "" {
-			authToken = pkg2.ParseAuthToken(authHeader)
+			authToken = pkg.ParseAuthToken(authHeader)
 		}
 
 		resp, err := handler(w, r, authToken)
@@ -41,17 +41,17 @@ func wrapAPI(handler apiHandler) http.HandlerFunc {
 	}
 }
 
-type webHandler func(w http.ResponseWriter, r *http.Request, token *pkg2.AuthToken)
+type webHandler func(w http.ResponseWriter, r *http.Request, token *pkg.AuthToken)
 
 func wrapWeb(handler webHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("X-Version", pkg2.BuildTime)
+		w.Header().Set("X-Version", pkg.BuildTime)
 
-		var authToken *pkg2.AuthToken
+		var authToken *pkg.AuthToken
 
 		authCookie, _ := r.Cookie("authToken")
 		if authCookie != nil {
-			authToken = pkg2.ParseAuthToken(authCookie.Value)
+			authToken = pkg.ParseAuthToken(authCookie.Value)
 		}
 
 		handler(w, r, authToken)
