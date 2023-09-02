@@ -1,7 +1,9 @@
 package api
 
 import (
+	"errors"
 	"fmt"
+	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
 	"strconv"
 	"time"
@@ -31,10 +33,13 @@ func transformPost(post *store.Post, user *store.User) *Post {
 
 func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
 	if r.Text == "" {
-		return nil, &Error{Code: 400, Message: "empty text"}
+		return nil, Error("text is empty")
+	}
+	if len(r.Text) > 5000 {
+		return nil, Error("text is too long")
 	}
 	if viewer.UserID == 0 {
-		return nil, &Error{Code: 400, Message: "not authorized"}
+		return nil, Error("not authorized")
 	}
 
 	post := store.Post{
@@ -92,7 +97,7 @@ func (h *API) PostsListByID(_ *Viewer, r *PostsListByIdReq) (*Post, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error getting post: %w", err)
 	} else if post == nil {
-		return nil, &Error{Code: 400, Message: "post not found"}
+		return nil, Error("post not found")
 	}
 
 	user, _ := store.GetUser(post.UserID)
@@ -107,7 +112,7 @@ type PostsListByUserReq struct {
 func (h *API) PostsListByUser(_ *Viewer, r *PostsListByUserReq) ([]*Post, error) {
 	userID, _ := strconv.Atoi(r.UserID)
 	if userID <= 0 {
-		return nil, &Error{Code: 400, Message: "incorrect user id"}
+		return nil, Error("incorrect user id")
 	}
 
 	postIds, err := store.GetEdges(userID, store.EdgeTypePosted)
@@ -138,20 +143,24 @@ func (h *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (interface{}, error
 	postID, _ := strconv.Atoi(r.PostID)
 
 	post, err := store.GetPost(postID)
-	if err != nil {
+	if errors.Is(err, store.ErrObjectNotFound) {
+		return nil, Error("post not found")
+	} else if err != nil {
 		return nil, err
-	} else if post == nil {
-		return nil, &Error{Code: 400, Message: "post not found"}
-	}
-	if viewer.UserID == 0 {
-		return nil, &Error{Code: 400, Message: "not authorized"}
-	}
-	if post.UserID != viewer.UserID {
-		return nil, &Error{Code: 400, Message: "no access to this post"}
 	}
 
-	_ = store.DelEdge(store.FakeObjPostedPost, store.EdgeTypePostedPost, post.ID)
-	_ = store.DelEdge(post.UserID, store.EdgeTypePosted, post.ID)
+	if viewer.UserID == 0 {
+		return nil, Error("not authorized")
+	}
+	if post.UserID != viewer.UserID {
+		return nil, Error("no access to this post")
+	}
+
+	err = store.DelEdge(store.FakeObjPostedPost, store.EdgeTypePostedPost, post.ID)
+	pkg.LogErr(err)
+
+	err = store.DelEdge(post.UserID, store.EdgeTypePosted, post.ID)
+	pkg.LogErr(err)
 
 	return Void{}, nil
 }

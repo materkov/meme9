@@ -28,7 +28,7 @@ type UsersListReq struct {
 	UserIds []string `json:"userIds"`
 }
 
-func (*API) usersList(v *Viewer, r *UsersListReq) (interface{}, error) {
+func (*API) usersList(v *Viewer, r *UsersListReq) ([]*User, error) {
 	result := make([]*User, len(r.UserIds))
 	for i, userIdStr := range r.UserIds {
 		userId, _ := strconv.Atoi(userIdStr)

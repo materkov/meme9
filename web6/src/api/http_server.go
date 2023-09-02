@@ -113,6 +113,9 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/api/posts.listById", wrapAPI(h.PostsListByID))
 	http.HandleFunc("/api/posts.delete", wrapAPI(h.PostsDelete))
 
+	http.HandleFunc("/api/auth.login", wrapAPI(h.authLogin))
+	http.HandleFunc("/api/auth.register", wrapAPI(h.authRegister))
+
 	// Web
 	http.HandleFunc("/posts/", wrapWeb(h.postPage))
 	http.HandleFunc("/users/", wrapWeb(h.userPage))

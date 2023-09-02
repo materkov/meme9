@@ -8,8 +8,4 @@ type Config struct {
 	VKAppSecret string
 }
 
-func GetConfig() (*Config, error) {
-	obj := &Config{}
-	err := getObject(5, ObjTypeConfig, obj)
-	return obj, err
-}
+var GlobalConfig = &Config{}
