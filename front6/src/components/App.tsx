@@ -41,9 +41,9 @@ export function App() {
             </Link>
 
             <div className={styles.authInfo}>
-                {!globals.viewerId && <a href={vkAuthURL}>Войти через VK</a>}
+                {!globals.viewerId && <a href={vkAuthURL}>Login via VK</a>}
                 {globals.viewerId && <span>
-                    {globals.viewerName} | <a href="/logout">Выйти</a>
+                    {globals.viewerName} | <a href="/logout">Logout</a>
                 </span>}
             </div>
         </div>

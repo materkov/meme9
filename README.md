@@ -2,9 +2,6 @@
 
 https://meme.mmaks.me
 
-Актуальный код в web6 & front6
+Just small web app, with Go-backend and React-frontend
 
-Веб-приложение, показывающее как супер-эффективно
-связать go-бекенд с react-фронтендом.
-
-Мысли [об архитектуре тут](pages/pages.md)
+Some thoughts [about architecture here (Russian)](pages/pages.md)
