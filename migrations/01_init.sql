@@ -21,3 +21,8 @@ create table objects
     data     json     not null
 );
 
+
+insert into objects(id, obj_type, data)
+values (5, 2, '{
+  "SaveSecret": "test"
+}');
