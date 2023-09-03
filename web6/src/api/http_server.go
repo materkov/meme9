@@ -64,7 +64,7 @@ func wrapPage(viewer *Viewer, opts renderOpts) string {
 		}
 		prefetch = fmt.Sprintf("<script>window.__prefetchApi = %s</script>", prefetchBytes)
 	} else {
-		prefetch = fmt.Sprint("<script>window.__prefetchApi = {};</script>")
+		prefetch = "<script>window.__prefetchApi = {};</script>"
 	}
 
 	buildTime := pkg.BuildTime
