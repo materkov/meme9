@@ -9,4 +9,4 @@ jobs:
         uses: actions/checkout@v1
 
       - name: build all
-        run: cd front5 && yarn install && yarn build
+        run: cd front6 && yarn install && yarn build
