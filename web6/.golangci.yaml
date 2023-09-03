@@ -1,4 +1,6 @@
 severity:
+  default-severity: error
+
   rules:
     - linters:
         - gosimple
