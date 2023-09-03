@@ -1,9 +1,8 @@
-import * as types from "../types/types";
 import {create} from "zustand";
-import {postsListById} from "./api";
+import {Post, postsListById} from "../api/api";
 
 export interface PostPage {
-    posts: { [id: string]: types.Post | undefined }
+    posts: { [id: string]: Post | undefined }
     error: any
     fetch: (id: string) => void
 }

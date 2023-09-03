@@ -1,12 +1,11 @@
-import * as types from "../../types/types";
 import React from "react";
 import * as styles from "./Post.module.css";
-import {Link} from "../Link";
+import {Link} from "../Link/Link";
 import {useGlobals} from "../../store/globals";
-import {postsDelete} from "../../store/api";
+import {Post as ApiPost, postsDelete} from "../../api/api";
 import {useDiscoverPage} from "../../store/discoverPage";
 
-export function Post(props: { post: types.Post }) {
+export function Post(props: { post: ApiPost }) {
     const date = new Date(props.post.date).toLocaleString();
     const globals = useGlobals();
     const discoverPage = useDiscoverPage();

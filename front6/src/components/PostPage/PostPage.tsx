@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
-import {usePostPage} from "../store/postPage";
+import {usePostPage} from "../../store/postPage";
 import * as styles from "./PostPage.module.css";
-import {Post} from "./Post/Post";
+import {Post} from "../Post/Post";
 
 export function PostPage() {
     let postId = window.document.location.pathname.substring(7);

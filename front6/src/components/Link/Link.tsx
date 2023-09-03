@@ -1,5 +1,5 @@
 import React from "react";
-import {useNavigation} from "../store/navigation";
+import {useNavigation} from "../../store/navigation";
 
 export function Link(props: {
     className?: string,

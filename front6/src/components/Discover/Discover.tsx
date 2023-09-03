@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import {useDiscoverPage} from "../../store/discoverPage";
 import * as styles from "./Discover.module.css";
 import {useGlobals} from "../../store/globals";
-import {postsAdd} from "../../store/api";
+import {postsAdd} from "../../api/api";
 import {Post} from "../Post/Post";
 
 export function Discover() {

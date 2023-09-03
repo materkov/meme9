@@ -1,9 +1,8 @@
-import * as types from "../types/types";
 import {create} from "zustand";
-import {postsList} from "./api";
+import {Post, postsList} from "../api/api";
 
 export interface DiscoverPage {
-    posts: types.Post[]
+    posts: Post[]
     fetched: boolean
     fetch: () => void
     refetch: () => void

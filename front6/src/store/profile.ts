@@ -1,16 +1,15 @@
-import * as types from "../types/types";
 import {create} from "zustand";
-import {postsListPostedByUser, usersList} from "./api";
+import {Post, postsListPostedByUser, User, usersList} from "../api/api";
 
 export interface Profile {
-    user: types.User;
-    posts: types.Post[];
+    user: User;
+    posts: Post[];
     fetched: { [id: string]: boolean };
     fetch: (userId: string) => void;
 }
 
 export const useProfile = create<Profile>()((set, get) => ({
-    user: new types.User(),
+    user: new User(),
     fetched: {},
     posts: [],
     fetch: (userId: string) => {

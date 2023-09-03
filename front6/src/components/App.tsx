@@ -1,10 +1,10 @@
 import React, {useEffect} from "react";
-import {PostPage} from "./PostPage";
+import {PostPage} from "./PostPage/PostPage";
 import {Profile} from "./Profile/Profile";
 import * as styles from "./App.module.css";
 import {useNavigation} from "../store/navigation";
 import {Discover} from "./Discover/Discover";
-import {Link} from "./Link";
+import {Link} from "./Link/Link";
 import {useGlobals} from "../store/globals";
 
 export function App() {
