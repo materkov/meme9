@@ -30,6 +30,9 @@ jobs:
       - name: Build web app
         run: cd web6 && go build cmd/main.go
 
+      - name: Init mysql schema
+        run: mysql -h localhost -P 3306 --protocol=tcp -u root --password=root < migrations/01_init.sql
+
       - name: Run web app in background
         run: ./web6/main &
 
