@@ -64,7 +64,7 @@ func wrapPage(viewer *Viewer, opts renderOpts) string {
 		}
 		prefetch = fmt.Sprintf("<script>window.__prefetchApi = %s</script>", prefetchBytes)
 	} else {
-		prefetch = fmt.Sprintf("<script>window.__prefetchApi = {};</script>")
+		prefetch = fmt.Sprint("<script>window.__prefetchApi = {};</script>")
 	}
 
 	buildTime := pkg.BuildTime
@@ -146,7 +146,7 @@ func wrapAPI(handler http.HandlerFunc) http.HandlerFunc {
 		}
 
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, "viewer", &Viewer{
+		ctx = context.WithValue(ctx, ctxViewer, &Viewer{
 			UserID: userID,
 		})
 

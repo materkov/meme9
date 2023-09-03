@@ -12,7 +12,7 @@ func (h *HttpServer) PostsAdd(w http.ResponseWriter, r *http.Request) {
 		writeResp(w, nil, ErrParsingRequest)
 		return
 	}
-	resp, err := h.Api.PostsAdd(r.Context().Value("viewer").(*Viewer), req)
+	resp, err := h.Api.PostsAdd(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }
 
@@ -23,7 +23,7 @@ func (h *HttpServer) PostsList(w http.ResponseWriter, r *http.Request) {
 		writeResp(w, nil, ErrParsingRequest)
 		return
 	}
-	resp, err := h.Api.PostsList(r.Context().Value("viewer").(*Viewer), req)
+	resp, err := h.Api.PostsList(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }
 
@@ -34,7 +34,7 @@ func (h *HttpServer) PostsListByID(w http.ResponseWriter, r *http.Request) {
 		writeResp(w, nil, ErrParsingRequest)
 		return
 	}
-	resp, err := h.Api.PostsListByID(r.Context().Value("viewer").(*Viewer), req)
+	resp, err := h.Api.PostsListByID(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }
 
@@ -45,7 +45,7 @@ func (h *HttpServer) PostsListByUser(w http.ResponseWriter, r *http.Request) {
 		writeResp(w, nil, ErrParsingRequest)
 		return
 	}
-	resp, err := h.Api.PostsListByUser(r.Context().Value("viewer").(*Viewer), req)
+	resp, err := h.Api.PostsListByUser(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }
 
@@ -56,7 +56,7 @@ func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request) {
 		writeResp(w, nil, ErrParsingRequest)
 		return
 	}
-	resp, err := h.Api.PostsDelete(r.Context().Value("viewer").(*Viewer), req)
+	resp, err := h.Api.PostsDelete(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }
 
@@ -67,7 +67,7 @@ func (h *HttpServer) usersList(w http.ResponseWriter, r *http.Request) {
 		writeResp(w, nil, ErrParsingRequest)
 		return
 	}
-	resp, err := h.Api.usersList(r.Context().Value("viewer").(*Viewer), req)
+	resp, err := h.Api.usersList(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }
 
@@ -78,7 +78,7 @@ func (h *HttpServer) authLogin(w http.ResponseWriter, r *http.Request) {
 		writeResp(w, nil, ErrParsingRequest)
 		return
 	}
-	resp, err := h.Api.authLogin(r.Context().Value("viewer").(*Viewer), req)
+	resp, err := h.Api.authLogin(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }
 
@@ -89,6 +89,6 @@ func (h *HttpServer) authRegister(w http.ResponseWriter, r *http.Request) {
 		writeResp(w, nil, ErrParsingRequest)
 		return
 	}
-	resp, err := h.Api.authRegister(r.Context().Value("viewer").(*Viewer), req)
+	resp, err := h.Api.authRegister(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }

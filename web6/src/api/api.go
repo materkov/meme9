@@ -38,3 +38,9 @@ type Error string
 func (e Error) Error() string {
 	return fmt.Sprintf("API Error: %s", string(e))
 }
+
+type ctxKey string
+
+const (
+	ctxViewer ctxKey = "viewer"
+)

@@ -1,0 +1,5 @@
+severity:
+  rules:
+    - linters:
+        - gosimple
+      severity: info

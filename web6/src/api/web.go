@@ -93,7 +93,8 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 		user.Name = userName
 
 		// Already authorized
-		store.UpdateObject(user, user.ID)
+		err = store.UpdateObject(user, user.ID)
+		pkg.LogErr(err)
 	}
 
 	token := pkg.AuthToken{UserID: userID}
