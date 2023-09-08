@@ -24,7 +24,22 @@ func (h *HttpServer) logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
-	_, _ = fmt.Fprint(w, wrapPage(viewer, renderOpts{}))
+	path := r.URL.Path
+	path = strings.TrimPrefix(path, "/users/")
+
+	resp1, _ := h.Api.PostsListByUser(viewer, &PostsListByUserReq{UserID: path})
+	resp2, _ := h.Api.usersList(viewer, &UsersListReq{UserIds: []string{path}})
+
+	_, _ = fmt.Fprint(w, wrapPage(viewer, renderOpts{
+		Prefetch: map[string]interface{}{
+			"__userPage": map[string]interface{}{
+				"user_id": path,
+				"user":    resp2[0],
+				"posts":   resp1,
+			},
+		},
+	}))
+
 }
 
 func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
@@ -113,7 +128,10 @@ func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 
 	post, err := store.GetPost(postID)
 	if err != nil {
-		w.WriteHeader(404)
+		_, _ = fmt.Fprint(w, wrapPage(viewer, renderOpts{
+			Title:   "Post not found",
+			Content: "Post not found",
+		}))
 		return
 	}
 

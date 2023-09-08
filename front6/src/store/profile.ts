@@ -22,6 +22,15 @@ export const useProfile = create<Profile>()((set, get) => ({
             }
         });
 
+        if (window.__prefetchApi.__userPage?.user_id === userId) {
+            set({
+                posts: window.__prefetchApi.__userPage.posts,
+                user: window.__prefetchApi.__userPage.user,
+            })
+            delete window.__prefetchApi.__userPage;
+            return;
+        }
+
         postsListPostedByUser({"userId": userId}).then(r => {
             set({posts: r});
         })
