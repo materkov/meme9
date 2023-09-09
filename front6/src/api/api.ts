@@ -1,24 +1,36 @@
 function api<T>(method: string, args: any): Promise<T> {
+    // TODO fix cookie parsing
+    let token = '';
+    if (document.cookie.startsWith("authToken=")) {
+        token = document.cookie.substring("authToken=".length);
+    }
+
     let headers: Record<string, string> = {};
-    if (window.__prefetchApi.authToken) {
-        headers['authorization'] = 'Bearer ' + window.__prefetchApi.authToken;
+    if (token) {
+        headers['authorization'] = 'Bearer ' + token;
     }
 
     return new Promise((resolve, reject) => {
+        // TODO think about this func
         fetch('/api/' + method, {
             method: 'POST',
             body: JSON.stringify(args),
             headers: headers,
         })
-            .then(r => r.json())
             .then(r => {
-                if (r.error) {
-                    reject();
-                } else {
-                    resolve(r)
-                }
-            })
-            .catch(reject)
+                r.text().then(body => {
+                    if (r.status !== 200) {
+                        reject(body)
+                    } else {
+                        try {
+                            const bodyParsed = JSON.parse(body);
+                            resolve(bodyParsed);
+                        } catch (e) {
+                            reject('failed to parse json body');
+                        }
+                    }
+                }).catch(reject)
+            }).catch(reject)
     })
 }
 
@@ -80,4 +92,23 @@ export class UsersListReq {
 
 export function usersList(req: UsersListReq): Promise<User[]> {
     return api("users.list", req);
+}
+
+export class AuthEmailReq {
+    email: string = ""
+    password: string = ""
+}
+
+export class AuthResp {
+    token: string = ""
+    userId: string = ""
+    userName: string = ""
+}
+
+export function authLogin(req: AuthEmailReq): Promise<AuthResp> {
+    return api("auth.login", req);
+}
+
+export function authRegister(req: AuthEmailReq): Promise<AuthResp> {
+    return api("auth.register", req);
 }

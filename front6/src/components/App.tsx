@@ -6,6 +6,7 @@ import {useNavigation} from "../store/navigation";
 import {Discover} from "./Discover/Discover";
 import {Link} from "./Link/Link";
 import {useGlobals} from "../store/globals";
+import {Auth} from "./Auth/Auth";
 
 export function App() {
     let page: React.ReactNode;
@@ -20,6 +21,8 @@ export function App() {
         page = <PostPage/>
     } else if (navState.url.startsWith("/users/")) {
         page = <Profile/>
+    } else if (navState.url.startsWith("/auth")) {
+        page = <Auth/>
     } else {
         page = <div>404 page</div>;
     }
@@ -41,9 +44,9 @@ export function App() {
             </Link>
 
             <div className={styles.authInfo}>
-                {!globals.viewerId && <a href={vkAuthURL}>Login via VK</a>}
+                {!globals.viewerId && <Link href="/auth">Authorize</Link>}
                 {globals.viewerId && <span>
-                    {globals.viewerName} | <a href="/logout">Logout</a>
+                    {globals.viewerName} | <Link href="/auth?logout">Logout</Link>
                 </span>}
             </div>
         </div>

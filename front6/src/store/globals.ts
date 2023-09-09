@@ -1,9 +1,11 @@
 import {create} from "zustand";
+import {AuthResp} from "../api/api";
 
 export interface Globals {
     authToken: string;
     viewerId: string;
     viewerName: string;
+    setAuth: (authResp: AuthResp) => void;
 }
 
 export const useGlobals = create<Globals>()(set => {
@@ -15,5 +17,12 @@ export const useGlobals = create<Globals>()(set => {
         authToken: authToken,
         viewerId: viewerId,
         viewerName: viewerName,
+        setAuth: (authResp: AuthResp) => {
+            set({
+                authToken: authResp.token,
+                viewerId: authResp.userId,
+                viewerName: authResp.userName,
+            });
+        }
     }
 });

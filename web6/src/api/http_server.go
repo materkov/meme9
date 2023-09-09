@@ -46,7 +46,6 @@ func wrapPage(viewer *Viewer, opts renderOpts) string {
 	}
 
 	if viewer.UserID != 0 {
-		opts.Prefetch["authToken"] = viewer.AuthToken
 		opts.Prefetch["viewerId"] = viewer.UserID
 		opts.Prefetch["viewerName"] = ""
 
@@ -120,8 +119,8 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/posts/", wrapWeb(h.postPage))
 	http.HandleFunc("/users/", wrapWeb(h.userPage))
 	http.HandleFunc("/", wrapWeb(h.discoverPage))
-	http.HandleFunc("/vk-callback", h.vkCallback)
-	http.HandleFunc("/logout", h.logout)
+	http.HandleFunc("/vk-callback", h.vkCallback) // TODO rewrite to api
+	http.HandleFunc("/auth", wrapWeb(h.authPage))
 
 	// Static (for dev only)
 	http.Handle("/dist/", http.FileServer(http.Dir("../front6/dist/..")))

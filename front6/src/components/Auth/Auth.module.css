@@ -1,0 +1,14 @@
+.formRow {
+    margin: 10px 0;
+}
+
+.formLeft {
+    text-align: left;
+    width: 100px;
+    display: inline-block;
+}
+
+.error {
+    padding: 7px;
+    background: #ff6363;
+}

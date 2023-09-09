@@ -8,19 +8,10 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 )
 
-func (h *HttpServer) logout(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     "authToken",
-		Value:    "",
-		Expires:  time.Unix(0, 0),
-		Path:     "/",
-		HttpOnly: true,
-	})
-
-	http.Redirect(w, r, "/", 302)
+func (h *HttpServer) authPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
+	_, _ = fmt.Fprint(w, wrapPage(viewer, renderOpts{}))
 }
 
 func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {

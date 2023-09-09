@@ -13,8 +13,9 @@ type AuthEmailReq struct {
 }
 
 type AuthResp struct {
-	Token  string `json:"token"`
-	UserID string `json:"userId"`
+	Token    string `json:"token"`
+	UserID   string `json:"userId"`
+	UserName string `json:"userName"`
 }
 
 func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
@@ -57,8 +58,9 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 
 	token := pkg.AuthToken{UserID: userID}
 	return &AuthResp{
-		Token:  token.ToString(),
-		UserID: strconv.Itoa(userID),
+		Token:    token.ToString(),
+		UserID:   strconv.Itoa(userID),
+		UserName: user.Name,
 	}, nil
 }
 
@@ -86,7 +88,8 @@ func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 
 	token := pkg.AuthToken{UserID: userID}
 	return &AuthResp{
-		Token:  token.ToString(),
-		UserID: strconv.Itoa(userID),
+		Token:    token.ToString(),
+		UserID:   strconv.Itoa(userID),
+		UserName: user.Name,
 	}, nil
 }

@@ -10,7 +10,7 @@ export function Link(props: {
 
     const onClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        navState.setURL(props.href);
+        navState.go(props.href);
     };
 
     return (
