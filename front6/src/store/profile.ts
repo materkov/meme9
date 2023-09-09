@@ -1,5 +1,6 @@
 import {create} from "zustand";
 import {Post, postsListPostedByUser, User, usersList} from "../api/api";
+import {tryGetPrefetch} from "../utils/prefetch";
 
 export interface Profile {
     user: User;
@@ -22,12 +23,12 @@ export const useProfile = create<Profile>()((set, get) => ({
             }
         });
 
-        if (window.__prefetchApi.__userPage?.user_id === userId) {
+        const prefetch = tryGetPrefetch('__userPage');
+        if (prefetch && prefetch.user_id === userId) {
             set({
-                posts: window.__prefetchApi.__userPage.posts,
-                user: window.__prefetchApi.__userPage.user,
+                posts: prefetch.posts,
+                user: prefetch.user,
             })
-            delete window.__prefetchApi.__userPage;
             return;
         }
 

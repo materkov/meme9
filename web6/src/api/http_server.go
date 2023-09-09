@@ -55,15 +55,15 @@ func wrapPage(viewer *Viewer, opts renderOpts) string {
 		}
 	}
 
-	prefetch := ""
+	var prefetchBytes []byte
 	if opts.Prefetch != nil {
-		prefetchBytes, err := json.Marshal(opts.Prefetch)
+		var err error
+		prefetchBytes, err = json.Marshal(opts.Prefetch)
 		if err != nil {
 			log.Printf("Error marshaling to json: %s", err)
 		}
-		prefetch = fmt.Sprintf("<script>window.__prefetchApi = %s</script>", prefetchBytes)
 	} else {
-		prefetch = "<script>window.__prefetchApi = {};</script>"
+		prefetchBytes = []byte("{}")
 	}
 
 	buildTime := pkg.BuildTime
@@ -80,7 +80,11 @@ func wrapPage(viewer *Viewer, opts renderOpts) string {
 	%s %s
 </head>
 <body>
-	<div id="server-prefetch">%s</div>
+	<div id="server-prefetch">
+		<script>
+			window.__prefetchApi = %s;
+		</script>
+	</div>
 	<div id="server-render">%s</div>
 	<div id="root"/>
 	<script src="/dist/bundle/index.js?%s"></script>
@@ -92,7 +96,7 @@ func wrapPage(viewer *Viewer, opts renderOpts) string {
 		buildCrc,
 		title,
 		openGraph,
-		prefetch,
+		prefetchBytes,
 		opts.Content,
 		buildCrc,
 	)

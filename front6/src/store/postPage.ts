@@ -1,5 +1,6 @@
 import {create} from "zustand";
 import {Post, postsListById} from "../api/api";
+import {tryGetPrefetch} from "../utils/prefetch";
 
 export interface PostPage {
     posts: { [id: string]: Post | undefined }
@@ -15,13 +16,13 @@ export const usePostPage = create<PostPage>()((set, get) => ({
             return;
         }
 
-        if (window.__prefetchApi.__postPagePost) {
+        const prefetch = tryGetPrefetch('__postPagePost');
+        if (prefetch) {
             set({
                 posts: {
-                    ...get().posts, [window.__prefetchApi.__postPagePost.id]: (window as any).__prefetchApi.__postPagePost
+                    ...get().posts, [prefetch.id]: prefetch,
                 }
             });
-            delete window.__prefetchApi.__postPagePost;
             return;
         }
 
