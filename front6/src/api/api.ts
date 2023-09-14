@@ -16,23 +16,19 @@ function api<T>(method: string, args: any): Promise<T> {
             body: JSON.stringify(args),
             headers: headers,
         })
-            .then(r => r.text())
-            .then(body => {
-                let bodyParsed = undefined;
-                try {
-                    bodyParsed = JSON.parse(body);
-                } catch (e) {
-                    reject('failed to parse json body');
-                    return;
+            .then(r => {
+                if (r.ok) {
+                    r.json()
+                        .then(resolve)
+                        .catch(reject);
+                } else {
+                    r.json()
+                        .then(r => {
+                            reject(r.error);
+                        })
+                        .catch(reject);
                 }
-
-                if (bodyParsed.error) {
-                    reject(bodyParsed.error)
-                    return;
-                }
-
-                resolve(bodyParsed.data);
-            }).catch(reject)
+            })
     })
 }
 

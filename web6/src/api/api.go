@@ -14,23 +14,25 @@ type Void struct{}
 var ErrParsingRequest = Error("FailedParsingRequest")
 
 func writeResp(w http.ResponseWriter, resp interface{}, err error) {
-	httpResp := struct {
-		Data  interface{} `json:"data"`
-		Error string      `json:"error,omitempty"`
-	}{}
+	e := json.NewEncoder(w)
 
 	if err != nil {
+		errResp := struct {
+			Error string `json:"error"`
+		}{}
+
 		var publicErr Error
 		if ok := errors.As(err, &publicErr); ok {
-			httpResp.Error = string(publicErr)
+			errResp.Error = string(publicErr)
 		} else {
-			httpResp.Error = "Internal server error"
+			errResp.Error = "Internal server error"
 		}
-	} else {
-		httpResp.Data = resp
-	}
 
-	_ = json.NewEncoder(w).Encode(httpResp)
+		w.WriteHeader(400)
+		_ = e.Encode(errResp)
+	} else {
+		_ = e.Encode(resp)
+	}
 }
 
 type Viewer struct {
