@@ -20,20 +20,20 @@ type AuthResp struct {
 
 func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	if r.Email == "" {
-		return nil, Error("empty email")
+		return nil, Error("EmptyEmail")
 	}
 	if len(r.Email) > 100 {
-		return nil, Error("email is too long")
+		return nil, Error("EmailTooLong")
 	}
 	if r.Password == "" {
-		return nil, Error("empty password")
+		return nil, Error("EmptyPassword")
 	}
 
 	userID, err := store.GetEdgeByUniqueKey(store.FakeObjEmailAuth, store.EdgeTypeEmailAuth, r.Email)
 	if err != nil {
 		return nil, err
 	} else if userID != 0 {
-		return nil, Error("email already registered")
+		return nil, Error("EmailAlreadyRegistered")
 	}
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
@@ -66,14 +66,14 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 
 func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	if r.Email == "" || r.Password == "" {
-		return nil, Error("invalid credentials")
+		return nil, Error("InvalidCredentials")
 	}
 
 	userID, err := store.GetEdgeByUniqueKey(store.FakeObjEmailAuth, store.EdgeTypeEmailAuth, r.Email)
 	if err != nil {
 		return nil, err
 	} else if userID == 0 {
-		return nil, Error("invalid credentials")
+		return nil, Error("InvalidCredentials")
 	}
 
 	user, err := store.GetUser(userID)
@@ -83,7 +83,7 @@ func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(r.Password))
 	if err != nil {
-		return nil, Error("invalid credentials")
+		return nil, Error("InvalidCredentials")
 	}
 
 	token := pkg.AuthToken{UserID: userID}

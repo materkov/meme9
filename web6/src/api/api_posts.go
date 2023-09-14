@@ -33,13 +33,13 @@ func transformPost(post *store.Post, user *store.User) *Post {
 
 func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
 	if r.Text == "" {
-		return nil, Error("text is empty")
+		return nil, Error("TextEmpty")
 	}
 	if len(r.Text) > 5000 {
-		return nil, Error("text is too long")
+		return nil, Error("TextTooLong")
 	}
 	if viewer.UserID == 0 {
-		return nil, Error("not authorized")
+		return nil, Error("NotAuthorized")
 	}
 
 	post := store.Post{
@@ -97,7 +97,7 @@ func (h *API) PostsListByID(_ *Viewer, r *PostsListByIdReq) (*Post, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error getting post: %w", err)
 	} else if post == nil {
-		return nil, Error("post not found")
+		return nil, Error("PostNotFound")
 	}
 
 	user, _ := store.GetUser(post.UserID)
@@ -112,7 +112,7 @@ type PostsListByUserReq struct {
 func (h *API) PostsListByUser(_ *Viewer, r *PostsListByUserReq) ([]*Post, error) {
 	userID, _ := strconv.Atoi(r.UserID)
 	if userID <= 0 {
-		return nil, Error("incorrect user id")
+		return nil, Error("IncorrectUserId")
 	}
 
 	postIds, err := store.GetEdges(userID, store.EdgeTypePosted)
@@ -144,16 +144,16 @@ func (h *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (interface{}, error
 
 	post, err := store.GetPost(postID)
 	if errors.Is(err, store.ErrObjectNotFound) {
-		return nil, Error("post not found")
+		return nil, Error("PostNotFound")
 	} else if err != nil {
 		return nil, err
 	}
 
 	if viewer.UserID == 0 {
-		return nil, Error("not authorized")
+		return nil, Error("NotAuthorized")
 	}
 	if post.UserID != viewer.UserID {
-		return nil, Error("no access to this post")
+		return nil, Error("AccessDenied")
 	}
 
 	err = store.DelEdge(store.FakeObjPostedPost, store.EdgeTypePostedPost, post.ID)

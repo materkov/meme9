@@ -17,19 +17,22 @@ function api<T>(method: string, args: any): Promise<T> {
             body: JSON.stringify(args),
             headers: headers,
         })
-            .then(r => {
-                r.text().then(body => {
-                    if (r.status !== 200) {
-                        reject(body)
-                    } else {
-                        try {
-                            const bodyParsed = JSON.parse(body);
-                            resolve(bodyParsed);
-                        } catch (e) {
-                            reject('failed to parse json body');
-                        }
-                    }
-                }).catch(reject)
+            .then(r => r.text())
+            .then(body => {
+                let bodyParsed = undefined;
+                try {
+                    bodyParsed = JSON.parse(body);
+                } catch (e) {
+                    reject('failed to parse json body');
+                    return;
+                }
+
+                if (bodyParsed.error) {
+                    reject(bodyParsed.error)
+                    return;
+                }
+
+                resolve(bodyParsed.data);
             }).catch(reject)
     })
 }

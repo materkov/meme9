@@ -77,7 +77,7 @@ def test_auth():
         "email": "test@email.com",
         "password": "123456",
     })
-    if err == 'email already registered':
+    if err == 'EmailAlreadyRegistered':
         pass
     else:
         assert err == None

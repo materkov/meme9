@@ -47,7 +47,7 @@ export function Auth() {
             })
             .catch((err) => {
                 // TODO think about error codes
-                if (err === "invalid credentials") {
+                if (err === "InvalidCredentials") {
                     setError('Invalid email or password')
                 } else {
                     setError('Something wrong, please try again later')
@@ -64,8 +64,7 @@ export function Auth() {
                 nav.go("/");
             })
             .catch((err) => {
-                // TODO think about error codes
-                if (err === "email already registered") {
+                if (err === "EmailAlreadyRegistered") {
                     setError('This email already registered')
                 } else {
                     setError('Something wrong, please try again later')
