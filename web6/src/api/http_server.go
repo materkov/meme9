@@ -19,12 +19,13 @@ type renderOpts struct {
 	OGDescription string
 	OGUrl         string
 	OGImage       string
+	HTTPStatus    int
 
 	Content  string
 	Prefetch map[string]interface{}
 }
 
-func wrapPage(viewer *Viewer, opts renderOpts) string {
+func wrapPage(w http.ResponseWriter, viewer *Viewer, opts renderOpts) {
 	openGraph := ""
 	if opts.Title != "" {
 		openGraph += fmt.Sprintf(`<meta property="og:title" content="%s" />`, html.EscapeString(opts.Title))
@@ -53,6 +54,10 @@ func wrapPage(viewer *Viewer, opts renderOpts) string {
 		if user != nil {
 			opts.Prefetch["viewerName"] = user.Name
 		}
+	}
+
+	if opts.HTTPStatus != 0 {
+		w.WriteHeader(opts.HTTPStatus)
 	}
 
 	var prefetchBytes []byte
@@ -92,7 +97,7 @@ func wrapPage(viewer *Viewer, opts renderOpts) string {
 </body>
 </html>`
 
-	return fmt.Sprintf(page,
+	_, _ = fmt.Fprintf(w, page,
 		buildCrc,
 		title,
 		openGraph,
@@ -118,12 +123,13 @@ func (h *HttpServer) Serve() {
 
 	http.HandleFunc("/api/auth.login", wrapAPI(h.authLogin))
 	http.HandleFunc("/api/auth.register", wrapAPI(h.authRegister))
+	http.HandleFunc("/api/auth.vk", wrapAPI(h.authVK))
 
 	// Web
 	http.HandleFunc("/posts/", wrapWeb(h.postPage))
 	http.HandleFunc("/users/", wrapWeb(h.userPage))
 	http.HandleFunc("/", wrapWeb(h.discoverPage))
-	http.HandleFunc("/vk-callback", h.vkCallback) // TODO rewrite to api
+	http.HandleFunc("/vk-callback", wrapWeb(h.vkCallback))
 	http.HandleFunc("/auth", wrapWeb(h.authPage))
 
 	// Static (for dev only)
@@ -171,6 +177,7 @@ func wrapWeb(handler webHandler) http.HandlerFunc {
 			if authToken != nil {
 				viewer.UserID = authToken.UserID
 				viewer.AuthToken = authCookie.Value
+				viewer.IsCookieAuth = true
 			}
 		}
 

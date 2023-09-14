@@ -93,3 +93,62 @@ func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		UserName: user.Name,
 	}, nil
 }
+
+type AuthVkReq struct {
+	Code        string `json:"code"`
+	RedirectURL string `json:"redirectUrl"`
+}
+
+func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
+	if r.Code == "" {
+		return nil, Error("InvalidCode")
+	}
+
+	vkUserID, accessToken, err := pkg.ExchangeCode(r.Code, r.RedirectURL)
+	if err != nil {
+		return nil, Error("InvalidCode")
+	}
+
+	userName, err := pkg.RefreshFromVk(accessToken, vkUserID)
+	if err != nil {
+		return nil, err
+	}
+
+	userID, err := store.GetEdgeByUniqueKey(store.FakeObjVkAuth, store.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
+	if err != nil {
+		return nil, err
+	}
+
+	if userID == 0 {
+		userID, err = store.AddObject(store.ObjTypeUser, &User{
+			Name: "VK Auth user",
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		err = store.AddEdge(store.FakeObjVkAuth, userID, store.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		user, err := store.GetUser(userID)
+		if err != nil {
+			return nil, err
+		}
+
+		user.Name = userName
+
+		// Already authorized
+		err = store.UpdateObject(user, user.ID)
+		pkg.LogErr(err)
+	}
+
+	token := pkg.AuthToken{UserID: userID}
+
+	return &AuthResp{
+		Token:    token.ToString(),
+		UserID:   strconv.Itoa(userID),
+		UserName: userName,
+	}, nil
+}

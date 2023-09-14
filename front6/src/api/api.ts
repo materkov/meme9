@@ -114,3 +114,12 @@ export function authLogin(req: AuthEmailReq): Promise<AuthResp> {
 export function authRegister(req: AuthEmailReq): Promise<AuthResp> {
     return api("auth.register", req);
 }
+
+export class AuthVk {
+    code: string = ""
+    redirectUrl: string = ""
+}
+
+export function authVK(req: AuthVk): Promise<AuthResp> {
+    return api("auth.vk", req);
+}

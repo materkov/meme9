@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useEffect} from "react";
 import * as styles from "./Auth.module.css";
-import {authLogin, authRegister} from "../../api/api";
+import {authLogin, authRegister, authVK} from "../../api/api";
 import {useGlobals} from "../../store/globals";
 import {useNavigation} from "../../store/navigation";
 import {Link} from "../Link/Link";
@@ -12,6 +12,7 @@ export function Auth() {
 
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const [isVK, setIsVK] = React.useState(false);
 
     const [error, setError] = React.useState('');
     const isReg = location.search === "?registration";
@@ -22,6 +23,25 @@ export function Auth() {
         nav.go("/");
         return null;
     }
+
+    useEffect(() => {
+        if (location.search.startsWith("?code")) {
+            authVK({
+                code: new URLSearchParams(location.search).get('code') || "",
+                redirectUrl: location.origin + location.pathname,
+            }).then(resp => {
+                globals.setAuth(resp);
+
+                setCookie(cookieAuthToken, resp.token);
+                nav.go("/");
+            }).catch(() => {
+                setIsVK(false);
+                setError('Failed authorizing via VK');
+            });
+
+            setIsVK(true);
+        }
+    }, []);
 
     const vkAuthURL = "https://oauth.vk.com/authorize?client_id=7260220&response_type=code&v=5.131&redirect_uri=" + encodeURIComponent(location.origin + "/vk-callback");
 
@@ -73,6 +93,10 @@ export function Auth() {
             })
     }
 
+    if (isVK) {
+        return <div>Authorizing via VK...</div>;
+    }
+
     return <div>
         {isReg ?
             <h1>Registration</h1> :
@@ -93,6 +117,10 @@ export function Auth() {
             <button type="button" onClick={onAuth}>Login</button>
         </div>
 
+        {error &&
+            <div className={styles.error}>{error}</div>
+        }
+
         {!isReg &&
             <div className={styles.formRow}>
                 <a href={vkAuthURL}>Login via VK</a>
@@ -103,9 +131,5 @@ export function Auth() {
             {!isReg && <Link href="/auth?registration">Register new account</Link>}
             {isReg && <Link href="/auth">Login to existing account</Link>}
         </div>
-
-        {error &&
-            <div className={styles.error}>{error}</div>
-        }
     </div>
 }

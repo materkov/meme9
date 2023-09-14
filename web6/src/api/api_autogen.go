@@ -92,3 +92,14 @@ func (h *HttpServer) authRegister(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.Api.authRegister(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }
+
+func (h *HttpServer) authVK(w http.ResponseWriter, r *http.Request) {
+	req := &AuthVkReq{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		writeResp(w, nil, ErrParsingRequest)
+		return
+	}
+	resp, err := h.Api.authVk(r.Context().Value(ctxViewer).(*Viewer), req)
+	writeResp(w, resp, err)
+}

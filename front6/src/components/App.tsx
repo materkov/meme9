@@ -23,6 +23,8 @@ export function App() {
         page = <Profile/>
     } else if (navState.url.startsWith("/auth")) {
         page = <Auth/>
+    } else if (navState.url.startsWith("/vk-callback")) {
+        page = <Auth/>
     } else {
         page = <div>404 page</div>;
     }

@@ -34,8 +34,9 @@ func writeResp(w http.ResponseWriter, resp interface{}, err error) {
 }
 
 type Viewer struct {
-	UserID    int
-	AuthToken string
+	UserID       int
+	AuthToken    string
+	IsCookieAuth bool
 }
 
 type Error string
