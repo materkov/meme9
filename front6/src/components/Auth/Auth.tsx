@@ -4,6 +4,7 @@ import {authLogin, authRegister} from "../../api/api";
 import {useGlobals} from "../../store/globals";
 import {useNavigation} from "../../store/navigation";
 import {Link} from "../Link/Link";
+import {cookieAuthToken, delCookie, setCookie} from "../../utils/cookie";
 
 export function Auth() {
     const globals = useGlobals();
@@ -16,7 +17,7 @@ export function Auth() {
     const isReg = location.search === "?registration";
 
     if (location.search === "?logout") {
-        document.cookie = "authToken=; Path=/; Expires=" + new Date(0).toGMTString();
+        delCookie(cookieAuthToken);
         globals.setAuth({token: "", userId: "", userName: ""});
         nav.go("/");
         return null;
@@ -42,7 +43,7 @@ export function Auth() {
             .then(resp => {
                 globals.setAuth(resp);
 
-                document.cookie = "authToken=" + resp.token + "; Path=/";
+                setCookie(cookieAuthToken, resp.token);
                 nav.go("/");
             })
             .catch((err) => {
@@ -60,7 +61,7 @@ export function Auth() {
             .then(resp => {
                 globals.setAuth(resp);
 
-                document.cookie = "authToken=" + resp.token + "; Path=/";
+                setCookie(cookieAuthToken, resp.token);
                 nav.go("/");
             })
             .catch((err) => {

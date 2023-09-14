@@ -106,10 +106,9 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request) {
 	token := pkg.AuthToken{UserID: userID}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "authToken",
-		Value:    token.ToString(),
-		Path:     "/",
-		HttpOnly: true,
+		Name:  "authToken",
+		Value: token.ToString(),
+		Path:  "/",
 	})
 	http.Redirect(w, r, "/", 302)
 }

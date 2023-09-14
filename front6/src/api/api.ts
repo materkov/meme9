@@ -1,11 +1,9 @@
-function api<T>(method: string, args: any): Promise<T> {
-    // TODO fix cookie parsing
-    let token = '';
-    if (document.cookie.startsWith("authToken=")) {
-        token = document.cookie.substring("authToken=".length);
-    }
+import {cookieAuthToken, getCookie} from "../utils/cookie";
 
+function api<T>(method: string, args: any): Promise<T> {
     let headers: Record<string, string> = {};
+
+    let token = getCookie(cookieAuthToken);
     if (token) {
         headers['authorization'] = 'Bearer ' + token;
     }
@@ -13,6 +11,7 @@ function api<T>(method: string, args: any): Promise<T> {
     return new Promise((resolve, reject) => {
         // TODO think about this func
         fetch('/api/' + method, {
+            credentials: 'omit',
             method: 'POST',
             body: JSON.stringify(args),
             headers: headers,
