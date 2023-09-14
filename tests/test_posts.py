@@ -25,10 +25,12 @@ def api(method, params=dict({})):
     print('-->', resp.status, resp_body.decode('utf-8'))
     print('')
 
+    resp_body = json.loads(resp_body)
+
     if resp.status == 200:
-        return json.loads(resp_body), None
+        return resp_body, None
     else:
-        return None, resp_body.decode("utf-8")
+        return None, resp_body['error']
 
 
 def test_posting():
