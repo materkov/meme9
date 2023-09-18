@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
 	"golang.org/x/crypto/bcrypt"
@@ -56,6 +57,10 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, err
 	}
 
+	go func() {
+		_ = pkg.SendTelegramNotify(fmt.Sprintf("Registration: https://meme.mmaks.me/users/%d", userID))
+	}()
+
 	token := pkg.AuthToken{UserID: userID}
 	return &AuthResp{
 		Token:    token.ToString(),
@@ -85,6 +90,10 @@ func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	if err != nil {
 		return nil, Error("InvalidCredentials")
 	}
+
+	go func() {
+		_ = pkg.SendTelegramNotify(fmt.Sprintf("Login: https://meme.mmaks.me/users/%d", userID))
+	}()
 
 	token := pkg.AuthToken{UserID: userID}
 	return &AuthResp{
@@ -145,6 +154,10 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 	}
 
 	token := pkg.AuthToken{UserID: userID}
+
+	go func() {
+		_ = pkg.SendTelegramNotify(fmt.Sprintf("VK Auth: https://meme.mmaks.me/users/%d", userID))
+	}()
 
 	return &AuthResp{
 		Token:    token.ToString(),
