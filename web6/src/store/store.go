@@ -34,7 +34,7 @@ var ErrObjectNotFound = fmt.Errorf("object not found")
 func getObject(id int, objType int, obj interface{}) error {
 	var data []byte
 	err := SqlClient.QueryRow("select data from objects where id = ? and obj_type = ?", id, objType).Scan(&data)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return ErrObjectNotFound
 	} else if err != nil {
 		return fmt.Errorf("error selecting database: %w", err)
@@ -49,8 +49,12 @@ func getObject(id int, objType int, obj interface{}) error {
 }
 
 func UpdateObject(object interface{}, id int) error {
-	data, _ := json.Marshal(object)
-	_, err := SqlClient.Exec("update objects set data = ? where id = ?", data, id)
+	data, err := json.Marshal(object)
+	if err != nil {
+		return fmt.Errorf("error marshaling to json: %w", err)
+	}
+
+	_, err = SqlClient.Exec("update objects set data = ? where id = ?", data, id)
 	if err != nil {
 		return fmt.Errorf("error updating row: %w", err)
 	}
@@ -59,13 +63,20 @@ func UpdateObject(object interface{}, id int) error {
 }
 
 func AddObject(objType int, object interface{}) (int, error) {
-	data, _ := json.Marshal(object)
+	data, err := json.Marshal(object)
+	if err != nil {
+		return 0, fmt.Errorf("error marshaling to json: %w", err)
+	}
+
 	res, err := SqlClient.Exec("insert into objects(obj_type, data) values (?, ?)", objType, data)
 	if err != nil {
 		return 0, fmt.Errorf("error inserting row: %w", err)
 	}
 
-	objId, _ := res.LastInsertId()
+	objId, err := res.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("error getting last id from mysql: %w", err)
+	}
 
 	return int(objId), nil
 }

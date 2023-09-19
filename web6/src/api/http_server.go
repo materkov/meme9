@@ -184,3 +184,11 @@ func wrapWeb(handler webHandler) http.HandlerFunc {
 		handler(w, r, viewer)
 	}
 }
+
+func logAPIPrefetchError(err error) {
+	if err == nil {
+		return
+	}
+
+	log.Printf("API Prefetch error: %s", err)
+}

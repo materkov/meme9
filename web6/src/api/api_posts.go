@@ -54,10 +54,20 @@ func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
 	}
 	post.ID = postID
 
-	_ = store.AddEdge(store.FakeObjPostedPost, postID, store.EdgeTypePostedPost, "")
-	_ = store.AddEdge(post.UserID, postID, store.EdgeTypePosted, "")
+	err = store.AddEdge(store.FakeObjPostedPost, postID, store.EdgeTypePostedPost, "")
+	if err != nil {
+		return nil, err
+	}
 
-	user, _ := store.GetUser(post.UserID)
+	err = store.AddEdge(post.UserID, postID, store.EdgeTypePosted, "")
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := store.GetUser(post.UserID)
+	if err != nil {
+		return nil, err
+	}
 
 	return transformPost(&post, user), nil
 }

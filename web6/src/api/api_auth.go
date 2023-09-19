@@ -57,9 +57,7 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, err
 	}
 
-	go func() {
-		_ = pkg.SendTelegramNotify(fmt.Sprintf("Registration: https://meme.mmaks.me/users/%d", userID))
-	}()
+	pkg.SendTelegramNotifyAsync(fmt.Sprintf("Registration: https://meme.mmaks.me/users/%d", userID))
 
 	token, err := pkg.GenerateAuthToken(userID)
 	if err != nil {
@@ -95,9 +93,7 @@ func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, Error("InvalidCredentials")
 	}
 
-	go func() {
-		_ = pkg.SendTelegramNotify(fmt.Sprintf("Login: https://meme.mmaks.me/users/%d", userID))
-	}()
+	pkg.SendTelegramNotifyAsync(fmt.Sprintf("Login: https://meme.mmaks.me/users/%d", userID))
 
 	token, err := pkg.GenerateAuthToken(userID)
 	if err != nil {
@@ -161,9 +157,7 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 		pkg.LogErr(err)
 	}
 
-	go func() {
-		_ = pkg.SendTelegramNotify(fmt.Sprintf("VK Auth: https://meme.mmaks.me/users/%d", userID))
-	}()
+	pkg.SendTelegramNotifyAsync(fmt.Sprintf("VK Auth: https://meme.mmaks.me/users/%d", userID))
 
 	token, err := pkg.GenerateAuthToken(userID)
 	if err != nil {

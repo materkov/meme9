@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/materkov/meme9/web6/src/store"
+	"log"
 	"net/http"
 )
 
@@ -29,4 +30,13 @@ func SendTelegramNotify(text string) error {
 	}
 
 	return nil
+}
+
+func SendTelegramNotifyAsync(text string) {
+	go func() {
+		err := SendTelegramNotify(text)
+		if err != nil {
+			log.Printf("Error sending telegram alert: %s", err)
+		}
+	}()
 }

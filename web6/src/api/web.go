@@ -16,8 +16,11 @@ func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 	path := r.URL.Path
 	path = strings.TrimPrefix(path, "/users/")
 
-	resp1, _ := h.Api.PostsListByUser(viewer, &PostsListByUserReq{UserID: path})
-	resp2, _ := h.Api.usersList(viewer, &UsersListReq{UserIds: []string{path}})
+	resp1, err := h.Api.PostsListByUser(viewer, &PostsListByUserReq{UserID: path})
+	logAPIPrefetchError(err)
+
+	resp2, err := h.Api.usersList(viewer, &UsersListReq{UserIds: []string{path}})
+	logAPIPrefetchError(err)
 
 	// TODO think about this
 	if resp2[0].Name == "" {
@@ -39,7 +42,8 @@ func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 }
 
 func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
-	resp, _ := h.Api.PostsList(viewer, &PostsListReq{})
+	resp, err := h.Api.PostsList(viewer, &PostsListReq{})
+	logAPIPrefetchError(err)
 
 	wrapPage(w, viewer, renderOpts{
 		Prefetch: map[string]interface{}{
@@ -55,6 +59,7 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request, viewer *
 func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
 	postID, _ := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/posts/"))
 
+	// TODO think about this
 	post, err := store.GetPost(postID)
 	if err != nil {
 		wrapPage(w, viewer, renderOpts{
