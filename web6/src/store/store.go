@@ -11,17 +11,20 @@ const (
 	FakeObjPostedPost = -1
 	FakeObjVkAuth     = -2
 	FakeObjEmailAuth  = -3
+	FakeObjToken      = -4
 
 	ObjTypeArticle = 1 // not used
 	ObjTypeConfig  = 2
 	ObjTypeUser    = 3
 	ObjTypePost    = 4
+	ObjTypeToken   = 5
 
 	EdgeTypePosted     = 1
 	EdgeTypeLastPosted = 2 // not used
 	EdgeTypePostedPost = 3
-	EdgeTypeVkAuth     = 4
-	EdgeTypeEmailAuth  = 5
+	EdgeTypeVkAuth     = 4 // not used
+	EdgeTypeEmailAuth  = 5 // not used
+	EdgeTypeToken      = 6 // not used
 )
 
 var SqlClient *sql.DB

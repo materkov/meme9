@@ -29,3 +29,22 @@ func GetConfig() (*Config, error) {
 	//obj.ID = id
 	return obj, err
 }
+
+func GetToken(id int) (*Token, error) {
+	obj := &Token{}
+	err := getObject(id, ObjTypeToken, obj)
+	if err != nil {
+		return nil, err
+	}
+	obj.ID = id
+	return obj, err
+}
+
+func AddToken(obj *Token) error {
+	id, err := AddObject(ObjTypeToken, obj)
+	if err != nil {
+		return err
+	}
+	obj.ID = id
+	return nil
+}

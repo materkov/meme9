@@ -30,7 +30,7 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, Error("EmptyPassword")
 	}
 
-	userID, err := store.GetEdgeByUniqueKey(store.FakeObjEmailAuth, store.EdgeTypeEmailAuth, r.Email)
+	userID, err := store.GetEdgeByUniqueKey(store.FakeObjEmailAuth, 0, r.Email)
 	if err != nil {
 		return nil, err
 	} else if userID != 0 {
@@ -52,7 +52,7 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	}
 	user.ID = userID
 
-	err = store.AddEdge(store.FakeObjEmailAuth, userID, store.EdgeTypeEmailAuth, r.Email)
+	err = store.AddEdge(store.FakeObjEmailAuth, userID, 0, r.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -61,9 +61,13 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		_ = pkg.SendTelegramNotify(fmt.Sprintf("Registration: https://meme.mmaks.me/users/%d", userID))
 	}()
 
-	token := pkg.AuthToken{UserID: userID}
+	token, err := pkg.GenerateAuthToken(userID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &AuthResp{
-		Token:    token.ToString(),
+		Token:    token,
 		UserID:   strconv.Itoa(userID),
 		UserName: user.Name,
 	}, nil
@@ -74,7 +78,7 @@ func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, Error("InvalidCredentials")
 	}
 
-	userID, err := store.GetEdgeByUniqueKey(store.FakeObjEmailAuth, store.EdgeTypeEmailAuth, r.Email)
+	userID, err := store.GetEdgeByUniqueKey(store.FakeObjEmailAuth, 0, r.Email)
 	if err != nil {
 		return nil, err
 	} else if userID == 0 {
@@ -95,9 +99,13 @@ func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		_ = pkg.SendTelegramNotify(fmt.Sprintf("Login: https://meme.mmaks.me/users/%d", userID))
 	}()
 
-	token := pkg.AuthToken{UserID: userID}
+	token, err := pkg.GenerateAuthToken(userID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &AuthResp{
-		Token:    token.ToString(),
+		Token:    token,
 		UserID:   strconv.Itoa(userID),
 		UserName: user.Name,
 	}, nil
@@ -123,7 +131,7 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 		return nil, err
 	}
 
-	userID, err := store.GetEdgeByUniqueKey(store.FakeObjVkAuth, store.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
+	userID, err := store.GetEdgeByUniqueKey(store.FakeObjVkAuth, 0, strconv.Itoa(vkUserID))
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +144,7 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 			return nil, err
 		}
 
-		err = store.AddEdge(store.FakeObjVkAuth, userID, store.EdgeTypeVkAuth, strconv.Itoa(vkUserID))
+		err = store.AddEdge(store.FakeObjVkAuth, userID, 0, strconv.Itoa(vkUserID))
 		if err != nil {
 			return nil, err
 		}
@@ -153,14 +161,17 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 		pkg.LogErr(err)
 	}
 
-	token := pkg.AuthToken{UserID: userID}
-
 	go func() {
 		_ = pkg.SendTelegramNotify(fmt.Sprintf("VK Auth: https://meme.mmaks.me/users/%d", userID))
 	}()
 
+	token, err := pkg.GenerateAuthToken(userID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &AuthResp{
-		Token:    token.ToString(),
+		Token:    token,
 		UserID:   strconv.Itoa(userID),
 		UserName: userName,
 	}, nil
