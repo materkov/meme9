@@ -4,13 +4,13 @@ import {tryGetPrefetch} from "../utils/prefetch";
 
 export interface PostPage {
     posts: { [id: string]: Post | undefined }
-    error: any
+    errors: { [id: string]: any }
     fetch: (id: string) => void
 }
 
 export const usePostPage = create<PostPage>()((set, get) => ({
     posts: {},
-    error: null,
+    errors: {},
     fetch: (id: string) => {
         if (get().posts[id]) {
             return;
@@ -31,7 +31,7 @@ export const usePostPage = create<PostPage>()((set, get) => ({
                 set({posts: {...get().posts, [id]: data}})
             })
             .catch(e => set({
-                error: e
+                errors: {...get().errors, [id]: e}
             }))
     },
 }))

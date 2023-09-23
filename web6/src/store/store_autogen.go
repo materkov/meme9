@@ -22,6 +22,7 @@ func GetUser(id int) (*User, error) {
 
 func GetConfig() (*Config, error) {
 	obj := &Config{}
+	// TODO think about 5
 	err := getObject(5, ObjTypeConfig, obj)
 	if err != nil {
 		return nil, err

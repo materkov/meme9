@@ -3,17 +3,17 @@ import {Post, postsListPostedByUser, User, usersList} from "../api/api";
 import {tryGetPrefetch} from "../utils/prefetch";
 
 export interface Profile {
-    user: User;
-    posts: Post[];
+    users: { [id: string]: User };
+    posts: { [id: string]: Post[] };
     fetched: { [id: string]: boolean };
     fetch: (userId: string) => void;
     setStatus: (userId: string, status: string) => void;
 }
 
 export const useProfile = create<Profile>()((set, get) => ({
-    user: new User(),
+    users: {},
     fetched: {},
-    posts: [],
+    posts: {},
     fetch: (userId: string) => {
         if (get().fetched[userId]) {
             return
@@ -27,22 +27,46 @@ export const useProfile = create<Profile>()((set, get) => ({
         const prefetch = tryGetPrefetch('__userPage');
         if (prefetch && prefetch.user_id === userId) {
             set({
-                posts: prefetch.posts,
-                user: prefetch.user,
+                posts: {
+                    [prefetch.user_id]: prefetch.posts,
+                },
+                users: {
+                    [prefetch.user_id]: prefetch.user,
+                },
             })
             return;
         }
 
         postsListPostedByUser({"userId": userId}).then(r => {
-            set({posts: r});
+            set({
+                posts: {
+                    ...get().posts,
+                    [userId]: r
+                }
+            });
         })
         usersList({"userIds": [userId]}).then(r => {
-            set({user: r[0]})
+            set({
+                users: {
+                    ...get().users,
+                    [userId]: r[0]
+                },
+            });
         })
     },
     setStatus: (userId, status) => {
-        if (get().user?.id === userId) {
-            set({user: {...get().user, status: status}});
+        if (!get().users[userId]) {
+            return;
         }
+
+        set({
+            users: {
+                ...get().users,
+                [userId]: {
+                    ...get().users[userId],
+                    status: status
+                },
+            }
+        });
     }
 }));

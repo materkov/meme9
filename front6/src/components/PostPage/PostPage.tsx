@@ -12,12 +12,15 @@ export function PostPage() {
     }, []);
 
     const post = postPage.posts[postId];
+    const error = postPage.errors[postId];
 
     return (
         <div>
             {post && <Post post={post}/>}
 
-            {!post && <div className={styles.error}>error</div>}
+            {!post && <div>Loading...</div>}
+
+            {error && <div className={styles.error}>error</div>}
         </div>
     )
 }

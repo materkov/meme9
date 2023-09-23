@@ -21,15 +21,17 @@ export function Profile() {
             .then(() => profileState.setStatus(globals.viewerId, status));
     };
 
-    if (!profileState.user.id) {
+    if (!profileState.users[userId]) {
         return <div>Loading....</div>
     }
 
-    return <div>
-        <h1 className={styles.userName}>{profileState.user.name}</h1>
-        <div className={styles.status}>{profileState.user.status}</div>
+    const user = profileState.users[userId];
 
-        {globals.viewerId === profileState.user.id && <>
+    return <div>
+        <h1 className={styles.userName}>{user.name}</h1>
+        <div className={styles.status}>{user.status}</div>
+
+        {globals.viewerId === user.id && <>
         <textarea placeholder="Your text status..." className={styles.statusInput} value={status}
                   onChange={e => setStatus(e.target.value)}></textarea>
             <button onClick={updateStatus}>Update</button>
@@ -38,7 +40,7 @@ export function Profile() {
 
         <hr/>
 
-        {profileState.posts.map(post => (
+        {(profileState.posts[userId] || []).map(post => (
             <Post post={post} key={post.id}/>
         ))}
     </div>
