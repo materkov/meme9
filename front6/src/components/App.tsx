@@ -15,6 +15,7 @@ export function App() {
 
     const navState = useNavigation(state => state);
 
+    // Kinda router
     if (navState.url === "/") {
         page = <Discover/>
     } else if (navState.url.startsWith("/posts/")) {
@@ -36,9 +37,6 @@ export function App() {
         }
     }, []);
 
-    const redirectURL = location.origin + "/vk-callback";
-    const vkAuthURL = "https://oauth.vk.com/authorize?client_id=7260220&response_type=code&v=5.131&redirect_uri=" + encodeURIComponent(redirectURL);
-
     return <div className={styles.app}>
         <div className={styles.header}>
             <Link href={"/"} className={styles.headerLink}>
@@ -48,7 +46,9 @@ export function App() {
             <div className={styles.authInfo}>
                 {!globals.viewerId && <Link href="/auth">Authorize</Link>}
                 {globals.viewerId && <span>
-                    {globals.viewerName} | <Link href="/auth?logout">Logout</Link>
+                    <Link href={"/users/" + globals.viewerId}>{globals.viewerName}</Link>
+                    &nbsp;|&nbsp;
+                    <Link href="/auth?logout">Logout</Link>
                 </span>}
             </div>
         </div>

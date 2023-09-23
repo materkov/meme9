@@ -71,6 +71,17 @@ func (h *HttpServer) usersList(w http.ResponseWriter, r *http.Request) {
 	writeResp(w, resp, err)
 }
 
+func (h *HttpServer) usersSetStatus(w http.ResponseWriter, r *http.Request) {
+	req := &UsersSetStatus{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		writeResp(w, nil, ErrParsingRequest)
+		return
+	}
+	resp, err := h.Api.usersSetStatus(r.Context().Value(ctxViewer).(*Viewer), req)
+	writeResp(w, resp, err)
+}
+
 func (h *HttpServer) authLogin(w http.ResponseWriter, r *http.Request) {
 	req := &AuthEmailReq{}
 	err := json.NewDecoder(r.Body).Decode(req)

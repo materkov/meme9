@@ -47,7 +47,7 @@ func wrapPage(w http.ResponseWriter, viewer *Viewer, opts renderOpts) {
 	}
 
 	if viewer.UserID != 0 {
-		opts.Prefetch["viewerId"] = viewer.UserID
+		opts.Prefetch["viewerId"] = strconv.Itoa(viewer.UserID)
 		opts.Prefetch["viewerName"] = ""
 
 		user, _ := store.GetUser(viewer.UserID)
@@ -114,6 +114,7 @@ type HttpServer struct {
 func (h *HttpServer) Serve() {
 	// API
 	http.HandleFunc("/api/users.list", wrapAPI(h.usersList))
+	http.HandleFunc("/api/users.setStatus", wrapAPI(h.usersSetStatus))
 
 	http.HandleFunc("/api/posts.add", wrapAPI(h.PostsAdd))
 	http.HandleFunc("/api/posts.list", wrapAPI(h.PostsList))
@@ -134,6 +135,8 @@ func (h *HttpServer) Serve() {
 
 	// Static (for dev only)
 	http.Handle("/dist/", http.FileServer(http.Dir("../front6/dist/..")))
+
+	log.Printf("Starting http server: http://localhost:8000")
 
 	_ = http.ListenAndServe("127.0.0.1:8000", nil)
 }

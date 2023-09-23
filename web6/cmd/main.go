@@ -19,7 +19,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error reading config: %s", err)
 	}
-	log.Printf("Starting http server")
 
 	s := &api.HttpServer{
 		Api: &api.API{},

@@ -7,8 +7,9 @@ import (
 )
 
 type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID     string `json:"id"`
+	Name   string `json:"name,omitempty"`
+	Status string `json:"status,omitempty"`
 }
 
 func transformUser(userID int, user *store.User) *User {
@@ -20,6 +21,7 @@ func transformUser(userID int, user *store.User) *User {
 	}
 
 	result.Name = user.Name
+	result.Status = user.Status
 
 	return result
 }
@@ -41,4 +43,31 @@ func (*API) usersList(v *Viewer, r *UsersListReq) ([]*User, error) {
 	}
 
 	return result, nil
+}
+
+type UsersSetStatus struct {
+	Status string `json:"status"`
+}
+
+func (*API) usersSetStatus(v *Viewer, r *UsersSetStatus) (*Void, error) {
+	if v.UserID == 0 {
+		return nil, Error("NotAuthorized")
+	}
+	if len(r.Status) > 100 {
+		return nil, Error("StatusTooLong")
+	}
+
+	user, err := store.GetUser(v.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Status = r.Status
+
+	err = store.UpdateObject(user, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Void{}, nil
 }

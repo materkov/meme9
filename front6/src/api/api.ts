@@ -35,6 +35,7 @@ function api<T>(method: string, args: any): Promise<T> {
 export class User {
     id = ""
     name = ""
+    status = ""
 }
 
 export class Post {
@@ -118,4 +119,12 @@ export class AuthVk {
 
 export function authVK(req: AuthVk): Promise<AuthResp> {
     return api("auth.vk", req);
+}
+
+export class UsersSetStatus {
+    status: string = ""
+}
+
+export function usersSetStatus(req: UsersSetStatus): Promise<Void> {
+    return api("users.setStatus", req);
 }

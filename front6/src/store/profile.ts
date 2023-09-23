@@ -7,6 +7,7 @@ export interface Profile {
     posts: Post[];
     fetched: { [id: string]: boolean };
     fetch: (userId: string) => void;
+    setStatus: (userId: string, status: string) => void;
 }
 
 export const useProfile = create<Profile>()((set, get) => ({
@@ -39,4 +40,9 @@ export const useProfile = create<Profile>()((set, get) => ({
             set({user: r[0]})
         })
     },
+    setStatus: (userId, status) => {
+        if (get().user?.id === userId) {
+            set({user: {...get().user, status: status}});
+        }
+    }
 }));

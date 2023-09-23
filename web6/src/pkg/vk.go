@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/materkov/meme9/web6/src/store"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -29,6 +30,8 @@ func ExchangeCode(code string, redirectURI string) (int, string, error) {
 	if err != nil {
 		return 0, "", fmt.Errorf("error reading body: %s", err)
 	}
+
+	log.Printf("VK response: %s", bodyBytes)
 
 	body := struct {
 		AccessToken string `json:"access_token"`
