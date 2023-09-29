@@ -8,6 +8,7 @@ export interface Profile {
     fetched: { [id: string]: boolean };
     fetch: (userId: string) => void;
     setStatus: (userId: string, status: string) => void;
+    setIsFollowing: (userId: string, isFollowing: boolean) => void;
 }
 
 export const useProfile = create<Profile>()((set, get) => ({
@@ -65,6 +66,21 @@ export const useProfile = create<Profile>()((set, get) => ({
                 [userId]: {
                     ...get().users[userId],
                     status: status
+                },
+            }
+        });
+    },
+    setIsFollowing: (userId, isFollowing) => {
+        if (!get().users[userId]) {
+            return;
+        }
+
+        set({
+            users: {
+                ...get().users,
+                [userId]: {
+                    ...get().users[userId],
+                    isFollowing: isFollowing
                 },
             }
         });

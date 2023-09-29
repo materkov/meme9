@@ -21,13 +21,16 @@ type PostsAddReq struct {
 	Text string `json:"text"`
 }
 
-func transformPost(post *store.Post, user *store.User) *Post {
+func transformPost(post *store.Post, user *store.User, viewerID int) *Post {
+	userWrapped, err := transformUser(post.UserID, user, viewerID)
+	pkg.LogErr(err) // TODO think about it
+
 	return &Post{
 		ID:     strconv.Itoa(post.ID),
 		UserID: strconv.Itoa(post.UserID),
 		Date:   time.Unix(int64(post.Date), 0).Format(time.RFC3339),
 		Text:   post.Text,
-		User:   transformUser(post.UserID, user),
+		User:   userWrapped,
 	}
 }
 
@@ -69,16 +72,36 @@ func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
 		return nil, err
 	}
 
-	return transformPost(&post, user), nil
+	return transformPost(&post, user, viewer.UserID), nil
 }
+
+type FeedType string
+
+const (
+	Feed     FeedType = "FEED"
+	Discover FeedType = "DISCOVER"
+)
 
 type PostsListReq struct {
+	Type FeedType `json:"type"`
 }
 
-func (h *API) PostsList(_ *Viewer, r *PostsListReq) ([]*Post, error) {
-	postIds, err := store.GetEdges(store.FakeObjPostedPost, store.EdgeTypePostedPost)
+func (h *API) PostsList(v *Viewer, r *PostsListReq) ([]*Post, error) {
+	var err error
+	var postIds []int
+
+	if r.Type == "FEED" {
+		postIds, err = pkg.GetFeedPostIds(v.UserID)
+	} else if r.Type == "DISCOVER" || r.Type == "" {
+		var edges []store.Edge
+		edges, err = store.GetEdges(store.FakeObjPostedPost, store.EdgeTypePostedPost)
+		postIds = store.GetToId(edges)
+	} else {
+		err = Error("InvalidFeedType")
+	}
+
 	if err != nil {
-		return nil, fmt.Errorf("error getting posted edges: %w", err)
+		return nil, err
 	}
 
 	result := make([]*Post, 0)
@@ -90,7 +113,7 @@ func (h *API) PostsList(_ *Viewer, r *PostsListReq) ([]*Post, error) {
 
 		user, _ := store.GetUser(post.UserID)
 
-		result = append(result, transformPost(post, user))
+		result = append(result, transformPost(post, user, v.UserID))
 	}
 
 	return result, nil
@@ -100,7 +123,7 @@ type PostsListByIdReq struct {
 	ID string `json:"id"`
 }
 
-func (h *API) PostsListByID(_ *Viewer, r *PostsListByIdReq) (*Post, error) {
+func (h *API) PostsListByID(v *Viewer, r *PostsListByIdReq) (*Post, error) {
 	postID, _ := strconv.Atoi(r.ID)
 
 	post, err := store.GetPost(postID)
@@ -112,34 +135,34 @@ func (h *API) PostsListByID(_ *Viewer, r *PostsListByIdReq) (*Post, error) {
 
 	user, _ := store.GetUser(post.UserID)
 
-	return transformPost(post, user), nil
+	return transformPost(post, user, v.UserID), nil
 }
 
 type PostsListByUserReq struct {
 	UserID string `json:"userId"`
 }
 
-func (h *API) PostsListByUser(_ *Viewer, r *PostsListByUserReq) ([]*Post, error) {
+func (h *API) PostsListByUser(v *Viewer, r *PostsListByUserReq) ([]*Post, error) {
 	userID, _ := strconv.Atoi(r.UserID)
 	if userID <= 0 {
 		return nil, Error("IncorrectUserId")
 	}
 
-	postIds, err := store.GetEdges(userID, store.EdgeTypePosted)
+	edges, err := store.GetEdges(userID, store.EdgeTypePosted)
 	if err != nil {
 		return nil, fmt.Errorf("error getting posted edges: %w", err)
 	}
 
 	result := make([]*Post, 0)
-	for _, postID := range postIds {
-		post, err := store.GetPost(postID)
+	for _, edge := range edges {
+		post, err := store.GetPost(edge.ToID)
 		if err != nil {
 			continue
 		}
 
 		user, _ := store.GetUser(post.UserID)
 
-		result = append(result, transformPost(post, user))
+		result = append(result, transformPost(post, user, v.UserID))
 	}
 
 	return result, nil
@@ -166,10 +189,10 @@ func (h *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (interface{}, error
 		return nil, Error("AccessDenied")
 	}
 
-	err = store.DelEdge(store.FakeObjPostedPost, store.EdgeTypePostedPost, post.ID)
+	err = store.DelEdge(store.FakeObjPostedPost, post.ID, store.EdgeTypePostedPost)
 	pkg.LogErr(err)
 
-	err = store.DelEdge(post.UserID, store.EdgeTypePosted, post.ID)
+	err = store.DelEdge(post.UserID, post.ID, store.EdgeTypePosted)
 	pkg.LogErr(err)
 
 	return Void{}, nil

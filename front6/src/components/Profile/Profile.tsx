@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import {useProfile} from "../../store/profile";
 import {Post} from "../Post/Post";
 import * as styles from "./Profile.module.css";
-import {usersSetStatus} from "../../api/api";
+import {SubscribeAction, usersFollow, usersSetStatus} from "../../api/api";
 import {useGlobals} from "../../store/globals";
 
 export function Profile() {
@@ -21,6 +21,13 @@ export function Profile() {
             .then(() => profileState.setStatus(globals.viewerId, status));
     };
 
+    const follow = () => {
+        usersFollow({
+            targetId: userId,
+            action: user.isFollowing ? SubscribeAction.UNFOLLOW : SubscribeAction.FOLLOW,
+        }).then(() => profileState.setIsFollowing(userId, !user.isFollowing));
+    }
+
     if (!profileState.users[userId]) {
         return <div>Loading....</div>
     }
@@ -37,6 +44,14 @@ export function Profile() {
             <button onClick={updateStatus}>Update</button>
         </>
         }
+
+        {globals.viewerId && globals.viewerId !== user.id && <>
+            {user.isFollowing ?
+                <button onClick={follow}>Unfollow user</button> :
+                <button onClick={follow}>Follow user</button>
+            }
+
+        </>}
 
         <hr/>
 

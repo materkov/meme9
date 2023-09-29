@@ -115,6 +115,7 @@ func (h *HttpServer) Serve() {
 	// API
 	http.HandleFunc("/api/users.list", wrapAPI(h.usersList))
 	http.HandleFunc("/api/users.setStatus", wrapAPI(h.usersSetStatus))
+	http.HandleFunc("/api/users.follow", wrapAPI(h.usersFollow))
 
 	http.HandleFunc("/api/posts.add", wrapAPI(h.PostsAdd))
 	http.HandleFunc("/api/posts.list", wrapAPI(h.PostsList))

@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import {useDiscoverPage} from "../../store/discoverPage";
 import * as styles from "./Discover.module.css";
 import {useGlobals} from "../../store/globals";
-import {postsAdd} from "../../api/api";
+import {FeedType, postsAdd} from "../../api/api";
 import {Post} from "../Post/Post";
 
 export function Discover() {
@@ -40,6 +40,18 @@ export function Discover() {
                 <hr/>
             </div>
         }
+
+        {discoverState.type == FeedType.DISCOVER && <>This is discover. <a href="/" onClick={(e) => {
+            discoverState.setType(FeedType.FEED);
+            discoverState.refetch();
+            e.preventDefault();
+        }}>Switch to feed</a></>}
+
+        {discoverState.type == FeedType.FEED && <>This is feed. <a href="/" onClick={(e) => {
+            discoverState.setType(FeedType.DISCOVER);
+            discoverState.refetch();
+            e.preventDefault();
+        }}>Switch to discover</a></>}
 
         {discoverState.posts.map(post => <Post post={post} key={post.id}/>)}
     </div>

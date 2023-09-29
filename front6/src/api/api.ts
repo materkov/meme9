@@ -36,6 +36,7 @@ export class User {
     id = ""
     name = ""
     status = ""
+    isFollowing = false
 }
 
 export class Post {
@@ -57,8 +58,17 @@ export function postsAdd(req: PostsAddReq): Promise<void> {
     return api("posts.add", req)
 }
 
-export function postsList(): Promise<Post[]> {
-    return api("posts.list", {})
+export enum FeedType {
+    DISCOVER = "DISCOVER",
+    FEED = "FEED",
+}
+
+export class PostsListReq {
+    type: FeedType = FeedType.DISCOVER
+}
+
+export function postsList(req: PostsListReq): Promise<Post[]> {
+    return api("posts.list", req)
 }
 
 export class PostsListPostedByUserReq {
@@ -127,4 +137,19 @@ export class UsersSetStatus {
 
 export function usersSetStatus(req: UsersSetStatus): Promise<Void> {
     return api("users.setStatus", req);
+}
+
+export enum SubscribeAction {
+    NONE = "",
+    FOLLOW = "FOLLOW",
+    UNFOLLOW = "UNFOLLOW",
+}
+
+export class UsersFollowReq {
+    targetId: string = ""
+    action: SubscribeAction = SubscribeAction.NONE
+}
+
+export function usersFollow(req: UsersFollowReq): Promise<Void> {
+    return api("users.follow", req);
 }

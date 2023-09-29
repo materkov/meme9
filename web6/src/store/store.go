@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
+	"time"
 )
 
 const (
@@ -25,11 +27,17 @@ const (
 	EdgeTypeVkAuth     = 4 // not used
 	EdgeTypeEmailAuth  = 5 // not used
 	EdgeTypeToken      = 6 // not used
+
+	EdgeTypeFollowing  = 7
+	EdgeTypeFollowedBy = 8
 )
 
 var SqlClient *sql.DB
 
-var ErrObjectNotFound = fmt.Errorf("object not found")
+var (
+	ErrObjectNotFound = fmt.Errorf("object not found")
+	ErrDuplicateEdge  = fmt.Errorf("edge duplicate")
+)
 
 func getObject(id int, objType int, obj interface{}) error {
 	var data []byte
@@ -81,33 +89,69 @@ func AddObject(objType int, object interface{}) (int, error) {
 	return int(objId), nil
 }
 
-func GetEdges(fromID int, edgeType int) ([]int, error) {
-	rows, err := SqlClient.Query("select to_id from edges where from_id = ? and edge_type = ? order by id desc", fromID, edgeType)
+type Edge struct {
+	FromID int
+	ToID   int
+	Date   int
+}
+
+func GetEdges(fromID int, edgeType int) ([]Edge, error) {
+	rows, err := SqlClient.Query("select to_id, date from edges where from_id = ? and edge_type = ? order by id desc", fromID, edgeType)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting rows: %w", err)
 	}
 	defer rows.Close()
 
-	var results []int
+	var results []Edge
 	for rows.Next() {
-		objID := 0
-		err = rows.Scan(&objID)
+		e := Edge{FromID: fromID}
+		err = rows.Scan(&e.ToID, &e.Date)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning edge row: %w", err)
 		}
 
-		results = append(results, objID)
+		results = append(results, e)
 	}
 
 	return results, err
 }
 
+func GetToId(edges []Edge) []int {
+	result := make([]int, len(edges))
+	for i, edge := range edges {
+		result[i] = edge.ToID
+	}
+	return result
+}
+
+var ErrNoEdge = fmt.Errorf("no edge")
+
+func GetEdge(fromID, toID, edgeType int) (Edge, error) {
+	e := Edge{
+		FromID: fromID,
+		ToID:   toID,
+	}
+
+	err := SqlClient.QueryRow("select date from edges where from_id = ? and to_id = ? and edge_type = ?", fromID, toID, edgeType).Scan(&e.Date)
+	if errors.Is(err, sql.ErrNoRows) {
+		return Edge{}, ErrNoEdge
+	} else if err != nil {
+		return Edge{}, err
+	}
+
+	return e, nil
+}
+
 func AddEdge(fromID, toID, edgeType int, uniqueKey string) error {
 	_, err := SqlClient.Exec(
-		"insert into edges(from_id, to_id, edge_type, unique_key) values (?, ?, ?, ?)",
-		fromID, toID, edgeType, sql.NullString{String: uniqueKey, Valid: uniqueKey != ""},
+		"insert into edges(from_id, to_id, edge_type, unique_key, date) values (?, ?, ?, ?, ?)",
+		fromID, toID, edgeType, sql.NullString{String: uniqueKey, Valid: uniqueKey != ""}, time.Now().Unix(),
 	)
 	if err != nil {
+		var mysqlError *mysql.MySQLError
+		if errors.As(err, &mysqlError) && mysqlError.Number == 1062 {
+			return ErrDuplicateEdge
+		}
 		return fmt.Errorf("error inserting edge: %s", err)
 	}
 
@@ -126,7 +170,7 @@ func GetEdgeByUniqueKey(fromID int, edgeType int, uniqueKey string) (int, error)
 	return toID, nil
 }
 
-func DelEdge(fromID, edgeType, toID int) error {
+func DelEdge(fromID, toID, edgeType int) error {
 	_, err := SqlClient.Exec("delete from edges where from_id = ? and edge_type = ? and to_id = ?", fromID, edgeType, toID)
 	if err != nil {
 		return fmt.Errorf("error deleteing edge: %w", err)
