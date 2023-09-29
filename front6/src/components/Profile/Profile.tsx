@@ -29,7 +29,7 @@ export function Profile() {
 
     return <div>
         <h1 className={styles.userName}>{user.name}</h1>
-        <div className={styles.status}>{user.status}</div>
+        <div>{user.status}</div>
 
         {globals.viewerId === user.id && <>
         <textarea placeholder="Your text status..." className={styles.statusInput} value={status}
