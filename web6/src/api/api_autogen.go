@@ -60,6 +60,17 @@ func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request) {
 	writeResp(w, resp, err)
 }
 
+func (h *HttpServer) PostsLike(w http.ResponseWriter, r *http.Request) {
+	req := &PostsLikeReq{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		writeResp(w, nil, ErrParsingRequest)
+		return
+	}
+	resp, err := h.Api.PostsLike(r.Context().Value(ctxViewer).(*Viewer), req)
+	writeResp(w, resp, err)
+}
+
 func (h *HttpServer) usersList(w http.ResponseWriter, r *http.Request) {
 	req := &UsersListReq{}
 	err := json.NewDecoder(r.Body).Decode(req)

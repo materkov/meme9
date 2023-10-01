@@ -122,6 +122,7 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/api/posts.listPostedByUser", wrapAPI(h.PostsListByUser))
 	http.HandleFunc("/api/posts.listById", wrapAPI(h.PostsListByID))
 	http.HandleFunc("/api/posts.delete", wrapAPI(h.PostsDelete))
+	http.HandleFunc("/api/posts.like", wrapAPI(h.PostsLike))
 
 	http.HandleFunc("/api/auth.login", wrapAPI(h.authLogin))
 	http.HandleFunc("/api/auth.register", wrapAPI(h.authRegister))

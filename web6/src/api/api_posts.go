@@ -15,6 +15,9 @@ type Post struct {
 	Date   string `json:"date"`
 	Text   string `json:"text"`
 	User   *User  `json:"user"`
+
+	IsLiked    bool `json:"isLiked,omitempty"`
+	LikesCount int  `json:"likesCount,omitempty"`
 }
 
 type PostsAddReq struct {
@@ -25,12 +28,23 @@ func transformPost(post *store.Post, user *store.User, viewerID int) *Post {
 	userWrapped, err := transformUser(post.UserID, user, viewerID)
 	pkg.LogErr(err) // TODO think about it
 
+	likesCount, err := store.CountEdges(post.ID, store.EdgeTypeLiked)
+	pkg.LogErr(err)
+
+	edge, err := store.GetEdge(post.ID, viewerID, store.EdgeTypeLiked)
+	if err != nil && !errors.Is(err, store.ErrNoEdge) {
+		pkg.LogErr(err)
+	}
+
 	return &Post{
 		ID:     strconv.Itoa(post.ID),
 		UserID: strconv.Itoa(post.UserID),
 		Date:   time.Unix(int64(post.Date), 0).Format(time.RFC3339),
 		Text:   post.Text,
 		User:   userWrapped,
+
+		LikesCount: likesCount,
+		IsLiked:    edge != nil,
 	}
 }
 
@@ -196,4 +210,43 @@ func (h *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (interface{}, error
 	pkg.LogErr(err)
 
 	return Void{}, nil
+}
+
+type PostLikeAction string
+
+const (
+	Like   PostLikeAction = "LIKE"
+	Unlike PostLikeAction = "UNLIKE"
+)
+
+type PostsLikeReq struct {
+	PostID string         `json:"postId"`
+	Action PostLikeAction `json:"action"`
+}
+
+func (*API) PostsLike(v *Viewer, r *PostsLikeReq) (*Void, error) {
+	if v.UserID == 0 {
+		return nil, Error("NotAuthorized")
+	}
+
+	postID, _ := strconv.Atoi(r.PostID)
+	_, err := store.GetPost(postID)
+	if errors.Is(err, store.ErrObjectNotFound) {
+		return nil, Error("PostNotFound")
+	} else if err != nil {
+		return nil, err
+	}
+
+	if r.Action == Unlike {
+		err = store.DelEdge(postID, v.UserID, store.EdgeTypeLiked)
+	} else {
+		err = store.AddEdge(postID, v.UserID, store.EdgeTypeLiked)
+		if errors.Is(err, store.ErrDuplicateEdge) {
+			// Do nothing
+		} else if err != nil {
+			return nil, err
+		}
+	}
+
+	return &Void{}, nil
 }

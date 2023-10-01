@@ -15,6 +15,11 @@
 }
 
 .deleteLink {
-    display: inline-block;
+    display: block;
     font-size: 12px;
+}
+
+.likesLine {
+    color: #bbb;
+    font-size: 14px;
 }

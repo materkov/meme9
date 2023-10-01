@@ -10,7 +10,7 @@ create table edges
     edge_type int not null,
     date      int not null,
     constraint edges_from_id_to_id_edge_type_uindex
-        unique (from_id, to_id, edge_type)
+        unique (from_id, edge_type, to_id)
 );
 
 create table objects

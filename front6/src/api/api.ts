@@ -45,6 +45,9 @@ export class Post {
     date: string = ""
     text: string = ""
     user?: User = undefined
+
+    isLiked: boolean = false
+    likesCount: number = 0
 }
 
 export class Void {
@@ -93,6 +96,20 @@ export class PostsDeleteReq {
 
 export function postsDelete(req: PostsDeleteReq): Promise<Void> {
     return api("posts.delete", req);
+}
+
+export enum LikeAction {
+    LIKE = "LIKE",
+    UNLIKE = "UNLIKE",
+}
+
+export class PostsLikeReq {
+    postId: string = ""
+    action: LikeAction = LikeAction.LIKE
+}
+
+export function postsLike(req: PostsLikeReq): Promise<Void> {
+    return api("posts.like", req);
 }
 
 export class UsersListReq {

@@ -88,6 +88,8 @@ const (
 
 	EdgeTypeFollowing  = 7
 	EdgeTypeFollowedBy = 8
+
+	EdgeTypeLiked = 9
 )
 
 type Edge struct {
@@ -127,19 +129,20 @@ func GetToId(edges []Edge) []int {
 
 var ErrNoEdge = fmt.Errorf("no edge")
 
-func GetEdge(fromID, toID, edgeType int) (Edge, error) {
-	e := Edge{
+func GetEdge(fromID, toID, edgeType int) (*Edge, error) {
+	date := 0
+	err := SqlClient.QueryRow("select date from edges where from_id = ? and to_id = ? and edge_type = ?", fromID, toID, edgeType).Scan(&date)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNoEdge
+	} else if err != nil {
+		return nil, err
+	}
+
+	e := &Edge{
 		FromID: fromID,
 		ToID:   toID,
+		Date:   date,
 	}
-
-	err := SqlClient.QueryRow("select date from edges where from_id = ? and to_id = ? and edge_type = ?", fromID, toID, edgeType).Scan(&e.Date)
-	if errors.Is(err, sql.ErrNoRows) {
-		return Edge{}, ErrNoEdge
-	} else if err != nil {
-		return Edge{}, err
-	}
-
 	return e, nil
 }
 
@@ -166,6 +169,12 @@ func DelEdge(fromID, toID, edgeType int) error {
 	}
 
 	return nil
+}
+
+func CountEdges(fromID, edgeType int) (int, error) {
+	cnt := 0
+	err := SqlClient.QueryRow("select count(*) from edges where from_id = ? and edge_type = ?", fromID, edgeType).Scan(&cnt)
+	return cnt, err
 }
 
 const (
