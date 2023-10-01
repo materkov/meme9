@@ -57,12 +57,12 @@ func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
 	}
 	post.ID = postID
 
-	err = store.AddEdge(store.FakeObjPostedPost, postID, store.EdgeTypePostedPost, "")
+	err = store.AddEdge(store.FakeObjPostedPost, postID, store.EdgeTypePostedPost)
 	if err != nil {
 		return nil, err
 	}
 
-	err = store.AddEdge(post.UserID, postID, store.EdgeTypePosted, "")
+	err = store.AddEdge(post.UserID, postID, store.EdgeTypePosted)
 	if err != nil {
 		return nil, err
 	}

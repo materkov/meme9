@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
@@ -30,8 +31,8 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, Error("EmptyPassword")
 	}
 
-	userID, err := store.GetEdgeByUniqueKey(store.FakeObjEmailAuth, 0, r.Email)
-	if err != nil {
+	userID, err := store.GetUnique(store.UniqueTypeEmail, r.Email)
+	if err != nil && !errors.Is(err, store.ErrUniqueNotFound) {
 		return nil, err
 	} else if userID != 0 {
 		return nil, Error("EmailAlreadyRegistered")
@@ -52,7 +53,7 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	}
 	user.ID = userID
 
-	err = store.AddEdge(store.FakeObjEmailAuth, userID, 0, r.Email)
+	err = store.AddUnique(store.UniqueTypeEmail, r.Email, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -76,11 +77,11 @@ func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, Error("InvalidCredentials")
 	}
 
-	userID, err := store.GetEdgeByUniqueKey(store.FakeObjEmailAuth, 0, r.Email)
-	if err != nil {
-		return nil, err
-	} else if userID == 0 {
+	userID, err := store.GetUnique(store.UniqueTypeEmail, r.Email)
+	if errors.Is(err, store.ErrUniqueNotFound) {
 		return nil, Error("InvalidCredentials")
+	} else if err != nil {
+		return nil, err
 	}
 
 	user, err := store.GetUser(userID)
@@ -127,20 +128,20 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 		return nil, err
 	}
 
-	userID, err := store.GetEdgeByUniqueKey(store.FakeObjVkAuth, 0, strconv.Itoa(vkUserID))
-	if err != nil {
+	userID, err := store.GetUnique(store.UniqueTypeVKID, strconv.Itoa(vkUserID))
+	if err != nil && !errors.Is(err, store.ErrUniqueNotFound) {
 		return nil, err
 	}
 
-	if userID == 0 {
-		userID, err = store.AddObject(store.ObjTypeUser, &User{
+	if errors.Is(err, store.ErrUniqueNotFound) {
+		userID, err = store.AddObject(store.ObjTypeUser, &store.User{
 			Name: "VK Auth user",
 		})
 		if err != nil {
 			return nil, err
 		}
 
-		err = store.AddEdge(store.FakeObjVkAuth, userID, 0, strconv.Itoa(vkUserID))
+		err = store.AddUnique(store.UniqueTypeVKID, strconv.Itoa(vkUserID), userID)
 		if err != nil {
 			return nil, err
 		}

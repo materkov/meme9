@@ -123,14 +123,14 @@ func (*API) usersFollow(v *Viewer, r *UsersFollow) (*Void, error) {
 			return nil, err
 		}
 
-		err = store.AddEdge(v.UserID, targetID, store.EdgeTypeFollowing, "")
+		err = store.AddEdge(v.UserID, targetID, store.EdgeTypeFollowing)
 		if errors.Is(err, store.ErrDuplicateEdge) {
 			// Do nothing
 		} else if err != nil {
 			return nil, err
 		}
 
-		err = store.AddEdge(targetID, v.UserID, store.EdgeTypeFollowedBy, "")
+		err = store.AddEdge(targetID, v.UserID, store.EdgeTypeFollowedBy)
 		if errors.Is(err, store.ErrDuplicateEdge) {
 			// Do nothing
 		} else if err != nil {

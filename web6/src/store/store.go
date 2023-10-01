@@ -11,9 +11,8 @@ import (
 
 const (
 	FakeObjPostedPost = -1
-	FakeObjVkAuth     = -2
-	FakeObjEmailAuth  = -3
-	FakeObjToken      = -4
+	// From -2..-5 are busy
+	FakeObjConfig = -5
 
 	ObjTypeArticle = 1 // not used
 	ObjTypeConfig  = 2
@@ -36,6 +35,7 @@ var SqlClient *sql.DB
 
 var (
 	ErrObjectNotFound = fmt.Errorf("object not found")
+	ErrUniqueNotFound = fmt.Errorf("unique row not found")
 	ErrDuplicateEdge  = fmt.Errorf("edge duplicate")
 )
 
@@ -142,10 +142,10 @@ func GetEdge(fromID, toID, edgeType int) (Edge, error) {
 	return e, nil
 }
 
-func AddEdge(fromID, toID, edgeType int, uniqueKey string) error {
+func AddEdge(fromID, toID, edgeType int) error {
 	_, err := SqlClient.Exec(
-		"insert into edges(from_id, to_id, edge_type, unique_key, date) values (?, ?, ?, ?, ?)",
-		fromID, toID, edgeType, sql.NullString{String: uniqueKey, Valid: uniqueKey != ""}, time.Now().Unix(),
+		"insert into edges(from_id, to_id, edge_type, date) values (?, ?, ?, ?)",
+		fromID, toID, edgeType, time.Now().Unix(),
 	)
 	if err != nil {
 		var mysqlError *mysql.MySQLError
@@ -158,18 +158,6 @@ func AddEdge(fromID, toID, edgeType int, uniqueKey string) error {
 	return nil
 }
 
-func GetEdgeByUniqueKey(fromID int, edgeType int, uniqueKey string) (int, error) {
-	toID := 0
-	err := SqlClient.QueryRow("select to_id from edges where from_id = ? and edge_type = ? and unique_key = ? limit 1", fromID, edgeType, uniqueKey).Scan(&toID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return 0, nil
-	} else if err != nil {
-		return 0, fmt.Errorf("error selecting row: %w", err)
-	}
-
-	return toID, nil
-}
-
 func DelEdge(fromID, toID, edgeType int) error {
 	_, err := SqlClient.Exec("delete from edges where from_id = ? and edge_type = ? and to_id = ?", fromID, edgeType, toID)
 	if err != nil {
@@ -177,4 +165,34 @@ func DelEdge(fromID, toID, edgeType int) error {
 	}
 
 	return nil
+}
+
+const (
+	UniqueTypeEmail     = 1
+	UniqueTypeVKID      = 2
+	UniqueTypeAuthToken = 3
+)
+
+func AddUnique(keyType int, key string, objectID int) error {
+	_, err := SqlClient.Exec("insert into uniques(type, `key`, object_id) values (?, ?, ?)", keyType, key, objectID)
+	if err != nil {
+		return fmt.Errorf("error inserting unique row: %w", err)
+	}
+	return nil
+}
+
+func GetUnique(keyType int, key string) (int, error) {
+	if key == "" {
+		return 0, ErrUniqueNotFound
+	}
+
+	objectID := 0
+	err := SqlClient.QueryRow("select object_id from uniques where type = ? and `key` = ?", keyType, key).Scan(&objectID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, ErrUniqueNotFound
+	} else if err != nil {
+		return 0, fmt.Errorf("error selecing unique row: %w", err)
+	}
+
+	return objectID, nil
 }
