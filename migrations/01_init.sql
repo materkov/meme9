@@ -35,6 +35,6 @@ create table meme9.uniques
 
 
 insert into objects(id, obj_type, data)
-values (5, 2, '{
+values (-5, 2, '{
   "SaveSecret": "test"
 }');
