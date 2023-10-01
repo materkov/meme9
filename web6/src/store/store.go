@@ -9,26 +9,18 @@ import (
 	"time"
 )
 
+// Reserved: -2, -3, -4
 const (
 	FakeObjPostedPost = -1
-	// From -2..-5 are busy
-	FakeObjConfig = -5
+	FakeObjConfig     = -5
+)
 
-	ObjTypeArticle = 1 // not used
-	ObjTypeConfig  = 2
-	ObjTypeUser    = 3
-	ObjTypePost    = 4
-	ObjTypeToken   = 5
-
-	EdgeTypePosted     = 1
-	EdgeTypeLastPosted = 2 // not used
-	EdgeTypePostedPost = 3
-	EdgeTypeVkAuth     = 4 // not used
-	EdgeTypeEmailAuth  = 5 // not used
-	EdgeTypeToken      = 6 // not used
-
-	EdgeTypeFollowing  = 7
-	EdgeTypeFollowedBy = 8
+// Reserved: 1
+const (
+	ObjTypeConfig = 2
+	ObjTypeUser   = 3
+	ObjTypePost   = 4
+	ObjTypeToken  = 5
 )
 
 var SqlClient *sql.DB
@@ -88,6 +80,15 @@ func AddObject(objType int, object interface{}) (int, error) {
 
 	return int(objId), nil
 }
+
+// Reserved: 2, 3, 4, 5
+const (
+	EdgeTypePosted     = 1
+	EdgeTypePostedPost = 3
+
+	EdgeTypeFollowing  = 7
+	EdgeTypeFollowedBy = 8
+)
 
 type Edge struct {
 	FromID int
