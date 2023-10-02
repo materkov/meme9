@@ -29,6 +29,12 @@ export function Discover() {
         })
     };
 
+    const switchType = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        discoverState.setType(discoverState.type === FeedType.FEED ? FeedType.DISCOVER : FeedType.FEED);
+        discoverState.refetch();
+        e.preventDefault();
+    };
+
     return <div>
         <h1>Discover</h1>
 
@@ -41,17 +47,11 @@ export function Discover() {
             </div>
         }
 
-        {discoverState.type == FeedType.DISCOVER && <>This is discover. <a href="/" onClick={(e) => {
-            discoverState.setType(FeedType.FEED);
-            discoverState.refetch();
-            e.preventDefault();
-        }}>Switch to feed</a></>}
-
-        {discoverState.type == FeedType.FEED && <>This is feed. <a href="/" onClick={(e) => {
-            discoverState.setType(FeedType.DISCOVER);
-            discoverState.refetch();
-            e.preventDefault();
-        }}>Switch to discover</a></>}
+        {globalState.viewerId && <>
+            This is {discoverState.type == FeedType.DISCOVER ? 'discover' : 'feed'}. <a href="#" onClick={switchType}>
+                Switch to {discoverState.type == FeedType.DISCOVER ? 'feed' : 'discover'}
+            </a>
+        </>}
 
         {discoverState.posts.map(post => <Post post={post} key={post.id}/>)}
     </div>

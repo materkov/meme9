@@ -239,6 +239,9 @@ func (*API) PostsLike(v *Viewer, r *PostsLikeReq) (*Void, error) {
 
 	if r.Action == Unlike {
 		err = store.DelEdge(postID, v.UserID, store.EdgeTypeLiked)
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		err = store.AddEdge(postID, v.UserID, store.EdgeTypeLiked)
 		if errors.Is(err, store.ErrDuplicateEdge) {
