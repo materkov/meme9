@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/pkg/xlog"
 	"github.com/materkov/meme9/web6/src/store"
 	"hash/crc32"
 	"html"
@@ -159,13 +160,32 @@ func wrapAPI(handler http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 
+		viewer := &Viewer{
+			UserID:   userID,
+			ClientIP: getClientIP(r),
+		}
+
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, ctxViewer, &Viewer{
-			UserID: userID,
+		ctx = context.WithValue(ctx, ctxViewer, viewer)
+
+		xlog.Log("Processing API request", xlog.Fields{
+			"url":    r.URL.String(),
+			"userId": viewer.UserID,
+			"ip":     viewer.ClientIP,
 		})
 
 		handler(w, r.WithContext(ctx))
 	}
+}
+
+func getClientIP(r *http.Request) string {
+	fwdAddress := r.Header.Get("X-Forwarded-For")
+	if fwdAddress != "" {
+		ips := strings.Split(fwdAddress, ", ")
+		return ips[len(ips)-1]
+	}
+
+	return r.RemoteAddr
 }
 
 type webHandler func(w http.ResponseWriter, r *http.Request, viewer *Viewer)
@@ -183,8 +203,15 @@ func wrapWeb(handler webHandler) http.HandlerFunc {
 				viewer.UserID = authToken.UserID
 				viewer.AuthToken = authCookie.Value
 				viewer.IsCookieAuth = true
+				viewer.ClientIP = getClientIP(r)
 			}
 		}
+
+		xlog.Log("Processing web request", xlog.Fields{
+			"url":    r.URL.String(),
+			"userId": viewer.UserID,
+			"ip":     viewer.ClientIP,
+		})
 
 		handler(w, r, viewer)
 	}

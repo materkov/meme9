@@ -1,9 +1,13 @@
 package pkg
 
-import "log"
+import (
+	"github.com/materkov/meme9/web6/src/pkg/xlog"
+)
 
 func LogErr(e error) {
 	if e != nil {
-		log.Printf("[ERROR] %s", e.Error())
+		xlog.Log("Logged error", xlog.Fields{
+			"err": e.Error(),
+		})
 	}
 }

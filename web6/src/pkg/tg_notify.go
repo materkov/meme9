@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/materkov/meme9/web6/src/pkg/xlog"
 	"github.com/materkov/meme9/web6/src/store"
-	"log"
+	"io"
 	"net/http"
 )
 
@@ -24,10 +25,18 @@ func SendTelegramNotify(text string) error {
 		return fmt.Errorf("error marshaling json body: %w", err)
 	}
 
-	_, err = http.DefaultClient.Post(url, "application/json", bytes.NewBuffer(bodyBytes))
+	resp, err := http.DefaultClient.Post(url, "application/json", bytes.NewBuffer(bodyBytes))
 	if err != nil {
 		return fmt.Errorf("http error: %w", err)
 	}
+	defer resp.Body.Close()
+
+	respBytes, _ := io.ReadAll(resp.Body)
+	xlog.Log("Telegram notify", xlog.Fields{
+		"req":    string(bodyBytes),
+		"resp":   string(respBytes),
+		"status": resp.StatusCode,
+	})
 
 	return nil
 }
@@ -36,7 +45,9 @@ func SendTelegramNotifyAsync(text string) {
 	go func() {
 		err := SendTelegramNotify(text)
 		if err != nil {
-			log.Printf("Error sending telegram alert: %s", err)
+			xlog.Log("Telegram error", xlog.Fields{
+				"err": err.Error(),
+			})
 		}
 	}()
 }

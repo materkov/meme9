@@ -3,9 +3,9 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/materkov/meme9/web6/src/pkg/xlog"
 	"github.com/materkov/meme9/web6/src/store"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -14,6 +14,11 @@ import (
 func ExchangeCode(code string, redirectURI string) (int, string, error) {
 	vkAppID := store.GlobalConfig.VKAppID
 	vkAppSecret := store.GlobalConfig.VKAppSecret
+
+	xlog.Log("Exchanging VK auth code", xlog.Fields{
+		"code":        code,
+		"redirectURI": redirectURI,
+	})
 
 	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
 		"client_id":     []string{strconv.Itoa(vkAppID)},
@@ -31,7 +36,9 @@ func ExchangeCode(code string, redirectURI string) (int, string, error) {
 		return 0, "", fmt.Errorf("error reading body: %s", err)
 	}
 
-	log.Printf("VK response: %s", bodyBytes)
+	xlog.Log("VK auth response", xlog.Fields{
+		"response": string(bodyBytes),
+	})
 
 	body := struct {
 		AccessToken string `json:"access_token"`

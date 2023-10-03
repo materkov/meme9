@@ -39,6 +39,7 @@ type Viewer struct {
 	UserID       int
 	AuthToken    string
 	IsCookieAuth bool
+	ClientIP     string
 }
 
 type Error string

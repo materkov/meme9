@@ -38,3 +38,14 @@ insert into objects(id, obj_type, data)
 values (-5, 2, '{
   "SaveSecret": "test"
 }');
+
+create table meme9.log
+(
+    id      int auto_increment
+        primary key,
+    dt      datetime      not null,
+    message varchar(1000) not null,
+    params  json          not null,
+    file    varchar(1000) not null
+);
+
