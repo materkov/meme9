@@ -169,9 +169,10 @@ func wrapAPI(handler http.HandlerFunc) http.HandlerFunc {
 		ctx = context.WithValue(ctx, ctxViewer, viewer)
 
 		xlog.Log("Processing API request", xlog.Fields{
-			"url":    r.URL.String(),
-			"userId": viewer.UserID,
-			"ip":     viewer.ClientIP,
+			"url":       r.URL.String(),
+			"userId":    viewer.UserID,
+			"ip":        viewer.ClientIP,
+			"userAgent": r.UserAgent(),
 		})
 
 		handler(w, r.WithContext(ctx))
@@ -208,9 +209,10 @@ func wrapWeb(handler webHandler) http.HandlerFunc {
 		}
 
 		xlog.Log("Processing web request", xlog.Fields{
-			"url":    r.URL.String(),
-			"userId": viewer.UserID,
-			"ip":     viewer.ClientIP,
+			"url":       r.URL.String(),
+			"userId":    viewer.UserID,
+			"ip":        viewer.ClientIP,
+			"userAgent": r.UserAgent(),
 		})
 
 		handler(w, r, viewer)
