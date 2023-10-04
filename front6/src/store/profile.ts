@@ -1,20 +1,17 @@
 import {create} from "zustand";
-import {Post, postsListPostedByUser, User, usersList} from "../api/api";
+import {Post, postsListPostedByUser, usersList} from "../api/api";
 import {tryGetPrefetch} from "../utils/prefetch";
+import {useResources} from "./resources";
 
 export interface Profile {
-    users: { [id: string]: User };
-    posts: { [id: string]: Post[] };
+    postIds: { [id: string]: string[] };
     fetched: { [id: string]: boolean };
     fetch: (userId: string) => void;
-    setStatus: (userId: string, status: string) => void;
-    setIsFollowing: (userId: string, isFollowing: boolean) => void;
 }
 
 export const useProfile = create<Profile>()((set, get) => ({
-    users: {},
     fetched: {},
-    posts: {},
+    postIds: {},
     fetch: (userId: string) => {
         if (get().fetched[userId]) {
             return
@@ -27,62 +24,29 @@ export const useProfile = create<Profile>()((set, get) => ({
 
         const prefetch = tryGetPrefetch('__userPage');
         if (prefetch && prefetch.user_id === userId) {
+            useResources.getState().setUser(prefetch.user);
+            prefetch.posts.map((post: Post) => useResources.getState().setPost(post));
+
             set({
-                posts: {
-                    [prefetch.user_id]: prefetch.posts,
-                },
-                users: {
-                    [prefetch.user_id]: prefetch.user,
-                },
+                postIds: {
+                    ...get().postIds,
+                    [prefetch.user_id]: prefetch.posts.map((post: Post) => post.id)
+                }
             })
             return;
         }
 
         postsListPostedByUser({"userId": userId}).then(r => {
             set({
-                posts: {
-                    ...get().posts,
-                    [userId]: r
+                postIds: {
+                    ...get().postIds,
+                    [userId]: r.map((post: Post) => post.id)
                 }
-            });
+            })
+            r.map((post: Post) => useResources.getState().setPost(post));
         })
         usersList({"userIds": [userId]}).then(r => {
-            set({
-                users: {
-                    ...get().users,
-                    [userId]: r[0]
-                },
-            });
+            r.map(user => useResources.getState().setUser(user));
         })
     },
-    setStatus: (userId, status) => {
-        if (!get().users[userId]) {
-            return;
-        }
-
-        set({
-            users: {
-                ...get().users,
-                [userId]: {
-                    ...get().users[userId],
-                    status: status
-                },
-            }
-        });
-    },
-    setIsFollowing: (userId, isFollowing) => {
-        if (!get().users[userId]) {
-            return;
-        }
-
-        set({
-            users: {
-                ...get().users,
-                [userId]: {
-                    ...get().users[userId],
-                    isFollowing: isFollowing
-                },
-            }
-        });
-    }
 }));

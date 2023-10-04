@@ -4,10 +4,12 @@ import * as styles from "./Discover.module.css";
 import {useGlobals} from "../../store/globals";
 import {FeedType, postsAdd} from "../../api/api";
 import {Post} from "../Post/Post";
+import {useResources} from "../../store/resources";
 
 export function Discover() {
     const discoverState = useDiscoverPage();
     const globalState = useGlobals();
+    const resources = useResources();
 
     const [text, setText] = React.useState('');
     const [saving, setSaving] = React.useState(false);
@@ -15,6 +17,9 @@ export function Discover() {
     useEffect(() => {
         discoverState.fetch();
     }, []);
+
+    const postIds = discoverState.posts;
+    const posts = postIds.map(postId => resources.posts[postId]);
 
     const post = () => {
         if (!text) {
@@ -53,6 +58,6 @@ export function Discover() {
             </a>
         </>}
 
-        {discoverState.posts.map(post => <Post post={post} key={post.id}/>)}
+        {posts.map(post => <Post post={post} key={post.id}/>)}
     </div>
 }

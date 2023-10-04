@@ -86,7 +86,7 @@ export class PostsListByIdReq {
     id: string = ""
 }
 
-export function postsListById(req: PostsListByIdReq): Promise<Post | undefined> {
+export function postsListById(req: PostsListByIdReq): Promise<Post> {
     return api("posts.listById", req)
 }
 

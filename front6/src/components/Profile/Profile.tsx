@@ -2,13 +2,15 @@ import React, {useEffect} from "react";
 import {useProfile} from "../../store/profile";
 import {Post} from "../Post/Post";
 import * as styles from "./Profile.module.css";
-import {SubscribeAction, usersFollow, usersSetStatus} from "../../api/api";
+import {SubscribeAction, User, usersFollow, usersSetStatus} from "../../api/api";
 import {useGlobals} from "../../store/globals";
+import {useResources} from "../../store/resources";
 
 export function Profile() {
     const userId = document.location.pathname.substring(7);
     const profileState = useProfile();
     const globals = useGlobals();
+    const resources = useResources();
 
     const [status, setStatus] = React.useState("");
 
@@ -18,21 +20,32 @@ export function Profile() {
 
     const updateStatus = () => {
         usersSetStatus({status: status})
-            .then(() => profileState.setStatus(globals.viewerId, status));
+            .then(() => {
+                const user: User = structuredClone(resources.users[userId]);
+                user.status = status;
+                resources.setUser(user);
+            });
     };
 
     const follow = () => {
         usersFollow({
             targetId: userId,
             action: user.isFollowing ? SubscribeAction.UNFOLLOW : SubscribeAction.FOLLOW,
-        }).then(() => profileState.setIsFollowing(userId, !user.isFollowing));
+        }).then(() => {
+            const user: User = structuredClone(resources.users[userId]);
+            user.isFollowing = !user.isFollowing;
+            resources.setUser(user);
+        });
     }
 
-    if (!profileState.users[userId]) {
+    if (!resources.users[userId]) {
         return <div>Loading....</div>
     }
 
-    const user = profileState.users[userId];
+    const user = resources.users[userId];
+
+    const postIds = profileState.postIds[userId] || [];
+    const posts = postIds.map(postId => resources.posts[postId]);
 
     return <div>
         <h1 className={styles.userName}>{user.name}</h1>
@@ -55,7 +68,7 @@ export function Profile() {
 
         <hr/>
 
-        {(profileState.posts[userId] || []).map(post => (
+        {posts.map(post => (
             <Post post={post} key={post.id}/>
         ))}
     </div>
