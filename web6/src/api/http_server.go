@@ -182,8 +182,7 @@ func wrapAPI(handler http.HandlerFunc) http.HandlerFunc {
 func getClientIP(r *http.Request) string {
 	fwdAddress := r.Header.Get("X-Forwarded-For")
 	if fwdAddress != "" {
-		ips := strings.Split(fwdAddress, ", ")
-		return ips[len(ips)-1]
+		return fwdAddress
 	}
 
 	return r.RemoteAddr
@@ -195,7 +194,9 @@ func wrapWeb(handler webHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Version", pkg.BuildTime)
 
-		viewer := &Viewer{}
+		viewer := &Viewer{
+			ClientIP: getClientIP(r),
+		}
 
 		authCookie, _ := r.Cookie("authToken")
 		if authCookie != nil {
@@ -204,7 +205,6 @@ func wrapWeb(handler webHandler) http.HandlerFunc {
 				viewer.UserID = authToken.UserID
 				viewer.AuthToken = authCookie.Value
 				viewer.IsCookieAuth = true
-				viewer.ClientIP = getClientIP(r)
 			}
 		}
 
