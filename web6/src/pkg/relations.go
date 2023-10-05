@@ -35,8 +35,8 @@ func GetFeedPostIds(userID int) ([]int, error) {
 		return allPosts[i].Date > allPosts[j].Date
 	})
 
-	if len(allPosts) > 10 {
-		allPosts = allPosts[:10]
+	if len(allPosts) > 100 {
+		allPosts = allPosts[:100]
 	}
 
 	return store.GetToId(allPosts), err

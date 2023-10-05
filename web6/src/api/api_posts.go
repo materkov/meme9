@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
+	"slices"
 	"strconv"
 	"time"
 )
@@ -18,6 +19,11 @@ type Post struct {
 
 	IsLiked    bool `json:"isLiked,omitempty"`
 	LikesCount int  `json:"likesCount,omitempty"`
+}
+
+type PostsList struct {
+	Items     []*Post `json:"items,omitempty"`
+	PageToken string  `json:"pageToken,omitempty"`
 }
 
 type PostsAddReq struct {
@@ -98,9 +104,12 @@ const (
 
 type PostsListReq struct {
 	Type FeedType `json:"type"`
+
+	Count     int    `json:"count"`
+	PageToken string `json:"pageToken"`
 }
 
-func (h *API) PostsList(v *Viewer, r *PostsListReq) ([]*Post, error) {
+func (h *API) PostsList(v *Viewer, r *PostsListReq) (*PostsList, error) {
 	var err error
 	var postIds []int
 
@@ -118,7 +127,26 @@ func (h *API) PostsList(v *Viewer, r *PostsListReq) ([]*Post, error) {
 		return nil, err
 	}
 
-	result := make([]*Post, 0)
+	if r.PageToken != "" {
+		cursor, _ := strconv.Atoi(r.PageToken)
+		cursorIdx := slices.Index(postIds, cursor)
+		if cursorIdx != -1 && cursorIdx != len(postIds)-1 {
+			postIds = postIds[cursorIdx+1:]
+		}
+	}
+
+	result := &PostsList{}
+
+	count := r.Count
+	if count == 0 {
+		count = 10
+	}
+
+	if len(postIds) > count {
+		result.PageToken = strconv.Itoa(postIds[count-1])
+		postIds = postIds[:count]
+	}
+
 	for _, postID := range postIds {
 		post, err := store.GetPost(postID)
 		if err != nil {
@@ -127,7 +155,7 @@ func (h *API) PostsList(v *Viewer, r *PostsListReq) ([]*Post, error) {
 
 		user, _ := store.GetUser(post.UserID)
 
-		result = append(result, transformPost(post, user, v.UserID))
+		result.Items = append(result.Items, transformPost(post, user, v.UserID))
 	}
 
 	return result, nil

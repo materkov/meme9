@@ -15,7 +15,7 @@ export function Discover() {
     const [saving, setSaving] = React.useState(false);
 
     useEffect(() => {
-        discoverState.fetch();
+        loadMore();
     }, []);
 
     const postIds = discoverState.posts;
@@ -40,6 +40,10 @@ export function Discover() {
         e.preventDefault();
     };
 
+    const loadMore = () => {
+        discoverState.fetch();
+    }
+
     return <div>
         <h1>Discover</h1>
 
@@ -54,10 +58,12 @@ export function Discover() {
 
         {globalState.viewerId && <>
             This is {discoverState.type == FeedType.DISCOVER ? 'discover' : 'feed'}. <a href="#" onClick={switchType}>
-                Switch to {discoverState.type == FeedType.DISCOVER ? 'feed' : 'discover'}
-            </a>
+            Switch to {discoverState.type == FeedType.DISCOVER ? 'feed' : 'discover'}
+        </a>
         </>}
 
         {posts.map(post => <Post post={post} key={post.id}/>)}
+
+        {discoverState.postsPageToken && <button onClick={loadMore}>Load more</button>}
     </div>
 }

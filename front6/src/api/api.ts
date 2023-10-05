@@ -50,6 +50,11 @@ export class Post {
     likesCount: number = 0
 }
 
+export class PostsList {
+    items: Post[] = []
+    pageToken: string = ""
+}
+
 export class Void {
 }
 
@@ -67,10 +72,12 @@ export enum FeedType {
 }
 
 export class PostsListReq {
+    pageToken: string = ""
+    count: number = 0
     type: FeedType = FeedType.DISCOVER
 }
 
-export function postsList(req: PostsListReq): Promise<Post[]> {
+export function postsList(req: PostsListReq): Promise<PostsList> {
     return api("posts.list", req)
 }
 

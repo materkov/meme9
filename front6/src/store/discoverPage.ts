@@ -1,10 +1,11 @@
 import {create} from "zustand";
-import {FeedType, Post, postsList} from "../api/api";
+import {FeedType, Post, PostsList, postsList} from "../api/api";
 import {tryGetPrefetch} from "../utils/prefetch";
 import {useResources} from "./resources";
 
 export interface DiscoverPage {
     posts: string[]
+    postsPageToken: string
     fetched: boolean
     fetch: () => void
     refetch: () => void
@@ -14,31 +15,46 @@ export interface DiscoverPage {
 
 export const useDiscoverPage = create<DiscoverPage>()((set, get) => ({
     posts: [],
+    postsPageToken: "",
     fetched: false,
     type: FeedType.DISCOVER,
     setType: (type: FeedType) => {
         set({type});
     },
     fetch: () => {
-        if (get().fetched) return;
+        // TODO think about refetching
+        //if (get().fetched) return;
 
         set(() => ({
             fetched: true,
         }));
 
-        const prefetch = tryGetPrefetch('__postsList');
+        const prefetch: PostsList = tryGetPrefetch('__postsList');
         if (prefetch) {
-            set({posts: prefetch.map((post: Post) => post.id)});
-            prefetch.map((post: Post) => useResources.getState().setPost(post));
+            set({
+                posts: prefetch.items.map((post: Post) => post.id),
+                postsPageToken: prefetch.pageToken,
+            });
+            prefetch.items.map((post: Post) => useResources.getState().setPost(post));
             return;
         }
 
         get().refetch();
     },
     refetch: () => {
-        postsList({type: get().type}).then(posts => {
-            set({posts: posts.map(post => post.id)});
-            posts.map(post => useResources.getState().setPost(post));
+        postsList({
+            count: 10,
+            type: get().type,
+            pageToken: get().postsPageToken,
+        }).then(postsList => {
+            set({
+                posts: [
+                    ...get().posts,
+                    ...postsList.items.map(post => post.id),
+                ],
+                postsPageToken: postsList.pageToken,
+            });
+            postsList.items.map(post => useResources.getState().setPost(post));
         });
     }
 }));
