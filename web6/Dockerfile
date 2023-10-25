@@ -5,7 +5,7 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 COPY . .
-RUN go build -ldflags="-X 'github.com/materkov/meme9/web6/pkg.BuildTime=$(date)'" -o /meme9 /build/cmd
+RUN go build -ldflags="-X 'github.com/materkov/meme9/web6/src/pkg.BuildTime=$(date)'" -o /meme9 /build/cmd
 
 FROM alpine:3.17
 RUN apk add --no-cache ca-certificates
