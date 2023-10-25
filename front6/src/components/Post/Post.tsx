@@ -5,6 +5,16 @@ import {useGlobals} from "../../store/globals";
 import {LikeAction, Post as ApiPost, postsDelete, postsLike} from "../../api/api";
 import {useDiscoverPage} from "../../store/discoverPage";
 
+const nl2br = (string: string) => {
+    if (string) {
+        return string.split("\n").map((item, key) => {
+            return (
+                <span key={key}>{item}<br/></span>
+            );
+        });
+    }
+};
+
 export function Post(props: { post: ApiPost }) {
     const date = new Date(props.post.date).toLocaleString();
     const globals = useGlobals();
@@ -35,7 +45,7 @@ export function Post(props: { post: ApiPost }) {
         <Link href={"/posts/" + props.post.id} className={styles.date}>{date}</Link>
 
         <div>
-            {props.post.text}
+            {nl2br(props.post.text)}
         </div>
 
         {globals.viewerId && props.post.user?.id == globals.viewerId &&
@@ -48,7 +58,7 @@ export function Post(props: { post: ApiPost }) {
                     <a onClick={onLike} href="#">
                         {props.post.isLiked ? 'Unlike' : 'Like'}
                     </a>
-                {props.post.likesCount && <> | </>}
+                    {props.post.likesCount && <> | </>}
                 </>
             }
 
