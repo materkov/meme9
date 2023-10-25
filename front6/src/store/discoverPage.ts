@@ -29,19 +29,6 @@ export const useDiscoverPage = create<DiscoverPage>()((set, get) => ({
             fetched: true,
         }));
 
-        const prefetch: PostsList = tryGetPrefetch('__postsList');
-        if (prefetch) {
-            set({
-                posts: prefetch.items.map((post: Post) => post.id),
-                postsPageToken: prefetch.pageToken,
-            });
-            prefetch.items.map((post: Post) => useResources.getState().setPost(post));
-            return;
-        }
-
-        get().refetch();
-    },
-    refetch: () => {
         postsList({
             count: 10,
             type: get().type,
@@ -56,5 +43,28 @@ export const useDiscoverPage = create<DiscoverPage>()((set, get) => ({
             });
             postsList.items.map(post => useResources.getState().setPost(post));
         });
-    }
+    },
+    refetch: () => {
+        const prefetch: PostsList = tryGetPrefetch('__postsList');
+        if (prefetch) {
+            set({
+                posts: prefetch.items.map((post: Post) => post.id),
+                postsPageToken: prefetch.pageToken,
+            });
+            prefetch.items.map((post: Post) => useResources.getState().setPost(post));
+            return;
+        }
+
+        postsList({
+            count: 10,
+            type: get().type,
+            pageToken: '',
+        }).then(postsList => {
+            set({
+                posts: postsList.items.map(post => post.id),
+                postsPageToken: postsList.pageToken,
+            });
+            postsList.items.map(post => useResources.getState().setPost(post));
+        });
+    },
 }));

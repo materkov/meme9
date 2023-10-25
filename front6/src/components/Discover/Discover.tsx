@@ -15,7 +15,7 @@ export function Discover() {
     const [saving, setSaving] = React.useState(false);
 
     useEffect(() => {
-        loadMore();
+        discoverState.refetch();
     }, []);
 
     const postIds = discoverState.posts;

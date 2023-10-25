@@ -4,6 +4,7 @@ import {Link} from "../Link/Link";
 import {useGlobals} from "../../store/globals";
 import {LikeAction, Post as ApiPost, postsDelete, postsLike} from "../../api/api";
 import {useDiscoverPage} from "../../store/discoverPage";
+import {useResources} from "../../store/resources";
 
 const nl2br = (string: string) => {
     if (string) {
@@ -19,6 +20,7 @@ export function Post(props: { post: ApiPost }) {
     const date = new Date(props.post.date).toLocaleString();
     const globals = useGlobals();
     const discoverPage = useDiscoverPage();
+    const resources = useResources();
 
     const onDelete = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
@@ -33,10 +35,15 @@ export function Post(props: { post: ApiPost }) {
         postsLike({
             postId: props.post.id,
             action: props.post.isLiked ? LikeAction.UNLIKE : LikeAction.LIKE,
-        }).then(() => {
-            // TODO: think about this
-            discoverPage.refetch();
         })
+            .then(() => {
+            })
+            .catch(() => {
+            });
+
+        const likes = props.post.likesCount || 0;
+        const newLikes = props.post.isLiked ? (likes - 1) : (likes + 1);
+        resources.setPostLikes(props.post.id, newLikes, !props.post.isLiked);
     };
 
     return <div className={styles.post}>
@@ -58,11 +65,11 @@ export function Post(props: { post: ApiPost }) {
                     <a onClick={onLike} href="#">
                         {props.post.isLiked ? 'Unlike' : 'Like'}
                     </a>
-                    {props.post.likesCount && <> | </>}
+                    {props.post.likesCount > 0 && <> | </>}
                 </>
             }
 
-            {props.post.likesCount && <>{props.post.likesCount} like(s)</>}
+            {props.post.likesCount > 0 && <>{props.post.likesCount} like(s)</>}
         </div>
     </div>
 }
