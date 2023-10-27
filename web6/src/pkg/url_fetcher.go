@@ -43,7 +43,7 @@ func FetchURL(url string) (*store.PostLink, error) {
 }
 
 func TryParseLink(post *store.Post) error {
-	re := regexp.MustCompile("(http|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])")
+	re := regexp.MustCompile(`(http|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])`)
 	foundUrl := re.FindString(post.Text)
 	if foundUrl == "" {
 		return nil
