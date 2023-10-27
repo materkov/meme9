@@ -1,22 +1,29 @@
 package pkg
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/dyatlov/go-opengraph/opengraph"
 	"github.com/materkov/meme9/web6/src/store"
+	"io"
 	"net/http"
 	"regexp"
 )
 
 func FetchURL(url string) (*store.PostLink, error) {
-	resp, err := http.Get(url)
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", "curl/7.54")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("http error: %w", err)
 	}
 	defer resp.Body.Close()
 
+	bodyBytes, _ := io.ReadAll(resp.Body)
+
 	og := opengraph.NewOpenGraph()
-	err = og.ProcessHTML(resp.Body)
+	err = og.ProcessHTML(bytes.NewBuffer(bodyBytes))
 	if err != nil {
 		return nil, fmt.Errorf("error processing html: %w", err)
 	}
