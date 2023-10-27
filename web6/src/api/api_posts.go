@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
+	"net/url"
 	"slices"
 	"strconv"
 	"time"
@@ -19,6 +20,16 @@ type Post struct {
 
 	IsLiked    bool `json:"isLiked,omitempty"`
 	LikesCount int  `json:"likesCount,omitempty"`
+
+	Link *PostLink `json:"link,omitempty"`
+}
+
+type PostLink struct {
+	URL         string `json:"url"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	ImageURL    string `json:"imageUrl"`
+	Domain      string `json:"domain"`
 }
 
 type PostsList struct {
@@ -42,6 +53,24 @@ func transformPost(post *store.Post, user *store.User, viewerID int) *Post {
 		pkg.LogErr(err)
 	}
 
+	var wrappedLink *PostLink
+	if post.Link != nil {
+		host := ""
+
+		parsedURL, err := url.Parse(post.Link.URL)
+		if err == nil {
+			host = parsedURL.Host
+		}
+
+		wrappedLink = &PostLink{
+			URL:         post.Link.URL,
+			Title:       post.Link.Title,
+			Description: post.Link.Description,
+			ImageURL:    post.Link.ImageURL,
+			Domain:      host,
+		}
+	}
+
 	return &Post{
 		ID:     strconv.Itoa(post.ID),
 		UserID: strconv.Itoa(post.UserID),
@@ -51,6 +80,8 @@ func transformPost(post *store.Post, user *store.User, viewerID int) *Post {
 
 		LikesCount: likesCount,
 		IsLiked:    edge != nil,
+
+		Link: wrappedLink,
 	}
 }
 
@@ -91,6 +122,11 @@ func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	go func() {
+		err := pkg.TryParseLink(&post)
+		pkg.LogErr(err)
+	}()
 
 	return transformPost(&post, user, viewer.UserID), nil
 }

@@ -48,6 +48,16 @@ export class Post {
 
     isLiked: boolean = false
     likesCount: number = 0
+
+    link?: Link = undefined
+}
+
+export class Link {
+    title: string = ""
+    description: string = ""
+    imageUrl: string = ""
+    url: string = ""
+    domain: string = ""
 }
 
 export class PostsList {
