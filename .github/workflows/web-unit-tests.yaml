@@ -1,4 +1,4 @@
-name: web-linter
+name: web-unit-tests
 on: [push]
 jobs:
   build:
