@@ -16,6 +16,8 @@ func main() {
 		log.Fatalf("Error opening mysql: %s", err)
 	}
 
+	store.GlobalStore = &store.SqlStore{DB: store.SqlClient}
+
 	store.GlobalConfig, err = store.GetConfig()
 	if err != nil {
 		log.Fatalf("Error reading config: %s", err)

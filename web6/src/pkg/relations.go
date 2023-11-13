@@ -7,7 +7,7 @@ import (
 )
 
 func GetFeedPostIds(userID int) ([]int, error) {
-	edges, err := store.GetEdges(userID, store.EdgeTypeFollowing)
+	edges, err := store.GlobalStore.GetEdges(userID, store.EdgeTypeFollowing)
 	if err != nil {
 		return nil, fmt.Errorf("error getting edges: %w", err)
 	}
@@ -19,7 +19,7 @@ func GetFeedPostIds(userID int) ([]int, error) {
 	for _, userId := range userIds {
 		userIdCopy := userId
 		go func() {
-			posts, err := store.GetEdges(userIdCopy, store.EdgeTypePosted)
+			posts, err := store.GlobalStore.GetEdges(userIdCopy, store.EdgeTypePosted)
 
 			LogErr(err)
 			allPostsCh <- posts

@@ -27,7 +27,7 @@ func transformUser(userID int, user *store.User, viewerID int) (*User, error) {
 	result.Status = user.Status
 
 	if viewerID != 0 {
-		_, err := store.GetEdge(viewerID, userID, store.EdgeTypeFollowing)
+		_, err := store.GlobalStore.GetEdge(viewerID, userID, store.EdgeTypeFollowing)
 		if errors.Is(err, store.ErrNoEdge) {
 			// Do nothing
 		} else if err != nil {
@@ -79,7 +79,7 @@ func (*API) usersSetStatus(v *Viewer, r *UsersSetStatus) (*Void, error) {
 
 	user.Status = r.Status
 
-	err = store.UpdateObject(user, user.ID)
+	err = store.GlobalStore.UpdateObject(user, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -110,10 +110,10 @@ func (*API) usersFollow(v *Viewer, r *UsersFollow) (*Void, error) {
 	}
 
 	if r.Action == Unfollow {
-		err := store.DelEdge(v.UserID, targetID, store.EdgeTypeFollowing)
+		err := store.GlobalStore.DelEdge(v.UserID, targetID, store.EdgeTypeFollowing)
 		pkg.LogErr(err)
 
-		err = store.DelEdge(targetID, v.UserID, store.EdgeTypeFollowedBy)
+		err = store.GlobalStore.DelEdge(targetID, v.UserID, store.EdgeTypeFollowedBy)
 		pkg.LogErr(err)
 	} else {
 		_, err := store.GetUser(targetID)
@@ -123,14 +123,14 @@ func (*API) usersFollow(v *Viewer, r *UsersFollow) (*Void, error) {
 			return nil, err
 		}
 
-		err = store.AddEdge(v.UserID, targetID, store.EdgeTypeFollowing)
+		err = store.GlobalStore.AddEdge(v.UserID, targetID, store.EdgeTypeFollowing)
 		if errors.Is(err, store.ErrDuplicateEdge) {
 			// Do nothing
 		} else if err != nil {
 			return nil, err
 		}
 
-		err = store.AddEdge(targetID, v.UserID, store.EdgeTypeFollowedBy)
+		err = store.GlobalStore.AddEdge(targetID, v.UserID, store.EdgeTypeFollowedBy)
 		if errors.Is(err, store.ErrDuplicateEdge) {
 			// Do nothing
 		} else if err != nil {

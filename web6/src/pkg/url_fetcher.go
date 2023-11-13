@@ -55,7 +55,7 @@ func TryParseLink(post *store.Post) error {
 	}
 
 	post.Link = linkInfo
-	err = store.UpdateObject(post, post.ID)
+	err = store.GlobalStore.UpdateObject(post, post.ID)
 	if err != nil {
 		return err
 	}

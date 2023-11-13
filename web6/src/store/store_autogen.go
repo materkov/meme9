@@ -1,8 +1,10 @@
 package store
 
+var GlobalStore Store
+
 func GetPost(id int) (*Post, error) {
 	obj := &Post{}
-	err := getObject(id, ObjTypePost, obj)
+	err := GlobalStore.getObject(id, ObjTypePost, obj)
 	if err != nil {
 		return nil, err
 	}
@@ -12,7 +14,7 @@ func GetPost(id int) (*Post, error) {
 
 func GetUser(id int) (*User, error) {
 	obj := &User{}
-	err := getObject(id, ObjTypeUser, obj)
+	err := GlobalStore.getObject(id, ObjTypeUser, obj)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +25,7 @@ func GetUser(id int) (*User, error) {
 func GetConfig() (*Config, error) {
 	obj := &Config{}
 	// TODO think about 5
-	err := getObject(FakeObjConfig, ObjTypeConfig, obj)
+	err := GlobalStore.getObject(FakeObjConfig, ObjTypeConfig, obj)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +35,7 @@ func GetConfig() (*Config, error) {
 
 func GetToken(id int) (*Token, error) {
 	obj := &Token{}
-	err := getObject(id, ObjTypeToken, obj)
+	err := GlobalStore.getObject(id, ObjTypeToken, obj)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,7 @@ func GetToken(id int) (*Token, error) {
 }
 
 func AddToken(obj *Token) error {
-	id, err := AddObject(ObjTypeToken, obj)
+	id, err := GlobalStore.AddObject(ObjTypeToken, obj)
 	if err != nil {
 		return err
 	}

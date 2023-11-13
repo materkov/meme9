@@ -7,6 +7,8 @@ type Post struct {
 	Text   string
 
 	Link *PostLink
+
+	IsDeleted bool
 }
 
 type PostLink struct {

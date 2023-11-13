@@ -47,7 +47,7 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		Name:         r.Email,
 		PasswordHash: string(passwordHash),
 	}
-	userID, err = store.AddObject(store.ObjTypeUser, user)
+	userID, err = store.GlobalStore.AddObject(store.ObjTypeUser, user)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 	}
 
 	if errors.Is(err, store.ErrUniqueNotFound) {
-		userID, err = store.AddObject(store.ObjTypeUser, &store.User{
+		userID, err = store.GlobalStore.AddObject(store.ObjTypeUser, &store.User{
 			Name: "VK Auth user",
 		})
 		if err != nil {
@@ -154,7 +154,7 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 		user.Name = userName
 
 		// Already authorized
-		err = store.UpdateObject(user, user.ID)
+		err = store.GlobalStore.UpdateObject(user, user.ID)
 		pkg.LogErr(err)
 	}
 
