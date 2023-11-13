@@ -3,8 +3,8 @@ import {useDiscoverPage} from "../../store/discoverPage";
 import * as styles from "./Discover.module.css";
 import {useGlobals} from "../../store/globals";
 import {FeedType, postsAdd} from "../../api/api";
-import {Post} from "../Post/Post";
 import {useResources} from "../../store/resources";
+import {PostsList} from "../Post/PostsList";
 
 export function Discover() {
     const discoverState = useDiscoverPage();
@@ -62,7 +62,7 @@ export function Discover() {
         </a>
         </>}
 
-        {posts.map(post => <Post post={post} key={post.id}/>)}
+        <PostsList posts={posts}/>
 
         {discoverState.postsPageToken && <button onClick={loadMore}>Load more</button>}
     </div>

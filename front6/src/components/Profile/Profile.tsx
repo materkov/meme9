@@ -1,10 +1,10 @@
 import React, {useEffect} from "react";
 import {useProfile} from "../../store/profile";
-import {Post} from "../Post/Post";
 import * as styles from "./Profile.module.css";
 import {SubscribeAction, User, usersFollow, usersSetStatus} from "../../api/api";
 import {useGlobals} from "../../store/globals";
 import {useResources} from "../../store/resources";
+import {PostsList} from "../Post/PostsList";
 
 export function Profile() {
     const userId = document.location.pathname.substring(7);
@@ -68,9 +68,7 @@ export function Profile() {
 
         <hr/>
 
-        {posts.map(post => (
-            <Post post={post} key={post.id}/>
-        ))}
+        <PostsList posts={posts}/>
     </div>
 }
 
