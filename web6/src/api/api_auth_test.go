@@ -1,0 +1,94 @@
+package api
+
+import (
+	"database/sql"
+	"fmt"
+	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/store"
+	_ "github.com/materkov/meme9/web6/src/store/sqlmock"
+	"github.com/stretchr/testify/require"
+	"math/rand"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
+	"testing"
+)
+
+func createTestDB(t *testing.T) func() {
+	db, err := sql.Open("sqlmock", "TestLoadUserAddresses"+strconv.Itoa(rand.Int()))
+	require.NoError(t, err)
+
+	store.GlobalStore = &store.SqlStore{DB: db}
+
+	return func() {
+		_ = db.Close()
+	}
+}
+
+func TestApi_authEmailLogin(t *testing.T) {
+	api := API{}
+	closer := createTestDB(t)
+	defer closer()
+
+	resp, err := api.authRegister(&Viewer{}, &AuthEmailReq{
+		Email:    "test@email.com",
+		Password: "12345",
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, resp.Token)
+	require.NotEmpty(t, resp.UserID)
+
+	loginResp, err := api.authLogin(&Viewer{}, &AuthEmailReq{
+		Email:    "test@email.com",
+		Password: "12345",
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, loginResp.Token)
+	require.Equal(t, resp.UserID, loginResp.UserID)
+
+	_, err = api.authLogin(&Viewer{}, &AuthEmailReq{
+		Email:    "test@email.com",
+		Password: "wrong password",
+	})
+	requireAPIError(t, err, "InvalidCredentials")
+
+	_, err = api.authLogin(&Viewer{}, &AuthEmailReq{
+		Email: "bad@email.com",
+	})
+	requireAPIError(t, err, "InvalidCredentials")
+}
+
+func TestApi_authVK(t *testing.T) {
+	api := API{}
+	closer := createTestDB(t)
+	defer closer()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/access_token" {
+			fmt.Fprint(w, `{"access_token": "vk_token", "user_id": 41512}`)
+		} else {
+			fmt.Fprint(w, `{"response": [{"id": 41512, "first_name": "Test", "last_name": "Testovich", "photo_200": "https://image.com/1.jpg"}]}`)
+		}
+	}))
+	defer srv.Close()
+
+	pkg.VKEndpoint = srv.URL
+	pkg.VKAPIEndpoint = srv.URL
+
+	pkg.HTTPClient = srv.Client()
+
+	resp1, err := api.authVk(&Viewer{}, &AuthVkReq{
+		Code:        "1234",
+		RedirectURL: "https://site.me",
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, resp1.Token)
+
+	resp2, err := api.authVk(&Viewer{}, &AuthVkReq{
+		Code:        "1234",
+		RedirectURL: "https://site.me",
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, resp2.Token)
+	require.Equal(t, resp1.UserID, resp2.UserID)
+}

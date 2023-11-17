@@ -11,6 +11,11 @@ import (
 	"strconv"
 )
 
+var HTTPClient = &http.Client{}
+
+var VKEndpoint = "https://oauth.vk.com"
+var VKAPIEndpoint = "https://api.vk.com"
+
 func ExchangeCode(code string, redirectURI string) (int, string, error) {
 	vkAppID := store.GlobalConfig.VKAppID
 	vkAppSecret := store.GlobalConfig.VKAppSecret
@@ -20,7 +25,7 @@ func ExchangeCode(code string, redirectURI string) (int, string, error) {
 		"redirectURI": redirectURI,
 	})
 
-	resp, err := http.PostForm("https://oauth.vk.com/access_token", url.Values{
+	resp, err := HTTPClient.PostForm(VKEndpoint+"/access_token", url.Values{
 		"client_id":     []string{strconv.Itoa(vkAppID)},
 		"client_secret": []string{vkAppSecret},
 		"redirect_uri":  []string{redirectURI},
@@ -56,7 +61,7 @@ func ExchangeCode(code string, redirectURI string) (int, string, error) {
 
 func RefreshFromVk(accessToken string, vkUserID int) (string, error) {
 	args := fmt.Sprintf("v=5.180&access_token=%s&user_ids=%d&fields=photo_200", accessToken, vkUserID)
-	resp, err := http.Post("https://api.vk.com/method/users.get?"+args, "", nil)
+	resp, err := HTTPClient.Post(VKAPIEndpoint+"/method/users.get?"+args, "", nil)
 	if err != nil {
 		return "", fmt.Errorf("http error: %s", err)
 	}

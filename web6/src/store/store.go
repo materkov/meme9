@@ -2,7 +2,6 @@ package store
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 )
 
@@ -60,27 +59,3 @@ const (
 	UniqueTypeVKID      = 2
 	UniqueTypeAuthToken = 3
 )
-
-func AddUnique(keyType int, key string, objectID int) error {
-	_, err := SqlClient.Exec("insert into uniques(type, `key`, object_id) values (?, ?, ?)", keyType, key, objectID)
-	if err != nil {
-		return fmt.Errorf("error inserting unique row: %w", err)
-	}
-	return nil
-}
-
-func GetUnique(keyType int, key string) (int, error) {
-	if key == "" {
-		return 0, ErrUniqueNotFound
-	}
-
-	objectID := 0
-	err := SqlClient.QueryRow("select object_id from uniques where type = ? and `key` = ?", keyType, key).Scan(&objectID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return 0, ErrUniqueNotFound
-	} else if err != nil {
-		return 0, fmt.Errorf("error selecing unique row: %w", err)
-	}
-
-	return objectID, nil
-}

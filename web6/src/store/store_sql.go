@@ -19,6 +19,9 @@ type Store interface {
 	CountEdges(fromID, edgeType int) (int, error)
 	GetEdges(fromID int, edgeType int) ([]Edge, error)
 	DelEdge(fromID, toID, edgeType int) error
+
+	GetUnique(keyType int, key string) (int, error)
+	AddUnique(keyType int, key string, objectID int) error
 }
 
 type SqlStore struct {
@@ -142,5 +145,29 @@ func (s *SqlStore) UpdateObject(object interface{}, id int) error {
 		return fmt.Errorf("error updating row: %w", err)
 	}
 
+	return nil
+}
+
+func (s *SqlStore) GetUnique(keyType int, key string) (int, error) {
+	if key == "" {
+		return 0, ErrUniqueNotFound
+	}
+
+	objectID := 0
+	err := s.DB.QueryRow("select object_id from uniques where type = ? and `key` = ?", keyType, key).Scan(&objectID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, ErrUniqueNotFound
+	} else if err != nil {
+		return 0, fmt.Errorf("error selecing unique row: %w", err)
+	}
+
+	return objectID, nil
+}
+
+func (s *SqlStore) AddUnique(keyType int, key string, objectID int) error {
+	_, err := s.DB.Exec("insert into uniques(type, `key`, object_id) values (?, ?, ?)", keyType, key, objectID)
+	if err != nil {
+		return fmt.Errorf("error inserting unique row: %w", err)
+	}
 	return nil
 }

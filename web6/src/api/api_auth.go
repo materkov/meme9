@@ -31,7 +31,7 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, Error("EmptyPassword")
 	}
 
-	userID, err := store.GetUnique(store.UniqueTypeEmail, r.Email)
+	userID, err := store.GlobalStore.GetUnique(store.UniqueTypeEmail, r.Email)
 	if err != nil && !errors.Is(err, store.ErrUniqueNotFound) {
 		return nil, err
 	} else if userID != 0 {
@@ -53,7 +53,7 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	}
 	user.ID = userID
 
-	err = store.AddUnique(store.UniqueTypeEmail, r.Email, userID)
+	err = store.GlobalStore.AddUnique(store.UniqueTypeEmail, r.Email, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, Error("InvalidCredentials")
 	}
 
-	userID, err := store.GetUnique(store.UniqueTypeEmail, r.Email)
+	userID, err := store.GlobalStore.GetUnique(store.UniqueTypeEmail, r.Email)
 	if errors.Is(err, store.ErrUniqueNotFound) {
 		return nil, Error("InvalidCredentials")
 	} else if err != nil {
@@ -128,7 +128,7 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 		return nil, err
 	}
 
-	userID, err := store.GetUnique(store.UniqueTypeVKID, strconv.Itoa(vkUserID))
+	userID, err := store.GlobalStore.GetUnique(store.UniqueTypeVKID, strconv.Itoa(vkUserID))
 	if err != nil && !errors.Is(err, store.ErrUniqueNotFound) {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 			return nil, err
 		}
 
-		err = store.AddUnique(store.UniqueTypeVKID, strconv.Itoa(vkUserID), userID)
+		err = store.GlobalStore.AddUnique(store.UniqueTypeVKID, strconv.Itoa(vkUserID), userID)
 		if err != nil {
 			return nil, err
 		}

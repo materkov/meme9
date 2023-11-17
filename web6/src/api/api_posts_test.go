@@ -9,6 +9,7 @@ import (
 )
 
 func requireAPIError(t *testing.T, err error, code string) {
+	t.Helper()
 	var apiErr Error
 	require.True(t, errors.As(err, &apiErr))
 	require.Equal(t, string(apiErr), code)
@@ -16,7 +17,9 @@ func requireAPIError(t *testing.T, err error, code string) {
 
 func TestAPI_PostsCRUD(t *testing.T) {
 	api := API{}
-	store.GlobalStore = &store.MockStore{}
+	closer := createTestDB(t)
+	defer closer()
+
 	userID, _ := store.GlobalStore.AddObject(store.ObjTypeUser, store.User{ID: 1})
 	v := Viewer{UserID: 1}
 
@@ -61,7 +64,10 @@ func TestAPI_PostsCRUD(t *testing.T) {
 
 func TestAPI_PostsLikes(t *testing.T) {
 	api := API{}
-	store.GlobalStore = &store.MockStore{}
+
+	closer := createTestDB(t)
+	defer closer()
+
 	userID, _ := store.GlobalStore.AddObject(store.ObjTypeUser, store.User{})
 	v := Viewer{UserID: userID}
 
