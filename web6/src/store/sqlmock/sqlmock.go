@@ -178,7 +178,7 @@ func (c *DummyConn) Query(query string, args []driver.Value) (driver.Rows, error
 		}, nil
 	} else if query == "select object_id from uniques where type = ? and `key` = ?" {
 		var items [][]string
-		objectID, _ := c.uniques[fmt.Sprintf("%d:%s", args[0].(int64), args[1].(string))]
+		objectID := c.uniques[fmt.Sprintf("%d:%s", args[0].(int64), args[1].(string))]
 		if objectID != 0 {
 			items = [][]string{
 				{strconv.Itoa(objectID)},
