@@ -3,11 +3,12 @@ package pkg
 import (
 	"fmt"
 	"github.com/materkov/meme9/web6/src/store"
+	"math"
 	"sort"
 )
 
 func GetFeedPostIds(userID int) ([]int, error) {
-	edges, err := store.GlobalStore.GetEdges(userID, store.EdgeTypeFollowing)
+	edges, err := store.GlobalStore.GetEdges(userID, store.EdgeTypeFollowing, 1000, math.MaxInt)
 	if err != nil {
 		return nil, fmt.Errorf("error getting edges: %w", err)
 	}
@@ -19,7 +20,7 @@ func GetFeedPostIds(userID int) ([]int, error) {
 	for _, userId := range userIds {
 		userIdCopy := userId
 		go func() {
-			posts, err := store.GlobalStore.GetEdges(userIdCopy, store.EdgeTypePosted)
+			posts, err := store.GlobalStore.GetEdges(userIdCopy, store.EdgeTypePosted, 1000, math.MaxInt)
 
 			LogErr(err)
 			allPostsCh <- posts

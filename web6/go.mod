@@ -1,6 +1,6 @@
 module github.com/materkov/meme9/web6
 
-go 1.19
+go 1.21
 
 require (
 	github.com/dyatlov/go-opengraph/opengraph v0.0.0-20220524092352-606d7b1e5f8a

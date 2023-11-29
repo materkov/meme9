@@ -9,21 +9,6 @@ import (
 	"time"
 )
 
-type Store interface {
-	getObject(id int, objType int, obj interface{}) error
-	AddObject(objType int, object interface{}) (int, error)
-	UpdateObject(object interface{}, id int) error
-
-	AddEdge(fromID, toID, edgeType int) error
-	GetEdge(fromID, toID, edgeType int) (*Edge, error)
-	CountEdges(fromID, edgeType int) (int, error)
-	GetEdges(fromID int, edgeType int) ([]Edge, error)
-	DelEdge(fromID, toID, edgeType int) error
-
-	GetUnique(keyType int, key string) (int, error)
-	AddUnique(keyType int, key string, objectID int) error
-}
-
 type SqlStore struct {
 	DB *sql.DB
 }
@@ -104,8 +89,8 @@ func (s *SqlStore) CountEdges(fromID, edgeType int) (int, error) {
 	return cnt, err
 }
 
-func (s *SqlStore) GetEdges(fromID int, edgeType int) ([]Edge, error) {
-	rows, err := s.DB.Query("select to_id, date from edges where from_id = ? and edge_type = ? order by id desc", fromID, edgeType)
+func (s *SqlStore) GetEdges(fromID int, edgeType int, limit int, startFrom int) ([]Edge, error) {
+	rows, err := s.DB.Query("select to_id, date from edges where from_id = ? and edge_type = ? and to_id < ? order by id desc limit ?", fromID, edgeType, startFrom, limit)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting rows: %w", err)
 	}

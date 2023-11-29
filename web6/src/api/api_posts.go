@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
+	"math"
 	"net/url"
 	"slices"
 	"strconv"
@@ -153,7 +154,7 @@ func (h *API) PostsList(v *Viewer, r *PostsListReq) (*PostsList, error) {
 		postIds, err = pkg.GetFeedPostIds(v.UserID)
 	} else if r.Type == "DISCOVER" || r.Type == "" {
 		var edges []store.Edge
-		edges, err = store.GlobalStore.GetEdges(store.FakeObjPostedPost, store.EdgeTypePostedPost)
+		edges, err = store.GlobalStore.GetEdges(store.FakeObjPostedPost, store.EdgeTypePostedPost, 1000, math.MaxInt)
 		postIds = store.GetToId(edges)
 	} else {
 		err = Error("InvalidFeedType")
@@ -218,15 +219,34 @@ func (h *API) PostsListByID(v *Viewer, r *PostsListByIdReq) (*Post, error) {
 
 type PostsListByUserReq struct {
 	UserID string `json:"userId"`
+
+	Count int    `json:"count"`
+	After string `json:"after"`
 }
 
-func (h *API) PostsListByUser(v *Viewer, r *PostsListByUserReq) ([]*Post, error) {
+func (h *API) PostsListByUser(v *Viewer, r *PostsListByUserReq) (*PostsList, error) {
 	userID, _ := strconv.Atoi(r.UserID)
 	if userID <= 0 {
 		return nil, Error("IncorrectUserId")
 	}
 
-	edges, err := store.GlobalStore.GetEdges(userID, store.EdgeTypePosted)
+	if r.Count < 0 {
+		return nil, Error("IncorrectCount")
+	} else if r.Count > 50 {
+		return nil, Error("IncorrectCount")
+	}
+
+	lessThan := math.MaxInt
+	if r.After != "" {
+		lessThan, _ = strconv.Atoi(r.After)
+	}
+
+	count := 10
+	if r.Count != 0 {
+		count = r.Count
+	}
+
+	edges, err := store.GlobalStore.GetEdges(userID, store.EdgeTypePosted, count, lessThan)
 	if err != nil {
 		return nil, fmt.Errorf("error getting posted edges: %w", err)
 	}
@@ -243,7 +263,15 @@ func (h *API) PostsListByUser(v *Viewer, r *PostsListByUserReq) ([]*Post, error)
 		result = append(result, transformPost(post, user, v.UserID))
 	}
 
-	return result, nil
+	nextAfter := ""
+	if len(edges) == count && len(edges) > 0 {
+		nextAfter = strconv.Itoa(edges[len(edges)-1].ToID)
+	}
+
+	return &PostsList{
+		Items:     result,
+		PageToken: nextAfter,
+	}, nil
 }
 
 type PostsDeleteReq struct {

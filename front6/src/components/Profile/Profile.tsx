@@ -38,6 +38,10 @@ export function Profile() {
         });
     }
 
+    const loadMore = () => {
+        profileState.fetchMore(userId);
+    }
+
     if (!resources.users[userId]) {
         return <div>Loading....</div>
     }
@@ -69,6 +73,8 @@ export function Profile() {
         <hr/>
 
         <PostsList posts={posts}/>
+
+        {profileState.cursors[userId] && <button onClick={loadMore}>Load more posts...</button>}
     </div>
 }
 

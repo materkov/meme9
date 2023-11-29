@@ -11,6 +11,10 @@ import (
 )
 
 func SendTelegramNotify(text string) error {
+	if store.GlobalConfig.TelegramBotToken == "" {
+		return fmt.Errorf("empty bot token")
+	}
+
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", store.GlobalConfig.TelegramBotToken)
 	body := struct {
 		ChatID int    `json:"chat_id"`

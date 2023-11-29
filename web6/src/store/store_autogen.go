@@ -1,6 +1,6 @@
 package store
 
-var GlobalStore Store
+var GlobalStore *SqlStore
 
 func GetPost(id int) (*Post, error) {
 	obj := &Post{}

@@ -25,7 +25,7 @@ func init() {
 type DummyConn struct {
 	idx     int
 	objects [][]string
-	edges   [][]string
+	edges   [][]string // ID, from, to, type, date
 	uniques map[string]int
 }
 
@@ -160,16 +160,25 @@ func (c *DummyConn) Query(query string, args []driver.Value) (driver.Rows, error
 				{strconv.Itoa(cnt)},
 			},
 		}, nil
-	} else if query == "select to_id, date from edges where from_id = ? and edge_type = ? order by id desc" {
+	} else if query == "select to_id, date from edges where from_id = ? and edge_type = ? and to_id < ? order by id desc limit ?" {
 		var localResults [][]string
-		for _, edge := range c.edges {
+		for i := len(c.edges) - 1; i >= 0; i-- {
+			edge := c.edges[i]
+
+			toID, _ := strconv.Atoi(edge[2])
 			if edge[1] == strconv.Itoa(int(args[0].(int64))) &&
-				edge[3] == strconv.Itoa(int(args[1].(int64))) {
+				edge[3] == strconv.Itoa(int(args[1].(int64))) &&
+				toID < int(args[2].(int64)) {
 				localResults = append(localResults, []string{
 					edge[2],
 					edge[4],
 				})
 			}
+		}
+
+		limit := int(args[3].(int64))
+		if len(localResults) > limit {
+			localResults = localResults[:limit]
 		}
 
 		return &results{

@@ -93,9 +93,10 @@ export function postsList(req: PostsListReq): Promise<PostsList> {
 
 export class PostsListPostedByUserReq {
     userId: string = ""
+    after: string = ""
 }
 
-export function postsListPostedByUser(req: PostsListPostedByUserReq): Promise<Post[]> {
+export function postsListPostedByUser(req: PostsListPostedByUserReq): Promise<PostsList> {
     return api("posts.listPostedByUser", req)
 }
 

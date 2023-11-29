@@ -11,11 +11,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"testing"
 )
 
 func createTestDB(t *testing.T) func() {
-	db, err := sql.Open("sqlmock", "TestLoadUserAddresses"+strconv.Itoa(rand.Int()))
+	db, err := sql.Open("sqlmock", "TestDB_"+strconv.Itoa(rand.Int()))
 	require.NoError(t, err)
 
 	store.GlobalStore = &store.SqlStore{DB: db}
@@ -53,9 +54,52 @@ func TestApi_authEmailLogin(t *testing.T) {
 	requireAPIError(t, err, "InvalidCredentials")
 
 	_, err = api.authLogin(&Viewer{}, &AuthEmailReq{
-		Email: "bad@email.com",
+		Email:    "bad@email.com",
+		Password: "12345",
 	})
 	requireAPIError(t, err, "InvalidCredentials")
+
+	_, err = api.authLogin(&Viewer{}, &AuthEmailReq{
+		Email:    "",
+		Password: "12345",
+	})
+	requireAPIError(t, err, "InvalidCredentials")
+
+	_, err = api.authLogin(&Viewer{}, &AuthEmailReq{
+		Email:    "test@email.com",
+		Password: "",
+	})
+	requireAPIError(t, err, "InvalidCredentials")
+}
+
+func TestAPI_authRegister(t *testing.T) {
+	api := API{}
+	closer := createTestDB(t)
+	defer closer()
+
+	resp, err := api.authRegister(nil, &AuthEmailReq{
+		Email:    "test@mail.com",
+		Password: "123",
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, resp.Token)
+
+	t.Run("email registered", func(t *testing.T) {
+		_, err := api.authRegister(nil, &AuthEmailReq{Email: "test@mail.com", Password: "123"})
+		requireAPIError(t, err, "EmailAlreadyRegistered")
+	})
+	t.Run("empty email", func(t *testing.T) {
+		_, err := api.authRegister(nil, &AuthEmailReq{Email: ""})
+		requireAPIError(t, err, "EmptyEmail")
+	})
+	t.Run("empty pass", func(t *testing.T) {
+		_, err := api.authRegister(nil, &AuthEmailReq{Email: "test@email.com", Password: ""})
+		requireAPIError(t, err, "EmptyPassword")
+	})
+	t.Run("email too long", func(t *testing.T) {
+		_, err := api.authRegister(nil, &AuthEmailReq{Email: strings.Repeat("a", 1000), Password: "123"})
+		requireAPIError(t, err, "EmailTooLong")
+	})
 }
 
 func TestApi_authVK(t *testing.T) {
