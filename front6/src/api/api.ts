@@ -50,6 +50,20 @@ export class Post {
     likesCount: number = 0
 
     link?: Link = undefined
+    poll?: Poll = undefined
+}
+
+export class Poll {
+    id: string = ""
+    question = ""
+    answers: PollAnswer[] = []
+}
+
+export class PollAnswer {
+    id: string = ""
+    answer: string = ""
+    voted: number = 0
+    isVoted: boolean = false
 }
 
 export class Link {
@@ -187,4 +201,21 @@ export class UsersFollowReq {
 
 export function usersFollow(req: UsersFollowReq): Promise<Void> {
     return api("users.follow", req);
+}
+
+export class PollsVoteReq {
+    pollId: string = ""
+    answerIds: string[] = []
+}
+
+export function pollsVote(req: PollsVoteReq): Promise<Void> {
+    return api("polls.vote", req);
+}
+
+export class PollsDeleteVoteReq {
+    pollId: string = ""
+}
+
+export function pollsDeleteVote(req: PollsDeleteVoteReq): Promise<Void> {
+    return api("polls.deleteVote", req);
 }

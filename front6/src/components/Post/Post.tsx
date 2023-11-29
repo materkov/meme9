@@ -6,6 +6,7 @@ import {LikeAction, Post as ApiPost, postsDelete, postsLike} from "../../api/api
 import {useDiscoverPage} from "../../store/discoverPage";
 import {useResources} from "../../store/resources";
 import {LinkAttach} from "./LinkAttach";
+import {Poll} from "./Poll";
 
 const nl2br = (string: string) => {
     if (string) {
@@ -76,5 +77,7 @@ export function Post(props: {
 
             {props.post.likesCount > 0 && <>{props.post.likesCount} like(s)</>}
         </div>
+
+        {props.post.poll && <Poll poll={props.post.poll}/>}
     </div>
 }

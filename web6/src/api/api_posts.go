@@ -23,6 +23,7 @@ type Post struct {
 	LikesCount int  `json:"likesCount,omitempty"`
 
 	Link *PostLink `json:"link,omitempty"`
+	Poll *Poll     `json:"poll,omitempty"`
 }
 
 type PostLink struct {
@@ -40,6 +41,8 @@ type PostsList struct {
 
 type PostsAddReq struct {
 	Text string `json:"text"`
+
+	PollID string `json:"pollId"`
 }
 
 func transformPost(post *store.Post, user *store.User, viewerID int) *Post {
@@ -72,6 +75,15 @@ func transformPost(post *store.Post, user *store.User, viewerID int) *Post {
 		}
 	}
 
+	var pollTransformed *Poll
+	if post.PollID != 0 {
+		poll, err := store.GetPoll(post.PollID)
+		pkg.LogErr(err)
+		if err == nil {
+			pollTransformed = transformPoll(poll, viewerID)
+		}
+	}
+
 	return &Post{
 		ID:     strconv.Itoa(post.ID),
 		UserID: strconv.Itoa(post.UserID),
@@ -83,6 +95,7 @@ func transformPost(post *store.Post, user *store.User, viewerID int) *Post {
 		IsLiked:    edge != nil,
 
 		Link: wrappedLink,
+		Poll: pollTransformed,
 	}
 }
 
@@ -97,10 +110,16 @@ func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
 		return nil, Error("NotAuthorized")
 	}
 
+	pollID := 0
+	if r.PollID != "" {
+		pollID, _ = strconv.Atoi(r.PollID)
+	}
+
 	post := store.Post{
 		UserID: viewer.UserID,
 		Date:   int(time.Now().Unix()),
 		Text:   r.Text,
+		PollID: pollID,
 	}
 
 	postID, err := store.GlobalStore.AddObject(store.ObjTypePost, &post)

@@ -13,10 +13,12 @@ const (
 
 // Reserved: 1
 const (
-	ObjTypeConfig = 2
-	ObjTypeUser   = 3
-	ObjTypePost   = 4
-	ObjTypeToken  = 5
+	ObjTypeConfig     = 2
+	ObjTypeUser       = 3
+	ObjTypePost       = 4
+	ObjTypeToken      = 5
+	ObjTypePoll       = 6
+	ObjTypePollAnswer = 7
 )
 
 var SqlClient *sql.DB
@@ -36,6 +38,8 @@ const (
 	EdgeTypeFollowedBy = 8
 
 	EdgeTypeLiked = 9
+
+	EdgeTypeVoted = 10
 )
 
 type Edge struct {

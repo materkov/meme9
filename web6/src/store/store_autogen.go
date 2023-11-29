@@ -43,6 +43,26 @@ func GetToken(id int) (*Token, error) {
 	return obj, err
 }
 
+func GetPoll(id int) (*Poll, error) {
+	obj := &Poll{}
+	err := GlobalStore.getObject(id, ObjTypePoll, obj)
+	if err != nil {
+		return nil, err
+	}
+	obj.ID = id
+	return obj, err
+}
+
+func GetPollAnswer(id int) (*PollAnswer, error) {
+	obj := &PollAnswer{}
+	err := GlobalStore.getObject(id, ObjTypePollAnswer, obj)
+	if err != nil {
+		return nil, err
+	}
+	obj.ID = id
+	return obj, err
+}
+
 func AddToken(obj *Token) error {
 	id, err := GlobalStore.AddObject(ObjTypeToken, obj)
 	if err != nil {

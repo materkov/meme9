@@ -136,3 +136,47 @@ func (h *HttpServer) authVK(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.Api.authVk(r.Context().Value(ctxViewer).(*Viewer), req)
 	writeResp(w, resp, err)
 }
+
+func (h *HttpServer) pollsAdd(w http.ResponseWriter, r *http.Request) {
+	req := &PollsAddReq{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		writeResp(w, nil, ErrParsingRequest)
+		return
+	}
+	resp, err := h.Api.PollsAdd(r.Context().Value(ctxViewer).(*Viewer), req)
+	writeResp(w, resp, err)
+}
+
+func (h *HttpServer) pollsList(w http.ResponseWriter, r *http.Request) {
+	req := &PollsListReq{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		writeResp(w, nil, ErrParsingRequest)
+		return
+	}
+	resp, err := h.Api.PollsList(r.Context().Value(ctxViewer).(*Viewer), req)
+	writeResp(w, resp, err)
+}
+
+func (h *HttpServer) pollsVote(w http.ResponseWriter, r *http.Request) {
+	req := &PollsVoteReq{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		writeResp(w, nil, ErrParsingRequest)
+		return
+	}
+	resp, err := h.Api.PollsVote(r.Context().Value(ctxViewer).(*Viewer), req)
+	writeResp(w, resp, err)
+}
+
+func (h *HttpServer) pollsDeleteVote(w http.ResponseWriter, r *http.Request) {
+	req := &PollsDeleteVoteReq{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		writeResp(w, nil, ErrParsingRequest)
+		return
+	}
+	resp, err := h.Api.PollsDeleteVote(r.Context().Value(ctxViewer).(*Viewer), req)
+	writeResp(w, resp, err)
+}

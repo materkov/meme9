@@ -9,6 +9,7 @@ type Post struct {
 	Link *PostLink
 
 	IsDeleted bool
+	PollID    int
 }
 
 type PostLink struct {

@@ -129,6 +129,11 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/api/auth.register", wrapAPI(h.authRegister))
 	http.HandleFunc("/api/auth.vk", wrapAPI(h.authVK))
 
+	http.HandleFunc("/api/polls.add", wrapAPI(h.pollsAdd))
+	http.HandleFunc("/api/polls.vote", wrapAPI(h.pollsVote))
+	http.HandleFunc("/api/polls.deleteVote", wrapAPI(h.pollsDeleteVote))
+	http.HandleFunc("/api/polls.list", wrapAPI(h.pollsList))
+
 	// Web
 	http.HandleFunc("/posts/", wrapWeb(h.postPage))
 	http.HandleFunc("/users/", wrapWeb(h.userPage))
