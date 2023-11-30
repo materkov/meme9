@@ -42,7 +42,9 @@ export function Composer() {
                 <textarea className={styles.newPost} placeholder="What's new today?" value={text}
                           onChange={e => setText(e.target.value)}/>
 
-            {!pollActive && <a href="#" onClick={(e) => {
+            {pollId && <>Poll attached</>}
+
+            {!pollId && !pollActive && <a href="#" onClick={(e) => {
                 e.preventDefault();
                 setPollActive(true);
             }}>Add poll</a>}
