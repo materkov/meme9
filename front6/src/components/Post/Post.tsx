@@ -78,6 +78,6 @@ export function Post(props: {
             {props.post.likesCount > 0 && <>{props.post.likesCount} like(s)</>}
         </div>
 
-        {props.post.poll && <Poll poll={props.post.poll}/>}
+        {props.post.poll && <Poll postId={props.post.id} poll={props.post.poll}/>}
     </div>
 }

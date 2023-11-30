@@ -1,10 +1,13 @@
-import {Poll as ApiPoll, pollsDeleteVote, pollsVote} from "../../api/api";
+import * as types from "../../api/api";
 import React from "react";
 import * as styles from "./Poll.module.css";
+import {useResources} from "../../store/resources";
 
 export function Poll(props: {
-    poll: ApiPoll
+    poll: types.Poll,
+    postId: string,
 }) {
+    const resources = useResources();
     const poll = props.poll;
 
     let isVoted = false;
@@ -15,17 +18,47 @@ export function Poll(props: {
     const onVote = (answerId: string) => {
         if (isVoted) return;
 
-        pollsVote({
+        types.pollsVote({
             pollId: poll.id,
             answerIds: [answerId],
+        }).then(() => {
+            let post = structuredClone(resources.posts[props.postId]) as types.Post;
+
+            if (!post.poll) {
+                return;
+            }
+
+            for (let answer of post.poll.answers) {
+                if (answer.id == answerId) {
+                    answer.isVoted = true;
+                    answer.voted = (answer.voted || 0) + 1;
+                }
+            }
+
+            resources.setPost(post);
         })
     }
 
     const onDeleteVote = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
-        pollsDeleteVote({
+        types.pollsDeleteVote({
             pollId: poll.id,
+        }).then(() => {
+            let post = structuredClone(resources.posts[props.postId]) as types.Post;
+
+            if (!post.poll) {
+                return;
+            }
+
+            for (let answer of post.poll.answers) {
+                if (answer.isVoted) {
+                    answer.isVoted = false;
+                    answer.voted = (answer.voted || 0) - 1;
+                }
+            }
+
+            resources.setPost(post);
         })
     }
 

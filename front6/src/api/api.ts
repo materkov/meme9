@@ -84,6 +84,7 @@ export class Void {
 
 export class PostsAddReq {
     text: string = ""
+    pollId: string = ""
 }
 
 export function postsAdd(req: PostsAddReq): Promise<void> {
@@ -218,4 +219,13 @@ export class PollsDeleteVoteReq {
 
 export function pollsDeleteVote(req: PollsDeleteVoteReq): Promise<Void> {
     return api("polls.deleteVote", req);
+}
+
+export class PollsAddReq {
+    question: string = ""
+    answers: string[] = []
+}
+
+export function pollsAdd(req: PollsAddReq): Promise<Poll> {
+    return api("polls.add", req);
 }

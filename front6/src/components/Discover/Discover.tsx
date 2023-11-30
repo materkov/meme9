@@ -5,14 +5,12 @@ import {useGlobals} from "../../store/globals";
 import {FeedType, postsAdd} from "../../api/api";
 import {useResources} from "../../store/resources";
 import {PostsList} from "../Post/PostsList";
+import {Composer} from "./Composer";
 
 export function Discover() {
     const discoverState = useDiscoverPage();
     const globalState = useGlobals();
     const resources = useResources();
-
-    const [text, setText] = React.useState('');
-    const [saving, setSaving] = React.useState(false);
 
     useEffect(() => {
         discoverState.refetch();
@@ -20,19 +18,6 @@ export function Discover() {
 
     const postIds = discoverState.posts;
     const posts = postIds.map(postId => resources.posts[postId]);
-
-    const post = () => {
-        if (!text) {
-            return;
-        }
-
-        setSaving(true);
-        postsAdd({text: text}).then(() => {
-            setSaving(false);
-            setText('');
-            discoverState.refetch();
-        })
-    };
 
     const switchType = (e: React.MouseEvent<HTMLAnchorElement>) => {
         discoverState.setType(discoverState.type === FeedType.FEED ? FeedType.DISCOVER : FeedType.FEED);
@@ -47,14 +32,7 @@ export function Discover() {
     return <div>
         <h1>Discover</h1>
 
-        {globalState.viewerId &&
-            <div className={styles.newPostContainer}>
-                <textarea className={styles.newPost} placeholder="What's new today?" value={text}
-                          onChange={e => setText(e.target.value)}/>
-                <button disabled={saving} onClick={post}>Post</button>
-                <hr/>
-            </div>
-        }
+        {globalState.viewerId && <Composer/>}
 
         {globalState.viewerId && <>
             This is {discoverState.type == FeedType.DISCOVER ? 'discover' : 'feed'}. <a href="#" onClick={switchType}>
