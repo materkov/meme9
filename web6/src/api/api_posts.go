@@ -66,11 +66,13 @@ func transformPost(post *store.Post, user *store.User, viewerID int) *Post {
 			host = parsedURL.Host
 		}
 
+		proxiedUrl := fmt.Sprintf("/image-proxy?url=%s", url.QueryEscape(post.Link.ImageURL))
+
 		wrappedLink = &PostLink{
 			URL:         post.Link.URL,
 			Title:       post.Link.Title,
 			Description: post.Link.Description,
-			ImageURL:    post.Link.ImageURL,
+			ImageURL:    proxiedUrl,
 			Domain:      host,
 		}
 	}

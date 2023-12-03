@@ -3,180 +3,175 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 )
 
-func (h *HttpServer) PostsAdd(w http.ResponseWriter, r *http.Request) {
-	req := &PostsAddReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.PostsAdd(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
+	method := strings.TrimPrefix(r.URL.Path, "/api/")
+	viewer := r.Context().Value(ctxViewer).(*Viewer)
 
-func (h *HttpServer) PostsList(w http.ResponseWriter, r *http.Request) {
-	req := &PostsListReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.PostsList(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	switch method {
+	case "posts.add":
+		req := &PostsAddReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PostsAdd(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) PostsListByID(w http.ResponseWriter, r *http.Request) {
-	req := &PostsListByIdReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.PostsListByID(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "posts.list":
+		req := &PostsListReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PostsList(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) PostsListByUser(w http.ResponseWriter, r *http.Request) {
-	req := &PostsListByUserReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.PostsListByUser(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "posts.listById":
+		req := &PostsListByIdReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PostsListByID(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) PostsDelete(w http.ResponseWriter, r *http.Request) {
-	req := &PostsDeleteReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.PostsDelete(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "posts.listByUser":
+		req := &PostsListByUserReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PostsListByUser(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) PostsLike(w http.ResponseWriter, r *http.Request) {
-	req := &PostsLikeReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.PostsLike(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "posts.delete":
+		req := &PostsDeleteReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PostsDelete(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) usersList(w http.ResponseWriter, r *http.Request) {
-	req := &UsersListReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.usersList(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "posts.like":
+		req := &PostsLikeReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PostsLike(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) usersSetStatus(w http.ResponseWriter, r *http.Request) {
-	req := &UsersSetStatus{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.usersSetStatus(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "users.list":
+		req := &UsersListReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.usersList(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) usersFollow(w http.ResponseWriter, r *http.Request) {
-	req := &UsersFollow{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.usersFollow(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "users.setStatus":
+		req := &UsersSetStatus{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.usersSetStatus(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) authLogin(w http.ResponseWriter, r *http.Request) {
-	req := &AuthEmailReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.authLogin(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "users.follow":
+		req := &UsersFollow{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.usersFollow(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) authRegister(w http.ResponseWriter, r *http.Request) {
-	req := &AuthEmailReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.authRegister(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "auth.login":
+		req := &AuthEmailReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.authLogin(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) authVK(w http.ResponseWriter, r *http.Request) {
-	req := &AuthVkReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.authVk(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "auth.register":
+		req := &AuthEmailReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.authRegister(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) pollsAdd(w http.ResponseWriter, r *http.Request) {
-	req := &PollsAddReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.PollsAdd(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "auth.vk":
+		req := &AuthVkReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.authVk(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) pollsList(w http.ResponseWriter, r *http.Request) {
-	req := &PollsListReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.PollsList(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "polls.add":
+		req := &PollsAddReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PollsAdd(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) pollsVote(w http.ResponseWriter, r *http.Request) {
-	req := &PollsVoteReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
-	}
-	resp, err := h.Api.PollsVote(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
-}
+	case "polls.list":
+		req := &PollsListReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PollsList(viewer, req)
+		writeResp(w, resp, err)
 
-func (h *HttpServer) pollsDeleteVote(w http.ResponseWriter, r *http.Request) {
-	req := &PollsDeleteVoteReq{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		writeResp(w, nil, ErrParsingRequest)
-		return
+	case "polls.vote":
+		req := &PollsVoteReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PollsVote(viewer, req)
+		writeResp(w, resp, err)
+
+	case "polls.deleteVote":
+		req := &PollsDeleteVoteReq{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			writeResp(w, nil, ErrParsingRequest)
+			return
+		}
+		resp, err := h.Api.PollsDeleteVote(viewer, req)
+		writeResp(w, resp, err)
+
+	default:
+		writeResp(w, nil, Error("UnknownMethod"))
 	}
-	resp, err := h.Api.PollsDeleteVote(r.Context().Value(ctxViewer).(*Viewer), req)
-	writeResp(w, resp, err)
 }

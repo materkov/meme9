@@ -29,7 +29,7 @@ function parse() {
 
         let parsedUrls = [];
         const urlRegex = /(https?:\/\/[^\s]+)/g;
-        for (let post of result) {
+        for (let post of result.items) {
             const matches = post.text.match(urlRegex);
             if (matches) {
                 parsedUrls = [...parsedUrls, ...matches];
