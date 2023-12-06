@@ -68,7 +68,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 		resp, err := h.Api.PostsListByID(viewer, req)
 		writeResp(w, resp, err)
 
-	case "posts.listByUser":
+	case "posts.listPostedByUser":
 		req := &PostsListByUserReq{}
 		err := json.NewDecoder(r.Body).Decode(req)
 		if err != nil {
