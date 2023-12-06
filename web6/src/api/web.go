@@ -131,5 +131,5 @@ func (h *HttpServer) imageProxy(w http.ResponseWriter, r *http.Request, viewer *
 	dst := image.NewRGBA(image.Rect(0, 0, 200, 200))
 	draw.BiLinear.Scale(dst, dst.Rect, src, src.Bounds(), draw.Over, nil)
 
-	jpeg.Encode(w, dst, nil)
+	_ = jpeg.Encode(w, dst, nil)
 }

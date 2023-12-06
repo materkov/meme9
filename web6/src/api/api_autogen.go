@@ -2,13 +2,40 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/pkg/xlog"
 	"net/http"
 	"strings"
 )
 
 func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Version", pkg.BuildTime)
+
+	userID := 0
+	authHeader := r.Header.Get("authorization")
+	authHeader = strings.TrimPrefix(authHeader, "Bearer ")
+	if authHeader != "" {
+		authToken := pkg.ParseAuthToken(authHeader)
+		if authToken != nil {
+			userID = authToken.UserID
+		}
+	}
+
+	viewer := &Viewer{
+		UserID:   userID,
+		ClientIP: getClientIP(r),
+	}
+
+	xlog.Log("Processing API request", xlog.Fields{
+		"url":       r.URL.String(),
+		"userId":    viewer.UserID,
+		"ip":        viewer.ClientIP,
+		"userAgent": r.UserAgent(),
+	})
+
 	method := strings.TrimPrefix(r.URL.Path, "/api/")
-	viewer := r.Context().Value(ctxViewer).(*Viewer)
 
 	switch method {
 	case "posts.add":
