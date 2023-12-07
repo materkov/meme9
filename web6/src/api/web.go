@@ -99,7 +99,7 @@ func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 		OGImage:       "",
 		Content:       paragraphsHtml,
 		Prefetch: map[string]interface{}{
-			"__postPagePost": transformPost(post, user, viewer.UserID),
+			"__postPagePost": transformPostBatch([]*store.Post{post}, viewer.UserID)[0],
 		},
 	})
 }

@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-sql-driver/mysql"
+	"github.com/materkov/meme9/web6/src/pkg/utils"
+	"strings"
 	"time"
 )
 
@@ -29,6 +31,28 @@ func (s *SqlStore) getObject(id int, objType int, obj interface{}) error {
 
 	return nil
 
+}
+
+func (s *SqlStore) GetObjectsMany(ids []int) (map[int][]byte, error) {
+	rows, err := s.DB.Query(fmt.Sprintf("select id, data from objects where id in (%s)", strings.Join(utils.IdsToStrings(ids), ",")))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	resultMap := map[int][]byte{}
+	for rows.Next() {
+		id := 0
+		var data []byte
+		err = rows.Scan(&id, &data)
+		if err != nil {
+			return nil, err
+		}
+
+		resultMap[id] = data
+	}
+
+	return resultMap, nil
 }
 
 func (s *SqlStore) AddObject(objType int, object interface{}) (int, error) {
@@ -87,6 +111,38 @@ func (s *SqlStore) CountEdges(fromID, edgeType int) (int, error) {
 	cnt := 0
 	err := s.DB.QueryRow("select count(*) from edges where from_id = ? and edge_type = ?", fromID, edgeType).Scan(&cnt)
 	return cnt, err
+}
+
+func (s *SqlStore) LoadLikesMany(postIds []int, viewerID int) (counters map[int]int, isLiked map[int]bool, err error) {
+	query := `
+select from_id, count(*), sum(to_id = %d)
+from edges
+where from_id in (%s) and edge_type=%d
+group by from_id
+`
+	rows, err := s.DB.Query(fmt.Sprintf(query, viewerID, strings.Join(utils.IdsToStrings(postIds), ","), EdgeTypeLiked))
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	isLiked = map[int]bool{}
+	counters = map[int]int{}
+
+	for rows.Next() {
+		postID, count, isLikedInt := 0, 0, 0
+		err = rows.Scan(&postID, &count, &isLikedInt)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		counters[postID] = count
+		if isLikedInt > 0 {
+			isLiked[postID] = true
+		}
+	}
+
+	return counters, isLiked, nil
 }
 
 func (s *SqlStore) GetEdges(fromID int, edgeType int, limit int, startFrom int) ([]Edge, error) {

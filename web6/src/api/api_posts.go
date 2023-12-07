@@ -1,9 +1,11 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/pkg/utils"
 	"github.com/materkov/meme9/web6/src/store"
 	"math"
 	"net/url"
@@ -45,60 +47,81 @@ type PostsAddReq struct {
 	PollID string `json:"pollId"`
 }
 
-func transformPost(post *store.Post, user *store.User, viewerID int) *Post {
-	userWrapped, err := transformUser(post.UserID, user, viewerID)
-	pkg.LogErr(err) // TODO think about it
+func transformPostBatch(posts []*store.Post, viewerID int) []*Post {
+	var userIds []int
+	var postIds []int
+	for _, post := range posts {
+		userIds = append(userIds, post.UserID)
+		postIds = append(postIds, post.ID)
+	}
 
-	likesCount, err := store.GlobalStore.CountEdges(post.ID, store.EdgeTypeLiked)
+	counters, isLiked, err := store.GlobalStore.LoadLikesMany(postIds, viewerID)
 	pkg.LogErr(err)
 
-	edge, err := store.GlobalStore.GetEdge(post.ID, viewerID, store.EdgeTypeLiked)
-	if err != nil && !errors.Is(err, store.ErrNoEdge) {
+	usersMap, err := store.GlobalStore.GetObjectsMany(utils.UniqueIds(userIds))
+	pkg.LogErr(err)
+
+	usersWrappedMap := map[int]*User{}
+	for userID, userBytes := range usersMap {
+		user := &store.User{}
+		err = json.Unmarshal(userBytes, user)
+		pkg.LogErr(err)
+		if err != nil {
+			user = nil
+		}
+
+		usersWrappedMap[userID], err = transformUser(userID, user, viewerID)
 		pkg.LogErr(err)
 	}
 
-	var wrappedLink *PostLink
-	if post.Link != nil {
-		host := ""
+	result := make([]*Post, len(posts))
 
-		parsedURL, err := url.Parse(post.Link.URL)
-		if err == nil {
-			host = parsedURL.Host
+	for i, post := range posts {
+		var wrappedLink *PostLink
+		if post.Link != nil {
+			host := ""
+
+			parsedURL, err := url.Parse(post.Link.URL)
+			if err == nil {
+				host = parsedURL.Host
+			}
+
+			proxiedUrl := fmt.Sprintf("https://3c6ef5be-e5f9-4e47-9a68-bd635323a374.selcdn.net/image-proxy?url=%s", url.QueryEscape(post.Link.ImageURL))
+
+			wrappedLink = &PostLink{
+				URL:         post.Link.URL,
+				Title:       post.Link.Title,
+				Description: post.Link.Description,
+				ImageURL:    proxiedUrl,
+				Domain:      host,
+			}
 		}
 
-		proxiedUrl := fmt.Sprintf("/image-proxy?url=%s", url.QueryEscape(post.Link.ImageURL))
+		var pollTransformed *Poll
+		if post.PollID != 0 {
+			poll, err := store.GetPoll(post.PollID)
+			pkg.LogErr(err)
+			if err == nil {
+				pollTransformed = transformPoll(poll, viewerID)
+			}
+		}
 
-		wrappedLink = &PostLink{
-			URL:         post.Link.URL,
-			Title:       post.Link.Title,
-			Description: post.Link.Description,
-			ImageURL:    proxiedUrl,
-			Domain:      host,
+		result[i] = &Post{
+			ID:     strconv.Itoa(post.ID),
+			UserID: strconv.Itoa(post.UserID),
+			Date:   time.Unix(int64(post.Date), 0).Format(time.RFC3339),
+			Text:   post.Text,
+			User:   usersWrappedMap[post.UserID],
+
+			LikesCount: counters[post.ID],
+			IsLiked:    isLiked[post.ID],
+
+			Link: wrappedLink,
+			Poll: pollTransformed,
 		}
 	}
 
-	var pollTransformed *Poll
-	if post.PollID != 0 {
-		poll, err := store.GetPoll(post.PollID)
-		pkg.LogErr(err)
-		if err == nil {
-			pollTransformed = transformPoll(poll, viewerID)
-		}
-	}
-
-	return &Post{
-		ID:     strconv.Itoa(post.ID),
-		UserID: strconv.Itoa(post.UserID),
-		Date:   time.Unix(int64(post.Date), 0).Format(time.RFC3339),
-		Text:   post.Text,
-		User:   userWrapped,
-
-		LikesCount: likesCount,
-		IsLiked:    edge != nil,
-
-		Link: wrappedLink,
-		Poll: pollTransformed,
-	}
+	return result
 }
 
 func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
@@ -140,17 +163,12 @@ func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
 		return nil, err
 	}
 
-	user, err := store.GetUser(post.UserID)
-	if err != nil {
-		return nil, err
-	}
-
 	go func() {
 		err := pkg.TryParseLink(&post)
 		pkg.LogErr(err)
 	}()
 
-	return transformPost(&post, user, viewer.UserID), nil
+	return transformPostBatch([]*store.Post{&post}, viewer.UserID)[0], nil
 }
 
 type FeedType string
@@ -205,16 +223,29 @@ func (h *API) PostsList(v *Viewer, r *PostsListReq) (*PostsList, error) {
 		postIds = postIds[:count]
 	}
 
+	postsMap, err := store.GlobalStore.GetObjectsMany(postIds)
+	if err != nil {
+		return nil, err
+	}
+
+	var posts []*store.Post
 	for _, postID := range postIds {
-		post, err := store.GetPost(postID)
-		if err != nil {
+		postBytes := postsMap[postID]
+		if postBytes == nil {
 			continue
 		}
 
-		user, _ := store.GetUser(post.UserID)
+		post := store.Post{}
+		err = json.Unmarshal(postBytes, &post)
+		if err != nil {
+			pkg.LogErr(err)
+		}
+		post.ID = postID // TODO think about this
 
-		result.Items = append(result.Items, transformPost(post, user, v.UserID))
+		posts = append(posts, &post)
 	}
+
+	result.Items = transformPostBatch(posts, v.UserID)
 
 	return result, nil
 }
@@ -233,9 +264,7 @@ func (h *API) PostsListByID(v *Viewer, r *PostsListByIdReq) (*Post, error) {
 		return nil, Error("PostNotFound")
 	}
 
-	user, _ := store.GetUser(post.UserID)
-
-	return transformPost(post, user, v.UserID), nil
+	return transformPostBatch([]*store.Post{post}, v.UserID)[0], nil
 }
 
 type PostsListByUserReq struct {
@@ -272,17 +301,17 @@ func (h *API) PostsListByUser(v *Viewer, r *PostsListByUserReq) (*PostsList, err
 		return nil, fmt.Errorf("error getting posted edges: %w", err)
 	}
 
-	result := make([]*Post, 0)
+	var posts []*store.Post
+
 	for _, edge := range edges {
 		post, err := store.GetPost(edge.ToID)
-		if err != nil {
+		if err == nil {
+			posts = append(posts, post)
 			continue
 		}
-
-		user, _ := store.GetUser(post.UserID)
-
-		result = append(result, transformPost(post, user, v.UserID))
 	}
+
+	result := transformPostBatch(posts, v.UserID)
 
 	nextAfter := ""
 	if len(edges) == count && len(edges) > 0 {
