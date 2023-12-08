@@ -1,13 +1,17 @@
 package pkg
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/store"
 	"time"
 )
 
-func ParseAuthToken(tokenStr string) *store.Token {
+func ParseAuthToken(ctx context.Context, tokenStr string) *store.Token {
+	defer tracer.FromCtx(ctx).StartChild("ParseAuthToken").Stop()
+
 	if tokenStr == "" {
 		return nil
 	}

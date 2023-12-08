@@ -20,7 +20,7 @@ func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 	path := r.URL.Path
 	path = strings.TrimPrefix(path, "/users/")
 
-	resp1, err := h.Api.PostsListByUser(viewer, &PostsListByUserReq{UserID: path})
+	resp1, err := h.Api.PostsListByUser(r.Context(), viewer, &PostsListByUserReq{UserID: path})
 	logAPIPrefetchError(err)
 
 	resp2, err := h.Api.usersList(viewer, &UsersListReq{UserIds: []string{path}})
@@ -46,7 +46,7 @@ func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 }
 
 func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
-	resp, err := h.Api.PostsList(viewer, &PostsListReq{})
+	resp, err := h.Api.PostsList(r.Context(), viewer, &PostsListReq{})
 	logAPIPrefetchError(err)
 
 	wrapPage(w, viewer, renderOpts{
@@ -99,7 +99,7 @@ func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 		OGImage:       "",
 		Content:       paragraphsHtml,
 		Prefetch: map[string]interface{}{
-			"__postPagePost": transformPostBatch([]*store.Post{post}, viewer.UserID)[0],
+			"__postPagePost": transformPostBatch(r.Context(), []*store.Post{post}, viewer.UserID)[0],
 		},
 	})
 }

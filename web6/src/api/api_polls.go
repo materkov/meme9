@@ -1,8 +1,11 @@
 package api
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/store"
 	"strconv"
 )
@@ -25,42 +28,65 @@ type PollAnswer struct {
 	IsVoted    bool   `json:"isVoted,omitempty"`
 }
 
-func transformPoll(poll *store.Poll, viewerID int) *Poll {
-	answers := make([]*PollAnswer, len(poll.AnswerIds))
-	for i, answerID := range poll.AnswerIds {
-		answer, err := store.GetPollAnswer(answerID)
-		if err != nil {
-			answers[i] = &PollAnswer{
-				ID: strconv.Itoa(answerID),
-			}
-			continue
-		}
+func transformPollsMany(ctx context.Context, polls []*store.Poll, viewerID int) []*Poll {
+	defer tracer.FromCtx(ctx).StartChild("transformPollsMany").Stop()
 
-		count, err := store.GlobalStore.CountEdges(answerID, store.EdgeTypeVoted)
+	result := make([]*Poll, len(polls))
+
+	var answerIds []int
+	for _, poll := range polls {
+		for _, answerID := range poll.AnswerIds {
+			answerIds = append(answerIds, answerID)
+		}
+	}
+
+	answerBytes, err := store.GlobalStore.GetObjectsMany(ctx, answerIds)
+	pkg.LogErr(err)
+
+	answers := map[int]*store.PollAnswer{}
+	for _, answerID := range answerIds {
+		pollAnswer := store.PollAnswer{}
+		err = json.Unmarshal(answerBytes[answerID], &pollAnswer)
 		pkg.LogErr(err)
-
-		isVoted := false
-		if viewerID != 0 {
-			_, err := store.GlobalStore.GetEdge(answerID, viewerID, store.EdgeTypeVoted)
-			isVoted = err == nil
-		}
-
-		answers[i] = &PollAnswer{
-			ID:         strconv.Itoa(answer.ID),
-			Answer:     answer.Answer,
-			VotedCount: count,
-			IsVoted:    isVoted,
+		if err == nil {
+			pollAnswer.ID = answerID
+			answers[pollAnswer.ID] = &pollAnswer
 		}
 	}
 
-	return &Poll{
-		ID:       strconv.Itoa(poll.ID),
-		Question: poll.Question,
-		Answers:  answers,
+	counters, isVoted, err := store.GlobalStore.LoadAnswersMany(ctx, answerIds, viewerID)
+	pkg.LogErr(err)
+
+	for i, poll := range polls {
+		pollAnswers := make([]*PollAnswer, len(poll.AnswerIds))
+		for i, answerID := range poll.AnswerIds {
+			answer, ok := answers[answerID]
+			if !ok {
+				pollAnswers[i] = &PollAnswer{
+					ID: strconv.Itoa(answerID),
+				}
+				continue
+			}
+
+			pollAnswers[i] = &PollAnswer{
+				ID:         strconv.Itoa(answer.ID),
+				Answer:     answer.Answer,
+				VotedCount: counters[answerID],
+				IsVoted:    isVoted[answerID],
+			}
+		}
+
+		result[i] = &Poll{
+			ID:       strconv.Itoa(poll.ID),
+			Question: poll.Question,
+			Answers:  pollAnswers,
+		}
 	}
+
+	return result
 }
 
-func (*API) PollsAdd(viewer *Viewer, r *PollsAddReq) (*Poll, error) {
+func (*API) PollsAdd(ctx context.Context, viewer *Viewer, r *PollsAddReq) (*Poll, error) {
 	var err error
 
 	answerIds := make([]int, len(r.Answers))
@@ -88,7 +114,7 @@ func (*API) PollsAdd(viewer *Viewer, r *PollsAddReq) (*Poll, error) {
 		return nil, err
 	}
 
-	return transformPoll(poll, viewer.UserID), nil
+	return transformPollsMany(ctx, []*store.Poll{poll}, viewer.UserID)[0], nil
 }
 
 type PollsVoteReq struct {
@@ -155,12 +181,12 @@ type PollsListReq struct {
 	Ids []string `json:"ids"`
 }
 
-func (*API) PollsList(viewer *Viewer, r *PollsListReq) ([]*Poll, error) {
+func (*API) PollsList(ctx context.Context, viewer *Viewer, r *PollsListReq) ([]*Poll, error) {
 	pollID, _ := strconv.Atoi(r.Ids[0])
 	poll, err := store.GetPoll(pollID)
 	if err != nil {
 		return nil, err
 	}
 
-	return []*Poll{transformPoll(poll, viewer.UserID)}, nil
+	return transformPollsMany(ctx, []*store.Poll{poll}, viewer.UserID), nil
 }

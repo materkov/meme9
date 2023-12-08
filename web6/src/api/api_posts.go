@@ -1,16 +1,19 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/pkg/utils"
 	"github.com/materkov/meme9/web6/src/store"
 	"math"
 	"net/url"
 	"slices"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -47,32 +50,78 @@ type PostsAddReq struct {
 	PollID string `json:"pollId"`
 }
 
-func transformPostBatch(posts []*store.Post, viewerID int) []*Post {
+func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) []*Post {
+	defer tracer.FromCtx(ctx).StartChild("transformPostBatch").Stop()
+
 	var userIds []int
 	var postIds []int
+	var pollIds []int
 	for _, post := range posts {
 		userIds = append(userIds, post.UserID)
 		postIds = append(postIds, post.ID)
+
+		if post.PollID != 0 {
+			pollIds = append(pollIds, post.PollID)
+		}
 	}
 
-	counters, isLiked, err := store.GlobalStore.LoadLikesMany(postIds, viewerID)
-	pkg.LogErr(err)
+	wg := sync.WaitGroup{}
+	wg.Add(3)
 
-	usersMap, err := store.GlobalStore.GetObjectsMany(utils.UniqueIds(userIds))
-	pkg.LogErr(err)
+	var counters map[int]int
+	var isLiked map[int]bool
+	go func() {
+		var err error
+		counters, isLiked, err = store.GlobalStore.LoadLikesMany(ctx, postIds, viewerID)
+		pkg.LogErr(err)
+		wg.Done()
+	}()
 
 	usersWrappedMap := map[int]*User{}
-	for userID, userBytes := range usersMap {
-		user := &store.User{}
-		err = json.Unmarshal(userBytes, user)
+	go func() {
+		usersMap, err := store.GlobalStore.GetObjectsMany(ctx, utils.UniqueIds(userIds))
 		pkg.LogErr(err)
-		if err != nil {
-			user = nil
+
+		for userID, userBytes := range usersMap {
+			user := &store.User{}
+			err = json.Unmarshal(userBytes, user)
+			pkg.LogErr(err)
+			if err != nil {
+				user = nil
+			}
+
+			usersWrappedMap[userID], err = transformUser(userID, user, viewerID)
+			pkg.LogErr(err)
+		}
+		wg.Done()
+	}()
+
+	pollWrappedMap := map[int]*Poll{}
+	go func() {
+		pollBytes, err := store.GlobalStore.GetObjectsMany(ctx, pollIds)
+		pkg.LogErr(err)
+
+		polls := make([]*store.Poll, len(pollIds))
+		for i, pollID := range pollIds {
+			pollData := pollBytes[pollID]
+
+			poll := store.Poll{}
+			err = json.Unmarshal(pollData, &poll)
+			pkg.LogErr(err)
+			poll.ID = pollID
+
+			polls[i] = &poll
 		}
 
-		usersWrappedMap[userID], err = transformUser(userID, user, viewerID)
-		pkg.LogErr(err)
-	}
+		pollsWrapped := transformPollsMany(ctx, polls, viewerID)
+
+		for i, poll := range pollsWrapped {
+			pollWrappedMap[pollIds[i]] = poll
+		}
+
+		wg.Done()
+	}()
+	wg.Wait()
 
 	result := make([]*Post, len(posts))
 
@@ -97,14 +146,7 @@ func transformPostBatch(posts []*store.Post, viewerID int) []*Post {
 			}
 		}
 
-		var pollTransformed *Poll
-		if post.PollID != 0 {
-			poll, err := store.GetPoll(post.PollID)
-			pkg.LogErr(err)
-			if err == nil {
-				pollTransformed = transformPoll(poll, viewerID)
-			}
-		}
+		pollTransformed := pollWrappedMap[post.PollID]
 
 		result[i] = &Post{
 			ID:     strconv.Itoa(post.ID),
@@ -124,7 +166,7 @@ func transformPostBatch(posts []*store.Post, viewerID int) []*Post {
 	return result
 }
 
-func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
+func (*API) PostsAdd(ctx context.Context, viewer *Viewer, r *PostsAddReq) (*Post, error) {
 	if r.Text == "" {
 		return nil, Error("TextEmpty")
 	}
@@ -168,7 +210,7 @@ func (*API) PostsAdd(viewer *Viewer, r *PostsAddReq) (*Post, error) {
 		pkg.LogErr(err)
 	}()
 
-	return transformPostBatch([]*store.Post{&post}, viewer.UserID)[0], nil
+	return transformPostBatch(ctx, []*store.Post{&post}, viewer.UserID)[0], nil
 }
 
 type FeedType string
@@ -185,7 +227,9 @@ type PostsListReq struct {
 	PageToken string `json:"pageToken"`
 }
 
-func (h *API) PostsList(v *Viewer, r *PostsListReq) (*PostsList, error) {
+func (h *API) PostsList(ctx context.Context, v *Viewer, r *PostsListReq) (*PostsList, error) {
+	defer tracer.FromCtx(ctx).StartChild("API.PostsList").Stop()
+
 	var err error
 	var postIds []int
 
@@ -223,7 +267,7 @@ func (h *API) PostsList(v *Viewer, r *PostsListReq) (*PostsList, error) {
 		postIds = postIds[:count]
 	}
 
-	postsMap, err := store.GlobalStore.GetObjectsMany(postIds)
+	postsMap, err := store.GlobalStore.GetObjectsMany(ctx, postIds)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +289,7 @@ func (h *API) PostsList(v *Viewer, r *PostsListReq) (*PostsList, error) {
 		posts = append(posts, &post)
 	}
 
-	result.Items = transformPostBatch(posts, v.UserID)
+	result.Items = transformPostBatch(ctx, posts, v.UserID)
 
 	return result, nil
 }
@@ -254,7 +298,7 @@ type PostsListByIdReq struct {
 	ID string `json:"id"`
 }
 
-func (h *API) PostsListByID(v *Viewer, r *PostsListByIdReq) (*Post, error) {
+func (h *API) PostsListByID(ctx context.Context, v *Viewer, r *PostsListByIdReq) (*Post, error) {
 	postID, _ := strconv.Atoi(r.ID)
 
 	post, err := store.GetPost(postID)
@@ -264,7 +308,7 @@ func (h *API) PostsListByID(v *Viewer, r *PostsListByIdReq) (*Post, error) {
 		return nil, Error("PostNotFound")
 	}
 
-	return transformPostBatch([]*store.Post{post}, v.UserID)[0], nil
+	return transformPostBatch(ctx, []*store.Post{post}, v.UserID)[0], nil
 }
 
 type PostsListByUserReq struct {
@@ -274,7 +318,7 @@ type PostsListByUserReq struct {
 	After string `json:"after"`
 }
 
-func (h *API) PostsListByUser(v *Viewer, r *PostsListByUserReq) (*PostsList, error) {
+func (h *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUserReq) (*PostsList, error) {
 	userID, _ := strconv.Atoi(r.UserID)
 	if userID <= 0 {
 		return nil, Error("IncorrectUserId")
@@ -311,7 +355,7 @@ func (h *API) PostsListByUser(v *Viewer, r *PostsListByUserReq) (*PostsList, err
 		}
 	}
 
-	result := transformPostBatch(posts, v.UserID)
+	result := transformPostBatch(ctx, posts, v.UserID)
 
 	nextAfter := ""
 	if len(edges) == count && len(edges) > 0 {

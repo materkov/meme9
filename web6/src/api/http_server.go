@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/pkg/xlog"
 	"github.com/materkov/meme9/web6/src/store"
 	"hash/crc32"
@@ -147,13 +148,19 @@ func wrapWeb(handler webHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Version", pkg.BuildTime)
 
+		t := tracer.NewTracer("web //")
+		defer t.Stop()
+		ctx := tracer.WithCtx(r.Context(), t)
+
+		t.Tags["url"] = r.URL.String()
+
 		viewer := &Viewer{
 			ClientIP: getClientIP(r),
 		}
 
 		authCookie, _ := r.Cookie("authToken")
 		if authCookie != nil {
-			authToken := pkg.ParseAuthToken(authCookie.Value)
+			authToken := pkg.ParseAuthToken(ctx, authCookie.Value)
 			if authToken != nil {
 				viewer.UserID = authToken.UserID
 				viewer.AuthToken = authCookie.Value
@@ -168,7 +175,7 @@ func wrapWeb(handler webHandler) http.HandlerFunc {
 			"userAgent": r.UserAgent(),
 		})
 
-		handler(w, r, viewer)
+		handler(w, r.WithContext(ctx), viewer)
 	}
 }
 

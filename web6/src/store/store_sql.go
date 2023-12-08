@@ -1,11 +1,13 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-sql-driver/mysql"
+	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/pkg/utils"
 	"strings"
 	"time"
@@ -33,7 +35,16 @@ func (s *SqlStore) getObject(id int, objType int, obj interface{}) error {
 
 }
 
-func (s *SqlStore) GetObjectsMany(ids []int) (map[int][]byte, error) {
+func (s *SqlStore) GetObjectsMany(ctx context.Context, ids []int) (map[int][]byte, error) {
+	span := tracer.FromCtx(ctx).StartChild("GetObjectsMany")
+	defer span.Stop()
+
+	span.Tags["ids"] = strings.Join(utils.IdsToStrings(ids), ",")
+
+	if len(ids) == 0 {
+		return map[int][]byte{}, nil
+	}
+
 	rows, err := s.DB.Query(fmt.Sprintf("select id, data from objects where id in (%s)", strings.Join(utils.IdsToStrings(ids), ",")))
 	if err != nil {
 		return nil, err
@@ -107,13 +118,9 @@ func (s *SqlStore) GetEdge(fromID, toID, edgeType int) (*Edge, error) {
 	return e, nil
 }
 
-func (s *SqlStore) CountEdges(fromID, edgeType int) (int, error) {
-	cnt := 0
-	err := s.DB.QueryRow("select count(*) from edges where from_id = ? and edge_type = ?", fromID, edgeType).Scan(&cnt)
-	return cnt, err
-}
+func (s *SqlStore) LoadLikesMany(ctx context.Context, postIds []int, viewerID int) (counters map[int]int, isLiked map[int]bool, err error) {
+	defer tracer.FromCtx(ctx).StartChild("LoadLikesMany").Stop()
 
-func (s *SqlStore) LoadLikesMany(postIds []int, viewerID int) (counters map[int]int, isLiked map[int]bool, err error) {
 	query := `
 select from_id, count(*), sum(to_id = %d)
 from edges
@@ -143,6 +150,44 @@ group by from_id
 	}
 
 	return counters, isLiked, nil
+}
+
+func (s *SqlStore) LoadAnswersMany(ctx context.Context, answerIds []int, viewerID int) (counters map[int]int, isVoted map[int]bool, err error) {
+	defer tracer.FromCtx(ctx).StartChild("LoadAnswersMany").Stop()
+
+	if len(answerIds) == 0 {
+		return map[int]int{}, map[int]bool{}, nil
+	}
+
+	query := `
+select from_id, count(*), sum(to_id = %d)
+from edges
+where from_id in (%s) and edge_type=%d
+group by from_id
+`
+	rows, err := s.DB.Query(fmt.Sprintf(query, viewerID, strings.Join(utils.IdsToStrings(answerIds), ","), EdgeTypeVoted))
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	isVoted = map[int]bool{}
+	counters = map[int]int{}
+
+	for rows.Next() {
+		postID, count, isLikedInt := 0, 0, 0
+		err = rows.Scan(&postID, &count, &isLikedInt)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		counters[postID] = count
+		if isLikedInt > 0 {
+			isVoted[postID] = true
+		}
+	}
+
+	return counters, isVoted, nil
 }
 
 func (s *SqlStore) GetEdges(fromID int, edgeType int, limit int, startFrom int) ([]Edge, error) {

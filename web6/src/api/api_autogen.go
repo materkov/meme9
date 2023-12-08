@@ -3,12 +3,18 @@ package api
 import (
 	"encoding/json"
 	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/pkg/xlog"
 	"net/http"
 	"strings"
 )
 
 func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
+	t := tracer.NewTracer("api")
+	defer t.Stop()
+
+	ctx := tracer.WithCtx(r.Context(), t)
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Version", pkg.BuildTime)
@@ -17,7 +23,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 	authHeader := r.Header.Get("authorization")
 	authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 	if authHeader != "" {
-		authToken := pkg.ParseAuthToken(authHeader)
+		authToken := pkg.ParseAuthToken(ctx, authHeader)
 		if authToken != nil {
 			userID = authToken.UserID
 		}
@@ -36,6 +42,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	method := strings.TrimPrefix(r.URL.Path, "/api/")
+	t.Tags["method"] = method
 
 	switch method {
 	case "posts.add":
@@ -45,7 +52,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 			writeResp(w, nil, ErrParsingRequest)
 			return
 		}
-		resp, err := h.Api.PostsAdd(viewer, req)
+		resp, err := h.Api.PostsAdd(ctx, viewer, req)
 		writeResp(w, resp, err)
 
 	case "posts.list":
@@ -55,7 +62,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 			writeResp(w, nil, ErrParsingRequest)
 			return
 		}
-		resp, err := h.Api.PostsList(viewer, req)
+		resp, err := h.Api.PostsList(ctx, viewer, req)
 		writeResp(w, resp, err)
 
 	case "posts.listById":
@@ -65,7 +72,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 			writeResp(w, nil, ErrParsingRequest)
 			return
 		}
-		resp, err := h.Api.PostsListByID(viewer, req)
+		resp, err := h.Api.PostsListByID(ctx, viewer, req)
 		writeResp(w, resp, err)
 
 	case "posts.listPostedByUser":
@@ -75,7 +82,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 			writeResp(w, nil, ErrParsingRequest)
 			return
 		}
-		resp, err := h.Api.PostsListByUser(viewer, req)
+		resp, err := h.Api.PostsListByUser(ctx, viewer, req)
 		writeResp(w, resp, err)
 
 	case "posts.delete":
@@ -165,7 +172,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 			writeResp(w, nil, ErrParsingRequest)
 			return
 		}
-		resp, err := h.Api.PollsAdd(viewer, req)
+		resp, err := h.Api.PollsAdd(ctx, viewer, req)
 		writeResp(w, resp, err)
 
 	case "polls.list":
@@ -175,7 +182,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 			writeResp(w, nil, ErrParsingRequest)
 			return
 		}
-		resp, err := h.Api.PollsList(viewer, req)
+		resp, err := h.Api.PollsList(ctx, viewer, req)
 		writeResp(w, resp, err)
 
 	case "polls.vote":
