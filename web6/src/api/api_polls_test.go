@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -10,7 +11,7 @@ func TestAPI_PollsAdd(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	resp, err := api.PollsAdd(&Viewer{UserID: 15}, &PollsAddReq{
+	resp, err := api.PollsAdd(context.Background(), &Viewer{UserID: 15}, &PollsAddReq{
 		Question: "my question",
 		Answers:  []string{"answer 1", "answer 2"},
 	})
@@ -23,7 +24,7 @@ func TestAPI_PollsAdd(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	listResp, err := api.PollsList(&Viewer{UserID: 15}, &PollsListReq{
+	listResp, err := api.PollsList(context.Background(), &Viewer{UserID: 15}, &PollsListReq{
 		Ids: []string{resp.ID},
 	})
 	require.NoError(t, err)

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"github.com/stretchr/testify/require"
 	"strings"
@@ -110,13 +111,13 @@ func TestAPI_PostsAdd(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	_, err := api.PostsAdd(&Viewer{UserID: 14}, &PostsAddReq{Text: ""})
+	_, err := api.PostsAdd(context.Background(), &Viewer{UserID: 14}, &PostsAddReq{Text: ""})
 	requireAPIError(t, err, "TextEmpty")
 
-	_, err = api.PostsAdd(&Viewer{UserID: 14}, &PostsAddReq{Text: strings.Repeat("a", 10000)})
+	_, err = api.PostsAdd(context.Background(), &Viewer{UserID: 14}, &PostsAddReq{Text: strings.Repeat("a", 10000)})
 	requireAPIError(t, err, "TextTooLong")
 
-	_, err = api.PostsAdd(&Viewer{}, &PostsAddReq{Text: "test"})
+	_, err = api.PostsAdd(context.Background(), &Viewer{}, &PostsAddReq{Text: "test"})
 	requireAPIError(t, err, "NotAuthorized")
 }
 

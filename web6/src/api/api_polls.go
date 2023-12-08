@@ -35,9 +35,7 @@ func transformPollsMany(ctx context.Context, polls []*store.Poll, viewerID int) 
 
 	var answerIds []int
 	for _, poll := range polls {
-		for _, answerID := range poll.AnswerIds {
-			answerIds = append(answerIds, answerID)
-		}
+		answerIds = append(answerIds, poll.AnswerIds...)
 	}
 
 	answerBytes, err := store.GlobalStore.GetObjectsMany(ctx, answerIds)
