@@ -227,7 +227,7 @@ type PostsListReq struct {
 	PageToken string `json:"pageToken"`
 }
 
-func (h *API) PostsList(ctx context.Context, v *Viewer, r *PostsListReq) (*PostsList, error) {
+func (a *API) PostsList(ctx context.Context, v *Viewer, r *PostsListReq) (*PostsList, error) {
 	defer tracer.FromCtx(ctx).StartChild("API.PostsList").Stop()
 
 	var err error
@@ -298,7 +298,7 @@ type PostsListByIdReq struct {
 	ID string `json:"id"`
 }
 
-func (h *API) PostsListByID(ctx context.Context, v *Viewer, r *PostsListByIdReq) (*Post, error) {
+func (a *API) PostsListByID(ctx context.Context, v *Viewer, r *PostsListByIdReq) (*Post, error) {
 	postID, _ := strconv.Atoi(r.ID)
 
 	post, err := store.GetPost(postID)
@@ -318,7 +318,7 @@ type PostsListByUserReq struct {
 	After string `json:"after"`
 }
 
-func (h *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUserReq) (*PostsList, error) {
+func (a *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUserReq) (*PostsList, error) {
 	userID, _ := strconv.Atoi(r.UserID)
 	if userID <= 0 {
 		return nil, Error("IncorrectUserId")
@@ -372,7 +372,7 @@ type PostsDeleteReq struct {
 	PostID string `json:"postId"`
 }
 
-func (h *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (*Void, error) {
+func (a *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (*Void, error) {
 	postID, _ := strconv.Atoi(r.PostID)
 
 	post, err := store.GetPost(postID)

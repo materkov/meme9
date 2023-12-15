@@ -6,6 +6,7 @@ import (
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
 	_ "github.com/materkov/meme9/web6/src/store/sqlmock"
+	"github.com/materkov/meme9/web6/src/store2"
 	"github.com/stretchr/testify/require"
 	"math/rand"
 	"net/http"
@@ -20,14 +21,25 @@ func createTestDB(t *testing.T) func() {
 	require.NoError(t, err)
 
 	store.GlobalStore = &store.SqlStore{DB: db}
+	store2.GlobalStore = createMockStore()
 
 	return func() {
 		_ = db.Close()
 	}
 }
 
+func createMockStore() *store2.Store {
+	return &store2.Store{
+		Unique: store2.NewMockUniqueStore(),
+	}
+}
+
+func createAPI() *API {
+	return &API{}
+}
+
 func TestApi_authEmailLogin(t *testing.T) {
-	api := API{}
+	api := createAPI()
 	closer := createTestDB(t)
 	defer closer()
 
@@ -73,7 +85,7 @@ func TestApi_authEmailLogin(t *testing.T) {
 }
 
 func TestAPI_authRegister(t *testing.T) {
-	api := API{}
+	api := createAPI()
 	closer := createTestDB(t)
 	defer closer()
 
@@ -103,7 +115,7 @@ func TestAPI_authRegister(t *testing.T) {
 }
 
 func TestApi_authVK(t *testing.T) {
-	api := API{}
+	api := createAPI()
 	closer := createTestDB(t)
 	defer closer()
 

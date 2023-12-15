@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"time"
 )
 
@@ -16,8 +17,8 @@ func ParseAuthToken(ctx context.Context, tokenStr string) *store.Token {
 		return nil
 	}
 
-	tokenID, err := store.GlobalStore.GetUnique(store.UniqueTypeAuthToken, tokenStr)
-	if errors.Is(err, store.ErrUniqueNotFound) {
+	tokenID, err := store2.GlobalStore.Unique.Get(store2.UniqueTypeAuthToken, tokenStr)
+	if errors.Is(err, store2.ErrNotFound) {
 		return nil
 	} else if err != nil {
 		LogErr(err)
@@ -46,7 +47,7 @@ func GenerateAuthToken(userID int) (string, error) {
 		return "", fmt.Errorf("error storing token: %w", err)
 	}
 
-	err = store.GlobalStore.AddUnique(store.UniqueTypeAuthToken, token.Token, token.ID)
+	err = store2.GlobalStore.Unique.Add(store2.UniqueTypeAuthToken, token.Token, token.ID)
 	if err != nil {
 		return "", fmt.Errorf("error storing edge: %w", err)
 	}

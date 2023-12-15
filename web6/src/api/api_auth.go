@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
 )
@@ -20,7 +21,7 @@ type AuthResp struct {
 	UserName string `json:"userName"`
 }
 
-func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
+func (a *API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	if r.Email == "" {
 		return nil, Error("EmptyEmail")
 	}
@@ -31,8 +32,8 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, Error("EmptyPassword")
 	}
 
-	userID, err := store.GlobalStore.GetUnique(store.UniqueTypeEmail, r.Email)
-	if err != nil && !errors.Is(err, store.ErrUniqueNotFound) {
+	userID, err := store2.GlobalStore.Unique.Get(store2.UniqueTypeEmail, r.Email)
+	if err != nil && !errors.Is(err, store2.ErrNotFound) {
 		return nil, err
 	} else if userID != 0 {
 		return nil, Error("EmailAlreadyRegistered")
@@ -53,7 +54,7 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	}
 	user.ID = userID
 
-	err = store.GlobalStore.AddUnique(store.UniqueTypeEmail, r.Email, userID)
+	err = store2.GlobalStore.Unique.Add(store2.UniqueTypeEmail, r.Email, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +73,13 @@ func (*API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	}, nil
 }
 
-func (*API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
+func (a *API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	if r.Email == "" || r.Password == "" {
 		return nil, Error("InvalidCredentials")
 	}
 
-	userID, err := store.GlobalStore.GetUnique(store.UniqueTypeEmail, r.Email)
-	if errors.Is(err, store.ErrUniqueNotFound) {
+	userID, err := store2.GlobalStore.Unique.Get(store2.UniqueTypeEmail, r.Email)
+	if errors.Is(err, store2.ErrNotFound) {
 		return nil, Error("InvalidCredentials")
 	} else if err != nil {
 		return nil, err
@@ -113,7 +114,7 @@ type AuthVkReq struct {
 	RedirectURL string `json:"redirectUrl"`
 }
 
-func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
+func (a *API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 	if r.Code == "" {
 		return nil, Error("InvalidCode")
 	}
@@ -128,12 +129,12 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 		return nil, err
 	}
 
-	userID, err := store.GlobalStore.GetUnique(store.UniqueTypeVKID, strconv.Itoa(vkUserID))
-	if err != nil && !errors.Is(err, store.ErrUniqueNotFound) {
+	userID, err := store2.GlobalStore.Unique.Get(store2.UniqueTypeVKID, strconv.Itoa(vkUserID))
+	if err != nil && !errors.Is(err, store2.ErrNotFound) {
 		return nil, err
 	}
 
-	if errors.Is(err, store.ErrUniqueNotFound) {
+	if errors.Is(err, store2.ErrNotFound) {
 		userID, err = store.GlobalStore.AddObject(store.ObjTypeUser, &store.User{
 			Name: "VK Auth user",
 		})
@@ -141,7 +142,7 @@ func (*API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 			return nil, err
 		}
 
-		err = store.GlobalStore.AddUnique(store.UniqueTypeVKID, strconv.Itoa(vkUserID), userID)
+		err = store2.GlobalStore.Unique.Add(store2.UniqueTypeVKID, strconv.Itoa(vkUserID), userID)
 		if err != nil {
 			return nil, err
 		}

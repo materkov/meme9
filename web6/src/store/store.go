@@ -25,7 +25,6 @@ var SqlClient *sql.DB
 
 var (
 	ErrObjectNotFound = fmt.Errorf("object not found")
-	ErrUniqueNotFound = fmt.Errorf("unique row not found")
 	ErrDuplicateEdge  = fmt.Errorf("edge duplicate")
 )
 
@@ -57,9 +56,3 @@ func GetToId(edges []Edge) []int {
 }
 
 var ErrNoEdge = fmt.Errorf("no edge")
-
-const (
-	UniqueTypeEmail     = 1
-	UniqueTypeVKID      = 2
-	UniqueTypeAuthToken = 3
-)
