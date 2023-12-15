@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"github.com/stretchr/testify/require"
 	"strconv"
 	"testing"
@@ -14,7 +15,7 @@ func TestApi_usersList(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	userID, _ := store.GlobalStore.AddObject(store.ObjTypeUser, &store.User{Name: "Test user"})
+	userID, _ := store2.GlobalStore.Nodes.AddObject(store.ObjTypeUser, &store.User{Name: "Test user"})
 
 	resp, err := api.usersList(&v, &UsersListReq{
 		UserIds: []string{strconv.Itoa(userID)},
@@ -31,7 +32,7 @@ func TestAPI_setStatus(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	userID, _ := store.GlobalStore.AddObject(store.ObjTypeUser, &store.User{})
+	userID, _ := store2.GlobalStore.Nodes.AddObject(store.ObjTypeUser, &store.User{})
 	v := Viewer{UserID: userID}
 
 	_, err := api.usersSetStatus(&v, &UsersSetStatus{
@@ -50,10 +51,10 @@ func TestAPI_follow(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	user1ID, _ := store.GlobalStore.AddObject(store.ObjTypeUser, &store.User{})
+	user1ID, _ := store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{})
 	v := Viewer{UserID: user1ID}
 
-	user2ID, _ := store.GlobalStore.AddObject(store.ObjTypeUser, &store.User{})
+	user2ID, _ := store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{})
 
 	// Follow
 	_, err := api.usersFollow(&v, &UsersFollow{

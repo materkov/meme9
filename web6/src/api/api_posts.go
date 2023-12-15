@@ -9,6 +9,7 @@ import (
 	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/pkg/utils"
 	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"math"
 	"net/url"
 	"slices"
@@ -189,7 +190,7 @@ func (*API) PostsAdd(ctx context.Context, viewer *Viewer, r *PostsAddReq) (*Post
 		PollID: pollID,
 	}
 
-	postID, err := store.GlobalStore.AddObject(store.ObjTypePost, &post)
+	postID, err := store2.GlobalStore.Nodes.Add(store.ObjTypePost, &post)
 	if err != nil {
 		return nil, fmt.Errorf("error saving post: %w", err)
 	}
@@ -391,7 +392,7 @@ func (a *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (*Void, error) {
 
 	post.IsDeleted = true
 
-	err = store.GlobalStore.UpdateObject(post, post.ID)
+	err = store2.GlobalStore.Nodes.Update(post.ID, post)
 	pkg.LogErr(err)
 
 	err = store.GlobalStore.DelEdge(store.FakeObjPostedPost, post.ID, store.EdgeTypePostedPost)

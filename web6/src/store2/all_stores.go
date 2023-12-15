@@ -1,7 +1,9 @@
 package store2
 
 type Store struct {
-	Unique UniqueStore
+	Unique     UniqueStore
+	Nodes      NodeStore
+	TypedNodes *TypedNodes
 }
 
 var GlobalStore *Store

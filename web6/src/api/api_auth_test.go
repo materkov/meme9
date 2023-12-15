@@ -29,8 +29,12 @@ func createTestDB(t *testing.T) func() {
 }
 
 func createMockStore() *store2.Store {
+	nodeStore := store2.NewMockNodes()
+
 	return &store2.Store{
-		Unique: store2.NewMockUniqueStore(),
+		Unique:     store2.NewMockUniqueStore(),
+		Nodes:      nodeStore,
+		TypedNodes: &store2.TypedNodes{Store: nodeStore},
 	}
 }
 

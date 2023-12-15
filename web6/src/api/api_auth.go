@@ -48,7 +48,7 @@ func (a *API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		Name:         r.Email,
 		PasswordHash: string(passwordHash),
 	}
-	userID, err = store.GlobalStore.AddObject(store.ObjTypeUser, user)
+	userID, err = store2.GlobalStore.Nodes.Add(store.ObjTypeUser, user)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (a *API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, err
 	}
 
-	user, err := store.GetUser(userID)
+	user, err := store2.GlobalStore.TypedNodes.GetUser(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (a *API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 	}
 
 	if errors.Is(err, store2.ErrNotFound) {
-		userID, err = store.GlobalStore.AddObject(store.ObjTypeUser, &store.User{
+		userID, err = store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{
 			Name: "VK Auth user",
 		})
 		if err != nil {
@@ -147,7 +147,7 @@ func (a *API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 			return nil, err
 		}
 	} else {
-		user, err := store.GetUser(userID)
+		user, err := store2.GlobalStore.TypedNodes.GetUser(userID)
 		if err != nil {
 			return nil, err
 		}
@@ -155,7 +155,7 @@ func (a *API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 		user.Name = userName
 
 		// Already authorized
-		err = store.GlobalStore.UpdateObject(user, user.ID)
+		err = store2.GlobalStore.Nodes.Update(user.ID, user)
 		pkg.LogErr(err)
 	}
 

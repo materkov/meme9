@@ -17,6 +17,10 @@ type SqlUniqueStore struct {
 	db *sql.DB
 }
 
+func NewSqlUniqueStore(db *sql.DB) *SqlUniqueStore {
+	return &SqlUniqueStore{db: db}
+}
+
 func (u *SqlUniqueStore) Add(uniqType int, val string, objectID int) error {
 	_, err := u.db.Exec("insert into uniques (type, `key`, object_id) values (?, ?, ?)", uniqType, val, objectID)
 	if err != nil {

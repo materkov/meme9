@@ -7,6 +7,7 @@ import (
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"strconv"
 )
 
@@ -93,7 +94,7 @@ func (*API) PollsAdd(ctx context.Context, viewer *Viewer, r *PollsAddReq) (*Poll
 			Answer: inputAnswer,
 		}
 
-		answer.ID, err = store.GlobalStore.AddObject(store.ObjTypePollAnswer, &answer)
+		answer.ID, err = store2.GlobalStore.Nodes.Add(store.ObjTypePollAnswer, &answer)
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +108,7 @@ func (*API) PollsAdd(ctx context.Context, viewer *Viewer, r *PollsAddReq) (*Poll
 		Question:  r.Question,
 		AnswerIds: answerIds,
 	}
-	poll.ID, err = store.GlobalStore.AddObject(store.ObjTypePoll, poll)
+	poll.ID, err = store2.GlobalStore.Nodes.Add(store.ObjTypePoll, poll)
 	if err != nil {
 		return nil, err
 	}

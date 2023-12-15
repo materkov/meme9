@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dyatlov/go-opengraph/opengraph"
 	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"io"
 	"net/http"
 	"regexp"
@@ -55,7 +56,7 @@ func TryParseLink(post *store.Post) error {
 	}
 
 	post.Link = linkInfo
-	err = store.GlobalStore.UpdateObject(post, post.ID)
+	err = store2.GlobalStore.Nodes.Update(post.ID, post)
 	if err != nil {
 		return err
 	}

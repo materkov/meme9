@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"log"
 	"strconv"
 )
@@ -79,7 +80,7 @@ func (*API) usersSetStatus(v *Viewer, r *UsersSetStatus) (*Void, error) {
 
 	user.Status = r.Status
 
-	err = store.GlobalStore.UpdateObject(user, user.ID)
+	err = store2.GlobalStore.Nodes.Update(user.ID, user)
 	if err != nil {
 		return nil, err
 	}

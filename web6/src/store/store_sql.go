@@ -66,25 +66,6 @@ func (s *SqlStore) GetObjectsMany(ctx context.Context, ids []int) (map[int][]byt
 	return resultMap, nil
 }
 
-func (s *SqlStore) AddObject(objType int, object interface{}) (int, error) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return 0, fmt.Errorf("error marshaling to json: %w", err)
-	}
-
-	res, err := s.DB.Exec("insert into objects(obj_type, data) values (?, ?)", objType, data)
-	if err != nil {
-		return 0, fmt.Errorf("error inserting row: %w", err)
-	}
-
-	objId, err := res.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("error getting last id from mysql: %w", err)
-	}
-
-	return int(objId), nil
-}
-
 func (s *SqlStore) AddEdge(fromID, toID, edgeType int) error {
 	_, err := s.DB.Exec(
 		"insert into edges(from_id, to_id, edge_type, date) values (?, ?, ?, ?)",
@@ -215,20 +196,6 @@ func (s *SqlStore) DelEdge(fromID, toID, edgeType int) error {
 	_, err := s.DB.Exec("delete from edges where from_id = ? and edge_type = ? and to_id = ?", fromID, edgeType, toID)
 	if err != nil {
 		return fmt.Errorf("error deleteing edge: %w", err)
-	}
-
-	return nil
-}
-
-func (s *SqlStore) UpdateObject(object interface{}, id int) error {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return fmt.Errorf("error marshaling to json: %w", err)
-	}
-
-	_, err = s.DB.Exec("update objects set data = ? where id = ?", data, id)
-	if err != nil {
-		return fmt.Errorf("error updating row: %w", err)
 	}
 
 	return nil
