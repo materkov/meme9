@@ -47,7 +47,14 @@ func (u *SqlPollAnswerStore) Add(object *store.PollAnswer) error {
 		return err
 	}
 
-	_, err = u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypePollAnswer, objectBytes)
+	result, err := u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypePollAnswer, objectBytes)
+	if err != nil {
+		return err
+	}
+
+	objectID, _ := result.LastInsertId()
+	object.ID = int(objectID)
+
 	return err
 }
 

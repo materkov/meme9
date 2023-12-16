@@ -47,8 +47,15 @@ func (u *SqlTokenStore) Add(object *store.Token) error {
 		return err
 	}
 
-	_, err = u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypeToken, objectBytes)
-	return err
+	result, err := u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypeToken, objectBytes)
+	if err != nil {
+		return err
+	}
+
+	objectID, _ := result.LastInsertId()
+	object.ID = int(objectID)
+
+	return nil
 }
 
 type TokenStore interface {

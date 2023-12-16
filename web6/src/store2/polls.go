@@ -47,8 +47,15 @@ func (u *SqlPollStore) Add(object *store.Poll) error {
 		return err
 	}
 
-	_, err = u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypePoll, objectBytes)
-	return err
+	result, err := u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypePoll, objectBytes)
+	if err != nil {
+		return err
+	}
+
+	objectID, _ := result.LastInsertId()
+	object.ID = int(objectID)
+
+	return nil
 }
 
 func (u *SqlPollStore) Update(object *store.Poll) error {

@@ -47,8 +47,15 @@ func (u *SqlPostStore) Add(object *store.Post) error {
 		return err
 	}
 
-	_, err = u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypePost, objectBytes)
-	return err
+	result, err := u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypePost, objectBytes)
+	if err != nil {
+		return err
+	}
+
+	objectID, _ := result.LastInsertId()
+	object.ID = int(objectID)
+
+	return nil
 }
 
 func (u *SqlPostStore) Update(object *store.Post) error {

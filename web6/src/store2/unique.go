@@ -42,10 +42,6 @@ type MockUniqueStore struct {
 	Rows map[string]int
 }
 
-func NewMockUniqueStore() *MockUniqueStore {
-	return &MockUniqueStore{Rows: map[string]int{}}
-}
-
 func (m *MockUniqueStore) Add(uniqType int, val string, objectID int) error {
 	key := fmt.Sprintf("%d:%s", uniqType, val)
 
