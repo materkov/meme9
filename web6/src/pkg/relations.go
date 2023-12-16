@@ -2,43 +2,25 @@ package pkg
 
 import (
 	"fmt"
-	"github.com/materkov/meme9/web6/src/store"
-	"math"
-	"sort"
+	"github.com/materkov/meme9/web6/src/store2"
 )
 
 func GetFeedPostIds(userID int) ([]int, error) {
-	edges, err := store.GlobalStore.GetEdges(userID, store.EdgeTypeFollowing, 1000, math.MaxInt)
+	userIds, err := store2.GlobalStore.Subs.GetFollowing(userID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting edges: %w", err)
 	}
 
-	userIds := store.GetToId(edges)
 	userIds = append(userIds, userID)
 
-	allPostsCh := make(chan []store.Edge)
-	for _, userId := range userIds {
-		userIdCopy := userId
-		go func() {
-			posts, err := store.GlobalStore.GetEdges(userIdCopy, store.EdgeTypePosted, 1000, math.MaxInt)
-
-			LogErr(err)
-			allPostsCh <- posts
-		}()
+	postIds, err := store2.GlobalStore.Wall.Get(userIds)
+	if err != nil {
+		return nil, fmt.Errorf("error getting post ids: %w", err)
 	}
 
-	var allPosts []store.Edge
-	for range userIds {
-		allPosts = append(allPosts, <-allPostsCh...)
+	if len(postIds) > 100 {
+		postIds = postIds[:100]
 	}
 
-	sort.Slice(allPosts, func(i, j int) bool {
-		return allPosts[i].Date > allPosts[j].Date
-	})
-
-	if len(allPosts) > 100 {
-		allPosts = allPosts[:100]
-	}
-
-	return store.GetToId(allPosts), err
+	return postIds, err
 }

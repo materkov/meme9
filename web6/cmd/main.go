@@ -24,6 +24,10 @@ func main() {
 		Unique:     store2.NewSqlUniqueStore(store.SqlClient),
 		Nodes:      nodeStore,
 		TypedNodes: &store2.TypedNodes{Store: nodeStore},
+		Likes:      &store2.SqlLikes{DB: store.SqlClient},
+		Subs:       &store2.SqlSubscriptions{DB: store.SqlClient},
+		Wall:       &store2.SqlWall{DB: store.SqlClient},
+		Votes:      &store2.SqlVotes{DB: store.SqlClient},
 	}
 
 	store.GlobalConfig, err = store.GetConfig()

@@ -73,7 +73,7 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 	var isLiked map[int]bool
 	go func() {
 		var err error
-		counters, isLiked, err = store.GlobalStore.LoadLikesMany(ctx, postIds, viewerID)
+		counters, isLiked, err = store2.GlobalStore.Likes.Get(ctx, postIds, viewerID)
 		pkg.LogErr(err)
 		wg.Done()
 	}()
@@ -196,12 +196,7 @@ func (*API) PostsAdd(ctx context.Context, viewer *Viewer, r *PostsAddReq) (*Post
 	}
 	post.ID = postID
 
-	err = store.GlobalStore.AddEdge(store.FakeObjPostedPost, postID, store.EdgeTypePostedPost)
-	if err != nil {
-		return nil, err
-	}
-
-	err = store.GlobalStore.AddEdge(post.UserID, postID, store.EdgeTypePosted)
+	err = store2.GlobalStore.Wall.Add(post.UserID, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -237,9 +232,7 @@ func (a *API) PostsList(ctx context.Context, v *Viewer, r *PostsListReq) (*Posts
 	if r.Type == "FEED" {
 		postIds, err = pkg.GetFeedPostIds(v.UserID)
 	} else if r.Type == "DISCOVER" || r.Type == "" {
-		var edges []store.Edge
-		edges, err = store.GlobalStore.GetEdges(store.FakeObjPostedPost, store.EdgeTypePostedPost, 1000, math.MaxInt)
-		postIds = store.GetToId(edges)
+		postIds, err = store2.GlobalStore.Wall.GetLatest()
 	} else {
 		err = Error("InvalidFeedType")
 	}
@@ -341,15 +334,25 @@ func (a *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUser
 		count = r.Count
 	}
 
-	edges, err := store.GlobalStore.GetEdges(userID, store.EdgeTypePosted, count, lessThan)
+	postIds, err := store2.GlobalStore.Wall.Get([]int{userID})
 	if err != nil {
 		return nil, fmt.Errorf("error getting posted edges: %w", err)
 	}
 
+	var newPostIds []int
+	for _, postID := range postIds {
+		if lessThan >= postID {
+			newPostIds = append(newPostIds, postID)
+		}
+	}
+	if len(newPostIds) > count {
+		newPostIds = newPostIds[:count]
+	}
+
 	var posts []*store.Post
 
-	for _, edge := range edges {
-		post, err := store.GetPost(edge.ToID)
+	for _, edge := range postIds {
+		post, err := store.GetPost(edge)
 		if err == nil {
 			posts = append(posts, post)
 			continue
@@ -359,8 +362,8 @@ func (a *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUser
 	result := transformPostBatch(ctx, posts, v.UserID)
 
 	nextAfter := ""
-	if len(edges) == count && len(edges) > 0 {
-		nextAfter = strconv.Itoa(edges[len(edges)-1].ToID)
+	if len(newPostIds) == count && len(newPostIds) > 0 {
+		nextAfter = strconv.Itoa(newPostIds[len(newPostIds)-1])
 	}
 
 	return &PostsList{
@@ -395,10 +398,7 @@ func (a *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (*Void, error) {
 	err = store2.GlobalStore.Nodes.Update(post.ID, post)
 	pkg.LogErr(err)
 
-	err = store.GlobalStore.DelEdge(store.FakeObjPostedPost, post.ID, store.EdgeTypePostedPost)
-	pkg.LogErr(err)
-
-	err = store.GlobalStore.DelEdge(post.UserID, post.ID, store.EdgeTypePosted)
+	err = store2.GlobalStore.Wall.Delete(post.UserID, post.ID)
 	pkg.LogErr(err)
 
 	return &Void{}, nil
@@ -430,15 +430,13 @@ func (*API) PostsLike(v *Viewer, r *PostsLikeReq) (*Void, error) {
 	}
 
 	if r.Action == Unlike {
-		err = store.GlobalStore.DelEdge(postID, v.UserID, store.EdgeTypeLiked)
+		err = store2.GlobalStore.Likes.Remove(postID, v.UserID)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		err = store.GlobalStore.AddEdge(postID, v.UserID, store.EdgeTypeLiked)
-		if errors.Is(err, store.ErrDuplicateEdge) {
-			// Do nothing
-		} else if err != nil {
+		err = store2.GlobalStore.Likes.Add(postID, v.UserID)
+		if err != nil {
 			return nil, err
 		}
 	}

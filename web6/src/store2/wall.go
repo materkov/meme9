@@ -1,0 +1,114 @@
+package store2
+
+import (
+	"database/sql"
+	"fmt"
+	"github.com/materkov/meme9/web6/src/pkg/utils"
+	"github.com/materkov/meme9/web6/src/store"
+	"sort"
+	"strings"
+)
+
+type SqlWall struct {
+	DB *sql.DB
+}
+
+func (s *SqlWall) Get(userIds []int) ([]int, error) {
+	rows, err := s.DB.Query(fmt.Sprintf("select to_id from edges where from_id in (%s) and edge_type = %d", strings.Join(utils.IdsToStrings(userIds), ","), store.EdgeTypePosted))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var result []int
+	for rows.Next() {
+		postID := 0
+		err = rows.Scan(&postID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, postID)
+	}
+
+	return result, nil
+}
+
+func (s *SqlWall) Add(userID, postID int) error {
+	_, err := s.DB.Exec("insert into edges (from_id, to_id, edge_type, date) values (?, ?, ?, unix_timestamp())", userID, postID, store.EdgeTypePosted)
+	return err
+}
+
+func (s *SqlWall) Delete(userID, postID int) error {
+	_, err := s.DB.Exec("delete from edges where from_id = ? and to_id = ? and edge_type = ?", userID, postID, store.EdgeTypePosted)
+	return err
+}
+
+func (s *SqlWall) GetLatest() ([]int, error) {
+	rows, err := s.DB.Query("select to_id from edges where edge_type = ? order by id desc limit 1000", store.EdgeTypePosted)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var postIds []int
+	for rows.Next() {
+		postID := 0
+		err = rows.Scan(&postID)
+		if err != nil {
+			return nil, err
+		}
+
+		postIds = append(postIds, postID)
+	}
+
+	return postIds, nil
+}
+
+type Wall interface {
+	Get(userIds []int) ([]int, error)
+	Add(userID, postID int) error
+	Delete(userID, postID int) error
+	GetLatest() ([]int, error)
+}
+
+type MockWall struct {
+	posts map[int][]int
+}
+
+func (m *MockWall) Get(userIds []int) ([]int, error) {
+	var result []int
+	for _, userID := range userIds {
+		result = append(result, m.posts[userID]...)
+	}
+
+	sort.Sort(sort.Reverse(sort.IntSlice(result)))
+	return result, nil
+}
+
+func (m *MockWall) Add(userID, postID int) error {
+	m.posts[userID] = append(m.posts[userID], postID)
+	return nil
+}
+
+func (m *MockWall) Delete(userID, postID int) error {
+	var newList []int
+	for _, userPostID := range m.posts[userID] {
+		if userPostID != postID {
+			newList = append(newList, userPostID)
+		}
+	}
+
+	m.posts[userID] = newList
+	return nil
+}
+
+func (m *MockWall) GetLatest() ([]int, error) {
+	var posts []int
+	for _, userPosts := range m.posts {
+		posts = append(posts, userPosts...)
+	}
+
+	sort.Sort(sort.Reverse(sort.IntSlice(posts)))
+	return posts, nil
+}

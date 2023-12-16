@@ -53,7 +53,7 @@ func transformPollsMany(ctx context.Context, polls []*store.Poll, viewerID int) 
 		}
 	}
 
-	counters, isVoted, err := store.GlobalStore.LoadAnswersMany(ctx, answerIds, viewerID)
+	counters, isVoted, err := store2.GlobalStore.Votes.LoadAnswersMany(ctx, answerIds, viewerID)
 	pkg.LogErr(err)
 
 	for i, poll := range polls {
@@ -130,27 +130,19 @@ func (*API) PollsVote(viewer *Viewer, r *PollsVoteReq) (*Void, error) {
 		return nil, err
 	}
 
-	alreadyVoted := false
-	for _, answerID := range poll.AnswerIds {
-		_, err := store.GlobalStore.GetEdge(answerID, viewer.UserID, store.EdgeTypeVoted)
-		if err == nil {
-			alreadyVoted = true
-			break
-		} else if !errors.Is(err, store.ErrNoEdge) {
-			return nil, err
+	pollAnswers := poll.GetAnswersMap()
+
+	var answerIds []int
+	for _, answerIDStr := range r.AnswerIds {
+		answerID, _ := strconv.Atoi(answerIDStr)
+		if answerID > 0 && pollAnswers[answerID] {
+			answerIds = append(answerIds, answerID)
 		}
 	}
 
-	if !alreadyVoted {
-		for _, answerIdStr := range r.AnswerIds {
-			answerID, _ := strconv.Atoi(answerIdStr)
-			if answerID <= 0 {
-				continue
-			}
-
-			err = store.GlobalStore.AddEdge(answerID, viewer.UserID, store.EdgeTypeVoted)
-			pkg.LogErr(err)
-		}
+	err = store2.GlobalStore.Votes.Vote(viewer.UserID, answerIds)
+	if err != nil {
+		return nil, err
 	}
 
 	return &Void{}, nil
@@ -169,10 +161,9 @@ func (*API) PollsDeleteVote(viewer *Viewer, r *PollsDeleteVoteReq) (*Void, error
 		return nil, err
 	}
 
-	for _, answerID := range poll.AnswerIds {
-		err := store.GlobalStore.DelEdge(answerID, viewer.UserID, store.EdgeTypeVoted)
-		pkg.LogErr(err)
-	}
+	err = store2.GlobalStore.Votes.RemoveVote(viewer.UserID, poll.AnswerIds)
+	pkg.LogErr(err)
+
 	return &Void{}, err
 }
 

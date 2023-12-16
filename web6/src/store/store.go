@@ -5,10 +5,10 @@ import (
 	"fmt"
 )
 
-// Reserved: -2, -3, -4
+// Reserved: -2, -3, -4, -1
+
 const (
-	FakeObjPostedPost = -1
-	FakeObjConfig     = -5
+	FakeObjConfig = -5
 )
 
 // Reserved: 1
@@ -25,7 +25,6 @@ var SqlClient *sql.DB
 
 var (
 	ErrObjectNotFound = fmt.Errorf("object not found")
-	ErrDuplicateEdge  = fmt.Errorf("edge duplicate")
 )
 
 // Reserved: 2, 3, 4, 5
@@ -40,19 +39,3 @@ const (
 
 	EdgeTypeVoted = 10
 )
-
-type Edge struct {
-	FromID int
-	ToID   int
-	Date   int
-}
-
-func GetToId(edges []Edge) []int {
-	result := make([]int, len(edges))
-	for i, edge := range edges {
-		result[i] = edge.ToID
-	}
-	return result
-}
-
-var ErrNoEdge = fmt.Errorf("no edge")
