@@ -9,7 +9,7 @@ export function getAllFromPosts(queryClient: QueryClient, posts: types.Post[]) {
             queryClient.setQueryData(['poll', post.poll.id], post.poll);
         }
         if (post.user) {
-            queryClient.setQueryData(['user', post.user.id], post.user);
+            queryClient.setQueryData(['users', post.user.id], post.user);
         }
     }
 }

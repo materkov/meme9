@@ -4,7 +4,7 @@ import {postsListPostedByUser, SubscribeAction, User, usersFollow, usersList, us
 import {useGlobals} from "../../store/globals";
 import {PostsList} from "../Post/PostsList";
 import {useInfiniteQuery, useQuery, useQueryClient} from "@tanstack/react-query";
-import {getAllFromPosts} from "../../store2/postsList";
+import {getAllFromPosts} from "../../utils/postsList";
 
 export function Profile() {
     const userId = document.location.pathname.substring(7);

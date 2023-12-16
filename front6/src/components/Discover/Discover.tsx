@@ -5,7 +5,7 @@ import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query'
 import {PostsList} from "../Post/PostsList";
 import {useGlobals} from "../../store/globals";
 import {Composer} from "./Composer";
-import {getAllFromPosts} from "../../store2/postsList";
+import {getAllFromPosts} from "../../utils/postsList";
 
 export function Discover() {
     const queryClient = useQueryClient();

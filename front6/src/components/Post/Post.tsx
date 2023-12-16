@@ -3,7 +3,8 @@ import * as styles from "./Post.module.css";
 import {Link} from "../Link/Link";
 import {useGlobals} from "../../store/globals";
 import * as types from "../../api/api";
-import {LikeAction, Post as ApiPost, postsDelete, postsLike} from "../../api/api";
+//import {LikeAction, Post as ApiPost, postsDelete, postsLike} from "../../api/api";
+//import * as types from "../../api/api";
 import {LinkAttach} from "./LinkAttach";
 import {Poll} from "./Poll";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
@@ -18,34 +19,31 @@ const nl2br = (string: string) => {
     }
 };
 
-export function Post(props: {
-    postId: string,
-}) {
-    const {data, status} = useQuery<ApiPost>({
+export function Post(props: { postId: string }) {
+    const {data: post, status} = useQuery<types.Post>({
         queryKey: ['post', props.postId],
     });
     if (status != 'success') {
         return null;
     }
 
-    const post = data;
     const date = new Date(post.date).toLocaleString();
     const globals = useGlobals();
     const queryClient = useQueryClient();
 
     const onDelete = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        postsDelete({postId: post.id}).then(() => {
+        types.postsDelete({postId: post.id}).then(() => {
             queryClient.invalidateQueries({queryKey: ['discover']});
-            alert('Post deleted');
+            queryClient.invalidateQueries({queryKey: ['userPosts', post.user?.id]});
         });
     };
 
     const onLike = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        postsLike({
+        types.postsLike({
             postId: post.id,
-            action: post.isLiked ? LikeAction.UNLIKE : LikeAction.LIKE,
+            action: post.isLiked ? types.LikeAction.UNLIKE : types.LikeAction.LIKE,
         }).then(() => {
             queryClient.setQueryData(
                 ['post', post.id],
