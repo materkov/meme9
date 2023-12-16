@@ -1,47 +1,55 @@
-import React, {useEffect} from "react";
-import {useDiscoverPage} from "../../store/discoverPage";
-import * as styles from "./Discover.module.css";
-import {useGlobals} from "../../store/globals";
-import {FeedType, postsAdd} from "../../api/api";
-import {useResources} from "../../store/resources";
+import React from "react";
+import * as types from "../../api/api";
+import {FeedType} from "../../api/api";
+import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query'
 import {PostsList} from "../Post/PostsList";
+import {useGlobals} from "../../store/globals";
 import {Composer} from "./Composer";
+import {getAllFromPosts} from "../../store2/postsList";
 
 export function Discover() {
-    const discoverState = useDiscoverPage();
+    const queryClient = useQueryClient();
     const globalState = useGlobals();
-    const resources = useResources();
+    const [discoverState, setDiscoverState] = React.useState(types.FeedType.DISCOVER);
 
-    useEffect(() => {
-        discoverState.refetch();
-    }, []);
-
-    const postIds = discoverState.posts;
-    const posts = postIds.map(postId => resources.posts[postId]);
+    const {data, status, hasNextPage, fetchNextPage} = useInfiniteQuery({
+        queryKey: ['discover', discoverState],
+        queryFn: ({pageParam}) => (
+            types.postsList({
+                pageToken: pageParam,
+                count: 10,
+                type: discoverState,
+            }).then(res => {
+                getAllFromPosts(queryClient, res.items);
+                return res;
+            })
+        ),
+        initialPageParam: "",
+        getNextPageParam: (lastPage) => lastPage.pageToken,
+    });
 
     const switchType = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        discoverState.setType(discoverState.type === FeedType.FEED ? FeedType.DISCOVER : FeedType.FEED);
-        discoverState.refetch();
         e.preventDefault();
+        setDiscoverState(discoverState === FeedType.FEED ? FeedType.DISCOVER : FeedType.FEED);
     };
 
-    const loadMore = () => {
-        discoverState.fetch();
-    }
-
     return <div>
-        <h1>Discover</h1>
+        <h1>Discover22</h1>
 
         {globalState.viewerId && <Composer/>}
 
         {globalState.viewerId && <>
-            This is {discoverState.type == FeedType.DISCOVER ? 'discover' : 'feed'}. <a href="#" onClick={switchType}>
-            Switch to {discoverState.type == FeedType.DISCOVER ? 'feed' : 'discover'}
+            This is {discoverState == FeedType.DISCOVER ? 'discover' : 'feed'}. <a href="#" onClick={switchType}>
+            Switch to {discoverState == FeedType.DISCOVER ? 'feed' : 'discover'}
         </a>
         </>}
 
-        <PostsList posts={posts}/>
+        {status == "success" && <>
+            {data?.pages.map((page, i) => (
+                <PostsList key={i} postIds={page.items.map(post => post.id)}/>
+            ))}
+        </>}
 
-        {discoverState.postsPageToken && <button onClick={loadMore}>Load more</button>}
+        {hasNextPage && <button onClick={() => fetchNextPage()}>Load more</button>}
     </div>
 }

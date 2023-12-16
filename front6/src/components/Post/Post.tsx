@@ -2,11 +2,11 @@ import React from "react";
 import * as styles from "./Post.module.css";
 import {Link} from "../Link/Link";
 import {useGlobals} from "../../store/globals";
+import * as types from "../../api/api";
 import {LikeAction, Post as ApiPost, postsDelete, postsLike} from "../../api/api";
-import {useDiscoverPage} from "../../store/discoverPage";
-import {useResources} from "../../store/resources";
 import {LinkAttach} from "./LinkAttach";
 import {Poll} from "./Poll";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
 
 const nl2br = (string: string) => {
     if (string) {
@@ -19,17 +19,24 @@ const nl2br = (string: string) => {
 };
 
 export function Post(props: {
-    post: ApiPost
+    postId: string,
 }) {
-    const date = new Date(props.post.date).toLocaleString();
+    const {data, status} = useQuery<ApiPost>({
+        queryKey: ['post', props.postId],
+    });
+    if (status != 'success') {
+        return null;
+    }
+
+    const post = data;
+    const date = new Date(post.date).toLocaleString();
     const globals = useGlobals();
-    const discoverPage = useDiscoverPage();
-    const resources = useResources();
+    const queryClient = useQueryClient();
 
     const onDelete = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        postsDelete({postId: props.post.id}).then(() => {
-            discoverPage.refetch();
+        postsDelete({postId: post.id}).then(() => {
+            queryClient.invalidateQueries({queryKey: ['discover']});
             alert('Post deleted');
         });
     };
@@ -37,31 +44,40 @@ export function Post(props: {
     const onLike = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
         postsLike({
-            postId: props.post.id,
-            action: props.post.isLiked ? LikeAction.UNLIKE : LikeAction.LIKE,
-        })
-            .then(() => {
-            })
-            .catch(() => {
-            });
+            postId: post.id,
+            action: post.isLiked ? LikeAction.UNLIKE : LikeAction.LIKE,
+        }).then(() => {
+            queryClient.setQueryData(
+                ['post', post.id],
+                (oldData: types.Post) => {
+                    const copy = structuredClone(oldData) as types.Post;
 
-        const likes = props.post.likesCount || 0;
-        const newLikes = props.post.isLiked ? (likes - 1) : (likes + 1);
-        resources.setPostLikes(props.post.id, newLikes, !props.post.isLiked);
+                    if (copy.isLiked) {
+                        copy.isLiked = false;
+                        copy.likesCount = (copy.likesCount || 0) - 1;
+                    } else {
+                        copy.isLiked = true;
+                        copy.likesCount = (copy.likesCount || 0) + 1;
+                    }
+
+                    queryClient.setQueryData(['post', post.id], copy);
+                }
+            )
+        });
     };
 
     return <div className={styles.post}>
-        <Link href={"/users/" + props.post.user?.id} className={styles.name}>{props.post.user?.name}</Link>
+        <Link href={"/users/" + post.user?.id} className={styles.name}>{post.user?.name}</Link>
 
-        <Link href={"/posts/" + props.post.id} className={styles.date}>{date}</Link>
+        <Link href={"/posts/" + post.id} className={styles.date}>{date}</Link>
 
         <div>
-            {nl2br(props.post.text)}
+            {nl2br(post.text)}
         </div>
 
-        {props.post.link && <LinkAttach link={props.post.link}/>}
+        {post.link && <LinkAttach link={post.link}/>}
 
-        {globals.viewerId && props.post.user?.id == globals.viewerId &&
+        {globals.viewerId && post.user?.id == globals.viewerId &&
             <a onClick={onDelete} href="#" className={styles.deleteLink}>Delete post</a>
         }
 
@@ -69,15 +85,15 @@ export function Post(props: {
             {globals.viewerId &&
                 <>
                     <a onClick={onLike} href="#">
-                        {props.post.isLiked ? 'Unlike' : 'Like'}
+                        {post.isLiked ? 'Unlike' : 'Like'}
                     </a>
-                    {props.post.likesCount > 0 && <> | </>}
+                    {post.likesCount > 0 && <> | </>}
                 </>
             }
 
-            {props.post.likesCount > 0 && <>{props.post.likesCount} like(s)</>}
+            {post.likesCount > 0 && <>{post.likesCount} like(s)</>}
         </div>
 
-        {props.post.poll && <Poll postId={props.post.id} poll={props.post.poll}/>}
+        {post.poll && <Poll pollId={post.poll.id}/>}
     </div>
 }

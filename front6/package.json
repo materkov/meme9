@@ -4,6 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@tanstack/react-query": "^5.14.0",
+    "@tanstack/react-query-devtools": "^5.14.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.1",
     "esbuild": "^0.17.18",

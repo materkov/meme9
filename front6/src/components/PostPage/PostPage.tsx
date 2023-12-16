@@ -1,26 +1,28 @@
-import React, {useEffect} from "react";
-import {usePostPage} from "../../store/postPage";
+import React from "react";
 import * as styles from "./PostPage.module.css";
 import {Post} from "../Post/Post";
-import {useResources} from "../../store/resources";
+import {useQuery} from "@tanstack/react-query";
+import * as types from "../../api/api";
 
 export function PostPage() {
     let postId = window.document.location.pathname.substring(7);
-    const postPage = usePostPage()
-    const resources = useResources();
 
-    useEffect(() => {
-        postPage.fetch(postId);
-    }, []);
-
-    const post = resources.posts[postId];
-    const error = postPage.errors[postId];
+    const {data, isLoading, error} = useQuery({
+        queryKey: ['post', postId],
+        queryFn: () => (
+            types.postsListById({
+                id: postId,
+            }).then(res => {
+                return res;
+            })
+        )
+    })
 
     return (
         <div>
-            {post && <Post post={post}/>}
+            {data && <Post postId={postId}/>}
 
-            {!post && <div>Loading...</div>}
+            {isLoading && <div>Loading...</div>}
 
             {error && <div className={styles.error}>error</div>}
         </div>

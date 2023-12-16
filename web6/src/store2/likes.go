@@ -15,7 +15,7 @@ type SqlLikes struct {
 }
 
 func (l *SqlLikes) Add(objectID, userID int) error {
-	_, err := l.DB.Exec("insert into edges (from_id, to_id, edge_type, date) values (?, ?, ?, now())", objectID, userID, store.EdgeTypeLiked)
+	_, err := l.DB.Exec("insert into edges (from_id, to_id, edge_type, date) values (?, ?, ?, unix_timestamp())", objectID, userID, store.EdgeTypeLiked)
 	return err
 }
 

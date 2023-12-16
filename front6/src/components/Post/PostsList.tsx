@@ -4,15 +4,15 @@ import React from "react";
 import * as styles from "./PostsLink.module.css";
 
 export function PostsList(props: {
-    posts: ApiPost[]
+    postIds: string[]
 }) {
     return <>
-        {props.posts.map((post, idx) => <div key={post.id}>
+        {props.postIds.map((postId, idx) => <div key={postId}>
             <div className={styles.post}>
-                <Post post={post}/>
+                <Post postId={postId}/>
             </div>
 
-            {idx != props.posts.length - 1 &&
+            {idx != props.postIds.length - 1 &&
                 <div className={styles.postSeparator}/>
             }
         </div>)}

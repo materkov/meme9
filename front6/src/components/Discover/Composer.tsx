@@ -2,12 +2,12 @@ import * as styles from "./Composer.module.css";
 import React from "react";
 import * as types from "../../api/api";
 import {postsAdd} from "../../api/api";
-import {useDiscoverPage} from "../../store/discoverPage";
+import {useQueryClient} from "@tanstack/react-query";
 
 export function Composer() {
     const [text, setText] = React.useState('');
     const [saving, setSaving] = React.useState(false);
-    const discoverState = useDiscoverPage();
+    const queryClient = useQueryClient();
 
     const post = () => {
         if (!text) {
@@ -18,7 +18,7 @@ export function Composer() {
         postsAdd({text: text, pollId: pollId}).then(() => {
             setSaving(false);
             setText('');
-            discoverState.refetch();
+            queryClient.invalidateQueries({queryKey: ['discover']});
         })
     };
 

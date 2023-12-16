@@ -1,12 +1,23 @@
 import React, {useEffect} from "react";
-import {PostPage} from "./PostPage/PostPage";
 import {Profile} from "./Profile/Profile";
+import {ReactQueryDevtools} from '@tanstack/react-query-devtools'
 import * as styles from "./App.module.css";
 import {useNavigation} from "../store/navigation";
-import {Discover} from "./Discover/Discover";
 import {Link} from "./Link/Link";
 import {useGlobals} from "../store/globals";
 import {Auth} from "./Auth/Auth";
+import {Discover} from "./Discover/Discover";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {PostPage} from "./PostPage/PostPage";
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false,
+            staleTime: 5 * 60 * 1000, // 5 minutes
+        }
+    }
+});
 
 export function App() {
     let page: React.ReactNode;
@@ -37,22 +48,28 @@ export function App() {
         }
     }, []);
 
-    return <div className={styles.app}>
-        <div className={styles.header}>
-            <Link href={"/"} className={styles.headerLink}>
-                meme
-            </Link>
+    return (
+        <QueryClientProvider client={queryClient}>
+            <div className={styles.app}>
+                <div className={styles.header}>
+                    <Link href={"/"} className={styles.headerLink}>
+                        meme
+                    </Link>
 
-            <div className={styles.authInfo}>
-                {!globals.viewerId && <Link href="/auth">Authorize</Link>}
-                {globals.viewerId && <span>
+                    <div className={styles.authInfo}>
+                        {!globals.viewerId && <Link href="/auth">Authorize</Link>}
+                        {globals.viewerId && <span>
                     <Link href={"/users/" + globals.viewerId}>{globals.viewerName}</Link>
-                    &nbsp;|&nbsp;
-                    <Link href="/auth?logout">Logout</Link>
+                            &nbsp;|&nbsp;
+                            <Link href="/auth?logout">Logout</Link>
                 </span>}
-            </div>
-        </div>
+                    </div>
+                </div>
 
-        {page}
-    </div>;
+                {page}
+            </div>
+
+            <ReactQueryDevtools initialIsOpen={true}/>
+        </QueryClientProvider>
+    )
 }

@@ -1,55 +1,80 @@
-import React, {useEffect} from "react";
-import {useProfile} from "../../store/profile";
+import React from "react";
 import * as styles from "./Profile.module.css";
-import {SubscribeAction, User, usersFollow, usersSetStatus} from "../../api/api";
+import {postsListPostedByUser, SubscribeAction, User, usersFollow, usersList, usersSetStatus} from "../../api/api";
 import {useGlobals} from "../../store/globals";
-import {useResources} from "../../store/resources";
 import {PostsList} from "../Post/PostsList";
+import {useInfiniteQuery, useQuery, useQueryClient} from "@tanstack/react-query";
+import {getAllFromPosts} from "../../store2/postsList";
 
 export function Profile() {
     const userId = document.location.pathname.substring(7);
-    const profileState = useProfile();
+    const queryClient = useQueryClient();
     const globals = useGlobals();
-    const resources = useResources();
+
+    const {data: user} = useQuery({
+        queryKey: ['users', userId],
+        queryFn: () => (
+            usersList({userIds: [userId]}).then(resp => resp[0])
+        )
+    })
+
+    const {data: userPosts, hasNextPage, fetchNextPage} = useInfiniteQuery({
+        queryKey: ['userPosts', userId],
+        queryFn: ({pageParam}) => (
+            postsListPostedByUser({
+                userId: userId,
+                after: pageParam,
+            }).then(r => {
+                getAllFromPosts(queryClient, r.items);
+                return r;
+            })
+        ),
+        initialPageParam: '',
+        getNextPageParam: (lastPage) => lastPage.pageToken
+    })
 
     const [status, setStatus] = React.useState("");
 
-    useEffect(() => {
-        profileState.fetch(userId);
-    }, []);
 
     const updateStatus = () => {
         usersSetStatus({status: status})
             .then(() => {
-                const user: User = structuredClone(resources.users[userId]);
-                user.status = status;
-                resources.setUser(user);
+                //const user: User = structuredClone(resources.users[userId]);
+                //user.status = status;
+                //resources.setUser(user);
+                queryClient.setQueryData(['users', userId], (oldData: User) => {
+                    const copy = structuredClone(oldData) as User;
+                    copy.status = status;
+                    queryClient.setQueryData(['users', userId], copy);
+                })
             });
     };
 
     const follow = () => {
+        if (!user) {
+            return;
+        }
+
         usersFollow({
             targetId: userId,
             action: user.isFollowing ? SubscribeAction.UNFOLLOW : SubscribeAction.FOLLOW,
         }).then(() => {
-            const user: User = structuredClone(resources.users[userId]);
-            user.isFollowing = !user.isFollowing;
-            resources.setUser(user);
+            queryClient.setQueryData(['users', userId], (oldData: User) => {
+                const copy = structuredClone(oldData) as User;
+                copy.isFollowing = true;
+                queryClient.setQueryData(['users', userId], copy);
+            })
         });
     }
 
-    const loadMore = () => {
-        profileState.fetchMore(userId);
-    }
-
-    if (!resources.users[userId]) {
+    if (!user) {
         return <div>Loading....</div>
     }
 
-    const user = resources.users[userId];
+    //const user = resources.users[userId];
 
-    const postIds = profileState.postIds[userId] || [];
-    const posts = postIds.map(postId => resources.posts[postId]);
+    //const postIds = profileState.postIds[userId] || [];
+    //const posts = postIds.map(postId => resources.posts[postId]);
 
     return <div>
         <h1 className={styles.userName}>{user.name}</h1>
@@ -72,9 +97,11 @@ export function Profile() {
 
         <hr/>
 
-        <PostsList posts={posts}/>
+        {userPosts?.pages.map((page, i) => (
+            <PostsList postIds={page.items.map(post => post.id)} key={i}/>
+        ))}
 
-        {profileState.cursors[userId] && <button onClick={loadMore}>Load more posts...</button>}
+        {hasNextPage && <button onClick={() => fetchNextPage()}>Load more posts...</button>}
     </div>
 }
 
