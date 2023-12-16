@@ -41,20 +41,40 @@ func (u *SqlTokenStore) Get(ids []int) (map[int]*store.Token, error) {
 	return result, nil
 }
 
+func (u *SqlTokenStore) Add(object *store.Token) error {
+	objectBytes, err := json.Marshal(object)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypeToken, objectBytes)
+	return err
+}
+
 type TokenStore interface {
 	Get(ids []int) (map[int]*store.Token, error)
+	Add(object *store.Token) error
 }
 
 type MockTokenStore struct {
-	objects map[int]*store.Token
+	nextID  int
+	Objects map[int]*store.Token
 }
 
 func (m *MockTokenStore) Get(ids []int) (map[int]*store.Token, error) {
 	result := map[int]*store.Token{}
 
 	for _, objectID := range ids {
-		result[objectID] = m.objects[objectID]
+		result[objectID] = m.Objects[objectID]
 	}
 
 	return result, nil
+}
+
+func (m *MockTokenStore) Add(object *store.Token) error {
+	m.nextID++
+
+	object.ID = m.nextID
+	m.Objects[m.nextID] = object
+	return nil
 }

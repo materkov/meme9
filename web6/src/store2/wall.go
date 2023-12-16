@@ -73,13 +73,13 @@ type Wall interface {
 }
 
 type MockWall struct {
-	posts map[int][]int
+	Posts map[int][]int
 }
 
 func (m *MockWall) Get(userIds []int) ([]int, error) {
 	var result []int
 	for _, userID := range userIds {
-		result = append(result, m.posts[userID]...)
+		result = append(result, m.Posts[userID]...)
 	}
 
 	sort.Sort(sort.Reverse(sort.IntSlice(result)))
@@ -87,25 +87,25 @@ func (m *MockWall) Get(userIds []int) ([]int, error) {
 }
 
 func (m *MockWall) Add(userID, postID int) error {
-	m.posts[userID] = append(m.posts[userID], postID)
+	m.Posts[userID] = append(m.Posts[userID], postID)
 	return nil
 }
 
 func (m *MockWall) Delete(userID, postID int) error {
 	var newList []int
-	for _, userPostID := range m.posts[userID] {
+	for _, userPostID := range m.Posts[userID] {
 		if userPostID != postID {
 			newList = append(newList, userPostID)
 		}
 	}
 
-	m.posts[userID] = newList
+	m.Posts[userID] = newList
 	return nil
 }
 
 func (m *MockWall) GetLatest() ([]int, error) {
 	var posts []int
-	for _, userPosts := range m.posts {
+	for _, userPosts := range m.Posts {
 		posts = append(posts, userPosts...)
 	}
 

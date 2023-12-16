@@ -73,39 +73,39 @@ type Subscriptions interface {
 }
 
 type MockSubscriptions struct {
-	following map[int][]int
+	Following map[int][]int
 }
 
 func (m *MockSubscriptions) Follow(userID, targetID int) error {
-	for _, userID := range m.following[userID] {
+	for _, userID := range m.Following[userID] {
 		if userID == targetID {
 			return nil
 		}
 	}
 
-	m.following[userID] = append(m.following[userID], targetID)
+	m.Following[userID] = append(m.Following[userID], targetID)
 	return nil
 }
 
 func (m *MockSubscriptions) Unfollow(userID, targetID int) error {
 	var newList []int
-	for _, userID := range m.following[userID] {
+	for _, userID := range m.Following[userID] {
 		if userID != targetID {
 			newList = append(newList, userID)
 		}
 	}
-	m.following[userID] = newList
+	m.Following[userID] = newList
 
 	return nil
 }
 
 func (m *MockSubscriptions) GetFollowing(userID int) ([]int, error) {
-	return m.following[userID], nil
+	return m.Following[userID], nil
 }
 
 func (m *MockSubscriptions) CheckFollowing(userID int, targetIds []int) (map[int]bool, error) {
 	result := map[int]bool{}
-	for _, targetID := range m.following[userID] {
+	for _, targetID := range m.Following[userID] {
 		for _, neededID := range targetIds {
 			if targetID == neededID {
 				result[targetID] = true

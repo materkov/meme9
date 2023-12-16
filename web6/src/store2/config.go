@@ -46,14 +46,14 @@ type ConfigStore interface {
 }
 
 type MockConfigStore struct {
-	objects map[int]*store.Config
+	Objects map[int]*store.Config
 }
 
 func (m *MockConfigStore) Get(ids []int) (map[int]*store.Config, error) {
 	result := map[int]*store.Config{}
 
 	for _, objectID := range ids {
-		result[objectID] = m.objects[objectID]
+		result[objectID] = m.Objects[objectID]
 	}
 
 	return result, nil

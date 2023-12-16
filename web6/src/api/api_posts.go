@@ -174,13 +174,12 @@ func (*API) PostsAdd(ctx context.Context, viewer *Viewer, r *PostsAddReq) (*Post
 		PollID: pollID,
 	}
 
-	postID, err := store2.GlobalStore.Nodes.Add(store.ObjTypePost, &post)
+	err := store2.GlobalStore.Posts.Add(&post)
 	if err != nil {
 		return nil, fmt.Errorf("error saving post: %w", err)
 	}
-	post.ID = postID
 
-	err = store2.GlobalStore.Wall.Add(post.UserID, postID)
+	err = store2.GlobalStore.Wall.Add(post.UserID, post.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -372,7 +371,7 @@ func (a *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (*Void, error) {
 
 	post.IsDeleted = true
 
-	err = store2.GlobalStore.Nodes.Update(post.ID, post)
+	err = store2.GlobalStore.Posts.Update(post)
 	pkg.LogErr(err)
 
 	err = store2.GlobalStore.Wall.Delete(post.UserID, post.ID)

@@ -48,27 +48,26 @@ func (a *API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		Name:         r.Email,
 		PasswordHash: string(passwordHash),
 	}
-	userID, err = store2.GlobalStore.Nodes.Add(store.ObjTypeUser, user)
-	if err != nil {
-		return nil, err
-	}
-	user.ID = userID
-
-	err = store2.GlobalStore.Unique.Add(store2.UniqueTypeEmail, r.Email, userID)
+	err = store2.GlobalStore.Users.Add(&user)
 	if err != nil {
 		return nil, err
 	}
 
-	pkg.SendTelegramNotifyAsync(fmt.Sprintf("Registration: https://meme.mmaks.me/users/%d", userID))
+	err = store2.GlobalStore.Unique.Add(store2.UniqueTypeEmail, r.Email, user.ID)
+	if err != nil {
+		return nil, err
+	}
 
-	token, err := pkg.GenerateAuthToken(userID)
+	pkg.SendTelegramNotifyAsync(fmt.Sprintf("Registration: https://meme.mmaks.me/users/%d", user.ID))
+
+	token, err := pkg.GenerateAuthToken(user.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &AuthResp{
 		Token:    token,
-		UserID:   strconv.Itoa(userID),
+		UserID:   strconv.Itoa(user.ID),
 		UserName: user.Name,
 	}, nil
 }
@@ -85,12 +84,14 @@ func (a *API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 		return nil, err
 	}
 
-	user, err := store2.GlobalStore.TypedNodes.GetUser(userID)
+	users, err := store2.GlobalStore.Users.Get([]int{userID})
 	if err != nil {
 		return nil, err
+	} else if users[userID] == nil {
+		return nil, Error("InvalidCredentials")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(r.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(users[userID].PasswordHash), []byte(r.Password))
 	if err != nil {
 		return nil, Error("InvalidCredentials")
 	}
@@ -105,7 +106,7 @@ func (a *API) authLogin(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	return &AuthResp{
 		Token:    token,
 		UserID:   strconv.Itoa(userID),
-		UserName: user.Name,
+		UserName: users[userID].Name,
 	}, nil
 }
 
@@ -135,27 +136,32 @@ func (a *API) authVk(_ *Viewer, r *AuthVkReq) (*AuthResp, error) {
 	}
 
 	if errors.Is(err, store2.ErrNotFound) {
-		userID, err = store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{
+		user := &store.User{
 			Name: "VK Auth user",
-		})
+		}
+		err = store2.GlobalStore.Users.Add(user)
 		if err != nil {
 			return nil, err
 		}
+		userID = user.ID
 
 		err = store2.GlobalStore.Unique.Add(store2.UniqueTypeVKID, strconv.Itoa(vkUserID), userID)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		user, err := store2.GlobalStore.TypedNodes.GetUser(userID)
+		users, err := store2.GlobalStore.Users.Get([]int{userID})
 		if err != nil {
 			return nil, err
+		} else if users[userID] == nil {
+			return nil, fmt.Errorf("cannot find user")
 		}
 
+		user := users[userID]
 		user.Name = userName
 
 		// Already authorized
-		err = store2.GlobalStore.Nodes.Update(user.ID, user)
+		err = store2.GlobalStore.Users.Update(user)
 		pkg.LogErr(err)
 	}
 

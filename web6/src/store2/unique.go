@@ -14,15 +14,11 @@ type UniqueStore interface {
 }
 
 type SqlUniqueStore struct {
-	db *sql.DB
-}
-
-func NewSqlUniqueStore(db *sql.DB) *SqlUniqueStore {
-	return &SqlUniqueStore{db: db}
+	DB *sql.DB
 }
 
 func (u *SqlUniqueStore) Add(uniqType int, val string, objectID int) error {
-	_, err := u.db.Exec("insert into uniques (type, `key`, object_id) values (?, ?, ?)", uniqType, val, objectID)
+	_, err := u.DB.Exec("insert into uniques (type, `key`, object_id) values (?, ?, ?)", uniqType, val, objectID)
 	if err != nil {
 		return fmt.Errorf("error inserting unique row: %w", err)
 	}
@@ -32,7 +28,7 @@ func (u *SqlUniqueStore) Add(uniqType int, val string, objectID int) error {
 
 func (u *SqlUniqueStore) Get(uniqType int, val string) (int, error) {
 	objectID := 0
-	err := u.db.QueryRow("select object_id from uniques where `type` = ? and `key` = ?", uniqType, val).Scan(&objectID)
+	err := u.DB.QueryRow("select object_id from uniques where `type` = ? and `key` = ?", uniqType, val).Scan(&objectID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return 0, ErrNotFound
 	} else if err != nil {
@@ -43,28 +39,28 @@ func (u *SqlUniqueStore) Get(uniqType int, val string) (int, error) {
 }
 
 type MockUniqueStore struct {
-	rows map[string]int
+	Rows map[string]int
 }
 
 func NewMockUniqueStore() *MockUniqueStore {
-	return &MockUniqueStore{rows: map[string]int{}}
+	return &MockUniqueStore{Rows: map[string]int{}}
 }
 
 func (m *MockUniqueStore) Add(uniqType int, val string, objectID int) error {
 	key := fmt.Sprintf("%d:%s", uniqType, val)
 
-	_, ok := m.rows[key]
+	_, ok := m.Rows[key]
 	if ok {
 		return fmt.Errorf("duplicate id: %d-%s", objectID, val)
 	}
 
-	m.rows[key] = objectID
+	m.Rows[key] = objectID
 	return nil
 }
 
 func (m *MockUniqueStore) Get(uniqType int, val string) (int, error) {
 	key := fmt.Sprintf("%d:%s", uniqType, val)
-	objectID, ok := m.rows[key]
+	objectID, ok := m.Rows[key]
 	if !ok {
 		return 0, ErrNotFound
 	}

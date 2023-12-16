@@ -77,19 +77,19 @@ type Votes interface {
 }
 
 type MockVotes struct {
-	votes map[int][]int
+	Votes map[int][]int
 }
 
 func (m *MockVotes) Vote(userID int, answerIds []int) error {
 	for _, answerID := range answerIds {
 		found := false
-		for _, curUserID := range m.votes[answerID] {
+		for _, curUserID := range m.Votes[answerID] {
 			if userID == curUserID {
 				found = true
 			}
 		}
 		if !found {
-			m.votes[answerID] = append(m.votes[answerID], userID)
+			m.Votes[answerID] = append(m.Votes[answerID], userID)
 		}
 	}
 	return nil
@@ -98,13 +98,13 @@ func (m *MockVotes) Vote(userID int, answerIds []int) error {
 func (m *MockVotes) RemoveVote(userID int, answerIds []int) error {
 	for _, answerID := range answerIds {
 		var newList []int
-		for _, curUserID := range m.votes[answerID] {
+		for _, curUserID := range m.Votes[answerID] {
 			if userID != curUserID {
 				newList = append(newList, curUserID)
 			}
 		}
 
-		m.votes[answerID] = newList
+		m.Votes[answerID] = newList
 	}
 	return nil
 }
@@ -114,8 +114,8 @@ func (m *MockVotes) LoadAnswersMany(ctx context.Context, answerIds []int, viewer
 	isVoted = map[int]bool{}
 
 	for _, answerID := range answerIds {
-		counters[answerID] = len(m.votes[answerID])
-		for _, userID := range m.votes[answerID] {
+		counters[answerID] = len(m.Votes[answerID])
+		for _, userID := range m.Votes[answerID] {
 			if userID == viewerID {
 				isVoted[answerID] = true
 			}

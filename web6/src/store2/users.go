@@ -41,20 +41,56 @@ func (u *SqlUserStore) Get(ids []int) (map[int]*store.User, error) {
 	return result, nil
 }
 
+func (u *SqlUserStore) Add(object *store.User) error {
+	objectBytes, err := json.Marshal(object)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypeUser, objectBytes)
+	return err
+}
+
+func (u *SqlUserStore) Update(object *store.User) error {
+	objectBytes, err := json.Marshal(object)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.DB.Exec("update objects set data = ? where id = ?", objectBytes, object.ID)
+	return err
+}
+
 type UserStore interface {
 	Get(ids []int) (map[int]*store.User, error)
+	Add(object *store.User) error
+	Update(object *store.User) error
 }
 
 type MockUserStore struct {
-	objects map[int]*store.User
+	nextID  int
+	Objects map[int]*store.User
 }
 
 func (m *MockUserStore) Get(ids []int) (map[int]*store.User, error) {
 	result := map[int]*store.User{}
 
 	for _, objectID := range ids {
-		result[objectID] = m.objects[objectID]
+		result[objectID] = m.Objects[objectID]
 	}
 
 	return result, nil
+}
+
+func (m *MockUserStore) Add(object *store.User) error {
+	m.nextID++
+
+	object.ID = m.nextID
+	m.Objects[m.nextID] = object
+	return nil
+}
+
+func (m *MockUserStore) Update(object *store.User) error {
+	m.Objects[object.ID] = object
+	return nil
 }

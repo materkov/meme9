@@ -82,7 +82,7 @@ func (*API) PollsAdd(ctx context.Context, viewer *Viewer, r *PollsAddReq) (*Poll
 			Answer: inputAnswer,
 		}
 
-		answer.ID, err = store2.GlobalStore.Nodes.Add(store.ObjTypePollAnswer, &answer)
+		err = store2.GlobalStore.PollAnswers.Add(&answer)
 		if err != nil {
 			return nil, err
 		}
@@ -96,7 +96,7 @@ func (*API) PollsAdd(ctx context.Context, viewer *Viewer, r *PollsAddReq) (*Poll
 		Question:  r.Question,
 		AnswerIds: answerIds,
 	}
-	poll.ID, err = store2.GlobalStore.Nodes.Add(store.ObjTypePoll, poll)
+	err = store2.GlobalStore.Polls.Add(poll)
 	if err != nil {
 		return nil, err
 	}

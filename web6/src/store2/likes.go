@@ -63,18 +63,18 @@ type Likes interface {
 }
 
 type MockLikes struct {
-	rows map[string]bool
+	Rows map[string]bool
 }
 
 func (m *MockLikes) Add(objectID, userID int) error {
 	key := fmt.Sprintf("%d:%d", objectID, userID)
-	m.rows[key] = true
+	m.Rows[key] = true
 	return nil
 }
 
 func (m *MockLikes) Remove(objectID, userID int) error {
 	key := fmt.Sprintf("%d:%d", objectID, userID)
-	delete(m.rows, key)
+	delete(m.Rows, key)
 	return nil
 }
 
@@ -84,12 +84,12 @@ func (m *MockLikes) Get(ctx context.Context, postIds []int, viewerID int) (count
 
 	for _, postID := range postIds {
 		key := fmt.Sprintf("%d:%d", postID, viewerID)
-		if m.rows[key] {
+		if m.Rows[key] {
 			isLiked[postID] = true
 		}
 	}
 
-	for key := range m.rows {
+	for key := range m.Rows {
 		parts := strings.Split(key, ":")
 		postID, _ := strconv.Atoi(parts[0])
 		counters[postID]++

@@ -85,7 +85,7 @@ func (*API) usersSetStatus(v *Viewer, r *UsersSetStatus) (*Void, error) {
 
 	user.Status = r.Status
 
-	err = store2.GlobalStore.Nodes.Update(user.ID, user)
+	err = store2.GlobalStore.Users.Update(user)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (*API) usersFollow(v *Viewer, r *UsersFollow) (*Void, error) {
 	}
 
 	if r.Action == Unfollow {
-		err := store2.GlobalStore.Subs.Follow(v.UserID, targetID)
+		err := store2.GlobalStore.Subs.Unfollow(v.UserID, targetID)
 		pkg.LogErr(err)
 	} else {
 		users, err := store2.GlobalStore.Users.Get([]int{targetID})

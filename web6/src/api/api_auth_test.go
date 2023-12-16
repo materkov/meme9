@@ -1,40 +1,59 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
-	_ "github.com/materkov/meme9/web6/src/store/sqlmock"
 	"github.com/materkov/meme9/web6/src/store2"
 	"github.com/stretchr/testify/require"
-	"math/rand"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 )
 
 func createTestDB(t *testing.T) func() {
-	db, err := sql.Open("sqlmock", "TestDB_"+strconv.Itoa(rand.Int()))
-	require.NoError(t, err)
-
-	store.GlobalStore = &store.SqlStore{DB: db}
 	store2.GlobalStore = createMockStore()
 
 	return func() {
-		_ = db.Close()
 	}
 }
 
 func createMockStore() *store2.Store {
-	nodeStore := store2.NewMockNodes()
-
 	return &store2.Store{
-		Unique:     store2.NewMockUniqueStore(),
-		Nodes:      nodeStore,
-		TypedNodes: &store2.TypedNodes{Store: nodeStore},
+		Unique: &store2.MockUniqueStore{
+			Rows: map[string]int{},
+		},
+		Likes: &store2.MockLikes{
+			Rows: map[string]bool{},
+		},
+		Subs: &store2.MockSubscriptions{
+			Following: map[int][]int{},
+		},
+		Wall: &store2.MockWall{
+			Posts: map[int][]int{},
+		},
+		Votes: &store2.MockVotes{
+			Votes: map[int][]int{},
+		},
+		Users: &store2.MockUserStore{
+			Objects: map[int]*store.User{},
+		},
+		Posts: &store2.MockPostStore{
+			Objects: map[int]*store.Post{},
+		},
+		Polls: &store2.MockPollStore{
+			Objects: map[int]*store.Poll{},
+		},
+		PollAnswers: &store2.MockPollAnswerStore{
+			Objects: map[int]*store.PollAnswer{},
+		},
+		Tokens: &store2.MockTokenStore{
+			Objects: map[int]*store.Token{},
+		},
+		Configs: &store2.MockConfigStore{
+			Objects: map[int]*store.Config{},
+		},
 	}
 }
 

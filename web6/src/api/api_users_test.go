@@ -15,14 +15,15 @@ func TestApi_usersList(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	userID, _ := store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{Name: "Test user"})
+	user := store.User{Name: "Test user"}
+	_ = store2.GlobalStore.Users.Add(&user)
 
 	resp, err := api.usersList(&v, &UsersListReq{
-		UserIds: []string{strconv.Itoa(userID)},
+		UserIds: []string{strconv.Itoa(user.ID)},
 	})
 	require.NoError(t, err)
 	require.Len(t, resp, 1)
-	require.Equal(t, resp[0].ID, strconv.Itoa(userID))
+	require.Equal(t, resp[0].ID, strconv.Itoa(user.ID))
 	require.Equal(t, "Test user", resp[0].Name)
 }
 
@@ -32,15 +33,16 @@ func TestAPI_setStatus(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	userID, _ := store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{})
-	v := Viewer{UserID: userID}
+	user := store.User{}
+	_ = store2.GlobalStore.Users.Add(&user)
+	v := Viewer{UserID: user.ID}
 
 	_, err := api.usersSetStatus(&v, &UsersSetStatus{
 		Status: "Test status",
 	})
 	require.NoError(t, err)
 
-	resp, err := api.usersList(&v, &UsersListReq{UserIds: []string{strconv.Itoa(userID)}})
+	resp, err := api.usersList(&v, &UsersListReq{UserIds: []string{strconv.Itoa(user.ID)}})
 	require.NoError(t, err)
 	require.Equal(t, "Test status", resp[0].Status)
 }
@@ -51,30 +53,32 @@ func TestAPI_follow(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	user1ID, _ := store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{})
-	v := Viewer{UserID: user1ID}
+	user1 := store.User{}
+	_ = store2.GlobalStore.Users.Add(&user1)
+	v := Viewer{UserID: user1.ID}
 
-	user2ID, _ := store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{})
+	user2 := store.User{}
+	_ = store2.GlobalStore.Users.Add(&user2)
 
 	// Follow
 	_, err := api.usersFollow(&v, &UsersFollow{
-		TargetID: strconv.Itoa(user2ID),
+		TargetID: strconv.Itoa(user2.ID),
 		Action:   Follow,
 	})
 	require.NoError(t, err)
 
-	resp, err := api.usersList(&v, &UsersListReq{UserIds: []string{strconv.Itoa(user2ID)}})
+	resp, err := api.usersList(&v, &UsersListReq{UserIds: []string{strconv.Itoa(user2.ID)}})
 	require.NoError(t, err)
 	require.True(t, resp[0].IsFollowing)
 
 	// Unfollow
 	_, err = api.usersFollow(&v, &UsersFollow{
-		TargetID: strconv.Itoa(user2ID),
+		TargetID: strconv.Itoa(user2.ID),
 		Action:   Unfollow,
 	})
 	require.NoError(t, err)
 
-	resp, err = api.usersList(&v, &UsersListReq{UserIds: []string{strconv.Itoa(user2ID)}})
+	resp, err = api.usersList(&v, &UsersListReq{UserIds: []string{strconv.Itoa(user2.ID)}})
 	require.NoError(t, err)
 	require.False(t, resp[0].IsFollowing)
 }

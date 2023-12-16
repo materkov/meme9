@@ -44,11 +44,10 @@ func GenerateAuthToken(userID int) (string, error) {
 		Token:  store.GenerateToken(userID),
 	}
 
-	id, err := store2.GlobalStore.Nodes.Add(store.ObjTypeToken, token)
+	err := store2.GlobalStore.Tokens.Add(&token)
 	if err != nil {
 		return "", fmt.Errorf("error storing token: %w", err)
 	}
-	token.ID = id
 
 	err = store2.GlobalStore.Unique.Add(store2.UniqueTypeAuthToken, token.Token, token.ID)
 	if err != nil {

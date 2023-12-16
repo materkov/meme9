@@ -41,20 +41,56 @@ func (u *SqlPollStore) Get(ids []int) (map[int]*store.Poll, error) {
 	return result, nil
 }
 
+func (u *SqlPollStore) Add(object *store.Poll) error {
+	objectBytes, err := json.Marshal(object)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypePoll, objectBytes)
+	return err
+}
+
+func (u *SqlPollStore) Update(object *store.Poll) error {
+	objectBytes, err := json.Marshal(object)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.DB.Exec("update objects set data = ? where id = ?", objectBytes, object.ID)
+	return err
+}
+
 type PollStore interface {
 	Get(ids []int) (map[int]*store.Poll, error)
+	Add(object *store.Poll) error
+	Update(object *store.Poll) error
 }
 
 type MockPollStore struct {
-	objects map[int]*store.Poll
+	nextID  int
+	Objects map[int]*store.Poll
 }
 
 func (m *MockPollStore) Get(ids []int) (map[int]*store.Poll, error) {
 	result := map[int]*store.Poll{}
 
 	for _, objectID := range ids {
-		result[objectID] = m.objects[objectID]
+		result[objectID] = m.Objects[objectID]
 	}
 
 	return result, nil
+}
+
+func (m *MockPollStore) Add(object *store.Poll) error {
+	m.nextID++
+
+	object.ID = m.nextID
+	m.Objects[m.nextID] = object
+	return nil
+}
+
+func (m *MockPollStore) Update(object *store.Poll) error {
+	m.Objects[object.ID] = object
+	return nil
 }
