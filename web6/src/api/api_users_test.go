@@ -15,7 +15,7 @@ func TestApi_usersList(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	userID, _ := store2.GlobalStore.Nodes.AddObject(store.ObjTypeUser, &store.User{Name: "Test user"})
+	userID, _ := store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{Name: "Test user"})
 
 	resp, err := api.usersList(&v, &UsersListReq{
 		UserIds: []string{strconv.Itoa(userID)},
@@ -32,7 +32,7 @@ func TestAPI_setStatus(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	userID, _ := store2.GlobalStore.Nodes.AddObject(store.ObjTypeUser, &store.User{})
+	userID, _ := store2.GlobalStore.Nodes.Add(store.ObjTypeUser, &store.User{})
 	v := Viewer{UserID: userID}
 
 	_, err := api.usersSetStatus(&v, &UsersSetStatus{
