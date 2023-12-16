@@ -2,7 +2,6 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 // Reserved: -2, -3, -4, -1
@@ -22,10 +21,6 @@ const (
 )
 
 var SqlClient *sql.DB
-
-var (
-	ErrObjectNotFound = fmt.Errorf("object not found")
-)
 
 // Reserved: 2, 3, 4, 5
 const (

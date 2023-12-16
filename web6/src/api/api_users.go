@@ -1,11 +1,11 @@
 package api
 
 import (
-	"errors"
+	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/web6/src/pkg/utils"
 	"github.com/materkov/meme9/web6/src/store"
 	"github.com/materkov/meme9/web6/src/store2"
-	"log"
 	"strconv"
 )
 
@@ -44,15 +44,17 @@ type UsersListReq struct {
 }
 
 func (*API) usersList(v *Viewer, r *UsersListReq) ([]*User, error) {
+	userIds := utils.IdsToInts(r.UserIds)
+	users, err := store2.GlobalStore.Users.Get(userIds)
+	if err != nil {
+		return nil, err
+	}
+
 	result := make([]*User, len(r.UserIds))
 	for i, userIdStr := range r.UserIds {
 		userId, _ := strconv.Atoi(userIdStr)
-		user, err := store.GetUser(userId)
-		if err != nil {
-			log.Printf("[ERROR] Error loading user: %s", err)
-		}
 
-		result[i], err = transformUser(userId, user, v.UserID)
+		result[i], err = transformUser(userId, users[userId], v.UserID)
 		pkg.LogErr(err)
 	}
 
@@ -71,9 +73,14 @@ func (*API) usersSetStatus(v *Viewer, r *UsersSetStatus) (*Void, error) {
 		return nil, Error("StatusTooLong")
 	}
 
-	user, err := store.GetUser(v.UserID)
+	users, err := store2.GlobalStore.Users.Get([]int{v.UserID})
 	if err != nil {
 		return nil, err
+	}
+
+	user := users[v.UserID]
+	if user == nil {
+		return nil, fmt.Errorf("cannot find viewer")
 	}
 
 	user.Status = r.Status
@@ -112,11 +119,11 @@ func (*API) usersFollow(v *Viewer, r *UsersFollow) (*Void, error) {
 		err := store2.GlobalStore.Subs.Follow(v.UserID, targetID)
 		pkg.LogErr(err)
 	} else {
-		_, err := store.GetUser(targetID)
-		if errors.Is(err, store.ErrObjectNotFound) {
-			return nil, Error("UserNotFound")
-		} else if err != nil {
+		users, err := store2.GlobalStore.Users.Get([]int{targetID})
+		if err != nil {
 			return nil, err
+		} else if users[targetID] == nil {
+			return nil, Error("UserNotFound")
 		}
 
 		err = store2.GlobalStore.Subs.Follow(v.UserID, targetID)

@@ -6,7 +6,7 @@ import (
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/pkg/xlog"
-	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"hash/crc32"
 	"html"
 	"log"
@@ -50,9 +50,9 @@ func wrapPage(w http.ResponseWriter, viewer *Viewer, opts renderOpts) {
 		opts.Prefetch["viewerId"] = strconv.Itoa(viewer.UserID)
 		opts.Prefetch["viewerName"] = ""
 
-		user, _ := store.GetUser(viewer.UserID)
-		if user != nil {
-			opts.Prefetch["viewerName"] = user.Name
+		users, _ := store2.GlobalStore.Users.Get([]int{viewer.UserID})
+		if users[viewer.UserID] != nil {
+			opts.Prefetch["viewerName"] = users[viewer.UserID].Name
 		}
 	}
 

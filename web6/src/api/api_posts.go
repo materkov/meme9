@@ -2,8 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/pkg/tracer"
@@ -80,17 +78,10 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 
 	usersWrappedMap := map[int]*User{}
 	go func() {
-		usersMap, err := store.GlobalStore.GetObjectsMany(ctx, utils.UniqueIds(userIds))
+		usersMap, err := store2.GlobalStore.Users.Get(utils.UniqueIds(userIds))
 		pkg.LogErr(err)
 
-		for userID, userBytes := range usersMap {
-			user := &store.User{}
-			err = json.Unmarshal(userBytes, user)
-			pkg.LogErr(err)
-			if err != nil {
-				user = nil
-			}
-
+		for userID, user := range usersMap {
 			usersWrappedMap[userID], err = transformUser(userID, user, viewerID)
 			pkg.LogErr(err)
 		}
@@ -99,19 +90,12 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 
 	pollWrappedMap := map[int]*Poll{}
 	go func() {
-		pollBytes, err := store.GlobalStore.GetObjectsMany(ctx, pollIds)
+		pollBytes, err := store2.GlobalStore.Polls.Get(pollIds)
 		pkg.LogErr(err)
 
 		polls := make([]*store.Poll, len(pollIds))
 		for i, pollID := range pollIds {
-			pollData := pollBytes[pollID]
-
-			poll := store.Poll{}
-			err = json.Unmarshal(pollData, &poll)
-			pkg.LogErr(err)
-			poll.ID = pollID
-
-			polls[i] = &poll
+			polls[i] = pollBytes[pollID]
 		}
 
 		pollsWrapped := transformPollsMany(ctx, polls, viewerID)
@@ -261,26 +245,14 @@ func (a *API) PostsList(ctx context.Context, v *Viewer, r *PostsListReq) (*Posts
 		postIds = postIds[:count]
 	}
 
-	postsMap, err := store.GlobalStore.GetObjectsMany(ctx, postIds)
+	postsMap, err := store2.GlobalStore.Posts.Get(postIds)
 	if err != nil {
 		return nil, err
 	}
 
 	var posts []*store.Post
 	for _, postID := range postIds {
-		postBytes := postsMap[postID]
-		if postBytes == nil {
-			continue
-		}
-
-		post := store.Post{}
-		err = json.Unmarshal(postBytes, &post)
-		if err != nil {
-			pkg.LogErr(err)
-		}
-		post.ID = postID // TODO think about this
-
-		posts = append(posts, &post)
+		posts = append(posts, postsMap[postID])
 	}
 
 	result.Items = transformPostBatch(ctx, posts, v.UserID)
@@ -295,14 +267,14 @@ type PostsListByIdReq struct {
 func (a *API) PostsListByID(ctx context.Context, v *Viewer, r *PostsListByIdReq) (*Post, error) {
 	postID, _ := strconv.Atoi(r.ID)
 
-	post, err := store.GetPost(postID)
+	posts, err := store2.GlobalStore.Posts.Get([]int{postID})
 	if err != nil {
 		return nil, fmt.Errorf("error getting post: %w", err)
-	} else if post == nil || post.IsDeleted {
+	} else if posts[postID] == nil || posts[postID].IsDeleted {
 		return nil, Error("PostNotFound")
 	}
 
-	return transformPostBatch(ctx, []*store.Post{post}, v.UserID)[0], nil
+	return transformPostBatch(ctx, []*store.Post{posts[postID]}, v.UserID)[0], nil
 }
 
 type PostsListByUserReq struct {
@@ -349,13 +321,17 @@ func (a *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUser
 		newPostIds = newPostIds[:count]
 	}
 
+	postsMap, err := store2.GlobalStore.Posts.Get(postIds)
+	if err != nil {
+		return nil, fmt.Errorf("error getting posts: %w", err)
+	}
+
 	var posts []*store.Post
 
 	for _, edge := range postIds {
-		post, err := store.GetPost(edge)
-		if err == nil {
+		post := postsMap[edge]
+		if post != nil {
 			posts = append(posts, post)
-			continue
 		}
 	}
 
@@ -379,13 +355,14 @@ type PostsDeleteReq struct {
 func (a *API) PostsDelete(viewer *Viewer, r *PostsDeleteReq) (*Void, error) {
 	postID, _ := strconv.Atoi(r.PostID)
 
-	post, err := store.GetPost(postID)
-	if errors.Is(err, store.ErrObjectNotFound) {
-		return nil, Error("PostNotFound")
-	} else if err != nil {
+	posts, err := store2.GlobalStore.Posts.Get([]int{postID})
+	if err != nil {
 		return nil, err
+	} else if posts[postID] == nil {
+		return nil, Error("PostNotFound")
 	}
 
+	post := posts[postID]
 	if viewer.UserID == 0 {
 		return nil, Error("NotAuthorized")
 	}
@@ -422,11 +399,12 @@ func (*API) PostsLike(v *Viewer, r *PostsLikeReq) (*Void, error) {
 	}
 
 	postID, _ := strconv.Atoi(r.PostID)
-	_, err := store.GetPost(postID)
-	if errors.Is(err, store.ErrObjectNotFound) {
-		return nil, Error("PostNotFound")
-	} else if err != nil {
+
+	posts, err := store2.GlobalStore.Posts.Get([]int{postID})
+	if err != nil {
 		return nil, err
+	} else if posts[postID] == nil {
+		return nil, Error("PostNotFound")
 	}
 
 	if r.Action == Unlike {

@@ -1,6 +1,9 @@
 package utils
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 func IdsToStrings(ids []int) []string {
 	result := make([]string, len(ids))
@@ -9,6 +12,10 @@ func IdsToStrings(ids []int) []string {
 	}
 
 	return result
+}
+
+func IdsToString(ids []int) string {
+	return strings.Join(IdsToStrings(ids), ",")
 }
 
 func IdsToInts(ids []string) []int {

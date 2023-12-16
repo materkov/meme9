@@ -2,10 +2,9 @@ package api
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/pkg/tracer"
+	"github.com/materkov/meme9/web6/src/pkg/utils"
 	"github.com/materkov/meme9/web6/src/store"
 	"github.com/materkov/meme9/web6/src/store2"
 	"strconv"
@@ -39,19 +38,8 @@ func transformPollsMany(ctx context.Context, polls []*store.Poll, viewerID int) 
 		answerIds = append(answerIds, poll.AnswerIds...)
 	}
 
-	answerBytes, err := store.GlobalStore.GetObjectsMany(ctx, answerIds)
+	answers, err := store2.GlobalStore.PollAnswers.Get(answerIds)
 	pkg.LogErr(err)
-
-	answers := map[int]*store.PollAnswer{}
-	for _, answerID := range answerIds {
-		pollAnswer := store.PollAnswer{}
-		err = json.Unmarshal(answerBytes[answerID], &pollAnswer)
-		pkg.LogErr(err)
-		if err == nil {
-			pollAnswer.ID = answerID
-			answers[pollAnswer.ID] = &pollAnswer
-		}
-	}
 
 	counters, isVoted, err := store2.GlobalStore.Votes.LoadAnswersMany(ctx, answerIds, viewerID)
 	pkg.LogErr(err)
@@ -123,12 +111,14 @@ type PollsVoteReq struct {
 
 func (*API) PollsVote(viewer *Viewer, r *PollsVoteReq) (*Void, error) {
 	pollID, _ := strconv.Atoi(r.PollID)
-	poll, err := store.GetPoll(pollID)
-	if errors.Is(err, store.ErrObjectNotFound) {
-		return nil, Error("PollNotFound")
-	} else if err != nil {
+	polls, err := store2.GlobalStore.Polls.Get([]int{pollID})
+	if err != nil {
 		return nil, err
+	} else if polls[pollID] == nil {
+		return nil, Error("PollNotFound")
 	}
+
+	poll := polls[pollID]
 
 	pollAnswers := poll.GetAnswersMap()
 
@@ -154,14 +144,14 @@ type PollsDeleteVoteReq struct {
 
 func (*API) PollsDeleteVote(viewer *Viewer, r *PollsDeleteVoteReq) (*Void, error) {
 	pollID, _ := strconv.Atoi(r.PollID)
-	poll, err := store.GetPoll(pollID)
-	if errors.Is(err, store.ErrObjectNotFound) {
-		return nil, Error("PollNotFound")
-	} else if err != nil {
+	polls, err := store2.GlobalStore.Polls.Get([]int{pollID})
+	if err != nil {
 		return nil, err
+	} else if polls[pollID] == nil {
+		return nil, Error("PollNotFound")
 	}
 
-	err = store2.GlobalStore.Votes.RemoveVote(viewer.UserID, poll.AnswerIds)
+	err = store2.GlobalStore.Votes.RemoveVote(viewer.UserID, polls[pollID].AnswerIds)
 	pkg.LogErr(err)
 
 	return &Void{}, err
@@ -172,11 +162,15 @@ type PollsListReq struct {
 }
 
 func (*API) PollsList(ctx context.Context, viewer *Viewer, r *PollsListReq) ([]*Poll, error) {
-	pollID, _ := strconv.Atoi(r.Ids[0])
-	poll, err := store.GetPoll(pollID)
+	polls, err := store2.GlobalStore.Polls.Get(utils.IdsToInts(r.Ids))
 	if err != nil {
 		return nil, err
 	}
 
-	return transformPollsMany(ctx, []*store.Poll{poll}, viewer.UserID), nil
+	var pollsList []*store.Poll
+	for _, poll := range polls {
+		pollsList = append(pollsList, poll)
+	}
+
+	return transformPollsMany(ctx, pollsList, viewer.UserID), nil
 }

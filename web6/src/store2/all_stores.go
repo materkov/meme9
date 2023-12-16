@@ -8,6 +8,13 @@ type Store struct {
 	Subs       Subscriptions
 	Wall       Wall
 	Votes      Votes
+
+	Users       UserStore
+	Posts       PostStore
+	Polls       PollStore
+	PollAnswers PollAnswerStore
+	Tokens      TokenStore
+	Configs     ConfigStore
 }
 
 var GlobalStore *Store

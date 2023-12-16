@@ -25,13 +25,15 @@ func ParseAuthToken(ctx context.Context, tokenStr string) *store.Token {
 		return nil
 	}
 
-	token, err := store.GetToken(tokenID)
+	tokens, err := store2.GlobalStore.Tokens.Get([]int{tokenID})
 	if err != nil {
 		LogErr(err)
 		return nil
+	} else if tokens[tokenID] == nil {
+		return nil
 	}
 
-	return token
+	return tokens[tokenID]
 }
 
 func GenerateAuthToken(userID int) (string, error) {

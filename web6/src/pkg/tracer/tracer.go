@@ -79,7 +79,11 @@ func WriteSpan(traceID int, name string, started time.Time, tags map[string]stri
 }
 
 func FromCtx(ctx context.Context) *Tracer {
-	return ctx.Value(ctxKey).(*Tracer)
+	tracer, ok := ctx.Value(ctxKey).(*Tracer)
+	if !ok {
+		tracer = &Tracer{}
+	}
+	return tracer
 }
 
 func WithCtx(ctx context.Context, t *Tracer) context.Context {

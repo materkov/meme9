@@ -17,23 +17,31 @@ func main() {
 		log.Fatalf("Error opening mysql: %s", err)
 	}
 
-	store.GlobalStore = &store.SqlStore{DB: store.SqlClient}
-
 	nodeStore := store2.NewSqlNodes(store.SqlClient)
 	store2.GlobalStore = &store2.Store{
-		Unique:     store2.NewSqlUniqueStore(store.SqlClient),
-		Nodes:      nodeStore,
-		TypedNodes: &store2.TypedNodes{Store: nodeStore},
-		Likes:      &store2.SqlLikes{DB: store.SqlClient},
-		Subs:       &store2.SqlSubscriptions{DB: store.SqlClient},
-		Wall:       &store2.SqlWall{DB: store.SqlClient},
-		Votes:      &store2.SqlVotes{DB: store.SqlClient},
+		Unique:      store2.NewSqlUniqueStore(store.SqlClient),
+		Nodes:       nodeStore,
+		TypedNodes:  &store2.TypedNodes{Store: nodeStore},
+		Likes:       &store2.SqlLikes{DB: store.SqlClient},
+		Subs:        &store2.SqlSubscriptions{DB: store.SqlClient},
+		Wall:        &store2.SqlWall{DB: store.SqlClient},
+		Votes:       &store2.SqlVotes{DB: store.SqlClient},
+		Users:       &store2.SqlUserStore{DB: store.SqlClient},
+		Posts:       &store2.SqlPostStore{DB: store.SqlClient},
+		Polls:       &store2.SqlPollStore{DB: store.SqlClient},
+		PollAnswers: &store2.SqlPollAnswerStore{DB: store.SqlClient},
+		Tokens:      &store2.SqlTokenStore{DB: store.SqlClient},
+		Configs:     &store2.SqlConfigStore{DB: store.SqlClient},
 	}
 
-	store.GlobalConfig, err = store.GetConfig()
+	results, err := store2.GlobalStore.Configs.Get([]int{store.FakeObjConfig})
 	if err != nil {
 		log.Fatalf("Error reading config: %s", err)
+	} else if results[store.FakeObjConfig] == nil {
+		log.Fatalf("Config not found")
 	}
+
+	store.GlobalConfig = results[store.FakeObjConfig]
 
 	go func() {
 		xlog.ClearOldLogs()

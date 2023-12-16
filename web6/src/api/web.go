@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"golang.org/x/image/draw"
 	"html"
 	"image"
@@ -64,8 +65,8 @@ func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 	postID, _ := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/posts/"))
 
 	// TODO think about this
-	post, err := store.GetPost(postID)
-	if err != nil {
+	posts, err := store2.GlobalStore.Posts.Get([]int{postID})
+	if err != nil || posts[postID] == nil {
 		wrapPage(w, viewer, renderOpts{
 			Title:      "Post not found",
 			Content:    "Post not found",
@@ -77,8 +78,11 @@ func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 		return
 	}
 
-	user, err := store.GetUser(post.UserID)
-	if err != nil {
+	post := posts[postID]
+
+	users, _ := store2.GlobalStore.Users.Get([]int{post.UserID})
+	user := users[post.UserID]
+	if user != nil {
 		wrapPage(w, viewer, renderOpts{
 			Title:   "Internal error",
 			Content: "Internal error",
