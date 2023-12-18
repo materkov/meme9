@@ -13,7 +13,7 @@ type SqlPollStore struct {
 }
 
 func (u *SqlPollStore) Get(ids []int) (map[int]*store.Poll, error) {
-	rows, err := u.DB.Query(fmt.Sprintf("select id, data from objects where id in (%s)", utils.IdsToString(ids)))
+	rows, err := u.DB.Query(fmt.Sprintf("select id, data from objects where id in (%s)", utils.IdsToCommaSeparated(ids)))
 	if err != nil {
 		return nil, err
 	}

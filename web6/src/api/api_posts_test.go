@@ -3,7 +3,10 @@ package api
 import (
 	"context"
 	"errors"
+	"github.com/materkov/meme9/web6/src/store"
+	"github.com/materkov/meme9/web6/src/store2"
 	"github.com/stretchr/testify/require"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -15,16 +18,16 @@ func requireAPIError(t *testing.T, err error, code string) {
 	require.Equal(t, string(apiErr), code)
 }
 
-/*
 func TestAPI_PostsCRUD(t *testing.T) {
 	api := API{}
 	closer := createTestDB(t)
 	defer closer()
 
-	userID, _ := store.GlobalStore.AddObject(store.ObjTypeUser, store.User{ID: 1})
-	v := Viewer{UserID: 1}
+	user := store.User{}
+	_ = store2.GlobalStore.Users.Add(&user)
+	v := Viewer{UserID: user.ID}
 
-	addResp, err := api.PostsAdd(&v, &PostsAddReq{Text: "test text"})
+	addResp, err := api.PostsAdd(context.Background(), &v, &PostsAddReq{Text: "test text"})
 	require.NoError(t, err)
 	require.NotNil(t, addResp)
 	require.NotEmpty(t, addResp.ID)
@@ -32,21 +35,21 @@ func TestAPI_PostsCRUD(t *testing.T) {
 	postID := addResp.ID
 
 	t.Run("", func(t *testing.T) {
-		resp, err := api.PostsList(&v, &PostsListReq{})
+		resp, err := api.PostsList(context.Background(), &v, &PostsListReq{})
 		require.NoError(t, err)
 		require.Len(t, resp.Items, 1)
 		require.Equal(t, resp.Items[0].ID, postID)
 	})
 
 	t.Run("", func(t *testing.T) {
-		resp, err := api.PostsListByID(&v, &PostsListByIdReq{ID: postID})
+		resp, err := api.PostsListByID(context.Background(), &v, &PostsListByIdReq{ID: postID})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Equal(t, resp.ID, postID)
 	})
 
 	t.Run("", func(t *testing.T) {
-		resp, err := api.PostsListByUser(&v, &PostsListByUserReq{UserID: strconv.Itoa(userID)})
+		resp, err := api.PostsListByUser(context.Background(), &v, &PostsListByUserReq{UserID: strconv.Itoa(user.ID)})
 		require.NoError(t, err)
 		require.Len(t, resp.Items, 1)
 		require.Equal(t, resp.Items[0].ID, postID)
@@ -58,22 +61,22 @@ func TestAPI_PostsCRUD(t *testing.T) {
 	})
 
 	t.Run("", func(t *testing.T) {
-		_, err := api.PostsListByID(&v, &PostsListByIdReq{ID: postID})
+		_, err := api.PostsListByID(context.Background(), &v, &PostsListByIdReq{ID: postID})
 		requireAPIError(t, err, "PostNotFound")
 	})
-}*/
+}
 
-/*
 func TestAPI_PostsLikes(t *testing.T) {
 	api := API{}
 
 	closer := createTestDB(t)
 	defer closer()
 
-	userID, _ := store.GlobalStore.AddObject(store.ObjTypeUser, store.User{})
-	v := Viewer{UserID: userID}
+	user := store.User{}
+	_ = store2.GlobalStore.Users.Add(&user)
+	v := Viewer{UserID: user.ID}
 
-	addResp, _ := api.PostsAdd(&v, &PostsAddReq{Text: "test text"})
+	addResp, _ := api.PostsAdd(context.Background(), &v, &PostsAddReq{Text: "test text"})
 
 	t.Run("like post", func(t *testing.T) {
 		_, err := api.PostsLike(&v, &PostsLikeReq{
@@ -83,8 +86,16 @@ func TestAPI_PostsLikes(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("like post again", func(t *testing.T) {
+		_, err := api.PostsLike(&v, &PostsLikeReq{
+			PostID: addResp.ID,
+			Action: "LIKE",
+		})
+		require.NoError(t, err)
+	})
+
 	t.Run("check count and flag", func(t *testing.T) {
-		listResp, err := api.PostsListByID(&v, &PostsListByIdReq{ID: addResp.ID})
+		listResp, err := api.PostsListByID(context.Background(), &v, &PostsListByIdReq{ID: addResp.ID})
 		require.NoError(t, err)
 		require.Equal(t, 1, listResp.LikesCount)
 		require.True(t, listResp.IsLiked)
@@ -99,12 +110,12 @@ func TestAPI_PostsLikes(t *testing.T) {
 	})
 
 	t.Run("check again", func(t *testing.T) {
-		listResp, err := api.PostsListByID(&v, &PostsListByIdReq{ID: addResp.ID})
+		listResp, err := api.PostsListByID(context.Background(), &v, &PostsListByIdReq{ID: addResp.ID})
 		require.NoError(t, err)
 		require.Equal(t, 0, listResp.LikesCount)
 		require.False(t, listResp.IsLiked)
 	})
-}*/
+}
 
 func TestAPI_PostsAdd(t *testing.T) {
 	api := API{}
@@ -121,30 +132,34 @@ func TestAPI_PostsAdd(t *testing.T) {
 	requireAPIError(t, err, "NotAuthorized")
 }
 
-/*
 func TestAPI_PostsListByUser(t *testing.T) {
 	api := API{}
 	closer := createTestDB(t)
 	defer closer()
 
 	for i := 0; i < 12; i++ {
-		postID, err := store.GlobalStore.AddObject(store.ObjTypePost, &store.Post{
-			UserID: 10,
-		})
+		post := store.Post{UserID: 10}
+		err := store2.GlobalStore.Posts.Add(&post)
 		require.NoError(t, err)
 
-		err = store.GlobalStore.AddEdge(10, postID, store.EdgeTypePosted)
+		err = store2.GlobalStore.Wall.Add(10, post.ID)
 		require.NoError(t, err)
 	}
 
-	resp, err := api.PostsListByUser(&Viewer{}, &PostsListByUserReq{UserID: "10", Count: 10})
+	resp, err := api.PostsListByUser(context.Background(), &Viewer{}, &PostsListByUserReq{
+		UserID: "10",
+		Count:  10,
+	})
 	require.NoError(t, err)
 	require.Len(t, resp.Items, 10)
 	require.NotEmpty(t, resp.PageToken)
 
-	resp, err = api.PostsListByUser(&Viewer{}, &PostsListByUserReq{UserID: "10", Count: 10, After: resp.PageToken})
+	resp, err = api.PostsListByUser(context.Background(), &Viewer{}, &PostsListByUserReq{
+		UserID: "10",
+		Count:  10,
+		After:  resp.PageToken,
+	})
 	require.NoError(t, err)
 	require.Len(t, resp.Items, 2)
 	require.Empty(t, resp.PageToken)
 }
-*/

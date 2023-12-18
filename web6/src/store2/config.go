@@ -13,7 +13,7 @@ type SqlConfigStore struct {
 }
 
 func (u *SqlConfigStore) Get(ids []int) (map[int]*store.Config, error) {
-	rows, err := u.DB.Query(fmt.Sprintf("select id, data from objects where id in (%s)", utils.IdsToString(ids)))
+	rows, err := u.DB.Query(fmt.Sprintf("select id, data from objects where id in (%s)", utils.IdsToCommaSeparated(ids)))
 	if err != nil {
 		return nil, err
 	}

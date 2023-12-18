@@ -5,16 +5,29 @@ import (
 	"fmt"
 	"github.com/materkov/meme9/web6/src/pkg/utils"
 	"github.com/materkov/meme9/web6/src/store"
+	"slices"
 	"sort"
-	"strings"
 )
 
 type SqlWall struct {
 	DB *sql.DB
 }
 
-func (s *SqlWall) Get(userIds []int) ([]int, error) {
-	rows, err := s.DB.Query(fmt.Sprintf("select to_id from edges where from_id in (%s) and edge_type = %d", strings.Join(utils.IdsToStrings(userIds), ","), store.EdgeTypePosted))
+func (s *SqlWall) Get(userIds []int, after int, limit int) ([]int, error) {
+	queryAfter := ""
+	if after != 0 {
+		queryAfter = fmt.Sprintf(" and to_id < %d", after)
+	}
+
+	query := fmt.Sprintf(
+		"select to_id from edges where from_id in (%s) and edge_type = %d %s order by id desc limit %d",
+		utils.IdsToCommaSeparated(userIds),
+		store.EdgeTypePosted,
+		queryAfter,
+		limit,
+	)
+
+	rows, err := s.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +79,7 @@ func (s *SqlWall) GetLatest() ([]int, error) {
 }
 
 type Wall interface {
-	Get(userIds []int) ([]int, error)
+	Get(userIds []int, after int, limit int) ([]int, error)
 	Add(userID, postID int) error
 	Delete(userID, postID int) error
 	GetLatest() ([]int, error)
@@ -76,13 +89,24 @@ type MockWall struct {
 	Posts map[int][]int
 }
 
-func (m *MockWall) Get(userIds []int) ([]int, error) {
+func (m *MockWall) Get(userIds []int, after int, limit int) ([]int, error) {
 	var result []int
 	for _, userID := range userIds {
 		result = append(result, m.Posts[userID]...)
 	}
 
 	sort.Sort(sort.Reverse(sort.IntSlice(result)))
+
+	if after != 0 {
+		idx := slices.Index(result, after)
+		if idx != -1 {
+			result = result[idx+1:]
+		}
+	}
+	if len(result) > limit {
+		result = result[:limit]
+	}
+
 	return result, nil
 }
 

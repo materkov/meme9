@@ -14,7 +14,7 @@ func IdsToStrings(ids []int) []string {
 	return result
 }
 
-func IdsToString(ids []int) string {
+func IdsToCommaSeparated(ids []int) string {
 	return strings.Join(IdsToStrings(ids), ",")
 }
 

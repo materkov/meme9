@@ -8,7 +8,6 @@ import (
 	"github.com/materkov/meme9/web6/src/pkg/utils"
 	"github.com/materkov/meme9/web6/src/store"
 	"github.com/materkov/meme9/web6/src/store2"
-	"math"
 	"net/url"
 	"slices"
 	"strconv"
@@ -295,29 +294,15 @@ func (a *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUser
 		return nil, Error("IncorrectCount")
 	}
 
-	lessThan := math.MaxInt
-	if r.After != "" {
-		lessThan, _ = strconv.Atoi(r.After)
-	}
-
+	lessThan, _ := strconv.Atoi(r.After)
 	count := 10
 	if r.Count != 0 {
 		count = r.Count
 	}
 
-	postIds, err := store2.GlobalStore.Wall.Get([]int{userID})
+	postIds, err := store2.GlobalStore.Wall.Get([]int{userID}, lessThan, count)
 	if err != nil {
 		return nil, fmt.Errorf("error getting posted edges: %w", err)
-	}
-
-	var newPostIds []int
-	for _, postID := range postIds {
-		if lessThan >= postID {
-			newPostIds = append(newPostIds, postID)
-		}
-	}
-	if len(newPostIds) > count {
-		newPostIds = newPostIds[:count]
 	}
 
 	postsMap, err := store2.GlobalStore.Posts.Get(postIds)
@@ -337,8 +322,8 @@ func (a *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUser
 	result := transformPostBatch(ctx, posts, v.UserID)
 
 	nextAfter := ""
-	if len(newPostIds) == count && len(newPostIds) > 0 {
-		nextAfter = strconv.Itoa(newPostIds[len(newPostIds)-1])
+	if len(postIds) == count {
+		nextAfter = strconv.Itoa(postIds[len(postIds)-1])
 	}
 
 	return &PostsList{
