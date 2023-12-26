@@ -8,6 +8,7 @@ export interface Globals {
     setAuth: (authResp: AuthResp) => void;
 }
 
+// TODO rewrite to React context
 export const useGlobals = create<Globals>()(set => {
     const viewerId = tryGetPrefetch('viewerId') || "";
     const viewerName = tryGetPrefetch('viewerName') || "";

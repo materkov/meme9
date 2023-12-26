@@ -13,6 +13,7 @@ import (
 	"strings"
 )
 
+// TODO empty function
 func (h *HttpServer) authPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
 	wrapPage(w, viewer, renderOpts{})
 }

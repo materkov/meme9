@@ -17,6 +17,7 @@ export function Auth() {
     const [error, setError] = React.useState('');
     const isReg = location.search === "?registration";
 
+    // TODO think about location.search
     if (location.search === "?logout") {
         delCookie(cookieAuthToken);
         globals.setAuth({token: "", userId: "", userName: ""});

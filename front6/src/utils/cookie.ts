@@ -1,3 +1,4 @@
+// TODO think about tokens
 export const cookieAuthToken = "authToken";
 
 export function getCookie(name: string): string {

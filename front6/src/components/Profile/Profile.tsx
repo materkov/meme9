@@ -41,9 +41,6 @@ export function Profile() {
     const updateStatus = () => {
         usersSetStatus({status: status})
             .then(() => {
-                //const user: User = structuredClone(resources.users[userId]);
-                //user.status = status;
-                //resources.setUser(user);
                 queryClient.setQueryData(['users', userId], (oldData: User) => {
                     const copy = structuredClone(oldData) as User;
                     copy.status = status;
@@ -72,11 +69,6 @@ export function Profile() {
     if (!user) {
         return <div>Loading....</div>
     }
-
-    //const user = resources.users[userId];
-
-    //const postIds = profileState.postIds[userId] || [];
-    //const posts = postIds.map(postId => resources.posts[postId]);
 
     return <div>
         <h1 className={styles.userName}>{user.name}</h1>

@@ -35,7 +35,7 @@ export function Discover() {
     };
 
     return <div>
-        <h1>Discover22</h1>
+        <h1>Discover</h1>
 
         {globalState.viewerId && <Composer/>}
 

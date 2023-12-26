@@ -161,6 +161,7 @@ type PollsListReq struct {
 	Ids []string `json:"ids"`
 }
 
+// TODO need this method?
 func (*API) PollsList(ctx context.Context, viewer *Viewer, r *PollsListReq) ([]*Poll, error) {
 	polls, err := store2.GlobalStore.Polls.Get(utils.IdsToInts(r.Ids))
 	if err != nil {

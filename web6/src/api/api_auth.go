@@ -21,6 +21,7 @@ type AuthResp struct {
 	UserName string `json:"userName"`
 }
 
+// TODO add tracers
 func (a *API) authRegister(_ *Viewer, r *AuthEmailReq) (*AuthResp, error) {
 	if r.Email == "" {
 		return nil, Error("EmptyEmail")

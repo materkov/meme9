@@ -1,7 +1,7 @@
 import * as types from "../../api/api";
 import React from "react";
 import * as styles from "./Poll.module.css";
-import {useQuery, useQueryClient, useSuspenseQuery} from "@tanstack/react-query";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
 
 export function Poll(props: { pollId: string }) {
     const {data} = useQuery<types.Poll>({

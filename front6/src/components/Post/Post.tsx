@@ -3,8 +3,6 @@ import * as styles from "./Post.module.css";
 import {Link} from "../Link/Link";
 import {useGlobals} from "../../store/globals";
 import * as types from "../../api/api";
-//import {LikeAction, Post as ApiPost, postsDelete, postsLike} from "../../api/api";
-//import * as types from "../../api/api";
 import {LinkAttach} from "./LinkAttach";
 import {Poll} from "./Poll";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
