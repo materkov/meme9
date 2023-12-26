@@ -54,7 +54,7 @@ def test_posting():
 
     # posts.list by id
     postById, err = api("posts.list", {
-        "byUd": post['id'],
+        "byId": post['id'],
     })
     assert err == None
     assert postById['items'][0]['id'] == post['id']
