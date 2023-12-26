@@ -1,6 +1,6 @@
 import React from "react";
 import * as types from "../../api/api";
-import {FeedType} from "../../api/api";
+import {FeedType, PostsListReq} from "../../api/api";
 import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query'
 import {PostsList} from "../Post/PostsList";
 import {useGlobals} from "../../store/globals";
@@ -14,16 +14,17 @@ export function Discover() {
 
     const {data, status, hasNextPage, fetchNextPage} = useInfiniteQuery({
         queryKey: ['discover', discoverState],
-        queryFn: ({pageParam}) => (
-            types.postsList({
-                pageToken: pageParam,
-                count: 10,
-                type: discoverState,
-            }).then(res => {
+        queryFn: ({pageParam}) => {
+            const req = new PostsListReq();
+            req.pageToken = pageParam;
+            req.count = 10;
+            req.type = discoverState;
+
+            return types.postsList(req).then(res => {
                 getAllFromPosts(queryClient, res.items);
                 return res;
             })
-        ),
+        },
         initialPageParam: "",
         getNextPageParam: (lastPage) => lastPage.pageToken,
     });

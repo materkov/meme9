@@ -111,27 +111,11 @@ export class PostsListReq {
     count: number = 0
     type: FeedType = FeedType.UNKNOWN
     byUserId: string = ""
+    byId: string = ""
 }
 
 export function postsList(req: PostsListReq): Promise<PostsList> {
     return api("posts.list", req)
-}
-
-export class PostsListPostedByUserReq {
-    userId: string = ""
-    after: string = ""
-}
-
-export function postsListPostedByUser(req: PostsListPostedByUserReq): Promise<PostsList> {
-    return api("posts.listPostedByUser", req)
-}
-
-export class PostsListByIdReq {
-    id: string = ""
-}
-
-export function postsListById(req: PostsListByIdReq): Promise<Post> {
-    return api("posts.listById", req)
 }
 
 export class PostsDeleteReq {

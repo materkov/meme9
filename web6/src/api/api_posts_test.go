@@ -42,10 +42,10 @@ func TestAPI_PostsCRUD(t *testing.T) {
 	})
 
 	t.Run("", func(t *testing.T) {
-		resp, err := api.PostsListByID(context.Background(), &v, &PostsListByIdReq{ID: postID})
+		resp, err := api.PostsList(context.Background(), &v, &PostsListReq{ByID: postID})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
-		require.Equal(t, resp.ID, postID)
+		require.Equal(t, resp.Items[0].ID, postID)
 	})
 
 	t.Run("", func(t *testing.T) {
@@ -61,7 +61,7 @@ func TestAPI_PostsCRUD(t *testing.T) {
 	})
 
 	t.Run("", func(t *testing.T) {
-		_, err := api.PostsListByID(context.Background(), &v, &PostsListByIdReq{ID: postID})
+		_, err := api.PostsList(context.Background(), &v, &PostsListReq{ByID: postID})
 		requireAPIError(t, err, "PostNotFound")
 	})
 }
@@ -95,10 +95,10 @@ func TestAPI_PostsLikes(t *testing.T) {
 	})
 
 	t.Run("check count and flag", func(t *testing.T) {
-		listResp, err := api.PostsListByID(context.Background(), &v, &PostsListByIdReq{ID: addResp.ID})
+		listResp, err := api.PostsList(context.Background(), &v, &PostsListReq{ByID: addResp.ID})
 		require.NoError(t, err)
-		require.Equal(t, 1, listResp.LikesCount)
-		require.True(t, listResp.IsLiked)
+		require.Equal(t, 1, listResp.Items[0].LikesCount)
+		require.True(t, listResp.Items[0].IsLiked)
 	})
 
 	t.Run("dislike post", func(t *testing.T) {
@@ -110,10 +110,10 @@ func TestAPI_PostsLikes(t *testing.T) {
 	})
 
 	t.Run("check again", func(t *testing.T) {
-		listResp, err := api.PostsListByID(context.Background(), &v, &PostsListByIdReq{ID: addResp.ID})
+		listResp, err := api.PostsList(context.Background(), &v, &PostsListReq{ByID: addResp.ID})
 		require.NoError(t, err)
-		require.Equal(t, 0, listResp.LikesCount)
-		require.False(t, listResp.IsLiked)
+		require.Equal(t, 0, listResp.Items[0].LikesCount)
+		require.False(t, listResp.Items[0].IsLiked)
 	})
 }
 

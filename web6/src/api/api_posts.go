@@ -201,6 +201,7 @@ const (
 type PostsListReq struct {
 	Type     FeedType `json:"type"`
 	ByUserID string   `json:"byUserId"`
+	ByID     string   `json:"byId"`
 
 	Count     int    `json:"count"`
 	PageToken string `json:"pageToken"`
@@ -211,6 +212,9 @@ func (a *API) PostsList(ctx context.Context, v *Viewer, r *PostsListReq) (*Posts
 
 	if r.ByUserID != "" {
 		return a.postsListByUser(ctx, v, r)
+	}
+	if r.ByID != "" {
+		return a.postsListByID(ctx, v, r)
 	}
 
 	var err error
@@ -267,8 +271,8 @@ type PostsListByIdReq struct {
 	ID string `json:"id"`
 }
 
-func (a *API) PostsListByID(ctx context.Context, v *Viewer, r *PostsListByIdReq) (*Post, error) {
-	postID, _ := strconv.Atoi(r.ID)
+func (a *API) postsListByID(ctx context.Context, v *Viewer, r *PostsListReq) (*PostsList, error) {
+	postID, _ := strconv.Atoi(r.ByID)
 
 	posts, err := store2.GlobalStore.Posts.Get([]int{postID})
 	if err != nil {
@@ -277,7 +281,9 @@ func (a *API) PostsListByID(ctx context.Context, v *Viewer, r *PostsListByIdReq)
 		return nil, Error("PostNotFound")
 	}
 
-	return transformPostBatch(ctx, []*store.Post{posts[postID]}, v.UserID)[0], nil
+	postsWrapped := transformPostBatch(ctx, []*store.Post{posts[postID]}, v.UserID)
+
+	return &PostsList{Items: postsWrapped}, nil
 }
 
 func (a *API) postsListByUser(ctx context.Context, v *Viewer, r *PostsListReq) (*PostsList, error) {
