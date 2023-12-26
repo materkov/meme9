@@ -45,9 +45,9 @@ def test_posting():
     assert err == None
     assert posts_list['items'][0]['id'] == post['id']
 
-    # posts.listPostedByUser
-    posts, err = api("posts.listPostedByUser", {
-        "userId": post['userId'],
+    # posts.list by user_id
+    posts, err = api("posts.list", {
+        "byUserId": post['userId'],
     })
     assert err == None
     assert posts['items'][0]['id'] == post['id']
