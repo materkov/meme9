@@ -52,12 +52,12 @@ def test_posting():
     assert err == None
     assert posts['items'][0]['id'] == post['id']
 
-    # posts.listById
-    postById, err = api("posts.listById", {
-        "id": post['id'],
+    # posts.list by id
+    postById, err = api("posts.list", {
+        "byUd": post['id'],
     })
     assert err == None
-    assert postById['id'] == post['id']
+    assert postById['items'][0]['id'] == post['id']
 
     # posts.delete
     _, err = api("posts.delete", {
