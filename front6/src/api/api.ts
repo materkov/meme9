@@ -8,12 +8,17 @@ function api<T>(method: string, args: any): Promise<T> {
         headers['authorization'] = 'Bearer ' + token;
     }
 
+    const argsStr = JSON.stringify(args, (key, value) => {
+        return value === '' || value === null || value === 0 || (typeof value === 'object' && (value.length === 0 || Object.keys(value).length === 0)) ? undefined : value;
+    });
+
     return new Promise((resolve, reject) => {
+
         // TODO think about this func
         fetch('/api/' + method, {
             credentials: 'omit',
             method: 'POST',
-            body: JSON.stringify(args),
+            body: argsStr,
             headers: headers,
         })
             .then(r => {
