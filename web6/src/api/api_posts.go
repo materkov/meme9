@@ -199,7 +199,8 @@ const (
 )
 
 type PostsListReq struct {
-	Type FeedType `json:"type"`
+	Type     FeedType `json:"type"`
+	ByUserID string   `json:"byUserId"`
 
 	Count     int    `json:"count"`
 	PageToken string `json:"pageToken"`
@@ -207,6 +208,10 @@ type PostsListReq struct {
 
 func (a *API) PostsList(ctx context.Context, v *Viewer, r *PostsListReq) (*PostsList, error) {
 	defer tracer.FromCtx(ctx).StartChild("API.PostsList").Stop()
+
+	if r.ByUserID != "" {
+		return a.postsListByUser(ctx, v, r)
+	}
 
 	var err error
 	var postIds []int
@@ -275,15 +280,8 @@ func (a *API) PostsListByID(ctx context.Context, v *Viewer, r *PostsListByIdReq)
 	return transformPostBatch(ctx, []*store.Post{posts[postID]}, v.UserID)[0], nil
 }
 
-type PostsListByUserReq struct {
-	UserID string `json:"userId"`
-
-	Count int    `json:"count"`
-	After string `json:"after"`
-}
-
-func (a *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUserReq) (*PostsList, error) {
-	userID, _ := strconv.Atoi(r.UserID)
+func (a *API) postsListByUser(ctx context.Context, v *Viewer, r *PostsListReq) (*PostsList, error) {
+	userID, _ := strconv.Atoi(r.ByUserID)
 	if userID <= 0 {
 		return nil, Error("IncorrectUserId")
 	}
@@ -294,7 +292,7 @@ func (a *API) PostsListByUser(ctx context.Context, v *Viewer, r *PostsListByUser
 		return nil, Error("IncorrectCount")
 	}
 
-	lessThan, _ := strconv.Atoi(r.After)
+	lessThan, _ := strconv.Atoi(r.PageToken)
 	count := 10
 	if r.Count != 0 {
 		count = r.Count

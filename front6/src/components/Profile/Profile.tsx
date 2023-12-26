@@ -1,6 +1,6 @@
 import React from "react";
 import * as styles from "./Profile.module.css";
-import {postsListPostedByUser, SubscribeAction, User, usersFollow, usersList, usersSetStatus} from "../../api/api";
+import {FeedType, postsList, SubscribeAction, User, usersFollow, usersList, usersSetStatus} from "../../api/api";
 import {useGlobals} from "../../store/globals";
 import {PostsList} from "../Post/PostsList";
 import {useInfiniteQuery, useQuery, useQueryClient} from "@tanstack/react-query";
@@ -21,9 +21,11 @@ export function Profile() {
     const {data: userPosts, hasNextPage, fetchNextPage} = useInfiniteQuery({
         queryKey: ['userPosts', userId],
         queryFn: ({pageParam}) => (
-            postsListPostedByUser({
-                userId: userId,
-                after: pageParam,
+            postsList({
+                count: 50,
+                byUserId: userId,
+                pageToken: pageParam,
+                type: FeedType.UNKNOWN,
             }).then(r => {
                 getAllFromPosts(queryClient, r.items);
                 return r;

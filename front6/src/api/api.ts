@@ -17,18 +17,27 @@ function api<T>(method: string, args: any): Promise<T> {
             headers: headers,
         })
             .then(r => {
-                if (r.ok) {
-                    r.json()
-                        .then(resolve)
-                        .catch(reject);
-                } else {
-                    r.json()
-                        .then(r => {
-                            reject(r.error);
-                        })
-                        .catch(reject);
+                if (!r.ok) {
+                    reject('http error');
+                } else if (r.status !== 200) {
+                    reject("incorrect http status " + r.status)
+                }
+
+                return r.text()
+            })
+            .then(r => {
+                try {
+                    const resp = JSON.parse(r);
+                    if (resp.error) {
+                        reject(resp.error)
+                    } else {
+                        resolve(resp);
+                    }
+                } catch (e) {
+                    reject('cannot parse json');
                 }
             })
+            .catch(reject);
     })
 }
 
@@ -92,6 +101,7 @@ export function postsAdd(req: PostsAddReq): Promise<void> {
 }
 
 export enum FeedType {
+    UNKNOWN = "",
     DISCOVER = "DISCOVER",
     FEED = "FEED",
 }
@@ -99,7 +109,8 @@ export enum FeedType {
 export class PostsListReq {
     pageToken: string = ""
     count: number = 0
-    type: FeedType = FeedType.DISCOVER
+    type: FeedType = FeedType.UNKNOWN
+    byUserId: string = ""
 }
 
 export function postsList(req: PostsListReq): Promise<PostsList> {

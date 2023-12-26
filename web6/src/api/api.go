@@ -28,7 +28,6 @@ func writeResp(w http.ResponseWriter, resp interface{}, err error) {
 			errResp.Error = "Internal server error"
 		}
 
-		w.WriteHeader(400)
 		_ = e.Encode(errResp)
 	} else {
 		_ = e.Encode(resp)

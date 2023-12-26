@@ -21,7 +21,7 @@ func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 	path := r.URL.Path
 	path = strings.TrimPrefix(path, "/users/")
 
-	resp1, err := h.Api.PostsListByUser(r.Context(), viewer, &PostsListByUserReq{UserID: path})
+	resp1, err := h.Api.PostsList(r.Context(), viewer, &PostsListReq{ByUserID: path})
 	logAPIPrefetchError(err)
 
 	resp2, err := h.Api.usersList(viewer, &UsersListReq{UserIds: []string{path}})

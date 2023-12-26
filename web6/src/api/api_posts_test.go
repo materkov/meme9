@@ -49,7 +49,7 @@ func TestAPI_PostsCRUD(t *testing.T) {
 	})
 
 	t.Run("", func(t *testing.T) {
-		resp, err := api.PostsListByUser(context.Background(), &v, &PostsListByUserReq{UserID: strconv.Itoa(user.ID)})
+		resp, err := api.PostsList(context.Background(), &v, &PostsListReq{ByUserID: strconv.Itoa(user.ID)})
 		require.NoError(t, err)
 		require.Len(t, resp.Items, 1)
 		require.Equal(t, resp.Items[0].ID, postID)
@@ -146,18 +146,18 @@ func TestAPI_PostsListByUser(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	resp, err := api.PostsListByUser(context.Background(), &Viewer{}, &PostsListByUserReq{
-		UserID: "10",
-		Count:  10,
+	resp, err := api.PostsList(context.Background(), &Viewer{}, &PostsListReq{
+		ByUserID: "10",
+		Count:    10,
 	})
 	require.NoError(t, err)
 	require.Len(t, resp.Items, 10)
 	require.NotEmpty(t, resp.PageToken)
 
-	resp, err = api.PostsListByUser(context.Background(), &Viewer{}, &PostsListByUserReq{
-		UserID: "10",
-		Count:  10,
-		After:  resp.PageToken,
+	resp, err = api.PostsList(context.Background(), &Viewer{}, &PostsListReq{
+		ByUserID:  "10",
+		Count:     10,
+		PageToken: resp.PageToken,
 	})
 	require.NoError(t, err)
 	require.Len(t, resp.Items, 2)

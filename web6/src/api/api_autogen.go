@@ -75,16 +75,6 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 		resp, err := h.Api.PostsListByID(ctx, viewer, req)
 		writeResp(w, resp, err)
 
-	case "posts.listPostedByUser":
-		req := &PostsListByUserReq{}
-		err := json.NewDecoder(r.Body).Decode(req)
-		if err != nil {
-			writeResp(w, nil, ErrParsingRequest)
-			return
-		}
-		resp, err := h.Api.PostsListByUser(ctx, viewer, req)
-		writeResp(w, resp, err)
-
 	case "posts.delete":
 		req := &PostsDeleteReq{}
 		err := json.NewDecoder(r.Body).Decode(req)
