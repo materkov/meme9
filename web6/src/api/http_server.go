@@ -26,6 +26,15 @@ type renderOpts struct {
 }
 
 func wrapPage(w http.ResponseWriter, viewer *Viewer, opts renderOpts) {
+	buildTime := pkg.BuildTime
+	buildCrc := strconv.Itoa(int(crc32.Checksum([]byte(buildTime), crc32.MakeTable(crc32.IEEE))))
+
+	cssPath := fmt.Sprintf("/dist/bundle/index.css?%s", buildCrc)
+	jsPath := fmt.Sprintf("/dist/bundle/index.js?%s", buildCrc)
+	faviconPath := "/dist/favicon.ico?3"
+
+	w.Header().Set("Link", fmt.Sprintf("<%s>; as=style; rel=preload, <%s>; as=image; rel=preload, <%s>; as=script; rel=preload", cssPath, faviconPath, jsPath))
+
 	openGraph := ""
 	if opts.Title != "" {
 		openGraph += fmt.Sprintf(`<meta property="og:title" content="%s" />`, html.EscapeString(opts.Title))
@@ -71,17 +80,14 @@ func wrapPage(w http.ResponseWriter, viewer *Viewer, opts renderOpts) {
 		prefetchBytes = []byte("{}")
 	}
 
-	buildTime := pkg.BuildTime
-	buildCrc := strconv.Itoa(int(crc32.Checksum([]byte(buildTime), crc32.MakeTable(crc32.IEEE))))
-
 	page := `
 <!DOCTYPE html>
 <html>
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" type="image/x-icon" href="/dist/favicon.ico?3">
-	<link rel="stylesheet" href="/dist/bundle/index.css?%s">
+	<link rel="icon" type="image/x-icon" href="%s">
+	<link rel="stylesheet" href="%s">
 	%s %s
 </head>
 <body>
@@ -92,18 +98,19 @@ func wrapPage(w http.ResponseWriter, viewer *Viewer, opts renderOpts) {
 	</div>
 	<div id="server-render">%s</div>
 	<div id="root"/>
-	<script src="/dist/bundle/index.js?%s"></script>
+	<script src="%s"></script>
 
 </body>
 </html>`
 
 	_, _ = fmt.Fprintf(w, page,
-		buildCrc,
+		faviconPath,
+		cssPath,
 		title,
 		openGraph,
 		prefetchBytes,
 		opts.Content,
-		buildCrc,
+		jsPath,
 	)
 }
 

@@ -5,11 +5,21 @@ import {useGlobals} from "../../store/globals";
 import {PostsList} from "../Post/PostsList";
 import {useInfiniteQuery, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getAllFromPosts} from "../../utils/postsList";
+import {usePrefetch} from "../../utils/prefetch";
 
 export function Profile() {
     const userId = document.location.pathname.substring(7);
     const queryClient = useQueryClient();
     const globals = useGlobals();
+
+    usePrefetch('__userPage', (data: any) => {
+        queryClient.setQueryData(['users', userId], data.user);
+        queryClient.setQueryData(['userPosts', userId], {
+            pages: [data.posts],
+            pageParams: [''],
+        });
+        getAllFromPosts(queryClient, data.posts.items);
+    });
 
     const {data: user} = useQuery({
         queryKey: ['users', userId],

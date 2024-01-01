@@ -6,11 +6,21 @@ import {PostsList} from "../Post/PostsList";
 import {useGlobals} from "../../store/globals";
 import {Composer} from "./Composer";
 import {getAllFromPosts} from "../../utils/postsList";
+import {usePrefetch} from "../../utils/prefetch";
 
 export function Discover() {
     const queryClient = useQueryClient();
     const globalState = useGlobals();
     const [discoverState, setDiscoverState] = React.useState(types.FeedType.DISCOVER);
+
+    usePrefetch('__postsList', (data: any) => {
+        queryClient.setQueryData(['discover', types.FeedType.DISCOVER], {
+            pages: [data],
+            pageParams: [''],
+        });
+        getAllFromPosts(queryClient, data.items);
+
+    })
 
     const {data, status, hasNextPage, fetchNextPage} = useInfiniteQuery({
         queryKey: ['discover', discoverState],

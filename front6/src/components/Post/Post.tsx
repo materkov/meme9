@@ -21,11 +21,7 @@ export function Post(props: { postId: string }) {
     const {data: post, status} = useQuery<types.Post>({
         queryKey: ['post', props.postId],
     });
-    if (status != 'success') {
-        return null;
-    }
 
-    const date = new Date(post.date).toLocaleString();
     const globals = useGlobals();
     const queryClient = useQueryClient();
 
@@ -61,6 +57,12 @@ export function Post(props: { postId: string }) {
             )
         });
     };
+
+    if (status != 'success') {
+        return null;
+    }
+
+    const date = new Date(post.date).toLocaleString();
 
     return <div className={styles.post}>
         <Link href={"/users/" + post.user?.id} className={styles.name}>{post.user?.name}</Link>

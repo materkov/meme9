@@ -24,7 +24,7 @@ function fetchRss() {
 function parse() {
     console.log(new Date().toUTCString() + ' Starting parsing');
 
-    apiCall('posts.listPostedByUser', {userId: "77"}).then(result => {
+    apiCall('posts.list', {byUserId: "77"}).then(result => {
         console.log(new Date().toUTCString() + ' Fetched users posts');
 
         let parsedUrls = [];

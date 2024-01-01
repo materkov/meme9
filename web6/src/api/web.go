@@ -83,7 +83,7 @@ func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 
 	users, _ := store2.GlobalStore.Users.Get([]int{post.UserID})
 	user := users[post.UserID]
-	if user != nil {
+	if user == nil {
 		wrapPage(w, viewer, renderOpts{
 			Title:   "Internal error",
 			Content: "Internal error",
