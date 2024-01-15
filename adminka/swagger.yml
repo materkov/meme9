@@ -1,0 +1,418 @@
+openapi: 3.0.3
+info:
+  version: '1.0'
+  title: Meme API
+servers:
+  - url: http://localhost:8000/api
+  - url: https://meme.mmaks.me/api
+security:
+  - BearerAuth: [ ]
+paths:
+  /posts.add:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostsAddReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+  /posts.list:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostsListReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostsList'
+
+  /posts.like:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostsLikeReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+
+  /users.list:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersListReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users.setStatus:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersSetStatusReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+
+  /users.follow:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersFollowReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+
+  /auth.login:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthEmailReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResp'
+
+  /auth.register:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthEmailReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResp'
+
+  /auth.vk:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthVkReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResp'
+
+  /polls.add:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PollsAddReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+
+  /polls.list:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PollsListReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Poll'
+
+  /polls.vote:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PollsVoteReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+
+  /polls.deleteVote:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PollsDeleteVoteReq'
+        required: true
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+components:
+  schemas:
+    Void:
+      type: object
+    PollsDeleteVoteReq:
+      type: object
+      properties:
+        pollId:
+          type: string
+    PostsAddReq:
+      type: object
+      properties:
+        text:
+          type: string
+        pollId:
+          type: string
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        date:
+          type: string
+        text:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        isLiked:
+          type: boolean
+        likesCount:
+          type: integer
+        link:
+          $ref: '#/components/schemas/PostLink'
+        poll:
+          $ref: '#/components/schemas/Poll'
+    PostLink:
+      type: object
+      properties:
+        url:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        domain:
+          type: string
+    PostsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+    PostsListReq:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - FEED
+            - DISCOVER
+        byUserId:
+          type: string
+        byId:
+          type: string
+        count:
+          type: integer
+        pageToken:
+          type: string
+    PostsDeleteReq:
+      type: object
+      properties:
+        postId:
+          type: string
+    PostsLikeReq:
+      type: object
+      properties:
+        postId:
+          type: string
+        action:
+          type: string
+          enum:
+            - LIKE
+            - UNLIKE
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        isFollowing:
+          type: boolean
+    UsersListReq:
+      type: object
+      properties:
+        userIds:
+          type: array
+          items:
+            type: string
+    UsersSetStatusReq:
+      type: object
+      properties:
+        status:
+          type: string
+    UsersFollowReq:
+      type: object
+      properties:
+        targetId:
+          type: string
+        action:
+          type: string
+          enum:
+            - FOLLOW
+            - UNFOLLOW
+    AuthEmailReq:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    AuthResp:
+      type: object
+      properties:
+        token:
+          type: string
+        userId:
+          type: string
+        userName:
+          type: string
+    AuthVkReq:
+      type: object
+      properties:
+        code:
+          type: string
+        redirectUrl:
+          type: string
+    PollsAddReq:
+      type: object
+      properties:
+        question:
+          type: string
+        answers:
+          type: array
+          items:
+            type: string
+    Poll:
+      type: object
+      properties:
+        id:
+          type: string
+        question:
+          type: string
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PollAnswer'
+    PollAnswer:
+      type: object
+      properties:
+        id:
+          type: string
+        answer:
+          type: string
+        votedCount:
+          type: integer
+        isVoted:
+          type: boolean
+    PollsVoteReq:
+      type: object
+      properties:
+        pollId:
+          type: string
+        answerIds:
+          type: array
+          items:
+            type: string
+    PollsListReq:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: Bearer

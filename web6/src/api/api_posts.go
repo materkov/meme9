@@ -267,10 +267,6 @@ func (a *API) PostsList(ctx context.Context, v *Viewer, r *PostsListReq) (*Posts
 	return result, nil
 }
 
-type PostsListByIdReq struct {
-	ID string `json:"id"`
-}
-
 func (a *API) postsListByID(ctx context.Context, v *Viewer, r *PostsListReq) (*PostsList, error) {
 	postID, _ := strconv.Atoi(r.ByID)
 

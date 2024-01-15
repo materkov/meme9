@@ -61,11 +61,11 @@ func (*API) usersList(v *Viewer, r *UsersListReq) ([]*User, error) {
 	return result, nil
 }
 
-type UsersSetStatus struct {
+type UsersSetStatusReq struct {
 	Status string `json:"status"`
 }
 
-func (*API) usersSetStatus(v *Viewer, r *UsersSetStatus) (*Void, error) {
+func (*API) usersSetStatus(v *Viewer, r *UsersSetStatusReq) (*Void, error) {
 	if v.UserID == 0 {
 		return nil, Error("NotAuthorized")
 	}

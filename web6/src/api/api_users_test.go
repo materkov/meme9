@@ -37,7 +37,7 @@ func TestAPI_setStatus(t *testing.T) {
 	_ = store2.GlobalStore.Users.Add(&user)
 	v := Viewer{UserID: user.ID}
 
-	_, err := api.usersSetStatus(&v, &UsersSetStatus{
+	_, err := api.usersSetStatus(&v, &UsersSetStatusReq{
 		Status: "Test status",
 	})
 	require.NoError(t, err)

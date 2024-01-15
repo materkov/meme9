@@ -16,8 +16,14 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := tracer.WithCtx(r.Context(), t)
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Version", pkg.BuildTime)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(204)
+		return
+	}
 
 	userID := 0
 	authHeader := r.Header.Get("authorization")
@@ -96,7 +102,7 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 		writeResp(w, resp, err)
 
 	case "users.setStatus":
-		req := &UsersSetStatus{}
+		req := &UsersSetStatusReq{}
 		err := json.NewDecoder(r.Body).Decode(req)
 		if err != nil {
 			writeResp(w, nil, ErrParsingRequest)

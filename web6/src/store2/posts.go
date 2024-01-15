@@ -13,6 +13,10 @@ type SqlPostStore struct {
 }
 
 func (u *SqlPostStore) Get(ids []int) (map[int]*store.Post, error) {
+	if len(ids) == 0 {
+		return make(map[int]*store.Post), nil
+	}
+
 	rows, err := u.DB.Query(fmt.Sprintf("select id, data from objects where id in (%s)", utils.IdsToCommaSeparated(ids)))
 	if err != nil {
 		return nil, err
