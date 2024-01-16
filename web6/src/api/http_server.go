@@ -7,6 +7,7 @@ import (
 	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/pkg/xlog"
 	"github.com/materkov/meme9/web6/src/store2"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"hash/crc32"
 	"html"
 	"log"
@@ -128,6 +129,9 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/", wrapWeb(h.discoverPage))
 	http.HandleFunc("/vk-callback", wrapWeb(h.vkCallback))
 	http.HandleFunc("/auth", wrapWeb(h.authPage))
+
+	// Prometheus
+	http.Handle("/metrics", promhttp.Handler())
 
 	// Image
 	http.HandleFunc("/image-proxy", wrapWeb(h.imageProxy))

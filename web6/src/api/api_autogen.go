@@ -5,13 +5,21 @@ import (
 	"github.com/materkov/meme9/web6/src/pkg"
 	"github.com/materkov/meme9/web6/src/pkg/tracer"
 	"github.com/materkov/meme9/web6/src/pkg/xlog"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"net/http"
 	"strings"
 )
 
+var apiCalls = promauto.NewCounter(prometheus.CounterOpts{
+	Name: "api_calls",
+	Help: "The total number of processed events",
+})
+
 func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 	t := tracer.NewTracer("api")
 	defer t.Stop()
+	apiCalls.Inc()
 
 	ctx := tracer.WithCtx(r.Context(), t)
 
