@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import * as types from "../../api/api";
 import {FeedType, PostsListReq} from "../../api/api";
 import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query'
@@ -7,6 +7,7 @@ import {useGlobals} from "../../store/globals";
 import {Composer} from "./Composer";
 import {getAllFromPosts} from "../../utils/postsList";
 import {usePrefetch} from "../../utils/prefetch";
+import {getEvents} from "../../utils/realtime";
 
 export function Discover() {
     const queryClient = useQueryClient();
@@ -19,8 +20,19 @@ export function Discover() {
             pageParams: [''],
         });
         getAllFromPosts(queryClient, data.items);
-
     })
+
+    useEffect(() => {
+        if (!globalState.viewerId) {
+            return;
+        }
+
+        getEvents(globalState.viewerId, (data: any) => {
+            if (data.type === "NEW_POST") {
+                queryClient.invalidateQueries({queryKey: ['discover']});
+            }
+        })
+    }, []);
 
     const {data, status, hasNextPage, fetchNextPage} = useInfiniteQuery({
         queryKey: ['discover', discoverState],

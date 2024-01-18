@@ -187,6 +187,13 @@ func (*API) PostsAdd(ctx context.Context, viewer *Viewer, r *PostsAddReq) (*Post
 		err := pkg.TryParseLink(&post)
 		pkg.LogErr(err)
 	}()
+	go func() {
+		err := pkg.PushRealtimeEvent(post.UserID, map[string]interface{}{
+			"type":   "NEW_POST",
+			"postId": post.ID,
+		})
+		pkg.LogErr(err)
+	}()
 
 	return transformPostBatch(ctx, []*store.Post{&post}, viewer.UserID)[0], nil
 }
