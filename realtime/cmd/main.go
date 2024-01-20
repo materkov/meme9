@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/redis/go-redis/v9"
+	"github.com/smira/go-statsd"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,7 +12,12 @@ import (
 )
 
 var redisClient *redis.Client
-var msgId int
+
+var (
+	statsdClient = statsd.NewClient("127.0.0.1:8125")
+
+	activeConnections int
+)
 
 func main() {
 	redisClient = redis.NewClient(&redis.Options{Addr: "localhost:6379"})
@@ -41,46 +46,55 @@ func Server(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	flusher.Flush()
 
+	activeConnections++
+	statsdClient.Gauge("realtime_active_connections", int64(activeConnections))
+	statsdClient.Incr("realtime_total_connects", 1)
+
 	key := r.URL.Query().Get("key")
 	userID, _ := strconv.Atoi(key)
 
+	s := redisClient.Subscribe(context.Background(), fmt.Sprintf("queue:%d", userID))
+	redisCh := s.Channel()
+
 	for {
-		items, err := redisClient.BLPop(context.Background(), time.Second*5, fmt.Sprintf("queue:%d", userID)).Result()
-		if errors.Is(err, redis.Nil) {
-			log.Printf("Got nil from redis")
-			// No data
-		} else if err != nil {
-			log.Printf("Error getting from redis: %s", err)
-		} else {
-			msgId++
-			fmt.Fprintf(w, "id: %d\n", msgId)
-			fmt.Fprintf(w, "data: %s\n", items[1])
-			fmt.Fprintf(w, "\n")
+		clientDisconnect := false
+		select {
+		case <-r.Context().Done():
+			clientDisconnect = true
+
+		case msg, cls := <-redisCh:
+			log.Printf("cls %v", cls)
+			fmt.Fprintf(w, "data: %s\n", msg.Payload)
+			fmt.Fprint(w, "\n")
+			flusher.Flush()
+
+		case <-time.After(time.Second * 30):
+			fmt.Fprint(w, "data: {\"type\":\"ping\"}\n")
+			fmt.Fprint(w, "\n")
 			flusher.Flush()
 		}
 
-		isClosed := false
-		select {
-		case <-r.Context().Done():
-			isClosed = true
-		default:
-		}
-
-		if isClosed {
-			log.Printf("Client closed connection")
+		if clientDisconnect {
+			log.Printf("Client disconnected")
 			break
 		}
-
-		log.Printf("Client alive")
 	}
+	err := s.Close()
+	if err != nil {
+		log.Printf("Error closing redis pubsub: %s", err)
+	}
+	activeConnections--
+	statsdClient.Gauge("realtime_active_connections", int64(activeConnections))
 }
 
 func Push(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.URL.Query().Get("userId"))
 	data := r.URL.Query().Get("data")
 
-	_, err := redisClient.RPush(context.Background(), fmt.Sprintf("queue:%d", userID), data).Result()
+	_, err := redisClient.Publish(context.Background(), fmt.Sprintf("queue:%d", userID), data).Result()
 	if err != nil {
 		log.Printf("Error adding to redis: %s", err)
 	}
+
+	statsdClient.Incr("realtime_messages", 1)
 }
