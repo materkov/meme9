@@ -1,13 +1,15 @@
 package api
 
 import (
-	"github.com/materkov/meme9/web6/pb/github.com/materkov/meme9/api"
+	"github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api"
+	"github.com/materkov/meme9/api/src/pkg"
+	"github.com/materkov/meme9/api/src/store2"
 	"golang.org/x/image/draw"
 	"html"
 	"image"
 	"image/jpeg"
-	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -20,13 +22,17 @@ func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 	path := r.URL.Path
 	path = strings.TrimPrefix(path, "/users/")
 
-	resp1, err := ApiPostsClient.List(r.Context(), &api.ListReq{ByUserId: path})
+	//resp1, err := h.Api.PostsList(r.Context(), viewer, &PostsListReq{ByUserID: path})
+	var err error
+	resp1 := api.PostsList{}
 	logAPIPrefetchError(err)
 
-	resp2, err := ApiUsersClient.List(r.Context(), &api.UsersListReq{UserIds: []string{path}})
+	//resp2, err := h.Api.usersList(viewer, &UsersListReq{UserIds: []string{path}})
 	logAPIPrefetchError(err)
+	resp2 := api.UsersList{}
 
-	if resp2 == nil || resp2.Users[0].Name == "" {
+	// TODO think about this
+	if resp2.Users[0].Name == "" {
 		wrapPage(w, viewer, renderOpts{
 			HTTPStatus: 404,
 			Content:    "User not found",
@@ -45,9 +51,9 @@ func (h *HttpServer) userPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 }
 
 func (h *HttpServer) discoverPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
-	resp, err := ApiPostsClient.List(r.Context(), &api.ListReq{
-		Type: api.FeedType_DISCOVER,
-	})
+	//resp, err := h.Api.PostsList(r.Context(), viewer, &PostsListReq{})
+	var err error
+	resp := api.PostsList{}
 	logAPIPrefetchError(err)
 
 	wrapPage(w, viewer, renderOpts{
@@ -62,11 +68,11 @@ func (h *HttpServer) vkCallback(w http.ResponseWriter, r *http.Request, viewer *
 }
 
 func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
-	postID := strings.TrimPrefix(r.URL.Path, "/posts/")
+	postID, _ := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/posts/"))
 
-	apiResp, err := ApiPostsClient.List(r.Context(), &api.ListReq{ById: postID})
-	logAPIPrefetchError(err)
-	if err != nil || len(apiResp.Items) == 0 {
+	// TODO think about this
+	posts, err := store2.GlobalStore.Posts.Get([]int{postID})
+	if err != nil || posts[postID] == nil {
 		wrapPage(w, viewer, renderOpts{
 			Title:      "Post not found",
 			Content:    "Post not found",
@@ -78,7 +84,17 @@ func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 		return
 	}
 
-	post := apiResp.Items[0]
+	post := posts[postID]
+
+	users, _ := store2.GlobalStore.Users.Get([]int{post.UserID})
+	user := users[post.UserID]
+	if user == nil {
+		wrapPage(w, viewer, renderOpts{
+			Title:   "Internal error",
+			Content: "Internal error",
+		})
+		return
+	}
 
 	paragraphsHtml := ""
 	paragraphsHtml += "<p>" + html.EscapeString(post.Text) + "</p>"
@@ -88,12 +104,12 @@ func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 	//}
 
 	wrapPage(w, viewer, renderOpts{
-		Title:         "Post by " + post.User.Name,
+		Title:         "Post by " + user.Name,
 		OGDescription: post.Text,
 		OGImage:       "",
 		Content:       paragraphsHtml,
-		Prefetch: map[string]interface{}{
-			"__postPagePost": post,
+		Prefetch:      map[string]interface{}{
+			//"__postPagePost": transformPostBatch(r.Context(), []*store.Post{post}, viewer.UserID)[0],
 		},
 	})
 }
@@ -104,7 +120,7 @@ func (h *HttpServer) imageProxy(w http.ResponseWriter, r *http.Request, viewer *
 
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Printf("[ERROR] Error: %s", err)
+		pkg.LogErr(err)
 		w.WriteHeader(400)
 		return
 	}
@@ -112,7 +128,7 @@ func (h *HttpServer) imageProxy(w http.ResponseWriter, r *http.Request, viewer *
 
 	src, err := jpeg.Decode(resp.Body)
 	if err != nil {
-		log.Printf("[ERROR] Error: %s", err)
+		pkg.LogErr(err)
 		w.WriteHeader(400)
 		return
 	}

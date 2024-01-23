@@ -1,48 +1,18 @@
 package api
 
-import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"net/http"
-)
-
-type API struct{}
-
-type Void struct{}
-
-var ErrParsingRequest = Error("FailedParsingRequest")
-
-func writeResp(w http.ResponseWriter, resp interface{}, err error) {
-	e := json.NewEncoder(w)
-
-	if err != nil {
-		errResp := struct {
-			Error string `json:"error"`
-		}{}
-
-		var publicErr Error
-		if ok := errors.As(err, &publicErr); ok {
-			errResp.Error = string(publicErr)
-		} else {
-			errResp.Error = "Internal server error"
-		}
-
-		_ = e.Encode(errResp)
-	} else {
-		_ = e.Encode(resp)
-	}
-}
+import "github.com/materkov/meme9/web6/pb/github.com/materkov/meme9/api"
 
 type Viewer struct {
 	UserID       int
+	UserName     string
 	AuthToken    string
 	IsCookieAuth bool
 	ClientIP     string
 }
 
-type Error string
-
-func (e Error) Error() string {
-	return fmt.Sprintf("API Error: %s", string(e))
-}
+var (
+	ApiAuthClient  api.Auth
+	ApiPostsClient api.Posts
+	ApiPollsClient api.Polls
+	ApiUsersClient api.Users
+)

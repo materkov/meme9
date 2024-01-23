@@ -1,11 +1,13 @@
 package api
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/materkov/meme9/web6/pb/github.com/materkov/meme9/api"
-	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/materkov/meme9/api/src/pkg"
+	"github.com/materkov/meme9/api/src/pkg/tracer"
+	"github.com/materkov/meme9/api/src/pkg/xlog"
+	"github.com/materkov/meme9/api/src/store2"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"hash/crc32"
 	"html"
 	"log"
@@ -56,7 +58,12 @@ func wrapPage(w http.ResponseWriter, viewer *Viewer, opts renderOpts) {
 
 	if viewer.UserID != 0 {
 		opts.Prefetch["viewerId"] = strconv.Itoa(viewer.UserID)
-		opts.Prefetch["viewerName"] = viewer.UserName
+		opts.Prefetch["viewerName"] = ""
+
+		users, _ := store2.GlobalStore.Users.Get([]int{viewer.UserID})
+		if users[viewer.UserID] != nil {
+			opts.Prefetch["viewerName"] = users[viewer.UserID].Name
+		}
 	}
 
 	if opts.HTTPStatus != 0 {
@@ -108,11 +115,13 @@ func wrapPage(w http.ResponseWriter, viewer *Viewer, opts renderOpts) {
 	)
 }
 
-type HttpServer struct{}
+type HttpServer struct {
+	Api *API
+}
 
 func (h *HttpServer) Serve() {
 	// API
-	http.HandleFunc("/api/", h.ApiHandler)
+	//http.HandleFunc("/api/", h.ApiHandler)
 
 	// Web
 	http.HandleFunc("/posts/", wrapWeb(h.postPage))
@@ -122,7 +131,7 @@ func (h *HttpServer) Serve() {
 	http.HandleFunc("/auth", wrapWeb(h.authPage))
 
 	// Prometheus
-	//http.Handle("/metrics", promhttp.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 
 	// Image
 	http.HandleFunc("/image-proxy", wrapWeb(h.imageProxy))
@@ -144,17 +153,17 @@ func getClientIP(r *http.Request) string {
 	return r.RemoteAddr
 }
 
-type ContextKey string
-
-var CtxViewer ContextKey = "Viewer"
-
 type webHandler func(w http.ResponseWriter, r *http.Request, viewer *Viewer)
 
 func wrapWeb(handler webHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Version", pkg.BuildTime)
 
-		ctx := r.Context()
+		t := tracer.NewTracer("web //")
+		defer t.Stop()
+		ctx := tracer.WithCtx(r.Context(), t)
+
+		t.Tags["url"] = r.URL.String()
 
 		viewer := &Viewer{
 			ClientIP: getClientIP(r),
@@ -162,16 +171,20 @@ func wrapWeb(handler webHandler) http.HandlerFunc {
 
 		authCookie, _ := r.Cookie("authToken")
 		if authCookie != nil {
-			authResp, err := ApiAuthClient.CheckAuth(ctx, &api.CheckAuthReq{Token: authCookie.Value})
-			if err == nil {
-				viewer.UserID, _ = strconv.Atoi(authResp.UserId)
-				viewer.UserName = authResp.UserName
+			authToken := pkg.ParseAuthToken(ctx, authCookie.Value)
+			if authToken != nil {
+				viewer.UserID = authToken.UserID
 				viewer.AuthToken = authCookie.Value
 				viewer.IsCookieAuth = true
 			}
 		}
 
-		ctx = context.WithValue(ctx, CtxViewer, viewer)
+		xlog.Log("Processing web request", xlog.Fields{
+			"url":       r.URL.String(),
+			"userId":    viewer.UserID,
+			"ip":        viewer.ClientIP,
+			"userAgent": r.UserAgent(),
+		})
 
 		handler(w, r.WithContext(ctx), viewer)
 	}
