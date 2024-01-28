@@ -36,7 +36,7 @@ message PostLink {
   string url = 1;
   string title = 2;
   string description = 3;
-  string imageURL = 4;
+  string imageUrl = 4;
   string domain = 5;
 }
 

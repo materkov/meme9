@@ -8,6 +8,7 @@ import (
 	"github.com/materkov/meme9/api/src/pkg/xlog"
 	"github.com/materkov/meme9/api/src/store"
 	"github.com/materkov/meme9/api/src/store2"
+	"github.com/twitchtv/twirp"
 	"log"
 	"net/http"
 )
@@ -47,10 +48,10 @@ func main() {
 		xlog.ClearOldLogs()
 	}()
 
-	postsSrv := api.NewPostsServer(&server.PostsServer{})
-	authSrv := api.NewAuthServer(&server.AuthServer{})
-	pollSrv := api.NewPollsServer(&server.PollServer{})
-	userSrv := api.NewUsersServer(&server.UserServer{})
+	postsSrv := api.NewPostsServer(&server.PostsServer{}, twirp.WithServerJSONSkipDefaults(true))
+	authSrv := api.NewAuthServer(&server.AuthServer{}, twirp.WithServerJSONSkipDefaults(true))
+	pollSrv := api.NewPollsServer(&server.PollServer{}, twirp.WithServerJSONSkipDefaults(true))
+	userSrv := api.NewUsersServer(&server.UserServer{}, twirp.WithServerJSONSkipDefaults(true))
 
 	http.Handle(postsSrv.PathPrefix(), server.AuthMiddleware(postsSrv))
 	http.Handle(authSrv.PathPrefix(), server.AuthMiddleware(authSrv))

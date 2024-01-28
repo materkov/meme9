@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"io"
 	"net/http"
@@ -45,6 +46,23 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	_, _ = io.Copy(w, resp.Body)
-	_ = resp.Body.Close()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		// TODO think about error format
+		respBody := struct {
+			Code  string `json:"code,omitempty"`
+			Msg   string `json:"msg,omitempty"`
+			Error string `json:"error,omitempty"`
+		}{}
+		_ = json.NewDecoder(resp.Body).Decode(&respBody)
+
+		respBody.Code = ""
+		respBody.Error = respBody.Msg
+		respBody.Msg = ""
+
+		_ = json.NewEncoder(w).Encode(respBody)
+	} else {
+		_, _ = io.Copy(w, resp.Body)
+	}
 }

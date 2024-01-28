@@ -102,7 +102,7 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 				Url:         post.Link.URL,
 				Title:       post.Link.Title,
 				Description: post.Link.Description,
-				ImageURL:    proxiedUrl,
+				ImageUrl:    proxiedUrl,
 				Domain:      host,
 			}
 		}
