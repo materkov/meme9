@@ -35,6 +35,9 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 		"/api/polls.list":       "/twirp/meme.api.Polls/List",
 		"/api/polls.vote":       "/twirp/meme.api.Polls/Vote",
 		"/api/polls.deleteVote": "/twirp/meme.api.Polls/DeleteVote",
+		"/api/bookmarks.Add":    "/twirp/meme.api.Bookmarks/Add",
+		"/api/bookmarks.Remove": "/twirp/meme.api.Bookmarks/Remove",
+		"/api/bookmarks.List":   "/twirp/meme.api.Bookmarks/List",
 	}
 
 	apiReq, _ := http.NewRequest("POST", "http://localhost:8002"+methodsMap[currentMethod], r.Body)

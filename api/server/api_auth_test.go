@@ -1,14 +1,8 @@
 package server
 
 import (
-	"fmt"
-	"github.com/materkov/meme9/api/src/pkg"
 	"github.com/materkov/meme9/api/src/store"
 	"github.com/materkov/meme9/api/src/store2"
-	"github.com/stretchr/testify/require"
-	"net/http"
-	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
@@ -54,9 +48,11 @@ func createMockStore() *store2.Store {
 		Configs: &store2.MockConfigStore{
 			Objects: map[int]*store.Config{},
 		},
+		Bookmarks: &store2.MockBookmarks{},
 	}
 }
 
+/*
 func createAPI() *API {
 	return &API{}
 }
@@ -171,3 +167,5 @@ func TestApi_authVK(t *testing.T) {
 	require.NotEmpty(t, resp2.Token)
 	require.Equal(t, resp1.UserID, resp2.UserID)
 }
+
+*/

@@ -58,6 +58,31 @@ export function Post(props: { postId: string }) {
         });
     };
 
+    const onBookmark = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        if (!post) return;
+
+        const cb = () => {
+            queryClient.setQueryData(
+                ['post', post.id],
+                (oldData: types.Post) => {
+                    const copy = structuredClone(oldData) as types.Post;
+                    copy.isBookmarked = !copy.isBookmarked;
+
+                    queryClient.setQueryData(['post', post.id], copy);
+                }
+            );
+
+            queryClient.invalidateQueries({queryKey: ['bookmarks']});
+        }
+
+        if (post.isBookmarked) {
+            types.bookmarksRemove({postId: post.id}).then(cb);
+        } else {
+            types.bookmarksAdd({postId: post.id}).then(cb);
+        }
+    };
+
     if (status != 'success') {
         return null;
     }
@@ -75,9 +100,7 @@ export function Post(props: { postId: string }) {
 
         {post.link && <LinkAttach link={post.link}/>}
 
-        {globals.viewerId && post.user?.id == globals.viewerId &&
-            <a onClick={onDelete} href="#" className={styles.deleteLink}>Delete post</a>
-        }
+        {post.poll && <Poll pollId={post.poll.id}/>}
 
         <div className={styles.likesLine}>
             {globals.viewerId &&
@@ -92,6 +115,18 @@ export function Post(props: { postId: string }) {
             {post.likesCount > 0 && <>{post.likesCount} like(s)</>}
         </div>
 
-        {post.poll && <Poll pollId={post.poll.id}/>}
+        <div className={styles.bookmarksLine}>
+            {globals.viewerId &&
+                <>
+                    <a onClick={onBookmark} href="#">
+                        {post.isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
+                    </a>
+                </>
+            }
+        </div>
+
+        {globals.viewerId && post.user?.id == globals.viewerId &&
+            <a onClick={onDelete} href="#" className={styles.deleteLink}>Delete post</a>
+        }
     </div>
 }

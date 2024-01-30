@@ -31,6 +31,7 @@ func main() {
 		PollAnswers: &store2.SqlPollAnswerStore{DB: db},
 		Tokens:      &store2.SqlTokenStore{DB: db},
 		Configs:     &store2.SqlConfigStore{DB: db},
+		Bookmarks:   &store2.SqlBookmarks{DB: db},
 	}
 
 	store.SqlClient = db
@@ -52,11 +53,13 @@ func main() {
 	authSrv := api.NewAuthServer(&server.AuthServer{}, twirp.WithServerJSONSkipDefaults(true))
 	pollSrv := api.NewPollsServer(&server.PollServer{}, twirp.WithServerJSONSkipDefaults(true))
 	userSrv := api.NewUsersServer(&server.UserServer{}, twirp.WithServerJSONSkipDefaults(true))
+	bookmarksSrv := api.NewBookmarksServer(&server.Bookmarks{}, twirp.WithServerJSONSkipDefaults(true))
 
 	http.Handle(postsSrv.PathPrefix(), server.AuthMiddleware(postsSrv))
 	http.Handle(authSrv.PathPrefix(), server.AuthMiddleware(authSrv))
 	http.Handle(pollSrv.PathPrefix(), server.AuthMiddleware(pollSrv))
 	http.Handle(userSrv.PathPrefix(), server.AuthMiddleware(userSrv))
+	http.Handle(bookmarksSrv.PathPrefix(), server.AuthMiddleware(bookmarksSrv))
 
 	http.ListenAndServe("127.0.0.1:8002", nil)
 }

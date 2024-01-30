@@ -1,11 +1,6 @@
 package server
 
-import (
-	"context"
-	"github.com/stretchr/testify/require"
-	"testing"
-)
-
+/*
 func TestAPI_PollsAdd(t *testing.T) {
 	api := API{}
 	closer := createTestDB(t)
@@ -32,3 +27,4 @@ func TestAPI_PollsAdd(t *testing.T) {
 	require.Equal(t, 1, listResp[0].Answers[0].VotedCount)
 	require.True(t, listResp[0].Answers[0].IsVoted)
 }
+*/

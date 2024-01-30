@@ -33,4 +33,6 @@ const (
 	EdgeTypeLiked = 9
 
 	EdgeTypeVoted = 10
+
+	EdgeTypeBookmarked = 11
 )

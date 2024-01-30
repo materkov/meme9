@@ -20,10 +20,15 @@ import (
 type ctxKey string
 
 var (
+	// TODO func ViewerFromContext
 	CtxViewerKey ctxKey = "viewer"
 )
 
 type PostsServer struct{}
+
+func transformDate(date int) string {
+	return time.Unix(int64(date), 0).Format(time.RFC3339)
+}
 
 func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) []*api.Post {
 	defer tracer.FromCtx(ctx).StartChild("transformPostBatch").Stop()
@@ -41,7 +46,7 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(4)
 
 	var counters map[int]int
 	var isLiked map[int]bool
@@ -82,6 +87,15 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 
 		wg.Done()
 	}()
+
+	isBookmarked := map[int]bool{}
+	go func() {
+		var err error
+		isBookmarked, err = store2.GlobalStore.Bookmarks.IsBookmarked(postIds, viewerID)
+		pkg.LogErr(err)
+
+		wg.Done()
+	}()
 	wg.Wait()
 
 	result := make([]*api.Post, len(posts))
@@ -112,7 +126,7 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 		result[i] = &api.Post{
 			Id:     strconv.Itoa(post.ID),
 			UserId: strconv.Itoa(post.UserID),
-			Date:   time.Unix(int64(post.Date), 0).Format(time.RFC3339),
+			Date:   transformDate(post.Date),
 			Text:   post.Text,
 			User:   usersWrappedMap[post.UserID],
 
@@ -121,6 +135,8 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 
 			Link: wrappedLink,
 			Poll: pollTransformed,
+
+			IsBookmarked: isBookmarked[post.ID],
 		}
 	}
 

@@ -38,3 +38,8 @@ body {
 .authInfo {
     line-height: 47px;
 }
+
+.nav {
+    padding: 5px;
+    background: #eeeeee;
+}

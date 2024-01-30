@@ -13,6 +13,7 @@ type Store struct {
 	PollAnswers PollAnswerStore
 	Tokens      TokenStore
 	Configs     ConfigStore
+	Bookmarks   BookmarkStore
 }
 
 var GlobalStore *Store

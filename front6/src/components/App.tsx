@@ -9,6 +9,7 @@ import {Auth} from "./Auth/Auth";
 import {Discover} from "./Discover/Discover";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {PostPage} from "./PostPage/PostPage";
+import {BookmarksPage} from "./BookmarksPage/BookmarksPage";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -36,6 +37,8 @@ export function App() {
         page = <Profile/>
     } else if (navState.url.startsWith("/auth")) {
         page = <Auth/>
+    } else if (navState.url.startsWith("/bookmarks")) {
+        page = <BookmarksPage/>
     } else if (navState.url.startsWith("/vk-callback")) {
         page = <Auth/>
     } else {
@@ -59,12 +62,21 @@ export function App() {
 
                     <div className={styles.authInfo}>
                         {!globals.viewerId && <Link href="/auth">Authorize</Link>}
-                        {globals.viewerId && <span>
-                    <Link href={"/users/" + globals.viewerId}>{globals.viewerName}</Link>
-                            &nbsp;|&nbsp;
-                            <Link href="/auth?logout">Logout</Link>
-                </span>}
+
+                        {globals.viewerId &&
+                            <span>
+                                <Link href={"/users/" + globals.viewerId}>{globals.viewerName}</Link>
+                                &nbsp;|&nbsp;
+                                <Link href="/auth?logout">Logout</Link>
+                            </span>
+                        }
                     </div>
+                </div>
+
+                <div className={styles.nav}>
+                    <Link href={"/"}>Index page</Link>
+                    &nbsp;|&nbsp;
+                    <Link href={"/bookmarks"}>Bookmarks</Link>
                 </div>
 
                 {page}

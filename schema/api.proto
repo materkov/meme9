@@ -30,6 +30,8 @@ message Post {
 
   PostLink link = 8;
   Poll poll = 9;
+
+  bool isBookmarked = 10;
 }
 
 message PostLink {
@@ -176,3 +178,26 @@ message PollsDeleteVoteReq {
   string pollId = 1;
 }
 
+service Bookmarks {
+  rpc Add(BookmarksAddReq) returns (Void);
+  rpc Remove(BookmarksAddReq) returns (Void);
+  rpc List(BookmarkListReq) returns (BookmarkList);
+}
+
+message BookmarksAddReq {
+  string postId = 1;
+}
+
+message Bookmark {
+  string date = 1;
+  Post post = 2;
+}
+
+message BookmarkListReq {
+  string pageToken = 1;
+}
+
+message BookmarkList {
+  repeated Bookmark items = 1;
+  string pageToken = 2;
+}

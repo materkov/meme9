@@ -21,5 +21,10 @@
 
 .likesLine {
     color: #bbb;
-    font-size: 14px;
+    font-size: 12px;
+}
+
+.bookmarksLine {
+    color: #bbb;
+    font-size: 12px;
 }

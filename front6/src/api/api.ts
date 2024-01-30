@@ -60,6 +60,8 @@ export class Post {
 
     link?: Link = undefined
     poll?: Poll = undefined
+
+    isBookmarked: boolean = false
 }
 
 export class Poll {
@@ -223,4 +225,34 @@ export class PollsAddReq {
 
 export function pollsAdd(req: PollsAddReq): Promise<Poll> {
     return api("polls.add", req);
+}
+
+export class BookmarksAddReq {
+    postId: string = ""
+}
+
+export class Bookmark {
+    date: string = ""
+    post: Post | undefined = undefined
+}
+
+export function bookmarksAdd(req: BookmarksAddReq): Promise<Void> {
+    return api("bookmarks.Add", req);
+}
+
+export function bookmarksRemove(req: BookmarksAddReq): Promise<Void> {
+    return api("bookmarks.Remove", req);
+}
+
+export class BookmarkListReq {
+    pageToken: string = ""
+}
+
+export class BookmarkList {
+    pageToken: string = ""
+    items: Bookmark[] = []
+}
+
+export function bookmarksList(req: BookmarkListReq): Promise<BookmarkList> {
+    return api("bookmarks.List", req);
 }
