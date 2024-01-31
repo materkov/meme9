@@ -1,8 +1,16 @@
 package server
 
 import (
+	"context"
+	"fmt"
+	"github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api"
+	"github.com/materkov/meme9/api/src/pkg"
 	"github.com/materkov/meme9/api/src/store"
 	"github.com/materkov/meme9/api/src/store2"
+	"github.com/stretchr/testify/require"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -52,51 +60,48 @@ func createMockStore() *store2.Store {
 	}
 }
 
-/*
-func createAPI() *API {
-	return &API{}
-}
-
 func TestApi_authEmailLogin(t *testing.T) {
-	api := createAPI()
+	srv := AuthServer{}
 	closer := createTestDB(t)
 	defer closer()
 
-	resp, err := api.authRegister(&Viewer{}, &AuthEmailReq{
+	ctx := context.Background()
+
+	resp, err := srv.Register(ctx, &api.EmailReq{
 		Email:    "test@email.com",
 		Password: "12345",
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.Token)
-	require.NotEmpty(t, resp.UserID)
+	require.NotEmpty(t, resp.UserId)
 
-	loginResp, err := api.authLogin(&Viewer{}, &AuthEmailReq{
+	loginResp, err := srv.Login(ctx, &api.EmailReq{
 		Email:    "test@email.com",
 		Password: "12345",
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, loginResp.Token)
-	require.Equal(t, resp.UserID, loginResp.UserID)
+	require.Equal(t, resp.UserId, loginResp.UserId)
 
-	_, err = api.authLogin(&Viewer{}, &AuthEmailReq{
+	_, err = srv.Login(ctx, &api.EmailReq{
 		Email:    "test@email.com",
 		Password: "wrong password",
 	})
 	requireAPIError(t, err, "InvalidCredentials")
 
-	_, err = api.authLogin(&Viewer{}, &AuthEmailReq{
+	_, err = srv.Login(ctx, &api.EmailReq{
 		Email:    "bad@email.com",
 		Password: "12345",
 	})
 	requireAPIError(t, err, "InvalidCredentials")
 
-	_, err = api.authLogin(&Viewer{}, &AuthEmailReq{
+	_, err = srv.Login(ctx, &api.EmailReq{
 		Email:    "",
 		Password: "12345",
 	})
 	requireAPIError(t, err, "InvalidCredentials")
 
-	_, err = api.authLogin(&Viewer{}, &AuthEmailReq{
+	_, err = srv.Login(ctx, &api.EmailReq{
 		Email:    "test@email.com",
 		Password: "",
 	})
@@ -104,11 +109,11 @@ func TestApi_authEmailLogin(t *testing.T) {
 }
 
 func TestAPI_authRegister(t *testing.T) {
-	api := createAPI()
+	srv := AuthServer{}
 	closer := createTestDB(t)
 	defer closer()
 
-	resp, err := api.authRegister(nil, &AuthEmailReq{
+	resp, err := srv.Register(nil, &api.EmailReq{
 		Email:    "test@mail.com",
 		Password: "123",
 	})
@@ -116,56 +121,55 @@ func TestAPI_authRegister(t *testing.T) {
 	require.NotEmpty(t, resp.Token)
 
 	t.Run("email registered", func(t *testing.T) {
-		_, err := api.authRegister(nil, &AuthEmailReq{Email: "test@mail.com", Password: "123"})
+		_, err := srv.Register(nil, &api.EmailReq{Email: "test@mail.com", Password: "123"})
 		requireAPIError(t, err, "EmailAlreadyRegistered")
 	})
 	t.Run("empty email", func(t *testing.T) {
-		_, err := api.authRegister(nil, &AuthEmailReq{Email: ""})
+		_, err := srv.Register(nil, &api.EmailReq{Email: ""})
 		requireAPIError(t, err, "EmptyEmail")
 	})
 	t.Run("empty pass", func(t *testing.T) {
-		_, err := api.authRegister(nil, &AuthEmailReq{Email: "test@email.com", Password: ""})
+		_, err := srv.Register(nil, &api.EmailReq{Email: "test@email.com", Password: ""})
 		requireAPIError(t, err, "EmptyPassword")
 	})
 	t.Run("email too long", func(t *testing.T) {
-		_, err := api.authRegister(nil, &AuthEmailReq{Email: strings.Repeat("a", 1000), Password: "123"})
+		_, err := srv.Register(nil, &api.EmailReq{Email: strings.Repeat("a", 1000), Password: "123"})
 		requireAPIError(t, err, "EmailTooLong")
 	})
 }
 
 func TestApi_authVK(t *testing.T) {
-	api := createAPI()
+	srv := AuthServer{}
 	closer := createTestDB(t)
 	defer closer()
 
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	httpSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/access_token" {
 			fmt.Fprint(w, `{"access_token": "vk_token", "user_id": 41512}`)
 		} else {
 			fmt.Fprint(w, `{"response": [{"id": 41512, "first_name": "Test", "last_name": "Testovich", "photo_200": "https://image.com/1.jpg"}]}`)
 		}
 	}))
-	defer srv.Close()
+	defer httpSrv.Close()
 
-	pkg.VKEndpoint = srv.URL
-	pkg.VKAPIEndpoint = srv.URL
+	pkg.VKEndpoint = httpSrv.URL
+	pkg.VKAPIEndpoint = httpSrv.URL
 
-	pkg.HTTPClient = srv.Client()
+	pkg.HTTPClient = httpSrv.Client()
+	ctx := context.Background()
 
-	resp1, err := api.authVk(&Viewer{}, &AuthVkReq{
+	resp1, err := srv.Vk(ctx, &api.VkReq{
 		Code:        "1234",
-		RedirectURL: "https://site.me",
+		RedirectUrl: "https://site.me",
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, resp1.Token)
 
-	resp2, err := api.authVk(&Viewer{}, &AuthVkReq{
+	resp2, err := srv.Vk(ctx, &api.VkReq{
 		Code:        "1234",
-		RedirectURL: "https://site.me",
+		RedirectUrl: "https://site.me",
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, resp2.Token)
-	require.Equal(t, resp1.UserID, resp2.UserID)
+	require.Equal(t, resp1.UserId, resp2.UserId)
 }
-
-*/
