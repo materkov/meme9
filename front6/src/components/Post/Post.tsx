@@ -22,6 +22,10 @@ export function Post(props: { postId: string }) {
         queryKey: ['post', props.postId],
     });
 
+    if (status != 'success') {
+        return null;
+    }
+
     const globals = useGlobals();
     const queryClient = useQueryClient();
 
@@ -82,10 +86,6 @@ export function Post(props: { postId: string }) {
             types.bookmarksAdd({postId: post.id}).then(cb);
         }
     };
-
-    if (status != 'success') {
-        return null;
-    }
 
     const date = new Date(post.date).toLocaleString();
 

@@ -20,5 +20,11 @@ jobs:
       - name: linter install
         run: cd web6 && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.54.2
 
-      - name: linter run
+      - name: linter run web
         run: cd web6 && bin/golangci-lint --version && bin/golangci-lint run
+
+      - name: linter run api
+        run: cd api && bin/golangci-lint --version && bin/golangci-lint run
+
+      - name: linter run realtime
+        run: cd api && bin/golangci-lint --version && bin/golangci-lint run

@@ -61,5 +61,5 @@ func main() {
 	http.Handle(userSrv.PathPrefix(), server.AuthMiddleware(userSrv))
 	http.Handle(bookmarksSrv.PathPrefix(), server.AuthMiddleware(bookmarksSrv))
 
-	http.ListenAndServe("127.0.0.1:8002", nil)
+	_ = http.ListenAndServe("127.0.0.1:8002", nil)
 }
