@@ -32,6 +32,7 @@ message Post {
   Poll poll = 9;
 
   bool isBookmarked = 10;
+  bool isDeleted = 11;
 }
 
 message PostLink {

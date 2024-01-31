@@ -10,9 +10,9 @@ import (
 	"strconv"
 )
 
-type Bookmarks struct{}
+type BookmarkServer struct{}
 
-func (b *Bookmarks) Add(ctx context.Context, req *api.BookmarksAddReq) (*api.Void, error) {
+func (b *BookmarkServer) Add(ctx context.Context, req *api.BookmarksAddReq) (*api.Void, error) {
 	viewer := ctx.Value(CtxViewerKey).(*Viewer)
 	if viewer.UserID == 0 {
 		return nil, ErrNotAuthorized
@@ -22,7 +22,7 @@ func (b *Bookmarks) Add(ctx context.Context, req *api.BookmarksAddReq) (*api.Voi
 	posts, err := store2.GlobalStore.Posts.Get([]int{postID})
 	if err != nil {
 		return nil, fmt.Errorf("error getting post: %s", err)
-	} else if posts[postID] == nil {
+	} else if posts[postID] == nil || posts[postID].IsDeleted {
 		return nil, twirp.NewError(twirp.InvalidArgument, "PostNotFound")
 	}
 
@@ -34,7 +34,7 @@ func (b *Bookmarks) Add(ctx context.Context, req *api.BookmarksAddReq) (*api.Voi
 	return &api.Void{}, err
 }
 
-func (b *Bookmarks) Remove(ctx context.Context, req *api.BookmarksAddReq) (*api.Void, error) {
+func (b *BookmarkServer) Remove(ctx context.Context, req *api.BookmarksAddReq) (*api.Void, error) {
 	viewer := ctx.Value(CtxViewerKey).(*Viewer)
 	if viewer.UserID == 0 {
 		return nil, ErrNotAuthorized
@@ -50,7 +50,7 @@ func (b *Bookmarks) Remove(ctx context.Context, req *api.BookmarksAddReq) (*api.
 	return &api.Void{}, err
 }
 
-func (b *Bookmarks) List(ctx context.Context, req *api.BookmarkListReq) (*api.BookmarkList, error) {
+func (b *BookmarkServer) List(ctx context.Context, req *api.BookmarkListReq) (*api.BookmarkList, error) {
 	viewer := ctx.Value(CtxViewerKey).(*Viewer)
 	if viewer.UserID == 0 {
 		return nil, ErrNotAuthorized

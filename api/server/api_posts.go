@@ -101,6 +101,14 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 	result := make([]*api.Post, len(posts))
 
 	for i, post := range posts {
+		if post.IsDeleted {
+			result[i] = &api.Post{
+				Id:        strconv.Itoa(post.ID),
+				IsDeleted: true,
+			}
+			continue
+		}
+
 		var wrappedLink *api.PostLink
 		if post.Link != nil {
 			host := ""
@@ -261,8 +269,6 @@ func (p *PostsServer) postsListByID(ctx context.Context, r *api.ListReq) (*api.P
 	posts, err := store2.GlobalStore.Posts.Get([]int{postID})
 	if err != nil {
 		return nil, fmt.Errorf("error getting post: %w", err)
-	} else if posts[postID] == nil || posts[postID].IsDeleted {
-		return nil, twirp.NewError(twirp.InvalidArgument, "PostNotFound")
 	}
 
 	viewer := ctx.Value(CtxViewerKey).(*Viewer)
@@ -364,19 +370,19 @@ func (*PostsServer) Like(ctx context.Context, r *api.PostsLikeReq) (*api.Void, e
 
 	postID, _ := strconv.Atoi(r.PostId)
 
-	posts, err := store2.GlobalStore.Posts.Get([]int{postID})
-	if err != nil {
-		return nil, err
-	} else if posts[postID] == nil {
-		return nil, twirp.NewError(twirp.InvalidArgument, "PostNotFound")
-	}
-
 	if r.Action == api.PostLikeAction_UNLIKE {
-		err = store2.GlobalStore.Likes.Remove(postID, viewer.UserID)
+		err := store2.GlobalStore.Likes.Remove(postID, viewer.UserID)
 		if err != nil {
 			return nil, err
 		}
 	} else {
+		posts, err := store2.GlobalStore.Posts.Get([]int{postID})
+		if err != nil {
+			return nil, err
+		} else if posts[postID] == nil || posts[postID].IsDeleted {
+			return nil, twirp.NewError(twirp.InvalidArgument, "PostNotFound")
+		}
+
 		err = store2.GlobalStore.Likes.Add(postID, viewer.UserID)
 		if err != nil {
 			return nil, err

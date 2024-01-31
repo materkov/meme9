@@ -53,7 +53,7 @@ func main() {
 	authSrv := api.NewAuthServer(&server.AuthServer{}, twirp.WithServerJSONSkipDefaults(true))
 	pollSrv := api.NewPollsServer(&server.PollServer{}, twirp.WithServerJSONSkipDefaults(true))
 	userSrv := api.NewUsersServer(&server.UserServer{}, twirp.WithServerJSONSkipDefaults(true))
-	bookmarksSrv := api.NewBookmarksServer(&server.Bookmarks{}, twirp.WithServerJSONSkipDefaults(true))
+	bookmarksSrv := api.NewBookmarksServer(&server.BookmarkServer{}, twirp.WithServerJSONSkipDefaults(true))
 
 	http.Handle(postsSrv.PathPrefix(), server.AuthMiddleware(postsSrv))
 	http.Handle(authSrv.PathPrefix(), server.AuthMiddleware(authSrv))

@@ -65,8 +65,9 @@ func TestAPI_PostsCRUD(t *testing.T) {
 	})
 
 	t.Run("", func(t *testing.T) {
-		_, err := srv.List(ctx, &api.ListReq{ById: postID})
-		requireAPIError(t, err, "PostNotFound")
+		resp, err := srv.List(ctx, &api.ListReq{ById: postID})
+		require.NoError(t, err)
+		require.True(t, resp.Items[0].IsDeleted)
 	})
 }
 
@@ -76,15 +77,14 @@ func TestAPI_PostsLikes(t *testing.T) {
 	closer := createTestDB(t)
 	defer closer()
 
-	user := store.User{}
-	_ = store2.GlobalStore.Users.Add(&user)
-	ctx := createViewerContext(user.ID)
+	ctx := createViewerContext(2423)
 
-	addResp, _ := srv.Add(ctx, &api.AddReq{Text: "test text"})
+	post := store.Post{}
+	_ = store2.GlobalStore.Posts.Add(&post)
 
 	t.Run("like post", func(t *testing.T) {
 		_, err := srv.Like(ctx, &api.PostsLikeReq{
-			PostId: addResp.Id,
+			PostId: strconv.Itoa(post.ID),
 			Action: api.PostLikeAction_LIKE,
 		})
 		require.NoError(t, err)
@@ -92,14 +92,14 @@ func TestAPI_PostsLikes(t *testing.T) {
 
 	t.Run("like post again", func(t *testing.T) {
 		_, err := srv.Like(ctx, &api.PostsLikeReq{
-			PostId: addResp.Id,
+			PostId: strconv.Itoa(post.ID),
 			Action: api.PostLikeAction_LIKE,
 		})
 		require.NoError(t, err)
 	})
 
 	t.Run("check count and flag", func(t *testing.T) {
-		listResp, err := srv.List(ctx, &api.ListReq{ById: addResp.Id})
+		listResp, err := srv.List(ctx, &api.ListReq{ById: strconv.Itoa(post.ID)})
 		require.NoError(t, err)
 		require.Equal(t, int32(1), listResp.Items[0].LikesCount)
 		require.True(t, listResp.Items[0].IsLiked)
@@ -107,17 +107,53 @@ func TestAPI_PostsLikes(t *testing.T) {
 
 	t.Run("dislike post", func(t *testing.T) {
 		_, err := srv.Like(ctx, &api.PostsLikeReq{
-			PostId: addResp.Id,
+			PostId: strconv.Itoa(post.ID),
 			Action: api.PostLikeAction_UNLIKE,
 		})
 		require.NoError(t, err)
 	})
 
 	t.Run("check again", func(t *testing.T) {
-		listResp, err := srv.List(ctx, &api.ListReq{ById: addResp.Id})
+		listResp, err := srv.List(ctx, &api.ListReq{ById: strconv.Itoa(post.ID)})
 		require.NoError(t, err)
 		require.Equal(t, int32(0), listResp.Items[0].LikesCount)
 		require.False(t, listResp.Items[0].IsLiked)
+	})
+
+	t.Run("like not existed post", func(t *testing.T) {
+		_, err := srv.Like(ctx, &api.PostsLikeReq{
+			PostId: "9124679158",
+			Action: api.PostLikeAction_LIKE,
+		})
+		requireAPIError(t, err, "PostNotFound")
+	})
+
+	t.Run("like deleted post", func(t *testing.T) {
+		deletedPost := store.Post{IsDeleted: true}
+		_ = store2.GlobalStore.Posts.Add(&deletedPost)
+
+		_, err := srv.Like(ctx, &api.PostsLikeReq{
+			PostId: strconv.Itoa(deletedPost.ID),
+			Action: api.PostLikeAction_LIKE,
+		})
+		requireAPIError(t, err, "PostNotFound")
+	})
+
+	t.Run("dislike deleted or not existent posts", func(t *testing.T) {
+		deletedPost := store.Post{IsDeleted: true}
+		_ = store2.GlobalStore.Posts.Add(&deletedPost)
+
+		_, err := srv.Like(ctx, &api.PostsLikeReq{
+			PostId: strconv.Itoa(deletedPost.ID),
+			Action: api.PostLikeAction_UNLIKE,
+		})
+		require.NoError(t, err)
+
+		_, err = srv.Like(ctx, &api.PostsLikeReq{
+			PostId: "452451352132",
+			Action: api.PostLikeAction_UNLIKE,
+		})
+		require.NoError(t, err)
 	})
 }
 

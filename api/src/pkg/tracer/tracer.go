@@ -71,7 +71,7 @@ func WriteSpan(traceID int, name string, started time.Time, tags map[string]stri
 		return
 	}
 
-	log.Printf("Send: %s", spansBytes)
+	//log.Printf("Send: %s", spansBytes)
 
 	go func() {
 		_, _ = http.Post("http://127.0.0.1:9411/api/v2/spans", "application/json", bytes.NewReader(spansBytes))
