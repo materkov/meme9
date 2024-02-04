@@ -2,10 +2,7 @@ package api
 
 import (
 	"github.com/materkov/meme9/web6/pb/github.com/materkov/meme9/api"
-	"golang.org/x/image/draw"
 	"html"
-	"image"
-	"image/jpeg"
 	"log"
 	"net/http"
 	"strings"
@@ -98,32 +95,15 @@ func (h *HttpServer) postPage(w http.ResponseWriter, r *http.Request, viewer *Vi
 	})
 }
 
-func (h *HttpServer) imageProxy(w http.ResponseWriter, r *http.Request, viewer *Viewer) {
-	w.Header().Set("Content-Type", "image/jpeg")
-	url := r.URL.Query().Get("url")
-
-	resp, err := http.Get(url)
+func (h *HttpServer) imageProxy2(w http.ResponseWriter, r *http.Request) {
+	resp, err := ImageProxyClient.Resize(r.Context(), &api.ResizeReq{
+		ImageUrl: r.URL.Query().Get("url"),
+	})
 	if err != nil {
 		log.Printf("[ERROR] Error: %s", err)
 		w.WriteHeader(400)
-		return
+	} else {
+		w.Header().Set("Content-Type", "image/jpeg")
+		_, _ = w.Write(resp.Image)
 	}
-	defer resp.Body.Close()
-
-	src, err := jpeg.Decode(resp.Body)
-	if err != nil {
-		log.Printf("[ERROR] Error: %s", err)
-		w.WriteHeader(400)
-		return
-	}
-
-	if src.Bounds().Size().X <= 200 {
-		_ = jpeg.Encode(w, src, nil)
-		return
-	}
-
-	dst := image.NewRGBA(image.Rect(0, 0, 200, 200))
-	draw.BiLinear.Scale(dst, dst.Rect, src, src.Bounds(), draw.Over, nil)
-
-	_ = jpeg.Encode(w, dst, nil)
 }

@@ -4,7 +4,6 @@ go 1.21
 
 require (
 	github.com/twitchtv/twirp v8.1.3+incompatible
-	golang.org/x/image v0.14.0
 	google.golang.org/protobuf v1.31.0
 )
 

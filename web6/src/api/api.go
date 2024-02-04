@@ -15,4 +15,6 @@ var (
 	ApiPostsClient api.Posts
 	ApiPollsClient api.Polls
 	ApiUsersClient api.Users
+
+	ImageProxyClient api.ImageProxy
 )

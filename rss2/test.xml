@@ -1,0 +1,1187 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:nyt="http://www.nytimes.com/namespaces/rss/2.0" version="2.0">
+    <channel>
+        <title>NYT &gt; World News</title>
+        <link>https://www.nytimes.com/section/world</link>
+        <atom:link href="https://rss.nytimes.com/services/xml/rss/nyt/World.xml" rel="self" type="application/rss+xml"></atom:link>
+        <description></description>
+        <language>en-us</language>
+        <copyright>Copyright 2024 The New York Times Company</copyright>
+        <lastBuildDate>Sun, 04 Feb 2024 08:16:06 +0000</lastBuildDate>
+        <pubDate>Sun, 04 Feb 2024 06:29:23 +0000</pubDate>
+        <image>
+            <title>NYT &gt; World News</title>
+            <url>https://static01.nyt.com/images/misc/NYT_logo_rss_250x40.png</url>
+            <link>https://www.nytimes.com/section/world</link>
+        </image>
+        <item>
+            <title>U.S. and U.K. Launch Heavy Strikes on Houthi Sites in Yemen</title>
+            <link>https://www.nytimes.com/2024/02/03/us/politics/houthis-yemen-strikes.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/us/politics/houthis-yemen-strikes.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/us/politics/houthis-yemen-strikes.html" rel="standout"></atom:link>
+            <description>The airstrikes, meant to deter attacks on ships in the Red Sea, came one day after the United States struck at other Iran-backed militias in Iraq and Syria.</description>
+            <dc:creator>Eric Schmitt and Helene Cooper</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 03:13:30 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Drones (Pilotless Planes)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Houthis</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Defense Department</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Yemen</category>
+            <media:content height="1552" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03HP-strikes-Yemen-01-whvb/03HP-strikes-Yemen-01-whvb-mediumSquareAt3X-v2.jpg" width="1550"></media:content>
+            <media:credit>Yahya Arhab/EPA, via Shutterstock</media:credit>
+            <media:description>A glow could be seen in the night sky behind buildings following strikes in Sana, Yemen, on Saturday.</media:description>
+        </item>
+        <item>
+            <title>Fear and Ambition Propel Xi’s Nuclear Acceleration</title>
+            <link>https://www.nytimes.com/2024/02/04/world/asia/china-nuclear-missiles.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/04/world/asia/china-nuclear-missiles.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/04/world/asia/china-nuclear-missiles.html" rel="standout"></atom:link>
+            <description>China’s leader built up a nuclear arsenal, steeling for a growing rivalry with the United States. Now China is exploring how to wield its newfound strength.</description>
+            <dc:creator>Chris Buckley</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 05:01:31 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Nuclear Weapons</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Arms Control and Limitation and Disarmament</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">China</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Xi Jinping</category>
+            <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03CHINA-NUCLEAR-01-bqzm/03CHINA-NUCLEAR-01-bqzm-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Kyodo News, via Getty Images</media:credit>
+            <media:description>A military parade in Beijing in 2019. As China’s nuclear options have grown, its military strategists are looking to nuclear weapons as not just a defensive shield, but as a potential sword.</media:description>
+        </item>
+        <item>
+            <title>Welcome to ‘Dalifornia,’ an Oasis for China’s Drifters and Dreamers</title>
+            <link>https://www.nytimes.com/2024/02/04/world/asia/china-dali.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/04/world/asia/china-dali.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/04/world/asia/china-dali.html" rel="standout"></atom:link>
+            <description>Young Chinese are flocking to the picturesque mountain town of Dali to escape the cutthroat competition and suffocating political environment of the country’s megacities.</description>
+            <dc:creator>Gilles Sabrié and Vivian Wang</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 05:03:10 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Travel and Vacations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Youth</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Dali (China)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">China</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Loneliness</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Labor and Jobs</category>
+            <media:content height="1799" medium="image" url="https://static01.nyt.com/images/2023/12/19/multimedia/00china-dalifornia-01-jgpz/00china-dalifornia-01-jgpz-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:description>Embracing one’s inner child, in Dali. Li Xiaoxue, center, moved there in August, after returning to China from Los Angeles. Ms. Li said Dali’s diversity and open-minded culture reminded her of California. </media:description>
+        </item>
+        <item>
+            <title>U.S. Strikes Test Iran’s Will to Escalate</title>
+            <link>https://www.nytimes.com/2024/02/03/us/politics/us-strikes-iran-militias-israel.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/us/politics/us-strikes-iran-militias-israel.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/us/politics/us-strikes-iran-militias-israel.html" rel="standout"></atom:link>
+            <description>American airstrikes hit Iran-linked targets in Syria and Iraq to retaliate for the recent killing of three U.S. soldiers in Jordan.</description>
+            <dc:creator>David E. Sanger and Farnaz Fassihi</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 00:04:37 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Hamas</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Islamic Revolutionary Guards Corps</category>
+            <media:content height="1799" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03iran-assess01-fhzp/03iran-assess01-fhzp-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Arash Khamooshi for The New York Times</media:credit>
+            <media:description>People gathering for a rally in Tehran last year.</media:description>
+        </item>
+        <item>
+            <title>After the Quake: One Turkish Family’s Struggle</title>
+            <link>https://www.nytimes.com/2024/02/04/world/middleeast/turkey-earthquake-recovery.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/04/world/middleeast/turkey-earthquake-recovery.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/04/world/middleeast/turkey-earthquake-recovery.html" rel="standout"></atom:link>
+            <description>In the year since earthquakes devastated southern Turkey, the Karapirli family has struggled to heal, find a home and cope with a bottomless sense of loss.</description>
+            <dc:creator>Ben Hubbard, Safak Timur and Emin Ozmen</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 05:01:49 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Deaths (Fatalities)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Turkey Earthquake (Feb 6, 2023)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Families and Family Life</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Content Type: Personal Profile</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Gaziantep (Turkey)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">internal-truncator</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/01/30/multimedia/00Turkey-Quake-Family-cjql-Promo/00Turkey-Quake-Family-cjql-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Emin Ozmen for The New York Times</media:credit>
+        </item>
+        <item>
+            <title>Dozens Dead in Chilean Wildfires</title>
+            <link>https://www.nytimes.com/2024/02/03/world/americas/wildfires-chile-valparaiso.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/americas/wildfires-chile-valparaiso.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/americas/wildfires-chile-valparaiso.html" rel="standout"></atom:link>
+            <description>The death toll is expected to rise as hundreds have been reported missing in the blazes near the cities of Viña del Mar and Valparaíso, an area home to more than a million people.</description>
+            <dc:creator>John Bartlett</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 02:45:46 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Wildfires</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Boric, Gabriel</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Chile</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03CHILE-FIRES1-fcpg/03CHILE-FIRES1-fcpg-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Rodrigo Arangua/Agence France-Presse — Getty Images</media:credit>
+            <media:description>Burned homes in Viña del Mar, Chile, on Saturday.</media:description>
+        </item>
+        <item>
+            <title>Germany Braces for Decades of Confrontation With Russia</title>
+            <link>https://www.nytimes.com/2024/02/03/world/europe/germany-russia.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/europe/germany-russia.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/europe/germany-russia.html" rel="standout"></atom:link>
+            <description>Leaders are sounding alarms about growing threats, but Chancellor Olaf Scholz is wary of pushing the Kremlin, and his own ambivalent public, too far.</description>
+            <dc:creator>Steven Erlanger and David E. Sanger</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 13:59:05 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Polls and Public Opinion</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Russian Invasion of Ukraine (2022)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Missiles and Missile Defense Systems</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Presidential Election of 2024</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Christian Democratic Union (Germany)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">North Atlantic Treaty Organization</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Social Democratic Party (Germany)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Biden, Joseph R Jr</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Macron, Emmanuel (1977- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Pistorius, Boris</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Putin, Vladimir V</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Scholz, Olaf (1958- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Trump, Donald J</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Europe</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Germany</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Ukraine</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/04/multimedia/04germany-security-01-lhzm/04germany-security-01-lhzm-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Ebrahim Noroozi/Associated Press</media:credit>
+            <media:description>Chancellor Olaf Scholz of Germany speaking to the defense minister, Boris Pistorius, second from right, on Wednesday at the German Bundestag in Berlin.</media:description>
+        </item>
+        <item>
+            <title>Northern Ireland Names Sinn Fein’s Michelle O’Neill First Minister</title>
+            <link>https://www.nytimes.com/2024/02/03/world/europe/northern-ireland-sinn-fein-michelle-oneill.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/europe/northern-ireland-sinn-fein-michelle-oneill.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/europe/northern-ireland-sinn-fein-michelle-oneill.html" rel="standout"></atom:link>
+            <description>The idea of a first minister who supports closer ties to the Republic of Ireland — let alone one from Sinn Fein, a party with historic ties to the Irish Republican Army — was once unthinkable. On Saturday, it became reality.</description>
+            <dc:creator>Megan Specia</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 16:52:25 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Great Britain Withdrawal from EU (Brexit)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Good Friday Agreement (1998)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Peace Process</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Democratic Unionist Party (Northern Ireland)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Irish Republican Army</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Queen&#39;s University Belfast</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Roman Catholic Church</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Belfast (Northern Ireland)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Europe</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Great Britain</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Ireland</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03uk-nireland-top-bqgk/03uk-nireland-top-bqgk-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Peter Morrison/Associated Press</media:credit>
+            <media:description>Michelle O’Neill of Sinn Fein at the Northern Ireland Assembly in Belfast on Saturday.</media:description>
+        </item>
+        <item>
+            <title>Senegal’s President, Macky Sall, Calls Off Election for His Replacement</title>
+            <link>https://www.nytimes.com/2024/02/03/world/africa/senegal-president-cancels-election.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/africa/senegal-president-cancels-election.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/africa/senegal-president-cancels-election.html" rel="standout"></atom:link>
+            <description>The West African country had planned to hold an election in three weeks. But President Macky Sall canceled it indefinitely pending an inquiry into corruption allegations at the constitutional court.</description>
+            <dc:creator>Ruth Maclean and Mady Camara</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 20:40:22 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Constitutions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Coups D&#39;Etat and Attempted Coups D&#39;Etat</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Human Rights Watch</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Amnesty International</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Sall, Macky</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Sonko, Ousmane</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Dakar (Senegal)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Senegal</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03senegal-election01-ktjh/03senegal-election01-ktjh-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Guy Peterson/Agence France-Presse — Getty Images</media:credit>
+            <media:description>President Macky Sall of Senegal, center, attending an event last April in Dakar, the capital.</media:description>
+        </item>
+        <item>
+            <title>Mideast Crisis : U.S. and U.K. Launch Heavy Strikes on Houthi Sites in Yemen</title>
+            <link>https://www.nytimes.com/live/2024/02/03/world/us-strikes-israel-hamas-news</link>
+            <guid isPermaLink="true">https://www.nytimes.com/live/2024/02/03/world/us-strikes-israel-hamas-news</guid>
+            <atom:link href="https://www.nytimes.com/live/2024/02/03/world/us-strikes-israel-hamas-news" rel="standout"></atom:link>
+            <description>The two countries said targets included weapons storage facilities, missile systems and launchers, air defense systems, and radars.</description>
+            <dc:creator>The New York Times</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 05:30:39 +0000</pubDate>
+            <media:content height="1802" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03-live-blog-20240203-us-strikes-israel-hamas-news-header-kfcl/03-live-blog-20240203-us-strikes-israel-hamas-news-header-kfcl-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Yahya Arhab/EPA, via Shutterstock</media:credit>
+            <media:description>Newly recruited Houthi fighters in Sana, Yemen, on Thursday protesting American and British airstrikes.</media:description>
+        </item>
+        <item>
+            <title>UNRWA Funding: 8 Days of Turmoil for U.N.’s Top Agency in Gaza</title>
+            <link>https://www.nytimes.com/2024/02/03/world/middleeast/united-nations-gaza-unrwa.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/middleeast/united-nations-gaza-unrwa.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/middleeast/united-nations-gaza-unrwa.html" rel="standout"></atom:link>
+            <description>The crisis that threatens the future of the main United Nations agency in Gaza, amid a humanitarian disaster, began at a routine meeting between diplomats in Tel Aviv.</description>
+            <dc:creator>Patrick Kingsley and Ronen Bergman</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 18:42:21 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Palestinians</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Refugees and Displaced Persons</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">United Nations Relief and Works Agency</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">International Court of Justice (UN)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Netanyahu, Benjamin</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Gaza Strip</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Israel</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">United States</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03israel-unrwa-01-ghcq/03israel-unrwa-01-ghcq-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Haitham Imad/EPA, via Shutterstock</media:credit>
+            <media:description>UNRWA aid in Rafah in the southern Gaza Strip. The U.N. organization is the largest aid agency on the ground in Gaza, providing shelter to more than half the population. </media:description>
+        </item>
+        <item>
+            <title>Gaza Rescuers Go Missing on Mission to Save a Girl Trapped in a Car</title>
+            <link>https://www.nytimes.com/2024/02/03/world/middleeast/hind-rajab-gaza-rescue.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/middleeast/hind-rajab-gaza-rescue.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/middleeast/hind-rajab-gaza-rescue.html" rel="standout"></atom:link>
+            <description>The Palestine Red Crescent said the girl, named Hind, was in a car in northern Gaza with six of her relatives who were all killed by Israeli fire. She was the sole survivor.</description>
+            <dc:creator>Raja Abdulrahim</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 17:37:35 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Rescues</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Israel</category>
+            <media:content height="1799" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03GAZA-HIND1-vtpj/03GAZA-HIND1-vtpj-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Dylan Martinez/Reuters</media:credit>
+            <media:description>Northern Gaza on Friday.</media:description>
+        </item>
+        <item>
+            <title>Ceferin’s UEFA Term Limits Fight Renews Debate on Presidential Power</title>
+            <link>https://www.nytimes.com/2024/02/03/world/europe/ceferin-uefa-proposal.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/europe/ceferin-uefa-proposal.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/europe/ceferin-uefa-proposal.html" rel="standout"></atom:link>
+            <description>A proposal that would weaken term limits at European soccer’s governing body has insiders and governance officials worried that sports’ power brokers are forgetting why the rules exist.</description>
+            <dc:creator>Tariq Panja</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 16:51:24 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Soccer</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Ceferin, Aleksander</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Union of European Football Assns (UEFA)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">International Federation of Association Football (FIFA)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Infantino, Gianni</category>
+            <media:content height="1672" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03soccer-president-klhq/03soccer-president-klhq-mediumSquareAt3X.jpg" width="1672"></media:content>
+            <media:credit>Manu Fernandez/Associated Press</media:credit>
+            <media:description>Aleksander Ceferin, center, at last year’s Champions League final in Istanbul, with the president of FIFA, Gianni Infantino, left, and the Turkish president, Recep Tayyip Erdogan.</media:description>
+        </item>
+        <item>
+            <title>Turkey’s Central Bank Chief Steps Down Amid Long Inflation Battle</title>
+            <link>https://www.nytimes.com/2024/02/03/world/middleeast/turkey-central-bank-chief-resigns.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/middleeast/turkey-central-bank-chief-resigns.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/middleeast/turkey-central-bank-chief-resigns.html" rel="standout"></atom:link>
+            <description>The government swiftly replaced her and said the change did not reflect a policy shift for the country, where annual inflation is about 65 percent.</description>
+            <dc:creator>Ben Hubbard</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 11:33:34 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Turkey</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Hafize Gaye Erkan</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Fatih Karahan</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Erdogan, Recep Tayyip</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Interest Rates</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Inflation (Economics)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Appointments and Executive Changes</category>
+            <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2024/02/03/world/03turkey-bank/03turkey-bank-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Adem Altan/Agence France-Presse — Getty Images</media:credit>
+            <media:description>Hafize Gaye Erkan was Turkey’s fifth central bank chief in five years.</media:description>
+        </item>
+        <item>
+            <title>Pakistan’s Military Is Swaying Elections, Now More Than Ever</title>
+            <link>https://www.nytimes.com/2024/02/04/world/asia/pakistan-election-imran-khan.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/04/world/asia/pakistan-election-imran-khan.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/04/world/asia/pakistan-election-imran-khan.html" rel="standout"></atom:link>
+            <description>A political crackdown has been more visible than those in previous years, analysts say, making this week’s vote among the least credible in the country’s history.</description>
+            <dc:creator>Christina Goldbaum and Zia ur-Rehman</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 05:50:08 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Pakistan</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Elections</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Pakistan Tehreek-e-Insaf</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Khan, Imran</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Sharif, Nawaz</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Demonstrations, Protests and Riots</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Pakistan Muslim League-N</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Censorship</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Communications and Media Blackouts</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Defense and Military Forces</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/00pakistan-crackdown-04-zhbk/00pakistan-crackdown-04-zhbk-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Saiyna Bashir for The New York Times</media:credit>
+            <media:description>People gathering for a meeting of the Pakistan Tehreek-e-Insaf party on a rooftop at the home of a supporter in Lahore, last week. Members of the party have faced intimidation, censorship and arrest.</media:description>
+        </item>
+        <item>
+            <title>Hage Geingob, Namibia’s President, Is Dead at 82</title>
+            <link>https://www.nytimes.com/2024/02/03/world/africa/hage-geingob-dead.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/africa/hage-geingob-dead.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/africa/hage-geingob-dead.html" rel="standout"></atom:link>
+            <description>He was the country’s first prime minister after it gained independence from South Africa in 1990.</description>
+            <dc:creator>Yan Zhuang</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 06:29:23 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Namibia</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Hage Geingob</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Deaths (Obituaries)</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/04/multimedia/04xp-geingob-01-zgph/04xp-geingob-01-zgph-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Dave Sanders for The New York Times</media:credit>
+            <media:description>President Hage Geingob of Namibia speaking at the 74th session of the United Nations General Assembly in 2019.</media:description>
+        </item>
+        <item>
+            <title>House GOP Plans Vote on Israel Aid as Senate Tries to Close Ukraine Deal</title>
+            <link>https://www.nytimes.com/2024/02/03/us/politics/house-republicans-israel-aid.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/us/politics/house-republicans-israel-aid.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/us/politics/house-republicans-israel-aid.html" rel="standout"></atom:link>
+            <description>The move comes as the Senate is racing to finalize and vote on a bill that would also include new border policies and funding for the war in Ukraine.</description>
+            <dc:creator>Karoun Demirjian</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 00:01:17 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Israel</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Gaza Strip</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Johnson, Mike (1972- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Schumer, Charles E</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">House of Representatives</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Republican Party</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Senate</category>
+            <media:content height="1802" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03dc-cong-israel-jghl/03dc-cong-israel-jghl-mediumSquareAt3X-v2.jpg" width="1800"></media:content>
+            <media:credit>Kevin Dietsch/Getty Images</media:credit>
+            <media:description>Speaker Mike Johnson has said that the Senate package would be dead on arrival in the House.</media:description>
+        </item>
+        <item>
+            <title>Exploring the Backyard</title>
+            <link>https://www.nytimes.com/2024/02/03/briefing/exploring-the-backyard.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/briefing/exploring-the-backyard.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/briefing/exploring-the-backyard.html" rel="standout"></atom:link>
+            <description>While a grand trip might offer novelty and excitement, there’s adventure to be found in territories much closer to home.</description>
+            <dc:creator>Melissa Kirsch</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 11:43:43 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">internal-storyline-no</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Real Estate and Housing (Residential)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Maps</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Budget Travel</category>
+        </item>
+        <item>
+            <title>A Public Inquiry Into Foreign Election Meddling Comes Up Against Secrecy</title>
+            <link>https://www.nytimes.com/2024/02/03/world/canada/china-election-interference.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/canada/china-election-interference.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/canada/china-election-interference.html" rel="standout"></atom:link>
+            <description>The first week of hearings by a special commission focused on the question of how top-secret intelligence can be made public.</description>
+            <dc:creator>Ian Austen</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 11:00:02 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Canada</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Trudeau, Justin</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Elections</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">China</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Espionage and Intelligence Services</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03canadaletter-hogue-hplq/03canadaletter-hogue-hplq-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Blair Gable/Reuters</media:credit>
+            <media:description>Justice Marie-Josée Hogue was given a tight schedule for her inquiry into election meddling.</media:description>
+        </item>
+        <item>
+            <title>Bank of America Pledged to Stop Financing Coal. Now It’s Backtracking.</title>
+            <link>https://www.nytimes.com/2024/02/03/climate/bank-of-america-esg.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/climate/bank-of-america-esg.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/climate/bank-of-america-esg.html" rel="standout"></atom:link>
+            <description>The changes come as Republican lawmakers step up efforts to punish businesses that consider climate change and the environment in their operations.</description>
+            <dc:creator>Hiroko Tabuchi</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 15:04:43 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Global Warming</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Greenhouse Gas Emissions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Corporate Social Responsibility</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Banking and Financial Institutions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Bank of America Corporation</category>
+            <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2024/02/03/climate/03cli-coal-loans/03cli-coal-loans-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Tom Brenner/Reuters</media:credit>
+            <media:description>Demonstrators at a Bank of America branch last year calling on banks to stop financing fossil-fuel projects.</media:description>
+        </item>
+        <item>
+            <title>Syria and Iraq Say U.S. Strikes Killed Civilians</title>
+            <link>https://www.nytimes.com/2024/02/03/world/middleeast/us-strike-syria-iraq.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/middleeast/us-strike-syria-iraq.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/middleeast/us-strike-syria-iraq.html" rel="standout"></atom:link>
+            <description>tk</description>
+            <dc:creator>Victoria Kim</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 16:58:50 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iraq</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Syria</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iran</category>
+            <media:content height="1344" medium="image" url="https://static01.nyt.com/images/2024/02/02/world/03mideast-crisis-us-strikes/02-us-strikes-update-mediumSquareAt3X.jpg" width="1345"></media:content>
+            <media:credit>Douglas C. Brunelle/Agence France-Presse — Getty Images</media:credit>
+            <media:description>The U.S. military strikes that targeted sites in Syria and Iraq were largely conducted by two American B-1B bombers.</media:description>
+        </item>
+        <item>
+            <title>In Australia and New Zealand, Barefoot Is a Way of Life</title>
+            <link>https://www.nytimes.com/2024/02/03/world/australia/australia-new-zealand-no-shoes.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/australia/australia-new-zealand-no-shoes.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/australia/australia-new-zealand-no-shoes.html" rel="standout"></atom:link>
+            <description>A celebration of (at least occasional) shoelessness.</description>
+            <pubDate>Sat, 03 Feb 2024 07:26:11 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Australia</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">New Zealand</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Feet</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Shoes and Boots</category>
+            <media:content height="1799" medium="image" url="https://static01.nyt.com/images/2024/02/02/world/02-ozletter-339/02-ozletter-339-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Alexi Rosenfeld/Getty Images</media:credit>
+            <media:description>A barefoot man at a bakery in Byron Bay, Australia, last year.</media:description>
+        </item>
+        <item>
+            <title>Lights! Camera! Modi! It’s a One-Man Show on Indian Television.</title>
+            <link>https://www.nytimes.com/2024/02/03/world/asia/india-modi-ayodhya-media.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/03/world/asia/india-modi-ayodhya-media.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/03/world/asia/india-modi-ayodhya-media.html" rel="standout"></atom:link>
+            <description>The grand opening of a temple in Ayodhya was both a religious ritual and a made-for-TV spectacle for a broadcast media co-opted by Prime Minister Narendra Modi.</description>
+            <dc:creator>Mujib Mashal and Hari Kumar</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 05:01:17 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Places of Worship</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Hinduism</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Temples (Religious)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Television</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Social Media</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">News and News Media</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Ram Mandir (Ayodhya, India, Temple)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Modi, Narendra</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Bachchan, Amitabh</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Ayodhya (India)</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/03/multimedia/03india-modi-01-tgwj/03india-modi-01-tgwj-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Atul Loke for The New York Times</media:credit>
+            <media:description>Reporters inside Ram Temple in Ayodhya, India, after the opening ceremony last month.</media:description>
+        </item>
+        <item>
+            <title>Israel Signals Its Military Will Move Into Rafah, in Southern Gaza</title>
+            <link>https://www.nytimes.com/2024/02/02/world/middleeast/israel-hamas-southern-gaza-rafah.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/middleeast/israel-hamas-southern-gaza-rafah.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/middleeast/israel-hamas-southern-gaza-rafah.html" rel="standout"></atom:link>
+            <description>A U.N. official described Rafah, a refuge for hundreds of thousands of displaced people, as a “pressure cooker of despair.” It is one of the last cities in southern Gaza that Israeli ground forces have not reached.</description>
+            <dc:creator>Aaron Boxerman, Nick Cumming-Bruce and Thomas Fuller</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 00:41:57 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Israel</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Gaza Strip</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Palestinians</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Refugees and Displaced Persons</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Rafah (Gaza Strip)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Khan Younis (Gaza Strip)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Hamas</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Terrorism</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02Israel-Gaza-leadall-fbwt/02Israel-Gaza-leadall-fbwt-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Fatima Shbair/Associated Press</media:credit>
+            <media:description>Palestinians amid what’s left of destroyed buildings after an Israeli strike in Rafah, in the southern Gaza Strip.</media:description>
+        </item>
+        <item>
+            <title>U.S. Hits Back at Iran With Sanctions, Criminal Charges and Airstrikes</title>
+            <link>https://www.nytimes.com/2024/02/02/us/politics/us-iran-sanctions-charges.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/us/politics/us-iran-sanctions-charges.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/us/politics/us-iran-sanctions-charges.html" rel="standout"></atom:link>
+            <description>The Biden administration used sanctions and criminal charges to punish the Islamic Revolutionary Guards Corps, Iran’s premier military force.</description>
+            <dc:creator>Eileen Sullivan and David E. Sanger</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 01:35:02 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Terrorism</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Embargoes and Sanctions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Islamic Revolutionary Guards Corps</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Justice Department</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Hells Angels</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Hezbollah</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Quds Force</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iran</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">China</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Israel</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Gaza Strip</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Cyberattacks and Hackers</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Cyberwarfare and Defense</category>
+            <media:content height="1267" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02dc-iran-sanctions-cplk/02dc-iran-sanctions-cplk-mediumSquareAt3X.jpg" width="1267"></media:content>
+            <media:credit>West Asia News Agency, via Reuters</media:credit>
+            <media:description>A photograph released by Iranian state news in August shows members of the Islamic Revolutionary Guards Corps.</media:description>
+        </item>
+        <item>
+            <title>What Withholding Funds to UNRWA Means for Gaza</title>
+            <link>https://www.nytimes.com/2024/02/02/world/middleeast/how-unwra-funds-in-gaza.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/middleeast/how-unwra-funds-in-gaza.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/middleeast/how-unwra-funds-in-gaza.html" rel="standout"></atom:link>
+            <description>After 12 employees of the U.N. agency were accused of participating in the Oct. 7 attack against Israel, some donor countries have suspended funding. But more than a million people in Gaza depend on the agency for aid.</description>
+            <dc:creator>Adam Rasgon</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 17:08:56 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">United Nations Relief and Works Agency</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Palestinians</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Refugees and Displaced Persons</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Gaza Strip</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Israel</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">United Nations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Hamas</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Humanitarian Aid</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02unrwa-money-02-khqc/02unrwa-money-02-khqc-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Samar Abu Elouf for The New York Times</media:credit>
+            <media:description>Flour is distributed by UNRWA in Khan Younis, the Gaza Strip, in November. Some employees of the U.N. agency have since been accused of participating in the Oct.7 terrorist attack on Israel. </media:description>
+        </item>
+        <item>
+            <title>U.S. Conducts Retaliatory Strikes Against Iranian Proxies as War Deepens</title>
+            <link>https://www.nytimes.com/2024/02/02/us/politics/us-strikes-iranian-proxies.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/us/politics/us-strikes-iranian-proxies.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/us/politics/us-strikes-iranian-proxies.html" rel="standout"></atom:link>
+            <description>The strikes, in response to a drone attack that killed three U.S. soldiers in Jordan this week, were a sharp escalation of hostilities in the Middle East.</description>
+            <dc:creator>Helene Cooper, Eric Schmitt and Julian E. Barnes</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 02:22:19 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iraq</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Syria</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Kataib Hezbollah</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Islamic Revolutionary Guards Corps</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iran</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Biden, Joseph R Jr</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Politics and Government</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02dc-strike/02dc-strike-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Kenny Holston/The New York Times</media:credit>
+            <media:description>President Biden approved the strikes earlier in the week, though he and his top aides have been reluctant to take steps that could draw the United States into a broad conflict.</media:description>
+        </item>
+        <item>
+            <title>What to Know About the Return of Power-Sharing in Northern Ireland</title>
+            <link>https://www.nytimes.com/2024/02/02/world/europe/northern-ireland-power-sharing-dup.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/europe/northern-ireland-power-sharing-dup.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/europe/northern-ireland-power-sharing-dup.html" rel="standout"></atom:link>
+            <description>For the first time, a Sinn Fein politician will serve as first minister.</description>
+            <dc:creator>Stephen Castle</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 20:41:45 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Good Friday Agreement (1998)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Democratic Unionist Party (Northern Ireland)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Sinn Fein</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Donaldson, Jeffrey</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">O&#39;Neill, Michelle (1977- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Belfast (Northern Ireland)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Great Britain</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Northern Ireland</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02nireland-1-jtlp/02nireland-1-jtlp-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Charles McQuillan/Getty Images</media:credit>
+            <media:description>Sinn Fein Vice President Michelle O’Neill addressing the news media on the imminent return of the Northern Ireland government at Stormont this week.</media:description>
+        </item>
+        <item>
+            <title>U.S. Leading Soft Landing for Global Economy</title>
+            <link>https://www.nytimes.com/2024/02/02/business/economy/soft-landing-economy-inflation.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/business/economy/soft-landing-economy-inflation.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/business/economy/soft-landing-economy-inflation.html" rel="standout"></atom:link>
+            <description>Economies all over the world are lowering inflation while avoiding serious recession — but growth in the United States stands out.</description>
+            <dc:creator>Jeanna Smialek, Ana Swanson, Alan Rappeport and Jim Tankersley</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 19:37:41 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Economy</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Economic Conditions and Trends</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Labor and Jobs</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Inflation (Economics)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Banking and Financial Institutions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Federal Reserve System</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Bank of England</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">European Central Bank</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">European Union</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">International Monetary Fund</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02dc-globalecon-pjvb/02dc-globalecon-pjvb-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Amir Hamja/The New York Times</media:credit>
+            <media:description>Americans have only slowly spent down the savings they amassed during the early pandemic years, so the money has continued to trickle through the economy like a slow-release booster shot.</media:description>
+        </item>
+        <item>
+            <title>U.N. Court to Rule on Whether Ukraine Committed Genocide</title>
+            <link>https://www.nytimes.com/2024/02/02/world/europe/ukraine-un-court-genocide-russia.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/europe/ukraine-un-court-genocide-russia.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/europe/ukraine-un-court-genocide-russia.html" rel="standout"></atom:link>
+            <description>The highest court of the United Nations will render a verdict on a claim that has been used by Russia to justify its invasion.</description>
+            <dc:creator>Ivan Nechepurenko</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 18:44:25 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Russian Invasion of Ukraine (2022)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">War Crimes, Genocide and Crimes Against Humanity</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Decisions and Verdicts</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Putin, Vladimir V</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">International Court of Justice (UN)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">United Nations</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02ukraine-russia-court-01-gtmh/02ukraine-russia-court-01-gtmh-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Peter Dejong/Associated Press</media:credit>
+            <media:description>Joan E. Donoghue, left, the president of the International Court of Justice, reading the ruling in a case brought to the court by Ukraine.</media:description>
+        </item>
+        <item>
+            <title>How Shrinking Populations Fuel Divisive Politics</title>
+            <link>https://www.nytimes.com/2024/02/02/world/europe/interpreter-shrinking-populations-fuel-divisive-politics.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/europe/interpreter-shrinking-populations-fuel-divisive-politics.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/europe/interpreter-shrinking-populations-fuel-divisive-politics.html" rel="standout"></atom:link>
+            <description>A look into the future shows the importance of immigration.</description>
+            <dc:creator>Amanda Taub and Lauren Leatherby</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 17:32:03 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">internal-sub-only-nl</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Population</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Immigration and Emigration</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Labor and Jobs</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Illegal Immigration</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Age, Chronological</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Birth Rates</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Economic Conditions and Trends</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Africa</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Europe</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Russia</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">United States</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/20/world/2023-02-02-interpreter-working-age-v2/2023-02-02-interpreter-working-age-v2-mediumSquareAt3X.png" width="1800"></media:content>
+            <media:credit>Source: U.N. World Population Prospects 2022 | Working-age people are those between the ages of 15 and 64, an age group commonly used by demographers. | The New York Times</media:credit>
+        </item>
+        <item>
+            <title>U.N. Climate Chief Warns Countries Against ‘Hiding Behind Loopholes’</title>
+            <link>https://www.nytimes.com/2024/02/02/climate/azerbaijan-climate-summit-cop29.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/climate/azerbaijan-climate-summit-cop29.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/climate/azerbaijan-climate-summit-cop29.html" rel="standout"></atom:link>
+            <description>Simon Stiell used a speech in Azerbaijan to set expectations for global climate negotiations there this year.</description>
+            <dc:creator>Max Bearak</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 20:15:45 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Global Warming</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Greenhouse Gas Emissions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United Nations Framework Convention on Climate Change</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">United Nations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Oil (Petroleum) and Gasoline</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Stiell, Simon</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Azerbaijan</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Babayev, Mukhtar (1967- )</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02cli-UNSPEECH-tpjb/02cli-UNSPEECH-tpjb-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Amr Alfiky/Reuters</media:credit>
+            <media:description>Simon Stiell, head of the United Nations Framework Convention on Climate Change, at last year’s summit in Dubai.</media:description>
+        </item>
+        <item>
+            <title>How Closely Does Iran Control Its Proxy Forces? It Depends.</title>
+            <link>https://www.nytimes.com/2024/02/02/world/middleeast/iran-militias-israel.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/middleeast/iran-militias-israel.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/middleeast/iran-militias-israel.html" rel="standout"></atom:link>
+            <description>Tehran provides arms and support to an array of militant groups across the Mideast, but it does not call all the shots, experts say.</description>
+            <dc:creator>Alissa J. Rubin</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 19:21:51 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iran</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Hamas</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Hezbollah</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Houthis</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iraq</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Jordan</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Lebanon</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Yemen</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Syria</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/31israel-hamas-iran-militias-kjqh/31israel-hamas-iran-militias-kjqh-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Arash Khamooshi for The New York Times</media:credit>
+            <media:description>Pro-government Iranians gathering near a banner that warns Iran’s enemies — in Farsi and in Hebrew — to “Prepare your coffins,” this month in Tehran.</media:description>
+        </item>
+        <item>
+            <title>January Transfer Window Totals: Where Have All the Deals Gone?</title>
+            <link>https://www.nytimes.com/2024/02/02/world/europe/january-transfer-window.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/europe/january-transfer-window.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/europe/january-transfer-window.html" rel="standout"></atom:link>
+            <description>A quiet January window may not be a bubble bursting, but rather an awareness that the player-acquisition business has changed.</description>
+            <dc:creator>Rory Smith</dc:creator>
+            <pubDate>Sun, 04 Feb 2024 04:36:26 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Soccer</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">English Premier League</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Manchester United (Soccer Team)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Chelsea (Soccer Team)</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02rory-toney-fzhk/02rory-toney-fzhk-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Nick Potts/Press Association, via Associated Press</media:credit>
+            <media:description>January 2024: When Ivan Toney staying put qualifies as big news.</media:description>
+        </item>
+        <item>
+            <title>Pigeon Was Cleared of Being a Chinese Spy, but Served 8 Months Anyway</title>
+            <link>https://www.nytimes.com/2024/02/02/world/asia/india-china-pigeon-spy.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/asia/india-china-pigeon-spy.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/asia/india-china-pigeon-spy.html" rel="standout"></atom:link>
+            <description>Birds, be careful: Loitering at an Indian port with a microchip on your leg can make people nervous and get you locked up.</description>
+            <dc:creator>Mujib Mashal and Hari Kumar</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 05:55:56 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Mumbai (India)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Pigeons</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">People for the Ethical Treatment of Animals</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Espionage and Intelligence Services</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">China</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">India</category>
+            <media:content height="1802" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02india-pigeon-hfqg/02india-pigeon-hfqg-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Anshuman Poyrekar/Hindustan Times, via Associated Press</media:credit>
+            <media:description>The pigeon was released on Tuesday from the veterinary hospital that had held it since it was found wandering in a port with Chinese writing on its wings.</media:description>
+        </item>
+        <item>
+            <title>Over 800 Officials in U.S. and Europe Sign Letter Protesting Israel Policies</title>
+            <link>https://www.nytimes.com/2024/02/02/us/politics/protest-letter-israel-gaza.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/us/politics/protest-letter-israel-gaza.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/us/politics/protest-letter-israel-gaza.html" rel="standout"></atom:link>
+            <description>The document was signed by government employees in 12 nations and E.U. institutions. Signers say their leaders’ policies could be contributing to war crimes in Gaza.</description>
+            <dc:creator>Edward Wong and Matina Stevis-Gridneff</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 20:53:30 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Palestinians</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Human Rights and Human Rights Violations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">North Atlantic Treaty Organization</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Europe</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Gaza Strip</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Israel</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02dc-diplo-dissent-lkhf/02dc-diplo-dissent-lkhf-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Anas Baba/Agence France-Presse — Getty Images</media:credit>
+            <media:description>Destruction in the Al Maghazi refugee camp in Gaza on Thursday. The letter is the first instance of officials in allied nations across the Atlantic coming together to openly criticize their governments over the war.</media:description>
+        </item>
+        <item>
+            <title>Fire From Explosion of Gas-Laden Vehicle Kills at Least 3 in Nairobi</title>
+            <link>https://www.nytimes.com/2024/02/02/world/africa/nairobi-fire-explosion.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/africa/nairobi-fire-explosion.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/africa/nairobi-fire-explosion.html" rel="standout"></atom:link>
+            <description>More than 270 others were injured in the late-night blaze that burned many homes and a warehouse.</description>
+            <dc:creator>The Associated Press</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 10:46:46 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Nairobi (Kenya)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Fires and Firefighters</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Warehouses</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Deaths (Fatalities)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Explosions (Accidental)</category>
+            <media:content height="1799" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02kenya-explosion-02-promo/02kenya-explosion-02-promo-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Luis Tato/Agence France-Presse — Getty Images</media:credit>
+        </item>
+        <item>
+            <title>Malaysia Halves Sentence of Najib Razak, Fallen Ex-Prime Minister</title>
+            <link>https://www.nytimes.com/2024/02/02/world/asia/malaysia-reduces-sentence-najib-razak.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/asia/malaysia-reduces-sentence-najib-razak.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/asia/malaysia-reduces-sentence-najib-razak.html" rel="standout"></atom:link>
+            <description>His release has been set for August 2028 and his fine reduced to a quarter of its original amount, a move that has drawn criticism from observers and citizens.</description>
+            <dc:creator>Sui-Lee Wee and Tashny Sukumaran</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 05:16:42 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Amnesties, Commutations and Pardons</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Najib Razak</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Malaysia</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Robberies and Thefts</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">1Malaysia Development Berhad (1MDB)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Low Jho (1981- )</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/00hfomalaysia-najib-jlvq/00hfomalaysia-najib-jlvq-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Hasnoor Hussain/Reuters</media:credit>
+            <media:description>Former Malaysian Prime Minister Najib Razak being escorted by prison officers after court proceedings in Kuala Lumpur, Malaysia, last month.</media:description>
+        </item>
+        <item>
+            <title>In Russia, a Cat Thrown From a Train Offers a Safe Space to Vent</title>
+            <link>https://www.nytimes.com/2024/02/02/world/asia/russia-pet-cat-train.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/asia/russia-pet-cat-train.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/asia/russia-pet-cat-train.html" rel="standout"></atom:link>
+            <description>The death of a pet during a train journey has given Russians a safe space to speak out and connect, and allowed the Kremlin to shift attention from wartime gloom.</description>
+            <dc:creator>Anatoly Kurmanaev</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 15:15:59 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Pets</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Social Media</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Cats</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Russian Invasion of Ukraine (2022)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Levada Center</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Nadezhdin, Boris (1963- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">vis-video</category>
+        </item>
+        <item>
+            <title>He Cracked Down on Gangs and Rights. Now He’s Set to Win a Landslide.</title>
+            <link>https://www.nytimes.com/2024/02/02/world/americas/el-salvador-bukele-election.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/americas/el-salvador-bukele-election.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/americas/el-salvador-bukele-election.html" rel="standout"></atom:link>
+            <description>The millennial president, Nayib Bukele, and his party are likely to win resoundingly in elections Sunday. His running mate says they are “replacing” democracy.</description>
+            <dc:creator>Natalie Kitroeff and Fred Ramos</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 20:04:41 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">El Salvador</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Bukele, Nayib</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Elections</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Polls and Public Opinion</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Human Rights and Human Rights Violations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Gangs</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Mara Salvatrucha (MS-13)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Constitutions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Term Limits (Political Office)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Democracy (Theory and Philosophy)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">internal-truncator</category>
+            <media:content height="1798" medium="image" url="https://static01.nyt.com/images/2024/02/01/world/01ElSalvador-promo/01ElSalvador-top-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Fred Ramos for The New York Times</media:credit>
+            <media:description>President Nayib Bukele’s face adorns an apartment building in the Zacamil neighborhood of San Salvador. The Barrio 18 street gang controlled the neighborhood for decades until its members were arrested under Mr. Bukele’s crackdown.</media:description>
+        </item>
+        <item>
+            <title>Cleaning Latrines by Hand: ‘How Could Any Human Do That?’</title>
+            <link>https://www.nytimes.com/2024/02/02/world/asia/india-manual-scavenging-bezwada-wilson.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/asia/india-manual-scavenging-bezwada-wilson.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/asia/india-manual-scavenging-bezwada-wilson.html" rel="standout"></atom:link>
+            <description>Bezwada Wilson, born into a caste tasked with manually removing dried human waste, has spent 40 years trying to eradicate the practice and retrain workers.</description>
+            <dc:creator>Suhasini Raj</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 14:13:23 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Bezwada Wilson</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Content Type: Personal Profile</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">India</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Bathrooms and Toilets</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Sewers and Sewage</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Caste Systems</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Labor and Jobs</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Workplace Hazards and Violations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Magsaysay, Ramon, Awards</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/01/02/multimedia/00India-Wilson-Profile-01-jzvc/00India-Wilson-Profile-01-jzvc-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Rebecca Conway for The New York Times</media:credit>
+            <media:description>Bezwada Wilson leads one of the largest organizations fighting against caste discrimination in India.</media:description>
+        </item>
+        <item>
+            <title>In the West Bank, Palestinians Struggle to Adjust to a New Reality</title>
+            <link>https://www.nytimes.com/2024/02/02/world/middleeast/west-bank-palestine-israel.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/middleeast/west-bank-palestine-israel.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/middleeast/west-bank-palestine-israel.html" rel="standout"></atom:link>
+            <description>The volatile mix of violence, tensions and Israeli restrictions has had a stultifying effect on the West Bank.</description>
+            <dc:creator>Yara Bayoumy and Rami Nazzal</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 10:01:51 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Palestinians</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israeli Settlements</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Palestinian Authority</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">internal-truncator</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/01/24/multimedia/00westbank-restrictions-01-gwfm/00westbank-restrictions-01-gwfm-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Daniel Berehulak/The New York Times</media:credit>
+            <media:description>A Palestinian man walks near the Qalandiya checkpoint in the West Bank in November. Some Palestinians say the Israelis have made it more difficult to cross into Jerusalem from the West Bank.</media:description>
+        </item>
+        <item>
+            <title>China Meets the U.S. to Discuss Fentanyl, But the Détente Has Limits</title>
+            <link>https://www.nytimes.com/2024/02/02/world/asia/china-us-fentanyl-iran-north-korea.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/02/world/asia/china-us-fentanyl-iran-north-korea.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/02/world/asia/china-us-fentanyl-iran-north-korea.html" rel="standout"></atom:link>
+            <description>Negotiations have resumed on restricting the flow of fentanyl into the United States. But Beijing may prove less cooperative on Iran and North Korea.</description>
+            <dc:creator>David Pierson and Olivia Wang</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 09:05:35 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Embargoes and Sanctions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Fentanyl</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Opioids and Opiates</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Communist Party of China</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Ministry of Public Security of the People&#39;s Republic of China</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Biden, Joseph R Jr</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Sullivan, Jacob J (1976- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Wang Yi</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Xi Jinping</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Kim Jong-un</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">China</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Bangkok (Thailand)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iran</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">North Korea</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Red Sea</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">United States</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/01/31/multimedia/00china-diplo-bmph/00china-diplo-bmph-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Wang Teng/Xinhua, via Getty Images</media:credit>
+            <media:description>Foreign Minister Wang Yi of China and Jake Sullivan, the U.S. national security adviser, in Bangkok last week. Mr. Sullivan urged China to restrain North Korea and Iran.</media:description>
+        </item>
+        <item>
+            <title>Friday Briefing</title>
+            <link>https://www.nytimes.com/2024/02/01/briefing/europe-ukraine-aid-israel-settlers.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/briefing/europe-ukraine-aid-israel-settlers.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/briefing/europe-ukraine-aid-israel-settlers.html" rel="standout"></atom:link>
+            <description>The E.U. reached a Ukraine aid deal.</description>
+            <dc:creator>Jonathan Wolfe</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 04:32:04 +0000</pubDate>
+            <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02ambriefing-euro-promo/02ambriefing-euro-Ukr-jpbh-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Finbarr O&#39;Reilly for The New York Times</media:credit>
+            <media:description>A woman transporting humanitarian aid last month to her home in the town of Chasiv Yar, on the frontline in Ukraine’s eastern Donetsk region.</media:description>
+        </item>
+        <item>
+            <title>Who Are the Israelis Under U.S. Sanctions Over West Bank Violence?</title>
+            <link>https://www.nytimes.com/2024/02/01/world/middleeast/israel-settlers-west-bank-sanctions.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/middleeast/israel-settlers-west-bank-sanctions.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/middleeast/israel-settlers-west-bank-sanctions.html" rel="standout"></atom:link>
+            <description>The White House announced financial penalties on the men, ranging in age from 21 to 32, over escalating violence against Palestinian civilians.</description>
+            <dc:creator>Johnatan Reiss, Gaya Gupta and Natan Odenheimer</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 14:40:59 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">West Bank</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Embargoes and Sanctions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Palestinians</category>
+            <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/01israel-hamas-sanction-bios-ckqv/01israel-hamas-sanction-bios-ckqv-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Samar Hazboun for The New York Times</media:credit>
+            <media:description>Working to repair cars damaged, like the building alongside them, in a settler rampage in the West Bank village of Huwara last February.</media:description>
+        </item>
+        <item>
+            <title>Friday Briefing: The E.U.’s Ukraine Aid Deal</title>
+            <link>https://www.nytimes.com/2024/02/01/world/asia/eu-aid-ukraine-israel-settlers-asia.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/asia/eu-aid-ukraine-israel-settlers-asia.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/asia/eu-aid-ukraine-israel-settlers-asia.html" rel="standout"></atom:link>
+            <description>Also, U.S. sanctions on Israeli settlers and battles over bullfighting.</description>
+            <dc:creator>Amelia Nierenberg</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 01:59:08 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Far East, South and Southeast Asia and Pacific Areas</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/02/multimedia/02ambriefing-asia-nl-ukraine-hmwl-promo/02ambriefing-asia-nl-ukraine-hmwl-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Tyler Hicks/The New York Times</media:credit>
+            <media:description>Ukraine is facing one of is most difficult moments since Russia’s invasion.</media:description>
+        </item>
+        <item>
+            <title>Plan to Resurface a Pyramid in Granite Draws Heated Debate</title>
+            <link>https://www.nytimes.com/2024/02/01/arts/design/resurfacing-pyramid-ignites-debate.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/arts/design/resurfacing-pyramid-ignites-debate.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/arts/design/resurfacing-pyramid-ignites-debate.html" rel="standout"></atom:link>
+            <description>A project to restore granite blocks that once covered a greater portion of the Pyramid of Menkaure in Giza has been criticized by some preservationists.</description>
+            <dc:creator>Julia Halperin</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 04:59:48 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Egyptian Civilization</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Pyramids</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Archaeology and Anthropology</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Historic Buildings and Sites</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Restoration and Renovation</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Giza (Egypt)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Egypt</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/01/30/multimedia/30pyramid-1-pjlb/30pyramid-1-pjlb-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Khaled Desouki/Agence France-Presse — Getty Images</media:credit>
+            <media:description>The Pyramid of Menkaure was once clad partly in granite blocks, visible in the lower portion. A plan to restore more of them is generating debate.</media:description>
+        </item>
+        <item>
+            <title>French Farmers Are Urged by Unions to End Roadblocks</title>
+            <link>https://www.nytimes.com/2024/02/01/world/europe/france-farmers-protest-macron.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/europe/france-farmers-protest-macron.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/europe/france-farmers-protest-macron.html" rel="standout"></atom:link>
+            <description>The call from two main farmers’ unions came after President Emmanuel Macron’s government announced new financial aid and plans to loosen regulations to end the nationwide protests.</description>
+            <dc:creator>Aurelien Breeden</dc:creator>
+            <pubDate>Thu, 01 Feb 2024 20:08:00 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">France</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Demonstrations, Protests and Riots</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Agriculture and Farming</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Macron, Emmanuel (1977- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Attal, Gabriel</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">European Commission</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">European Union</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Brussels (Belgium)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Europe</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Labor and Jobs</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Organized Labor</category>
+            <media:content height="1802" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/01france-farmers--gktz/01france-farmers--gktz-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Patrick Hertzog/Agence France-Presse — Getty Images</media:credit>
+            <media:description>French farmers standing next to their tractors as they block the road during a demonstration at the French-German border.</media:description>
+        </item>
+        <item>
+            <title>Iran Tries to Avoid War With U.S. After Stoking Mideast Conflicts</title>
+            <link>https://www.nytimes.com/2024/02/01/world/middleeast/iran-us-war.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/middleeast/iran-us-war.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/middleeast/iran-us-war.html" rel="standout"></atom:link>
+            <description>After Iran-aligned militants killed three American soldiers, Iran’s leaders sensed a line was crossed, and are sending more conciliatory signals while awaiting President Biden’s promised response.</description>
+            <dc:creator>Farnaz Fassihi</dc:creator>
+            <pubDate>Thu, 01 Feb 2024 20:49:27 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Palestinians</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Terrorism</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Embargoes and Sanctions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Hamas</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Hezbollah</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Islamic Revolutionary Guards Corps</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Kataib Hezbollah</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Supreme National Security Council (Iran)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iran</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">United States</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Khamenei, Ali</category>
+            <media:content height="1799" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/01iran-mideast-gtcz/01iran-mideast-gtcz-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Arash Khamooshi for The New York Times</media:credit>
+            <media:description>Gen. Hossein Salami, the commander in chief of the Revolutionary Guards Corps, during the funeral ceremony of guard members who were killed in an airstrike in Syria last month.</media:description>
+        </item>
+        <item>
+            <title>Austin Says Iran Trains and Funds Militias Targeting U.S. Troops</title>
+            <link>https://www.nytimes.com/2024/02/01/us/politics/austin-iran-militias.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/us/politics/austin-iran-militias.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/us/politics/austin-iran-militias.html" rel="standout"></atom:link>
+            <description>President Biden has promised to respond to attacks that killed three American service members at a base in Jordan.</description>
+            <dc:creator>Helene Cooper and Eric Schmitt</dc:creator>
+            <pubDate>Thu, 01 Feb 2024 20:52:55 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Defense Department</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Islamic Revolutionary Guards Corps</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Kataib Hezbollah</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Austin, Lloyd J III</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Middle East</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/01dc-military-pmjh/01dc-military-pmjh-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Yuri Gripas for The New York Times</media:credit>
+            <media:description>Defense Secretary Lloyd J. Austin III’s remarks came as the United States and the Iran-backed Houthis engaged in a flurry of back-and-forth strikes.</media:description>
+        </item>
+        <item>
+            <title>EU Ukraine Aid Deal Is a Pawn in Orban’s Longer Populist Game</title>
+            <link>https://www.nytimes.com/2024/02/01/world/europe/orban-ukraine-funding-hungary.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/europe/orban-ukraine-funding-hungary.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/europe/orban-ukraine-funding-hungary.html" rel="standout"></atom:link>
+            <description>His real aim is to lead a populist and nativist rebellion against Europe’s liberal elite, though that campaign is showing signs of faltering.</description>
+            <dc:creator>Andrew Higgins</dc:creator>
+            <pubDate>Thu, 01 Feb 2024 20:35:00 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Agriculture and Farming</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Russian Invasion of Ukraine (2022)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Illegal Immigration</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Right-Wing Extremism and Alt-Right</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">European Parliament</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Fidesz Party</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Orban, Viktor</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Brussels (Belgium)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Budapest (Hungary)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Europe</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Hungary</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Russia</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Ukraine</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Sweden</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">North Atlantic Treaty Organization</category>
+            <media:content height="1798" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/01eu-hungary-orban-1-ktgz/01eu-hungary-orban-1-ktgz-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Ludovic Marin/Agence France-Presse — Getty Images</media:credit>
+            <media:description>Prime Minister Viktor Orban of Hungary, second from right, yielded to pressure from other European leaders on Thursday and agreed to funding for Ukraine.</media:description>
+        </item>
+        <item>
+            <title>Grateful for E.U. Aid, Ukraine Now Waits for the United States</title>
+            <link>https://www.nytimes.com/2024/02/01/world/europe/ukraine-eu-aid.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/europe/ukraine-eu-aid.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/europe/ukraine-eu-aid.html" rel="standout"></atom:link>
+            <description>The E.U. package of about $54 billion will be spent on nonmilitary expenses, like pensions, payments to displaced people and paying teachers and doctors.</description>
+            <dc:creator>Andrew E. Kramer</dc:creator>
+            <pubDate>Thu, 01 Feb 2024 20:05:26 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Russian Invasion of Ukraine (2022)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">European Union</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Ukraine</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Zelensky, Volodymyr</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Foreign Aid</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Currency</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Trump, Donald J</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Republican Party</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">International Monetary Fund</category>
+            <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/01ukraine-EU-reaction-01-gbtf/01ukraine-EU-reaction-01-gbtf-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Finbarr O&#39;Reilly for The New York Times</media:credit>
+            <media:description>A woman transporting humanitarian aid last month to her home in the town of Chasiv Yar, on the frontline in Ukraine’s eastern Donetsk region.</media:description>
+        </item>
+        <item>
+            <title>Old-Time Modernity: Cycladic Art at the Met</title>
+            <link>https://www.nytimes.com/2024/02/01/arts/design/cycladic-art-stern-metropolitan-museum-greece.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/arts/design/cycladic-art-stern-metropolitan-museum-greece.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/arts/design/cycladic-art-stern-metropolitan-museum-greece.html" rel="standout"></atom:link>
+            <description>A major collection of early Greek figures and vessels takes up long-term residence in New York — a transformative event.</description>
+            <dc:creator>Roberta Smith</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 04:42:18 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Art</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Greek Civilization</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Cyclades Islands</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_ttl">The Leonard N. Stern Collection of Cycladic Art on Loan from the Hellenic Republic (Exhibit)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Metropolitan Museum of Art</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Manhattan (NYC)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">internal-truncator</category>
+            <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/01cycladic-met-review-03-tblg/01cycladic-met-review-03-tblg-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Amir Hamja/The New York Times</media:credit>
+        </item>
+        <item>
+            <title>Paris Police Investigating $1.6 Million Wine Theft From Famed Restaurant</title>
+            <link>https://www.nytimes.com/2024/02/01/world/europe/wine-heist-paris-restaurant.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/europe/wine-heist-paris-restaurant.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/europe/wine-heist-paris-restaurant.html" rel="standout"></atom:link>
+            <description>More than 80 bottles of rare wine were discovered to be missing from the cellar of a 400-year-old restaurant during a routine inventory check.</description>
+            <dc:creator>Jenny Gross</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 15:44:36 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Robberies and Thefts</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Restaurants</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Wines</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">La Tour d&#39;Argent (Paris, Restaurant)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Paris (France)</category>
+            <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2024/01/31/multimedia/31xp-wine-heist2-mbcq/31xp-wine-heist2-mbcq-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Christophe Ena/Associated Press</media:credit>
+            <media:description>Wine worth $1.6 million was stolen from La Tour d’Argent.</media:description>
+        </item>
+        <item>
+            <title>Biden Imposes Sanctions on Israelis Over West Bank Violence</title>
+            <link>https://www.nytimes.com/2024/02/01/world/middleeast/biden-sanctions-israel-west-bank.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/middleeast/biden-sanctions-israel-west-bank.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/middleeast/biden-sanctions-israel-west-bank.html" rel="standout"></atom:link>
+            <description>The order served as both a sharp-edged diplomatic notice to Israel and a message to Arab Americans, a key part of the political coalition the president needs to be re-elected.</description>
+            <dc:creator>Michael D. Shear</dc:creator>
+            <pubDate>Fri, 02 Feb 2024 03:01:50 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israel-Gaza War (2023- )</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Palestinians</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Israeli Settlements</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Presidential Election of 2024</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Politics and Government</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Biden, Joseph R Jr</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Michigan</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Arab-Americans</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Embargoes and Sanctions</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Executive Orders and Memorandums</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Israel</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Gaza Strip</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Voting and Voters</category>
+            <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/01dc-biden-03-lwch/01dc-biden-03-lwch-mediumSquareAt3X.jpg" width="1800"></media:content>
+            <media:credit>Pete Marovich for The New York Times</media:credit>
+            <media:description>President Biden speaking in Warren, Mich., to members of the United Auto Workers Union, which recently endorsed him. Michigan is vital to Mr. Biden’s campaign for a second term.</media:description>
+        </item>
+        <item>
+            <title>Iran Slows Production of Enriched Uranium, U.N. Official Says</title>
+            <link>https://www.nytimes.com/2024/02/01/world/middleeast/iran-uranium-un.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/middleeast/iran-uranium-un.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/middleeast/iran-uranium-un.html" rel="standout"></atom:link>
+            <description>The move suggests that Tehran may be trying to ease tensions with the United States.</description>
+            <dc:creator>David E. Sanger</dc:creator>
+            <pubDate>Thu, 01 Feb 2024 20:49:34 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Iran</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">United States</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Middle East</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Nuclear Energy</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Nuclear Weapons</category>
+            <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2024/02/01/multimedia/01israel-hamas-iran-uranium-ltqz/01israel-hamas-iran-uranium-ltqz-mediumSquareAt3X-v2.jpg" width="1800"></media:content>
+            <media:credit>Atta Kenare/Agence France-Presse — Getty Images</media:credit>
+            <media:description>Iran has resumed production of enriched uranium and now has a stockpile of fuel far larger than the limits set in a 2015 accord.</media:description>
+        </item>
+        <item>
+            <title>Jack Jennings, P.O.W. Who Helped Build Burma Railway, Dies at 104</title>
+            <link>https://www.nytimes.com/2024/02/01/world/asia/jack-jennings-dead.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/asia/jack-jennings-dead.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/asia/jack-jennings-dead.html" rel="standout"></atom:link>
+            <description>He was captured by the Japanese in Singapore and was one of thousands of prisoners whose hardships were the basis for the film “The Bridge on the River Kwai.”</description>
+            <dc:creator>Richard Sandomir</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 19:11:31 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Jennings, Jack (1919-2024)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Deaths (Obituaries)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">World War II (1939-45)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Defense and Military Forces</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Prisoners of War</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Movies</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_ttl">The Bridge on the River Kwai (Movie)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Great Britain</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Japan</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Myanmar</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Singapore</category>
+            <media:content height="1188" medium="image" url="https://static01.nyt.com/images/2024/02/05/obituaries/30Jennings-1/30Jennings-1-mediumSquareAt3X.jpg" width="1188"></media:content>
+            <media:credit>Jennings Family Photograph</media:credit>
+            <media:description>Jack Jennings was drafted into the British Army and sent to Singapore to fight the Japanese. Weeks later, Britain surrendered the island and Mr. Jennings was taken prisoner.</media:description>
+        </item>
+        <item>
+            <title>The Dogs That Live Longest, by a Nose</title>
+            <link>https://www.nytimes.com/2024/02/01/science/dogs-longevity-health.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/science/dogs-longevity-health.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/science/dogs-longevity-health.html" rel="standout"></atom:link>
+            <description>Small dogs with prominent noses live longer than bigger, flat-faced canines, a new study suggests.</description>
+            <dc:creator>Emily Anthes</dc:creator>
+            <pubDate>Thu, 01 Feb 2024 16:00:11 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">your-feed-science</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">internal-truncator</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">internal-storyline-inline-no</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">your-feed-animals</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Dogs</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Pets</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Longevity</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Research</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Nose</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Scientific Reports (Journal)</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Great Britain</category>
+            <media:content height="1080" medium="image" url="https://static01.nyt.com/images/2024/02/01/autossell/01DOG-LONGEVITY-Promo/dog9-mediumSquareAt3X.jpg" width="1080"></media:content>
+            <media:credit>Illustration by The New York Times; Photographs by Fred R. Conrad/The New York Times</media:credit>
+        </item>
+        <item>
+            <title>Monkey Who Escaped in Scotland is Captured</title>
+            <link>https://www.nytimes.com/2024/02/01/world/europe/escaped-scottish-monkey-captured.html</link>
+            <guid isPermaLink="true">https://www.nytimes.com/2024/02/01/world/europe/escaped-scottish-monkey-captured.html</guid>
+            <atom:link href="https://www.nytimes.com/2024/02/01/world/europe/escaped-scottish-monkey-captured.html" rel="standout"></atom:link>
+            <description>A Japanese macaque escaped from a wildlife park on Sunday. After five days of “living his best life,” he was back home on Thursday.</description>
+            <dc:creator>Isabella Kwai</dc:creator>
+            <pubDate>Sat, 03 Feb 2024 04:05:29 +0000</pubDate>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Monkeys and Apes</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Scotland</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Wildlife Sanctuaries and Nature Reserves</category>
+            <category domain="http://www.nytimes.com/namespaces/keywords/des">Animals</category>
+        </item>
+    </channel>
+</rss>

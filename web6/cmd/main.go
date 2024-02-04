@@ -25,6 +25,8 @@ func main() {
 	api.ApiPollsClient = pbapi.NewPollsProtobufClient("http://localhost:8002", http.DefaultClient, twirp.WithClientHooks(&hooks))
 	api.ApiPostsClient = pbapi.NewPostsProtobufClient("http://localhost:8002", http.DefaultClient, twirp.WithClientHooks(&hooks))
 
+	api.ImageProxyClient = pbapi.NewImageProxyProtobufClient("http://localhost:8003", http.DefaultClient)
+
 	s := &api.HttpServer{}
 	s.Serve()
 }

@@ -118,7 +118,7 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 				host = parsedURL.Host
 			}
 
-			proxiedUrl := fmt.Sprintf("https://3c6ef5be-e5f9-4e47-9a68-bd635323a374.selcdn.net/image-proxy?url=%s", url.QueryEscape(post.Link.ImageURL))
+			proxiedUrl := fmt.Sprintf("/image-proxy?url=%s", url.QueryEscape(post.Link.ImageURL))
 
 			wrappedLink = &api.PostLink{
 				Url:         post.Link.URL,

@@ -202,3 +202,21 @@ message BookmarkList {
   repeated Bookmark items = 1;
   string pageToken = 2;
 }
+
+service ImageProxy {
+  rpc Resize(ResizeReq) returns (ResizeResp);
+}
+
+message ResizeReq {
+  string imageUrl = 1;
+}
+
+message ResizeResp {
+  bytes image = 1;
+}
+
+// ports:
+// 8000 web6
+// 8001 realtime
+// 8002 api
+// 8003 imgproxy

@@ -125,7 +125,7 @@ func (h *HttpServer) Serve() {
 	//http.Handle("/metrics", promhttp.Handler())
 
 	// Image
-	http.HandleFunc("/image-proxy", wrapWeb(h.imageProxy))
+	http.HandleFunc("/image-proxy", h.imageProxy2)
 
 	// Static (for dev only)
 	http.Handle("/dist/", http.FileServer(http.Dir("../front6/dist/..")))
