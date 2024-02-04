@@ -4,15 +4,8 @@ import (
 	"database/sql"
 )
 
-// Reserved: -2, -3, -4, -1
-
+// Reserved: 1, 2
 const (
-	FakeObjConfig = -5
-)
-
-// Reserved: 1
-const (
-	ObjTypeConfig     = 2
 	ObjTypeUser       = 3
 	ObjTypePost       = 4
 	ObjTypeToken      = 5

@@ -30,20 +30,15 @@ func main() {
 		Polls:       &store2.SqlPollStore{DB: db},
 		PollAnswers: &store2.SqlPollAnswerStore{DB: db},
 		Tokens:      &store2.SqlTokenStore{DB: db},
-		Configs:     &store2.SqlConfigStore{DB: db},
 		Bookmarks:   &store2.SqlBookmarks{DB: db},
 	}
 
 	store.SqlClient = db
 
-	results, err := store2.GlobalStore.Configs.Get([]int{store.FakeObjConfig})
+	err = store.ParseConfig()
 	if err != nil {
 		log.Fatalf("Error reading config: %s", err)
-	} else if results[store.FakeObjConfig] == nil {
-		log.Fatalf("Config not found")
 	}
-
-	store.GlobalConfig = results[store.FakeObjConfig]
 
 	go func() {
 		xlog.ClearOldLogs()

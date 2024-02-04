@@ -12,7 +12,6 @@ type Store struct {
 	Polls       PollStore
 	PollAnswers PollAnswerStore
 	Tokens      TokenStore
-	Configs     ConfigStore
 	Bookmarks   BookmarkStore
 }
 
