@@ -16,3 +16,4 @@ docker
 __pycache__
 test.http
 parser
+configs
