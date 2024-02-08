@@ -7,26 +7,34 @@ import {Link} from "./Link/Link";
 import {useGlobals} from "../store/globals";
 import {Auth} from "./Auth/Auth";
 import {Discover} from "./Discover/Discover";
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {QueryClientProvider} from "@tanstack/react-query";
 import {PostPage} from "./PostPage/PostPage";
 import {BookmarksPage} from "./BookmarksPage/BookmarksPage";
+import {queryClient} from "../store/queryClient";
 
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            retry: false,
-            refetchOnWindowFocus: false,
-            staleTime: 5 * 60 * 1000, // 5 minutes
-        }
-    }
-});
 
 export function App() {
+    useEffect(() => {
+        const serverRender = document.querySelector('#server-render');
+        if (serverRender) {
+            serverRender.parentElement?.removeChild(serverRender);
+        }
+    }, []);
+
+    return (
+        <QueryClientProvider client={queryClient}>
+            <AppContent/>
+            <ReactQueryDevtools initialIsOpen={true}/>
+        </QueryClientProvider>
+    )
+}
+
+export function AppContent() {
     let page: React.ReactNode;
 
     const globals = useGlobals();
 
-    const navState = useNavigation(state => state);
+    const navState = useNavigation();
 
     // Kinda router
     if (navState.url === "/") {
@@ -45,44 +53,33 @@ export function App() {
         page = <div>404 page</div>;
     }
 
-    useEffect(() => {
-        const serverRender = document.querySelector('#server-render');
-        if (serverRender) {
-            serverRender.parentElement?.removeChild(serverRender);
-        }
-    }, []);
-
     return (
-        <QueryClientProvider client={queryClient}>
-            <div className={styles.app}>
-                <div className={styles.header}>
-                    <Link href={"/"} className={styles.headerLink}>
-                        meme
-                    </Link>
+        <div className={styles.app}>
+            <div className={styles.header}>
+                <Link href={"/"} className={styles.headerLink}>
+                    meme
+                </Link>
 
-                    <div className={styles.authInfo}>
-                        {!globals.viewerId && <Link href="/auth">Authorize</Link>}
+                <div className={styles.authInfo}>
+                    {!globals.viewerId && <Link href="/auth">Authorize</Link>}
 
-                        {globals.viewerId &&
-                            <span>
+                    {globals.viewerId &&
+                        <span>
                                 <Link href={"/users/" + globals.viewerId}>{globals.viewerName}</Link>
-                                &nbsp;|&nbsp;
-                                <Link href="/auth?logout">Logout</Link>
+                            &nbsp;|&nbsp;
+                            <Link href="/auth?logout">Logout</Link>
                             </span>
-                        }
-                    </div>
+                    }
                 </div>
-
-                <div className={styles.nav}>
-                    <Link href={"/"}>Index page</Link>
-                    &nbsp;|&nbsp;
-                    <Link href={"/bookmarks"}>Bookmarks</Link>
-                </div>
-
-                {page}
             </div>
 
-            <ReactQueryDevtools initialIsOpen={true}/>
-        </QueryClientProvider>
+            <div className={styles.nav}>
+                <Link href={"/"}>Index page</Link>
+                &nbsp;|&nbsp;
+                <Link href={"/bookmarks"}>Bookmarks</Link>
+            </div>
+
+            {page}
+        </div>
     )
 }

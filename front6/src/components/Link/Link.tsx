@@ -1,16 +1,14 @@
 import React from "react";
-import {useNavigation} from "../../store/navigation";
+import {navigationGo} from "../../store/navigation";
 
 export function Link(props: {
     className?: string,
     href: string,
     children: React.ReactNode,
 }) {
-    const navState = useNavigation();
-
     const onClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        navState.go(props.href);
+        navigationGo(props.href);
     };
 
     return (

@@ -1,15 +1,12 @@
 import React, {useEffect} from "react";
 import * as styles from "./Auth.module.css";
 import {authLogin, authRegister, authVK} from "../../api/api";
-import {useGlobals} from "../../store/globals";
-import {useNavigation} from "../../store/navigation";
+import {setAuth} from "../../store/globals";
+import {navigationGo} from "../../store/navigation";
 import {Link} from "../Link/Link";
 import {cookieAuthToken, delCookie, setCookie} from "../../utils/cookie";
 
 export function Auth() {
-    const globals = useGlobals();
-    const nav = useNavigation();
-
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [isVK, setIsVK] = React.useState(false);
@@ -20,8 +17,8 @@ export function Auth() {
     // TODO think about location.search
     if (location.search === "?logout") {
         delCookie(cookieAuthToken);
-        globals.setAuth({token: "", userId: "", userName: ""});
-        nav.go("/");
+        setAuth({token: "", userId: "", userName: ""});
+        navigationGo("/");
         return null;
     }
 
@@ -31,10 +28,10 @@ export function Auth() {
                 code: new URLSearchParams(location.search).get('code') || "",
                 redirectUrl: location.origin + location.pathname,
             }).then(resp => {
-                globals.setAuth(resp);
+                setAuth(resp);
 
                 setCookie(cookieAuthToken, resp.token);
-                nav.go("/");
+                navigationGo("/");
             }).catch(() => {
                 setIsVK(false);
                 setError('Failed authorizing via VK');
@@ -62,10 +59,10 @@ export function Auth() {
     const onLogin = () => {
         authLogin({email, password})
             .then(resp => {
-                globals.setAuth(resp);
+                setAuth(resp);
 
                 setCookie(cookieAuthToken, resp.token);
-                nav.go("/");
+                navigationGo("/");
             })
             .catch((err) => {
                 // TODO think about error codes
@@ -80,10 +77,10 @@ export function Auth() {
     const onRegister = () => {
         authRegister({email, password})
             .then(resp => {
-                globals.setAuth(resp);
+                setAuth(resp);
 
                 setCookie(cookieAuthToken, resp.token);
-                nav.go("/");
+                navigationGo("/");
             })
             .catch((err) => {
                 if (err === "EmailAlreadyRegistered") {

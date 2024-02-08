@@ -1,26 +1,26 @@
-import {create} from "zustand";
 import {AuthResp} from "../api/api";
-import {tryGetPrefetch} from "../utils/prefetch";
+import {useQuery} from "@tanstack/react-query";
+import {queryClient} from "./queryClient";
 
 export interface Globals {
     viewerId: string;
     viewerName: string;
-    setAuth: (authResp: AuthResp) => void;
 }
 
-// TODO rewrite to React context
-export const useGlobals = create<Globals>()(set => {
-    const viewerId = tryGetPrefetch('viewerId') || "";
-    const viewerName = tryGetPrefetch('viewerName') || "";
-
-    return {
-        viewerId: viewerId,
-        viewerName: viewerName,
-        setAuth: (authResp: AuthResp) => {
-            set({
-                viewerId: authResp.userId,
-                viewerName: authResp.userName,
-            });
-        }
+export function useGlobals(): Globals {
+    const data = useQuery<Globals>({
+        queryKey: ['globals'],
+        staleTime: Infinity,
+    });
+    if (!data.data) {
+        throw 'No globals';
     }
-});
+    return data.data;
+}
+
+export function setAuth(authResp: AuthResp) {
+    queryClient.setQueryData<Globals>(['globals'], {
+        viewerId: authResp.userId,
+        viewerName: authResp.userName,
+    })
+}
