@@ -11,10 +11,11 @@ type Viewer struct {
 }
 
 var (
-	ApiAuthClient  api.Auth
-	ApiPostsClient api.Posts
-	ApiPollsClient api.Polls
-	ApiUsersClient api.Users
+	ApiAuthClient   api.Auth
+	ApiPostsClient  api.Posts
+	ApiPollsClient  api.Polls
+	ApiUsersClient  api.Users
+	ApiPhotosClient api.Photos
 
 	ImageProxyClient api.ImageProxy
 )

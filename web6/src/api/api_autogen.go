@@ -2,6 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/materkov/meme9/web6/pb/github.com/materkov/meme9/api"
 	"github.com/materkov/meme9/web6/src/pkg"
 	"io"
 	"net/http"
@@ -68,4 +70,30 @@ func (h *HttpServer) ApiHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		_, _ = io.Copy(w, resp.Body)
 	}
+}
+
+func (h *HttpServer) UploadHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(204)
+		return
+	}
+
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+
+	fileBytes, _ := io.ReadAll(file)
+
+	resp, err := ApiPhotosClient.Upload(r.Context(), &api.UploadReq{PhotoBytes: fileBytes})
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+
+	fmt.Fprint(w, resp.UploadToken)
 }

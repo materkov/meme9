@@ -113,6 +113,7 @@ type HttpServer struct{}
 func (h *HttpServer) Serve() {
 	// API
 	http.HandleFunc("/api/", h.ApiHandler)
+	http.HandleFunc("/upload", h.UploadHandler)
 
 	// Web
 	http.HandleFunc("/posts/", wrapWeb(h.postPage))

@@ -49,12 +49,15 @@ func main() {
 	pollSrv := api.NewPollsServer(&server.PollServer{}, twirp.WithServerJSONSkipDefaults(true))
 	userSrv := api.NewUsersServer(&server.UserServer{}, twirp.WithServerJSONSkipDefaults(true))
 	bookmarksSrv := api.NewBookmarksServer(&server.BookmarkServer{}, twirp.WithServerJSONSkipDefaults(true))
+	photosSrv := api.NewPhotosServer(&server.PhotosServer{}, twirp.WithServerJSONSkipDefaults(true))
 
 	http.Handle(postsSrv.PathPrefix(), server.AuthMiddleware(postsSrv))
 	http.Handle(authSrv.PathPrefix(), server.AuthMiddleware(authSrv))
 	http.Handle(pollSrv.PathPrefix(), server.AuthMiddleware(pollSrv))
 	http.Handle(userSrv.PathPrefix(), server.AuthMiddleware(userSrv))
 	http.Handle(bookmarksSrv.PathPrefix(), server.AuthMiddleware(bookmarksSrv))
+	http.Handle(photosSrv.PathPrefix(), server.AuthMiddleware(photosSrv))
 
+	log.Printf("Starting HTTP server at 127.0.0.1:8002")
 	_ = http.ListenAndServe("127.0.0.1:8002", nil)
 }

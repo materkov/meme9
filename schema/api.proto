@@ -203,6 +203,18 @@ message BookmarkList {
   string pageToken = 2;
 }
 
+service Photos {
+  rpc Upload(UploadReq) returns (UploadResp);
+}
+
+message UploadReq {
+  bytes photoBytes = 1;
+}
+
+message UploadResp {
+  string uploadToken = 1;
+}
+
 service ImageProxy {
   rpc Resize(ResizeReq) returns (ResizeResp);
 }
