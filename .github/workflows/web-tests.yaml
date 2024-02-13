@@ -27,14 +27,20 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
 
-      - name: Build web app
-        run: cd web6 && go build cmd/main.go
-
       - name: Init mysql schema
         run: mysql -h localhost -P 3306 --protocol=tcp -u root --password=root < migrations/01_init.sql
 
+      - name: Build web app
+        run: cd web6 && go build cmd/main.go
+
       - name: Run web app in background
         run: ./web6/main &
+
+      - name: Build api app
+        run: cd api && go build cmd/main.go
+
+      - name: Run web app in background
+        run: ./api/main &
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
