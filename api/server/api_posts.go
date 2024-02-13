@@ -36,6 +36,7 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 	var userIds []int
 	var postIds []int
 	var pollIds []int
+	var fileIds []int
 	for _, post := range posts {
 		userIds = append(userIds, post.UserID)
 		postIds = append(postIds, post.ID)
@@ -43,10 +44,13 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 		if post.PollID != 0 {
 			pollIds = append(pollIds, post.PollID)
 		}
+		if post.PhotoID != 0 {
+			fileIds = append(fileIds, post.PhotoID)
+		}
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(4)
+	wg.Add(5)
 
 	var counters map[int]int
 	var isLiked map[int]bool
@@ -96,6 +100,19 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 
 		wg.Done()
 	}()
+
+	wrappedFiles := map[int]*api.File{}
+	go func() {
+		files, err := store2.GlobalStore.Files.Get(fileIds)
+		pkg.LogErr(err)
+
+		for _, file := range files {
+			wrappedFiles[file.ID] = transformFile(file)
+		}
+
+		wg.Done()
+	}()
+
 	wg.Wait()
 
 	result := make([]*api.Post, len(posts))
@@ -145,6 +162,8 @@ func transformPostBatch(ctx context.Context, posts []*store.Post, viewerID int) 
 			Poll: pollTransformed,
 
 			IsBookmarked: isBookmarked[post.ID],
+
+			Photo: wrappedFiles[post.PhotoID],
 		}
 	}
 
@@ -169,11 +188,27 @@ func (p *PostsServer) Add(ctx context.Context, req *api.AddReq) (*api.Post, erro
 		pollID, _ = strconv.Atoi(req.PollId)
 	}
 
+	photoID := 0
+	if req.PhotoId != "" {
+		photoID, _ = strconv.Atoi(req.PhotoId)
+		photos, err := store2.GlobalStore.Files.Get([]int{photoID})
+		if err != nil {
+			return nil, err
+		} else if photos[photoID] == nil {
+			return nil, twirp.NewError(twirp.InvalidArgument, "InvalidPhoto")
+		}
+
+		if photos[photoID].UserID != viewer.UserID {
+			return nil, twirp.NewError(twirp.InvalidArgument, "NoAccessToPhoto")
+		}
+	}
+
 	post := store.Post{
-		UserID: viewer.UserID,
-		Date:   int(time.Now().Unix()),
-		Text:   req.Text,
-		PollID: pollID,
+		UserID:  viewer.UserID,
+		Date:    int(time.Now().Unix()),
+		Text:    req.Text,
+		PollID:  pollID,
+		PhotoID: photoID,
 	}
 
 	err := store2.GlobalStore.Posts.Add(&post)

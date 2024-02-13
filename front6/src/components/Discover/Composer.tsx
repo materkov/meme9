@@ -3,6 +3,7 @@ import React from "react";
 import * as types from "../../api/api";
 import {postsAdd} from "../../api/api";
 import {useQueryClient} from "@tanstack/react-query";
+import {uploadFile} from "../../api/uploads";
 
 export function Composer() {
     const [text, setText] = React.useState('');
@@ -15,9 +16,10 @@ export function Composer() {
         }
 
         setSaving(true);
-        postsAdd({text: text, pollId: pollId}).then(() => {
+        postsAdd({text: text, pollId: pollId, photoId: photoId}).then(() => {
             setSaving(false);
             setText('');
+            setPhotoId('');
             queryClient.invalidateQueries({queryKey: ['discover']});
         })
     };
@@ -34,8 +36,20 @@ export function Composer() {
         })
     }
 
+    const addPoll = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.click();
+        input.onchange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            if (!e.target.files) return;
+
+            uploadFile(e.target.files[0]).then(photoId => setPhotoId(photoId));
+        };
+    }
+
     const [pollActive, setPollActive] = React.useState(false);
     const [pollId, setPollId] = React.useState('');
+    const [photoId, setPhotoId] = React.useState('');
 
     return <>
         <div className={styles.newPostContainer}>
@@ -48,6 +62,15 @@ export function Composer() {
                 e.preventDefault();
                 setPollActive(true);
             }}>Add poll</a>}
+
+            &nbsp;|&nbsp;
+            {!photoId &&
+            <a href="#" onClick={(e) => {
+                e.preventDefault();
+                addPoll();
+            }}>Add photo</a>
+            }
+            {photoId && <span>Photo attached</span>}
 
             {pollActive && <>
                 <input className={styles.pollAnswer} value={question} onChange={e => setQuestion(e.target.value)}

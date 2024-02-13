@@ -16,6 +16,7 @@ message Void {
 message AddReq {
   string text = 1;
   string pollId = 2;
+  string photoId = 3;
 }
 
 message Post {
@@ -33,6 +34,14 @@ message Post {
 
   bool isBookmarked = 10;
   bool isDeleted = 11;
+
+  File photo = 12;
+}
+
+message File {
+  string url = 1;
+  int32 width = 2;
+  int32 height = 3;
 }
 
 message PostLink {
@@ -225,6 +234,25 @@ message ResizeReq {
 
 message ResizeResp {
   bytes image = 1;
+}
+
+service Realtime {
+  rpc GetEvents(GetEventsReq) returns (GetEventsResp);
+  rpc SendEvent(SendEventReq) returns (Void);
+}
+
+message GetEventsReq {
+  int64 userId = 1;
+  int32 timeoutMs = 2;
+}
+
+message GetEventsResp {
+  string data = 1;
+}
+
+message SendEventReq {
+  int64 userId = 1;
+  string payload = 2;
 }
 
 // ports:

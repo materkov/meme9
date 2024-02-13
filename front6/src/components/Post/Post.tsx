@@ -6,6 +6,7 @@ import * as types from "../../api/api";
 import {LinkAttach} from "./LinkAttach";
 import {Poll} from "./Poll";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {PhotoAttach} from "./PhotoAttach";
 
 const nl2br = (string: string) => {
     if (string) {
@@ -101,6 +102,8 @@ export function Post(props: { postId: string }) {
         {post.link && <LinkAttach link={post.link}/>}
 
         {post.poll && <Poll pollId={post.poll.id}/>}
+
+        {post.photo && <PhotoAttach photo={post.photo}/>}
 
         <div className={styles.likesLine}>
             {globals.viewerId &&

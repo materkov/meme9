@@ -10,6 +10,8 @@ type Post struct {
 
 	IsDeleted bool
 	PollID    int
+
+	PhotoID int
 }
 
 type PostLink struct {

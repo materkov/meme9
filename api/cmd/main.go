@@ -31,6 +31,7 @@ func main() {
 		PollAnswers: &store2.SqlPollAnswerStore{DB: db},
 		Tokens:      &store2.SqlTokenStore{DB: db},
 		Bookmarks:   &store2.SqlBookmarks{DB: db},
+		Files:       &store2.SqlFileStore{DB: db},
 	}
 
 	store.SqlClient = db

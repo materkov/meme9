@@ -1,11 +1,14 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/materkov/meme9/web6/pb/github.com/materkov/meme9/api"
 	"github.com/materkov/meme9/web6/src/pkg"
+	"github.com/twitchtv/twirp"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -89,8 +92,13 @@ func (h *HttpServer) UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	fileBytes, _ := io.ReadAll(file)
 
-	resp, err := ApiPhotosClient.Upload(r.Context(), &api.UploadReq{PhotoBytes: fileBytes})
+	ctx, _ := twirp.WithHTTPRequestHeaders(context.Background(), http.Header{
+		"authorization": r.Header.Values("authorization"),
+	})
+
+	resp, err := ApiPhotosClient.Upload(ctx, &api.UploadReq{PhotoBytes: fileBytes})
 	if err != nil {
+		log.Printf("Upload err: %s", err)
 		w.WriteHeader(400)
 		return
 	}

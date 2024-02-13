@@ -62,6 +62,14 @@ export class Post {
     poll?: Poll = undefined
 
     isBookmarked: boolean = false
+
+    photo?: File = undefined
+}
+
+export class File {
+    url: string = ""
+    width: number = 0
+    height: number = 0
 }
 
 export class Poll {
@@ -96,6 +104,7 @@ export class Void {
 export class PostsAddReq {
     text: string = ""
     pollId: string = ""
+    photoId: string = ""
 }
 
 export function postsAdd(req: PostsAddReq): Promise<void> {

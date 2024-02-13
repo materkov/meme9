@@ -11,6 +11,7 @@ const (
 	ObjTypeToken      = 5
 	ObjTypePoll       = 6
 	ObjTypePollAnswer = 7
+	ObjTypeFile       = 8
 )
 
 var SqlClient *sql.DB

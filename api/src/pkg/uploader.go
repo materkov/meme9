@@ -2,9 +2,7 @@ package pkg
 
 import (
 	"bytes"
-	"crypto/hmac"
 	"crypto/sha256"
-	"encoding/json"
 	"fmt"
 	"github.com/materkov/meme9/api/src/store"
 	"image"
@@ -77,20 +75,4 @@ func ValidatePhoto(file []byte) (int, int, error) {
 	}
 
 	return im.Width, im.Height, nil
-}
-
-type UploadToken struct {
-	Hash   string
-	Width  int
-	Height int
-	Size   int
-}
-
-func (u *UploadToken) ToString() string {
-	tokenStr, _ := json.Marshal(u)
-
-	h := hmac.New(sha256.New, []byte(store.GlobalConfig.UploadTokenSecret))
-	h.Write(tokenStr)
-
-	return fmt.Sprintf("%x.%s", h.Sum(nil), tokenStr)
 }

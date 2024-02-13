@@ -14,7 +14,6 @@ type Config struct {
 	TelegramChatID   int
 
 	SelectelUploaderPassword string
-	UploadTokenSecret        string
 }
 
 var GlobalConfig = &Config{}
