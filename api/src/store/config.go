@@ -21,6 +21,9 @@ var GlobalConfig = &Config{}
 func ParseConfig() error {
 	file, err := os.ReadFile("/Users/m.materkov/projects/meme9/configs/api.json")
 	if err != nil {
+		file, err = os.ReadFile("/home/runner/work/_temp/meme9-config/api.json")
+	}
+	if err != nil {
 		file, err = os.ReadFile("/apps/meme9-config/api.json")
 	}
 	if err != nil {
