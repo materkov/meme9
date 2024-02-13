@@ -27,7 +27,7 @@ def api(method, params=dict({})):
 
     resp_body = json.loads(resp_body)
 
-    if resp_body['error']:
+    if resp_body.get('error'):
         return None, resp_body['error']
 
     return resp_body, None
