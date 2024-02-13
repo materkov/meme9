@@ -27,10 +27,10 @@ def api(method, params=dict({})):
 
     resp_body = json.loads(resp_body)
 
-    if resp.status == 200:
-        return resp_body, None
-    else:
+    if resp_body['error']:
         return None, resp_body['error']
+
+    return resp_body, None
 
 
 def test_posting():
