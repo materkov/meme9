@@ -109,8 +109,9 @@ func TestAPI_authRegister(t *testing.T) {
 	srv := AuthServer{}
 	closer := createTestDB(t)
 	defer closer()
+	ctx := context.Background()
 
-	resp, err := srv.Register(nil, &api.EmailReq{
+	resp, err := srv.Register(ctx, &api.EmailReq{
 		Email:    "test@mail.com",
 		Password: "123",
 	})
@@ -118,19 +119,19 @@ func TestAPI_authRegister(t *testing.T) {
 	require.NotEmpty(t, resp.Token)
 
 	t.Run("email registered", func(t *testing.T) {
-		_, err := srv.Register(nil, &api.EmailReq{Email: "test@mail.com", Password: "123"})
+		_, err := srv.Register(ctx, &api.EmailReq{Email: "test@mail.com", Password: "123"})
 		requireAPIError(t, err, "EmailAlreadyRegistered")
 	})
 	t.Run("empty email", func(t *testing.T) {
-		_, err := srv.Register(nil, &api.EmailReq{Email: ""})
+		_, err := srv.Register(ctx, &api.EmailReq{Email: ""})
 		requireAPIError(t, err, "EmptyEmail")
 	})
 	t.Run("empty pass", func(t *testing.T) {
-		_, err := srv.Register(nil, &api.EmailReq{Email: "test@email.com", Password: ""})
+		_, err := srv.Register(ctx, &api.EmailReq{Email: "test@email.com", Password: ""})
 		requireAPIError(t, err, "EmptyPassword")
 	})
 	t.Run("email too long", func(t *testing.T) {
-		_, err := srv.Register(nil, &api.EmailReq{Email: strings.Repeat("a", 1000), Password: "123"})
+		_, err := srv.Register(ctx, &api.EmailReq{Email: strings.Repeat("a", 1000), Password: "123"})
 		requireAPIError(t, err, "EmailTooLong")
 	})
 }
