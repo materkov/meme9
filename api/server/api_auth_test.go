@@ -53,9 +53,6 @@ func createMockStore() *store2.Store {
 		Tokens: &store2.MockTokenStore{
 			Objects: map[int]*store.Token{},
 		},
-		Configs: &store2.MockConfigStore{
-			Objects: map[int]*store.Config{},
-		},
 		Bookmarks: &store2.MockBookmarks{},
 	}
 }
