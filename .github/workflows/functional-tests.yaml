@@ -34,7 +34,7 @@ jobs:
         run: ./web6/main &
 
       - name: Put api config
-        run: sudo mkdir -p /apps/meme9-config && echo "{}" >/apps/meme9-config/api.json
+        run: sudo mkdir -p /apps/meme9-config && sudo echo "{}" >/apps/meme9-config/api.json
 
       - name: Build api app
         run: cd api && go build cmd/main.go
