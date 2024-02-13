@@ -5,7 +5,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     services:
-      postgres:
+      mysql:
         image: mysql:8.0.11
         env:
           MYSQL_ROOT_PASSWORD: root
@@ -33,10 +33,13 @@ jobs:
       - name: Run web app in background
         run: ./web6/main &
 
+      - name: Put api config
+        run: echo "{}" >/apps/meme9-config/api.json
+
       - name: Build api app
         run: cd api && go build cmd/main.go
 
-      - name: Run web app in background
+      - name: Run api app in background
         run: ./api/main &
 
       - name: Init mysql schema
