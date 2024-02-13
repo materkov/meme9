@@ -69,7 +69,7 @@ def test_posting():
 def test_user():
     users, err = api("users.list", {"userIds": [user_id]})
     assert err == None
-    assert users[0]['id'] == user_id
+    assert users['users'][0]['id'] == user_id
 
 
 def test_auth():
