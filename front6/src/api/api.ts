@@ -108,7 +108,7 @@ export class PostsAddReq {
 }
 
 export function postsAdd(req: PostsAddReq): Promise<void> {
-    return api("posts.add", req)
+    return api("meme.api.Posts/Add", req)
 }
 
 export enum FeedType {
@@ -126,7 +126,7 @@ export class PostsListReq {
 }
 
 export function postsList(req: PostsListReq): Promise<PostsList> {
-    return api("posts.list", req)
+    return api("meme.api.Posts/List", req)
 }
 
 export class PostsDeleteReq {
@@ -134,7 +134,7 @@ export class PostsDeleteReq {
 }
 
 export function postsDelete(req: PostsDeleteReq): Promise<Void> {
-    return api("posts.delete", req);
+    return api("meme.api.Posts/Delete", req);
 }
 
 export enum LikeAction {
@@ -148,7 +148,7 @@ export class PostsLikeReq {
 }
 
 export function postsLike(req: PostsLikeReq): Promise<Void> {
-    return api("posts.like", req);
+    return api("meme.api.Posts/Like", req);
 }
 
 export class UsersListReq {
@@ -171,11 +171,11 @@ export class AuthResp {
 }
 
 export function authLogin(req: AuthEmailReq): Promise<AuthResp> {
-    return api("auth.login", req);
+    return api("meme.api.Auth/Login", req);
 }
 
 export function authRegister(req: AuthEmailReq): Promise<AuthResp> {
-    return api("auth.register", req);
+    return api("meme.api.Auth/Register", req);
 }
 
 export class AuthVk {
@@ -184,7 +184,7 @@ export class AuthVk {
 }
 
 export function authVK(req: AuthVk): Promise<AuthResp> {
-    return api("auth.vk", req);
+    return api("meme.api.Auth/Vk", req);
 }
 
 export class UsersSetStatus {
@@ -192,7 +192,7 @@ export class UsersSetStatus {
 }
 
 export function usersSetStatus(req: UsersSetStatus): Promise<Void> {
-    return api("users.setStatus", req);
+    return api("meme.api.Users/SetStatus", req);
 }
 
 export enum SubscribeAction {
@@ -207,7 +207,7 @@ export class UsersFollowReq {
 }
 
 export function usersFollow(req: UsersFollowReq): Promise<Void> {
-    return api("users.follow", req);
+    return api("meme.api.Users/Follow", req);
 }
 
 export class PollsVoteReq {
@@ -216,7 +216,7 @@ export class PollsVoteReq {
 }
 
 export function pollsVote(req: PollsVoteReq): Promise<Void> {
-    return api("polls.vote", req);
+    return api("meme.api.Polls/Vote", req);
 }
 
 export class PollsDeleteVoteReq {
@@ -224,7 +224,7 @@ export class PollsDeleteVoteReq {
 }
 
 export function pollsDeleteVote(req: PollsDeleteVoteReq): Promise<Void> {
-    return api("polls.deleteVote", req);
+    return api("meme.api.Polls/DeleteVote", req);
 }
 
 export class PollsAddReq {
@@ -233,7 +233,7 @@ export class PollsAddReq {
 }
 
 export function pollsAdd(req: PollsAddReq): Promise<Poll> {
-    return api("polls.add", req);
+    return api("meme.api.Polls/Add", req);
 }
 
 export class BookmarksAddReq {
@@ -246,11 +246,11 @@ export class Bookmark {
 }
 
 export function bookmarksAdd(req: BookmarksAddReq): Promise<Void> {
-    return api("bookmarks.Add", req);
+    return api("meme.api.Bookmarks/Add", req);
 }
 
 export function bookmarksRemove(req: BookmarksAddReq): Promise<Void> {
-    return api("bookmarks.Remove", req);
+    return api("meme.api.Bookmarks/Remove", req);
 }
 
 export class BookmarkListReq {
@@ -263,5 +263,5 @@ export class BookmarkList {
 }
 
 export function bookmarksList(req: BookmarkListReq): Promise<BookmarkList> {
-    return api("bookmarks.List", req);
+    return api("meme.api.Bookmarks/List", req);
 }

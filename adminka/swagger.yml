@@ -8,7 +8,7 @@ servers:
 security:
   - BearerAuth: [ ]
 paths:
-  /posts.add:
+  /meme.api.Posts/Add:
     post:
       requestBody:
         content:
@@ -24,7 +24,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Post'
 
-  /posts.list:
+  /meme.api.Posts/List:
     post:
       requestBody:
         content:
@@ -40,7 +40,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PostsList'
 
-  /posts.like:
+  /meme.api.Posts/Like:
     post:
       requestBody:
         content:
@@ -74,7 +74,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
 
-  /users.setStatus:
+  /meme.api.Users/SetStatus:
     post:
       requestBody:
         content:
@@ -90,7 +90,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Void'
 
-  /users.follow:
+  /meme.api.Users/Follow:
     post:
       requestBody:
         content:
@@ -106,7 +106,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Void'
 
-  /auth.login:
+  /meme.api.Auth/Login:
     post:
       requestBody:
         content:
@@ -122,7 +122,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthResp'
 
-  /auth.register:
+  /meme.api.Auth/Register:
     post:
       requestBody:
         content:
@@ -138,7 +138,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthResp'
 
-  /auth.vk:
+  /meme.api.Auth/Vk:
     post:
       requestBody:
         content:
@@ -154,7 +154,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthResp'
 
-  /polls.add:
+  /meme.api.Polls/Add:
     post:
       requestBody:
         content:
@@ -170,7 +170,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Poll'
 
-  /polls.list:
+  /meme.api.Polls/List:
     post:
       requestBody:
         content:
@@ -188,7 +188,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Poll'
 
-  /polls.vote:
+  /meme.api.Polls/Vote:
     post:
       requestBody:
         content:
@@ -204,7 +204,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Void'
 
-  /polls.deleteVote:
+  /meme.api.Polls/DeleteVote:
     post:
       requestBody:
         content:

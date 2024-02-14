@@ -34,33 +34,33 @@ def api(method, params=dict({})):
 
 
 def test_posting():
-    # posts.add
-    post, err = api("posts.add", {
+    # meme.api.Posts/Add
+    post, err = api("meme.api.Posts/Add", {
         "text": "test post",
     })
     assert err == None
 
-    # posts.list
-    posts_list, err = api("posts.list", {})
+    # meme.api.Posts/List
+    posts_list, err = api("meme.api.Posts/List", {})
     assert err == None
     assert posts_list['items'][0]['id'] == post['id']
 
-    # posts.list by user_id
-    posts, err = api("posts.list", {
+    # meme.api.Posts/List by user_id
+    posts, err = api("meme.api.Posts/List", {
         "byUserId": post['userId'],
     })
     assert err == None
     assert posts['items'][0]['id'] == post['id']
 
-    # posts.list by id
-    postById, err = api("posts.list", {
+    # meme.api.Posts/List by id
+    postById, err = api("meme.api.Posts/List", {
         "byId": post['id'],
     })
     assert err == None
     assert postById['items'][0]['id'] == post['id']
 
-    # posts.delete
-    _, err = api("posts.delete", {
+    # meme.api.Posts/Delete
+    _, err = api("meme.api.Posts/Delete", {
         "postId": post['id'],
     })
     assert err == None
@@ -75,7 +75,7 @@ def test_user():
 def test_auth():
     global token, user_id
 
-    resp, err = api("auth.register", {
+    resp, err = api("meme.api.Auth/Register", {
         "email": "test@email.com",
         "password": "123456",
     })
@@ -84,7 +84,7 @@ def test_auth():
     else:
         assert err == None
 
-    resp, err = api("auth.login", {
+    resp, err = api("meme.api.Auth/Login", {
         "email": "test@email.com",
         "password": "123456",
     })
