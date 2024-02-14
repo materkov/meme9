@@ -67,7 +67,7 @@ def test_posting():
 
 
 def test_user():
-    users, err = api("users.list", {"userIds": [user_id]})
+    users, err = api("meme.api.Users/List", {"userIds": [user_id]})
     assert err == None
     assert users['users'][0]['id'] == user_id
 
