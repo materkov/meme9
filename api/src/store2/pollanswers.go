@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/materkov/meme9/api/src/pkg/utils"
 	"github.com/materkov/meme9/api/src/store"
 )
 
@@ -13,27 +12,18 @@ type SqlPollAnswerStore struct {
 }
 
 func (u *SqlPollAnswerStore) Get(ids []int) (map[int]*store.PollAnswer, error) {
-	rows, err := u.DB.Query(fmt.Sprintf("select id, data from objects where id in (%s)", utils.IdsToCommaSeparated(ids)))
+	objectBytes, err := LoadObjects(u.DB, ids)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	result := map[int]*store.PollAnswer{}
-	for rows.Next() {
-		objectID := 0
-		var data []byte
-		err = rows.Scan(&objectID, &data)
-		if err != nil {
-			return nil, err
-		}
-
+	for objectID, objectBytes := range objectBytes {
 		object := store.PollAnswer{}
-		err = json.Unmarshal(data, &object)
+		err = json.Unmarshal(objectBytes, &object)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error unmarshaling object: %w", err)
 		}
-
 		object.ID = objectID
 		result[objectID] = &object
 	}
@@ -42,20 +32,13 @@ func (u *SqlPollAnswerStore) Get(ids []int) (map[int]*store.PollAnswer, error) {
 }
 
 func (u *SqlPollAnswerStore) Add(object *store.PollAnswer) error {
-	objectBytes, err := json.Marshal(object)
+	objectID, err := AddObject(u.DB, object, store.ObjTypePollAnswer)
 	if err != nil {
 		return err
 	}
 
-	result, err := u.DB.Exec("insert into objects(obj_type, data) values (?, ?)", store.ObjTypePollAnswer, objectBytes)
-	if err != nil {
-		return err
-	}
-
-	objectID, _ := result.LastInsertId()
-	object.ID = int(objectID)
-
-	return err
+	object.ID = objectID
+	return nil
 }
 
 func (u *SqlPollAnswerStore) Update(object *store.PollAnswer) error {
