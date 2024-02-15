@@ -1,10 +1,10 @@
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import React from "react";
-import * as types from "../../api/api";
 import {PostsList} from "../Post/PostsList";
 import {getAllFromPosts} from "../../utils/postsList";
 import {useGlobals} from "../../store/globals";
 import {Link} from "../Link/Link";
+import {ApiBookmarks} from "../../api/client";
 
 export function BookmarksPage() {
     const queryClient = useQueryClient();
@@ -13,7 +13,7 @@ export function BookmarksPage() {
     const data = useQuery({
         queryKey: ['bookmarks'],
         queryFn: () => (
-            types.bookmarksList({pageToken: ""}).then(data => {
+            ApiBookmarks.List({pageToken: ""}).then(data => {
                 for (let item of data.items) {
                     if (item.post) {
                         getAllFromPosts(queryClient, [item.post])

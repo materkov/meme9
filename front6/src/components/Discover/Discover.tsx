@@ -1,6 +1,5 @@
 import React, {useEffect} from "react";
 import * as types from "../../api/api";
-import {FeedType, PostsListReq} from "../../api/api";
 import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query'
 import {PostsList} from "../Post/PostsList";
 import {useGlobals} from "../../store/globals";
@@ -8,6 +7,7 @@ import {Composer} from "./Composer";
 import {getAllFromPosts} from "../../utils/postsList";
 import {usePrefetch} from "../../utils/prefetch";
 import {getEvents} from "../../utils/realtime";
+import {ApiPosts} from "../../api/client";
 
 export function Discover() {
     const queryClient = useQueryClient();
@@ -37,12 +37,15 @@ export function Discover() {
     const {data, status, hasNextPage, fetchNextPage} = useInfiniteQuery({
         queryKey: ['discover', discoverState],
         queryFn: ({pageParam}) => {
-            const req = new PostsListReq();
-            req.pageToken = pageParam;
-            req.count = 10;
-            req.type = discoverState;
+            const req: types.ListReq = {
+                pageToken: pageParam,
+                count: 10,
+                type: discoverState,
+                byId: "",
+                byUserId: "",
+            };
 
-            return types.postsList(req).then(res => {
+            return ApiPosts.List(req).then(res => {
                 getAllFromPosts(queryClient, res.items);
                 return res;
             })
@@ -53,7 +56,7 @@ export function Discover() {
 
     const switchType = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        setDiscoverState(discoverState === FeedType.FEED ? FeedType.DISCOVER : FeedType.FEED);
+        setDiscoverState(discoverState === types.FeedType.FEED ? types.FeedType.DISCOVER : types.FeedType.FEED);
     };
 
     return <div>
@@ -62,8 +65,8 @@ export function Discover() {
         {globalState.viewerId && <Composer/>}
 
         {globalState.viewerId && <>
-            This is {discoverState == FeedType.DISCOVER ? 'discover' : 'feed'}. <a href="#" onClick={switchType}>
-            Switch to {discoverState == FeedType.DISCOVER ? 'feed' : 'discover'}
+            This is {discoverState == types.FeedType.DISCOVER ? 'discover' : 'feed'}. <a href="#" onClick={switchType}>
+            Switch to {discoverState == types.FeedType.DISCOVER ? 'feed' : 'discover'}
         </a>
         </>}
 

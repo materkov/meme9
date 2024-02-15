@@ -1,9 +1,9 @@
 import React from "react";
 import * as styles from "./LinkAttach.module.css";
-import {Link} from "../../api/api";
+import {PostLink} from "../../api/api";
 
 export function LinkAttach(props: {
-    link: Link
+    link: PostLink
 }) {
     const link = props.link;
 

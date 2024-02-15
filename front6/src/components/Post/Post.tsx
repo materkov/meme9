@@ -7,6 +7,7 @@ import {LinkAttach} from "./LinkAttach";
 import {Poll} from "./Poll";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {PhotoAttach} from "./PhotoAttach";
+import {ApiBookmarks, ApiPosts} from "../../api/client";
 
 const nl2br = (string: string) => {
     if (string) {
@@ -32,7 +33,7 @@ export function Post(props: { postId: string }) {
 
     const onDelete = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        types.postsDelete({postId: post.id}).then(() => {
+        ApiPosts.Delete({postId: post.id}).then(() => {
             queryClient.invalidateQueries({queryKey: ['discover']});
             queryClient.invalidateQueries({queryKey: ['userPosts', post.user?.id]});
         });
@@ -40,9 +41,9 @@ export function Post(props: { postId: string }) {
 
     const onLike = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        types.postsLike({
+        ApiPosts.Like({
             postId: post.id,
-            action: post.isLiked ? types.LikeAction.UNLIKE : types.LikeAction.LIKE,
+            action: post.isLiked ? types.PostLikeAction.UNLIKE : types.PostLikeAction.LIKE,
         }).then(() => {
             queryClient.setQueryData(
                 ['post', post.id],
@@ -82,9 +83,9 @@ export function Post(props: { postId: string }) {
         }
 
         if (post.isBookmarked) {
-            types.bookmarksRemove({postId: post.id}).then(cb);
+            ApiBookmarks.Remove({postId: post.id}).then(cb);
         } else {
-            types.bookmarksAdd({postId: post.id}).then(cb);
+            ApiBookmarks.Add({postId: post.id}).then(cb);
         }
     };
 

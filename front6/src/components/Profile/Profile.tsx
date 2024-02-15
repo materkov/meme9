@@ -1,11 +1,13 @@
 import React from "react";
 import * as styles from "./Profile.module.css";
-import {postsList, PostsListReq, SubscribeAction, User, usersFollow, usersList, usersSetStatus} from "../../api/api";
+import * as types from "../../api/api";
+import {FeedType} from "../../api/api";
 import {useGlobals} from "../../store/globals";
 import {PostsList} from "../Post/PostsList";
 import {useInfiniteQuery, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getAllFromPosts} from "../../utils/postsList";
 import {usePrefetch} from "../../utils/prefetch";
+import {ApiPosts, ApiUsers} from "../../api/client";
 
 export function Profile() {
     const userId = document.location.pathname.substring(7);
@@ -24,19 +26,22 @@ export function Profile() {
     const {data: user} = useQuery({
         queryKey: ['users', userId],
         queryFn: () => (
-            usersList({userIds: [userId]}).then(resp => resp[0])
+            ApiUsers.List({userIds: [userId]}).then(resp => resp.users[0])
         )
     })
 
     const {data: userPosts, hasNextPage, fetchNextPage} = useInfiniteQuery({
         queryKey: ['userPosts', userId],
         queryFn: ({pageParam}) => {
-            const req = new PostsListReq();
-            req.count = 10;
-            req.byUserId = userId;
-            req.pageToken = pageParam;
+            const req: types.ListReq = {
+                count: 10,
+                byUserId: userId,
+                pageToken: pageParam,
+                type: FeedType.UNRECOGNIZED,
+                byId: "",
+            };
 
-            return postsList(req).then(r => {
+            return ApiPosts.List(req).then(r => {
                 getAllFromPosts(queryClient, r.items);
                 return r;
             })
@@ -49,10 +54,10 @@ export function Profile() {
 
 
     const updateStatus = () => {
-        usersSetStatus({status: status})
+        ApiUsers.SetStatus({status: status})
             .then(() => {
-                queryClient.setQueryData(['users', userId], (oldData: User) => {
-                    const copy = structuredClone(oldData) as User;
+                queryClient.setQueryData(['users', userId], (oldData: types.User) => {
+                    const copy = structuredClone(oldData) as types.User;
                     copy.status = status;
                     queryClient.setQueryData(['users', userId], copy);
                 })
@@ -64,12 +69,12 @@ export function Profile() {
             return;
         }
 
-        usersFollow({
+        ApiUsers.Follow({
             targetId: userId,
-            action: user.isFollowing ? SubscribeAction.UNFOLLOW : SubscribeAction.FOLLOW,
+            action: user.isFollowing ? types.SubscribeAction.UNFOLLOW : types.SubscribeAction.FOLLOW,
         }).then(() => {
-            queryClient.setQueryData(['users', userId], (oldData: User) => {
-                const copy = structuredClone(oldData) as User;
+            queryClient.setQueryData(['users', userId], (oldData: types.User) => {
+                const copy = structuredClone(oldData) as types.User;
                 copy.isFollowing = true;
                 queryClient.setQueryData(['users', userId], copy);
             })

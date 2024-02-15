@@ -2,6 +2,7 @@ import * as types from "../../api/api";
 import React from "react";
 import * as styles from "./Poll.module.css";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {ApiPolls} from "../../api/client";
 
 export function Poll(props: { pollId: string }) {
     const {data} = useQuery<types.Poll>({
@@ -20,7 +21,7 @@ export function Poll(props: { pollId: string }) {
     const onVote = (answerId: string) => {
         if (isVoted) return;
 
-        types.pollsVote({
+        ApiPolls.Vote({
             pollId: poll.id,
             answerIds: [answerId],
         }).then(() => {
@@ -32,7 +33,7 @@ export function Poll(props: { pollId: string }) {
                     for (let answer of copy.answers) {
                         if (answer.id == answerId) {
                             answer.isVoted = true;
-                            answer.voted = (answer.voted || 0) + 1;
+                            answer.votedCount++;
                         }
                     }
 
@@ -45,7 +46,7 @@ export function Poll(props: { pollId: string }) {
     const onDeleteVote = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
-        types.pollsDeleteVote({
+        ApiPolls.DeleteVote({
             pollId: poll.id,
         }).then(() => {
             queryClient.setQueryData(
@@ -56,7 +57,7 @@ export function Poll(props: { pollId: string }) {
                     for (let answer of copy.answers) {
                         if (answer.isVoted) {
                             answer.isVoted = false;
-                            answer.voted = (answer.voted || 0) - 1;
+                            answer.votedCount--;
                         }
                     }
 
@@ -81,7 +82,7 @@ export function Poll(props: { pollId: string }) {
 
                 return <div className={className} key={answer.id} onClick={() => onVote(answer.id)}>
                     {answer.answer}
-                    <div className={styles.votersCount}>{answer.voted || 0}</div>
+                    <div className={styles.votersCount}>{answer.votedCount}</div>
                 </div>
             })}
             {isVoted && <a href="#" className={styles.deleteVote} onClick={onDeleteVote}>Delete vote</a>}

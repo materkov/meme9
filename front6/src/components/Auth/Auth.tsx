@@ -1,10 +1,10 @@
 import React, {useEffect} from "react";
 import * as styles from "./Auth.module.css";
-import {authLogin, authRegister, authVK} from "../../api/api";
 import {setAuth} from "../../store/globals";
 import {navigationGo} from "../../store/navigation";
 import {Link} from "../Link/Link";
 import {cookieAuthToken, delCookie, setCookie} from "../../utils/cookie";
+import {ApiAuth} from "../../api/client";
 
 export function Auth() {
     const [email, setEmail] = React.useState('');
@@ -24,7 +24,7 @@ export function Auth() {
 
     useEffect(() => {
         if (location.search.startsWith("?code")) {
-            authVK({
+            ApiAuth.Vk({
                 code: new URLSearchParams(location.search).get('code') || "",
                 redirectUrl: location.origin + location.pathname,
             }).then(resp => {
@@ -57,7 +57,7 @@ export function Auth() {
     };
 
     const onLogin = () => {
-        authLogin({email, password})
+        ApiAuth.Login({email, password})
             .then(resp => {
                 setAuth(resp);
 
@@ -75,7 +75,7 @@ export function Auth() {
     };
 
     const onRegister = () => {
-        authRegister({email, password})
+        ApiAuth.Register({email, password})
             .then(resp => {
                 setAuth(resp);
 

@@ -1,9 +1,8 @@
 import * as styles from "./Composer.module.css";
 import React from "react";
-import * as types from "../../api/api";
-import {postsAdd} from "../../api/api";
 import {useQueryClient} from "@tanstack/react-query";
 import {uploadFile} from "../../api/uploads";
+import {ApiPolls, ApiPosts} from "../../api/client";
 
 export function Composer() {
     const [text, setText] = React.useState('');
@@ -16,7 +15,7 @@ export function Composer() {
         }
 
         setSaving(true);
-        postsAdd({text: text, pollId: pollId, photoId: photoId}).then(() => {
+        ApiPosts.Add({text: text, pollId: pollId, photoId: photoId}).then(() => {
             setSaving(false);
             setText('');
             setPhotoId('');
@@ -28,7 +27,7 @@ export function Composer() {
     const [answers, setAnswers] = React.useState<string[]>(['']);
 
     const savePoll = () => {
-        types.pollsAdd({question: question, answers: answers}).then(poll => {
+        ApiPolls.Add({question: question, answers: answers}).then(poll => {
             setPollId(poll.id);
             setPollActive(false);
             setQuestion('');
@@ -40,6 +39,7 @@ export function Composer() {
         const input = document.createElement('input');
         input.type = 'file';
         input.click();
+        // @ts-ignore
         input.onchange = (e: React.ChangeEvent<HTMLInputElement>) => {
             if (!e.target.files) return;
 
@@ -65,10 +65,10 @@ export function Composer() {
 
             &nbsp;|&nbsp;
             {!photoId &&
-            <a href="#" onClick={(e) => {
-                e.preventDefault();
-                addPoll();
-            }}>Add photo</a>
+                <a href="#" onClick={(e) => {
+                    e.preventDefault();
+                    addPoll();
+                }}>Add photo</a>
             }
             {photoId && <span>Photo attached</span>}
 
