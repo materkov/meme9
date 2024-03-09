@@ -1,6 +1,6 @@
 module github.com/materkov/meme9/web6
 
-go 1.21
+go 1.22
 
 require (
 	github.com/twitchtv/twirp v8.1.3+incompatible

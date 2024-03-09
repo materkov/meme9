@@ -1,6 +1,6 @@
 module github.com/materkov/meme9/api
 
-go 1.21.0
+go 1.22.1
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
