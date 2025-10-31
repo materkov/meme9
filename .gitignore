@@ -6,6 +6,7 @@ front5/dist/bundle
 legacy/web/config.json
 web5/config.json
 front6/node_modules
+front7/node_modules
 front6/dist/bundle/
 rss/node_modules
 mongotest
