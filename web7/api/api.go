@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -9,6 +10,30 @@ import (
 
 	"github.com/materkov/meme9/web7/adapters/mongo"
 )
+
+// const staticHost = "http://localhost:3000"
+// const apiHost = "http://localhost:8080"
+const staticHost = "https://meme.mmaks.me/static"
+const apiHost = "https://meme.mmaks.me"
+
+func indexHTML() string {
+	return fmt.Sprintf(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>meme9</title>
+  <link rel="stylesheet" href="%s/index.css">
+</head>
+<body>
+  <script>
+    window.API_BASE_URL = "%s";
+  </script>
+  <div id="root"></div>
+  <script src="%s/index.js"></script>
+</body>
+</html>`, staticHost, apiHost, staticHost)
+}
 
 type API struct {
 	mongo *mongo.Adapter
@@ -106,6 +131,17 @@ func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 func (a *API) Serve() {
 	http.HandleFunc("/feed", a.corsMiddleware(a.feedHandler))
 	http.HandleFunc("/publish", a.corsMiddleware(a.publishHandler))
+
+	// Serve inline index.html from constant
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(indexHTML()))
+	})
 
 	log.Printf("Starting HTTP server at http://127.0.0.1:8080")
 	err := http.ListenAndServe("127.0.0.1:8080", nil)

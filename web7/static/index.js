@@ -24487,7 +24487,7 @@ var app = (() => {
   var PostForm_default = { "button": "PostForm-module__button_sCAyna100", "form": "PostForm-module__form_sCAyna100", "textarea": "PostForm-module__textarea_sCAyna100" };
 
   // src/api/api.ts
-  var API_BASE_URL = window.API_BASE_URL;
+  var API_BASE_URL = "https://meme.mmaks.me";
   async function fetchPosts() {
     const response = await fetch(`${API_BASE_URL}/feed`);
     if (!response.ok) {

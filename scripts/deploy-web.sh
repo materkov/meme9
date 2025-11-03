@@ -4,4 +4,4 @@ cd ~/mypage
 
 export DOCKER_HOST=ssh://mypage
 
-docker compose up -d --build meme9-web
+docker compose up -d --build web7

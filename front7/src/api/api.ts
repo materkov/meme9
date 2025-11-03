@@ -1,5 +1,6 @@
 //const API_BASE_URL = 'http://localhost:8080';
-const API_BASE_URL = 'https://meme.mmaks.me';
+//const API_BASE_URL = 'https://meme.mmaks.me';
+const API_BASE_URL = window.API_BASE_URL;
 
 export interface Post {
   id: string;

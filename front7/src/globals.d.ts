@@ -3,3 +3,11 @@ declare module '*.module.css' {
   export default classes;
 }
 
+declare global {
+  interface Window {
+    API_BASE_URL: string;
+  }
+}
+
+export {};
+
