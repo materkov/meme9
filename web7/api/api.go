@@ -6,15 +6,15 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/materkov/meme9/web7/adapters/mongo"
 )
 
-// const staticHost = "http://localhost:3000"
-// const apiHost = "http://localhost:8080"
-const staticHost = "https://meme.mmaks.me/static"
-const apiHost = "https://meme.mmaks.me"
+const apiHost = ""
+const staticHost = "/static"
 
 func indexHTML() string {
 	return fmt.Sprintf(`<!DOCTYPE html>
@@ -128,9 +128,31 @@ func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(PublishResp{ID: post.ID})
 }
 
+func (a *API) staticHandler(w http.ResponseWriter, r *http.Request) {
+	// Strip /static prefix
+	path := strings.TrimPrefix(r.URL.Path, "/static/")
+	if path == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Build file path relative to web7 directory
+	staticDir := filepath.Join("..", "front7", "dist")
+	filePath := filepath.Join(staticDir, path)
+
+	// Prevent directory traversal
+	if !strings.HasPrefix(filepath.Clean(filePath), filepath.Clean(staticDir)) {
+		http.NotFound(w, r)
+		return
+	}
+
+	http.ServeFile(w, r, filePath)
+}
+
 func (a *API) Serve() {
 	http.HandleFunc("/feed", a.corsMiddleware(a.feedHandler))
 	http.HandleFunc("/publish", a.corsMiddleware(a.publishHandler))
+	http.HandleFunc("/static/", a.staticHandler)
 
 	// Serve inline index.html from constant
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
