@@ -29,6 +29,13 @@ type Post struct {
 	CreatedAt time.Time `bson:"created_at"`
 }
 
+type User struct {
+	ID           string    `bson:"_id"`
+	Username     string    `bson:"username"`
+	PasswordHash string    `bson:"password_hash"`
+	CreatedAt    time.Time `bson:"created_at"`
+}
+
 func (a *Adapter) GetAllPosts(ctx context.Context) ([]Post, error) {
 	collection := a.Client.Database("meme9").Collection("posts")
 	cursor, err := collection.Find(ctx, bson.D{})
@@ -65,4 +72,32 @@ func (a *Adapter) AddPost(ctx context.Context, post Post) (*Post, error) {
 	objID := result.InsertedID.(primitive.ObjectID)
 	post.ID = objID.Hex()
 	return &post, nil
+}
+
+func (a *Adapter) GetUserByUsername(ctx context.Context, username string) (*User, error) {
+	collection := a.Client.Database("meme9").Collection("users")
+	var user User
+	err := collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (a *Adapter) CreateUser(ctx context.Context, user User) (*User, error) {
+	collection := a.Client.Database("meme9").Collection("users")
+
+	insertDoc := bson.M{
+		"username":      user.Username,
+		"password_hash": user.PasswordHash,
+		"created_at":    user.CreatedAt,
+	}
+	result, err := collection.InsertOne(ctx, insertDoc)
+	if err != nil {
+		return nil, fmt.Errorf("error creating user: %w", err)
+	}
+
+	objID := result.InsertedID.(primitive.ObjectID)
+	user.ID = objID.Hex()
+	return &user, nil
 }

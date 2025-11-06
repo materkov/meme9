@@ -1085,7 +1085,7 @@ var app = (() => {
             }
             return dispatcher.useContext(Context);
           }
-          function useState3(initialState) {
+          function useState4(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1888,7 +1888,7 @@ var app = (() => {
           exports.useMemo = useMemo;
           exports.useReducer = useReducer;
           exports.useRef = useRef;
-          exports.useState = useState3;
+          exports.useState = useState4;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -24436,11 +24436,11 @@ var app = (() => {
               return jsxWithValidation(type, props, key, false);
             }
           }
-          var jsx5 = jsxWithValidationDynamic;
-          var jsxs4 = jsxWithValidationStatic;
+          var jsx6 = jsxWithValidationDynamic;
+          var jsxs5 = jsxWithValidationStatic;
           exports.Fragment = REACT_FRAGMENT_TYPE;
-          exports.jsx = jsx5;
-          exports.jsxs = jsxs4;
+          exports.jsx = jsx6;
+          exports.jsxs = jsxs5;
         })();
       }
     }
@@ -24462,10 +24462,10 @@ var app = (() => {
   var import_client = __toESM(require_client());
 
   // src/App.tsx
-  var import_react2 = __toESM(require_react());
+  var import_react3 = __toESM(require_react());
 
   // esbuild-css-modules-plugin-namespace:./src/App.module.css?esbuild-css-modules-plugin-building
-  var App_default = { "container": "App-module__container_HBJwGq100", "empty": "App-module__empty_HBJwGq100", "feed": "App-module__feed_HBJwGq100", "header": "App-module__header_HBJwGq100", "loading": "App-module__loading_HBJwGq100", "main": "App-module__main_HBJwGq100" };
+  var App_default = { "container": "App-module__container_HBJwGq100", "empty": "App-module__empty_HBJwGq100", "feed": "App-module__feed_HBJwGq100", "header": "App-module__header_HBJwGq100", "loading": "App-module__loading_HBJwGq100", "logout": "App-module__logout_HBJwGq100", "main": "App-module__main_HBJwGq100", "userInfo": "App-module__userInfo_HBJwGq100", "username": "App-module__username_HBJwGq100" };
 
   // esbuild-css-modules-plugin-namespace:./src/Post/Post.module.css?esbuild-css-modules-plugin-building
   var Post_default = { "date": "Post-module__date_ByJPLG100", "post": "Post-module__post_ByJPLG100", "text": "Post-module__text_ByJPLG100" };
@@ -24505,6 +24505,34 @@ var app = (() => {
     });
     if (!response.ok) {
       throw new Error("Failed to create post");
+    }
+    return response.json();
+  }
+  async function login(data) {
+    const response = await fetch(`${API_BASE_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: "Login failed" }));
+      throw new Error(error.error || "Login failed");
+    }
+    return response.json();
+  }
+  async function register(data) {
+    const response = await fetch(`${API_BASE_URL}/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: "Registration failed" }));
+      throw new Error(error.error || "Registration failed");
     }
     return response.json();
   }
@@ -24554,11 +24582,113 @@ var app = (() => {
     ] });
   }
 
-  // src/App.tsx
+  // src/Auth/Auth.tsx
+  var import_react2 = __toESM(require_react());
+
+  // esbuild-css-modules-plugin-namespace:./src/Auth/Auth.module.css?esbuild-css-modules-plugin-building
+  var Auth_default = { "active": "Auth-module__active_7Pe9Dq100", "card": "Auth-module__card_7Pe9Dq100", "container": "Auth-module__container_7Pe9Dq100", "error": "Auth-module__error_7Pe9Dq100", "field": "Auth-module__field_7Pe9Dq100", "form": "Auth-module__form_7Pe9Dq100", "submit": "Auth-module__submit_7Pe9Dq100", "tab": "Auth-module__tab_7Pe9Dq100", "tabs": "Auth-module__tabs_7Pe9Dq100" };
+
+  // src/Auth/Auth.tsx
   var import_jsx_runtime3 = __toESM(require_jsx_runtime());
+  function Auth({ onAuthSuccess }) {
+    const [isLogin, setIsLogin] = (0, import_react2.useState)(true);
+    const [username, setUsername] = (0, import_react2.useState)("");
+    const [password, setPassword] = (0, import_react2.useState)("");
+    const [error, setError] = (0, import_react2.useState)("");
+    const [loading, setLoading] = (0, import_react2.useState)(false);
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError("");
+      setLoading(true);
+      try {
+        const response = isLogin ? await login({ username, password }) : await register({ username, password });
+        onAuthSuccess(response.token, response.user_id, response.username);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: Auth_default.container, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: Auth_default.card, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: Auth_default.tabs, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+          "button",
+          {
+            className: `${Auth_default.tab} ${isLogin ? Auth_default.active : ""}`,
+            onClick: () => {
+              setIsLogin(true);
+              setError("");
+            },
+            children: "Login"
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+          "button",
+          {
+            className: `${Auth_default.tab} ${!isLogin ? Auth_default.active : ""}`,
+            onClick: () => {
+              setIsLogin(false);
+              setError("");
+            },
+            children: "Register"
+          }
+        )
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("form", { onSubmit: handleSubmit, className: Auth_default.form, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: Auth_default.field, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("label", { htmlFor: "username", children: "Username" }),
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+            "input",
+            {
+              id: "username",
+              type: "text",
+              value: username,
+              onChange: (e) => setUsername(e.target.value),
+              required: true,
+              disabled: loading
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: Auth_default.field, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("label", { htmlFor: "password", children: "Password" }),
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+            "input",
+            {
+              id: "password",
+              type: "password",
+              value: password,
+              onChange: (e) => setPassword(e.target.value),
+              required: true,
+              disabled: loading
+            }
+          )
+        ] }),
+        error && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: Auth_default.error, children: error }),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { type: "submit", disabled: loading, className: Auth_default.submit, children: loading ? "Loading..." : isLogin ? "Login" : "Register" })
+      ] })
+    ] }) });
+  }
+
+  // src/App.tsx
+  var import_jsx_runtime4 = __toESM(require_jsx_runtime());
+  var AUTH_TOKEN_KEY = "auth_token";
+  var AUTH_USER_KEY = "auth_user";
   function App() {
-    const [posts, setPosts] = (0, import_react2.useState)([]);
-    const [loading, setLoading] = (0, import_react2.useState)(true);
+    const [isAuthenticated, setIsAuthenticated] = (0, import_react3.useState)(false);
+    const [username, setUsername] = (0, import_react3.useState)(null);
+    const [posts, setPosts] = (0, import_react3.useState)([]);
+    const [loading, setLoading] = (0, import_react3.useState)(true);
+    (0, import_react3.useEffect)(() => {
+      const token = localStorage.getItem(AUTH_TOKEN_KEY);
+      const user = localStorage.getItem(AUTH_USER_KEY);
+      if (token && user) {
+        setIsAuthenticated(true);
+        setUsername(user);
+        loadPosts();
+      } else {
+        setLoading(false);
+      }
+    }, []);
     const loadPosts = () => {
       setLoading(true);
       fetchPosts().then((data) => {
@@ -24569,25 +24699,45 @@ var app = (() => {
         setLoading(false);
       });
     };
-    (0, import_react2.useEffect)(() => {
+    const handleAuthSuccess = (token, userId, username2) => {
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+      localStorage.setItem(AUTH_USER_KEY, username2);
+      setIsAuthenticated(true);
+      setUsername(username2);
       loadPosts();
-    }, []);
-    return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: App_default.container, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("header", { className: App_default.header, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h1", { children: "Posts Feed" }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("main", { className: App_default.main, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PostForm, { onPostCreated: loadPosts }),
-        loading ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: App_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: App_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: App_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Post, { text: post.text, createdAt: post.createdAd }, post.id)) })
+    };
+    const handleLogout = () => {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(AUTH_USER_KEY);
+      setIsAuthenticated(false);
+      setUsername(null);
+      setPosts([]);
+    };
+    if (!isAuthenticated) {
+      return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Auth, { onAuthSuccess: handleAuthSuccess });
+    }
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: App_default.container, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("header", { className: App_default.header, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { children: "Posts Feed" }),
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: App_default.userInfo, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { className: App_default.username, children: username }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { onClick: handleLogout, className: App_default.logout, children: "Logout" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("main", { className: App_default.main, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PostForm, { onPostCreated: loadPosts }),
+        loading ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Post, { text: post.text, createdAt: post.createdAd }, post.id)) })
       ] })
     ] });
   }
   var App_default2 = App;
 
   // src/index.tsx
-  var import_jsx_runtime4 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime5 = __toESM(require_jsx_runtime());
   var container = document.getElementById("root");
   if (container) {
     const root = (0, import_client.createRoot)(container);
-    root.render(/* @__PURE__ */ (0, import_jsx_runtime4.jsx)(App_default2, {}));
+    root.render(/* @__PURE__ */ (0, import_jsx_runtime5.jsx)(App_default2, {}));
   }
 })();
 /*! Bundled license information:

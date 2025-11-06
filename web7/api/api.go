@@ -1,6 +1,8 @@
 package api
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +11,10 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
+
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/materkov/meme9/web7/adapters/mongo"
 )
@@ -149,9 +155,165 @@ func (a *API) staticHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filePath)
 }
 
+type LoginReq struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResp struct {
+	Token    string `json:"token"`
+	UserID   string `json:"user_id"`
+	Username string `json:"username"`
+}
+
+func generateToken() (string, error) {
+	b := make([]byte, 32)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
+}
+
+func (a *API) loginHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request body"})
+		return
+	}
+
+	var loginReq LoginReq
+	err = json.Unmarshal(body, &loginReq)
+	if err != nil {
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid JSON"})
+		return
+	}
+
+	if loginReq.Username == "" || loginReq.Password == "" {
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(map[string]string{"error": "username and password required"})
+		return
+	}
+
+	// Find user by username
+	user, err := a.mongo.GetUserByUsername(r.Context(), loginReq.Username)
+	if err != nil {
+		w.WriteHeader(401)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid credentials"})
+		return
+	}
+
+	// Verify password
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(loginReq.Password))
+	if err != nil {
+		w.WriteHeader(401)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid credentials"})
+		return
+	}
+
+	// Generate token
+	token, err := generateToken()
+	if err != nil {
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to generate token"})
+		return
+	}
+
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(LoginResp{
+		Token:    token,
+		UserID:   user.ID,
+		Username: user.Username,
+	})
+}
+
+type RegisterReq struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request body"})
+		return
+	}
+
+	var registerReq RegisterReq
+	err = json.Unmarshal(body, &registerReq)
+	if err != nil {
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid JSON"})
+		return
+	}
+
+	if registerReq.Username == "" || registerReq.Password == "" {
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(map[string]string{"error": "username and password required"})
+		return
+	}
+
+	// Check if username already exists
+	_, err = a.mongo.GetUserByUsername(r.Context(), registerReq.Username)
+	if err == nil {
+		w.WriteHeader(409)
+		json.NewEncoder(w).Encode(map[string]string{"error": "username already exists"})
+		return
+	}
+	if err != mongodriver.ErrNoDocuments {
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(map[string]string{"error": "database error"})
+		return
+	}
+
+	// Hash password
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(registerReq.Password), bcrypt.DefaultCost)
+	if err != nil {
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to hash password"})
+		return
+	}
+
+	// Create user
+	user, err := a.mongo.CreateUser(r.Context(), mongo.User{
+		Username:     registerReq.Username,
+		PasswordHash: string(passwordHash),
+		CreatedAt:    time.Now(),
+	})
+	if err != nil {
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to create user"})
+		return
+	}
+
+	// Generate token
+	token, err := generateToken()
+	if err != nil {
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to generate token"})
+		return
+	}
+
+	w.WriteHeader(201)
+	json.NewEncoder(w).Encode(LoginResp{
+		Token:    token,
+		UserID:   user.ID,
+		Username: user.Username,
+	})
+}
+
 func (a *API) Serve() {
 	http.HandleFunc("/feed", a.corsMiddleware(a.feedHandler))
 	http.HandleFunc("/publish", a.corsMiddleware(a.publishHandler))
+	http.HandleFunc("/login", a.corsMiddleware(a.loginHandler))
+	http.HandleFunc("/register", a.corsMiddleware(a.registerHandler))
 	http.HandleFunc("/static/", a.staticHandler)
 
 	// Serve inline index.html from constant

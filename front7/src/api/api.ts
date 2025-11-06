@@ -40,3 +40,53 @@ export async function publishPost(data: PublishPostRequest): Promise<PublishPost
   return response.json();
 }
 
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  user_id: string;
+  username: string;
+}
+
+export async function login(data: LoginRequest): Promise<LoginResponse> {
+  const response = await fetch(`${API_BASE_URL}/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Login failed' }));
+    throw new Error(error.error || 'Login failed');
+  }
+
+  return response.json();
+}
+
+export interface RegisterRequest {
+  username: string;
+  password: string;
+}
+
+export async function register(data: RegisterRequest): Promise<LoginResponse> {
+  const response = await fetch(`${API_BASE_URL}/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Registration failed' }));
+    throw new Error(error.error || 'Registration failed');
+  }
+
+  return response.json();
+}
+
