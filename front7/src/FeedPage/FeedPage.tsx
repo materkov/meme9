@@ -1,39 +1,33 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import styles from './UserPostsPage.module.css';
+import { useNavigate } from 'react-router-dom';
+import styles from './FeedPage.module.css';
 import { Post } from '../Post/Post';
+import { PostForm } from '../PostForm/PostForm';
 import * as api from '../api/api';
 
-export function UserPostsPage() {
-  const { id: userID } = useParams<{ id: string }>();
+interface FeedPageProps {
+  username: string;
+  onLogout: () => void;
+}
+
+export function FeedPage({ username, onLogout }: FeedPageProps) {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<api.Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
-
-  if (!userID) {
-    return <div>Invalid user ID</div>;
-  }
 
   useEffect(() => {
     loadPosts();
-  }, [userID]);
+  }, []);
 
   const loadPosts = () => {
     setLoading(true);
-    setError(null);
-    api.fetchUserPosts(userID)
+    api.fetchPosts()
       .then(data => {
         setPosts(data);
-        if (data.length > 0) {
-          setUsername(data[0].username);
-        }
         setLoading(false);
       })
       .catch(err => {
-        console.error('Error fetching user posts:', err);
-        setError(err instanceof api.ApiError ? err.errorDetails : 'Failed to load posts');
+        console.error('Error fetching posts:', err);
         setLoading(false);
       });
   };
@@ -41,18 +35,18 @@ export function UserPostsPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <button onClick={() => navigate('/')} className={styles.backButton}>
-          ← Back
-        </button>
-        <h1 className={styles.title}>
-          {username ? `${username}'s Posts` : 'User Posts'}
-        </h1>
+        <h1>Posts Feed</h1>
+        <div className={styles.userInfo}>
+          <span className={styles.username}>{username}</span>
+          <button onClick={onLogout} className={styles.logout}>
+            Logout
+          </button>
+        </div>
       </header>
       <main className={styles.main}>
+        <PostForm onPostCreated={loadPosts} />
         {loading ? (
           <div className={styles.loading}>Loading posts...</div>
-        ) : error ? (
-          <div className={styles.error}>{error}</div>
         ) : posts.length === 0 ? (
           <div className={styles.empty}>No posts yet</div>
         ) : (
@@ -64,6 +58,7 @@ export function UserPostsPage() {
                 username={post.username} 
                 createdAt={post.createdAt}
                 userID={post.user_id}
+                onUsernameClick={(id) => navigate(`/users/${id}`)}
               />
             ))}
           </div>
