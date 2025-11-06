@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -10,6 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+var ErrTokenNotFound = errors.New("token not found")
 
 type Adapter struct {
 	Client *mongo.Client
@@ -193,7 +196,10 @@ func (a *Adapter) GetTokenByValue(ctx context.Context, tokenValue string) (*Toke
 	var token Token
 	err := collection.FindOne(ctx, bson.M{"token": tokenValue}).Decode(&token)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrTokenNotFound
+		}
+		return nil, fmt.Errorf("error finding token: %w", err)
 	}
 	return &token, nil
 }
