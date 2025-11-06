@@ -50,6 +50,10 @@ export async function publishPost(data: PublishPostRequest): Promise<PublishPost
     if (response.status === 401) {
       throw new Error('Unauthorized. Please log in again.');
     }
+    if (response.status === 400) {
+      const error = await response.json().catch(() => ({ error: 'Invalid post data' }));
+      throw new Error(error.error || 'Invalid post data');
+    }
     throw new Error('Failed to create post');
   }
 

@@ -24487,7 +24487,7 @@ var app = (() => {
   var import_react = __toESM(require_react());
 
   // esbuild-css-modules-plugin-namespace:./src/PostForm/PostForm.module.css?esbuild-css-modules-plugin-building
-  var PostForm_default = { "button": "PostForm-module__button_sCAyna100", "form": "PostForm-module__form_sCAyna100", "textarea": "PostForm-module__textarea_sCAyna100" };
+  var PostForm_default = { "button": "PostForm-module__button_sCAyna100", "counter": "PostForm-module__counter_sCAyna100", "counterError": "PostForm-module__counterError_sCAyna100", "error": "PostForm-module__error_sCAyna100", "footer": "PostForm-module__footer_sCAyna100", "form": "PostForm-module__form_sCAyna100", "meta": "PostForm-module__meta_sCAyna100", "textarea": "PostForm-module__textarea_sCAyna100", "textareaError": "PostForm-module__textareaError_sCAyna100" };
 
   // src/api/api.ts
   var API_BASE_URL = window.API_BASE_URL;
@@ -24517,6 +24517,10 @@ var app = (() => {
     if (!response.ok) {
       if (response.status === 401) {
         throw new Error("Unauthorized. Please log in again.");
+      }
+      if (response.status === 400) {
+        const error = await response.json().catch(() => ({ error: "Invalid post data" }));
+        throw new Error(error.error || "Invalid post data");
       }
       throw new Error("Failed to create post");
     }
@@ -24553,21 +24557,33 @@ var app = (() => {
 
   // src/PostForm/PostForm.tsx
   var import_jsx_runtime2 = __toESM(require_jsx_runtime());
+  var MAX_TEXT_LENGTH = 1e3;
   function PostForm({ onPostCreated }) {
     const [text, setText] = (0, import_react.useState)("");
     const [submitting, setSubmitting] = (0, import_react.useState)(false);
+    const [error, setError] = (0, import_react.useState)(null);
+    const textLength = text.length;
+    const isValid = text.trim().length > 0 && textLength <= MAX_TEXT_LENGTH;
+    const handleTextChange = (e) => {
+      const newText = e.target.value;
+      setText(newText);
+      setError(null);
+    };
     const handleSubmit = async (e) => {
       e.preventDefault();
-      if (!text.trim() || submitting) {
+      if (!isValid || submitting) {
         return;
       }
       setSubmitting(true);
+      setError(null);
       try {
         await publishPost({ text });
         setText("");
+        setError(null);
         onPostCreated();
-      } catch (error) {
-        console.error("Error creating post:", error);
+      } catch (error2) {
+        const errorMessage = error2?.message || "Failed to create post";
+        setError(errorMessage);
       } finally {
         setSubmitting(false);
       }
@@ -24576,23 +24592,34 @@ var app = (() => {
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
         "textarea",
         {
-          className: PostForm_default.textarea,
+          className: `${PostForm_default.textarea} ${textLength > MAX_TEXT_LENGTH ? PostForm_default.textareaError : ""}`,
           value: text,
-          onChange: (e) => setText(e.target.value),
+          onChange: handleTextChange,
           placeholder: "What's on your mind?",
           rows: 4,
-          disabled: submitting
+          disabled: submitting,
+          maxLength: MAX_TEXT_LENGTH
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-        "button",
-        {
-          type: "submit",
-          className: PostForm_default.button,
-          disabled: submitting || !text.trim(),
-          children: submitting ? "Posting..." : "Post"
-        }
-      )
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: PostForm_default.footer, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: PostForm_default.meta, children: [
+          error && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: PostForm_default.error, children: error }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: `${PostForm_default.counter} ${textLength > MAX_TEXT_LENGTH ? PostForm_default.counterError : ""}`, children: [
+            textLength,
+            " / ",
+            MAX_TEXT_LENGTH
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          "button",
+          {
+            type: "submit",
+            className: PostForm_default.button,
+            disabled: submitting || !isValid,
+            children: submitting ? "Posting..." : "Post"
+          }
+        )
+      ] })
     ] });
   }
 

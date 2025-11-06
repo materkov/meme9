@@ -2,8 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
+
+	postsservice "github.com/materkov/meme9/web7/services/posts"
 )
 
 type PublishReq struct {
@@ -37,6 +40,11 @@ func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 
 	post, err := a.postsService.CreatePost(r.Context(), publishReq.Text, userID)
 	if err != nil {
+		// Handle validation errors with 400 Bad Request
+		if errors.Is(err, postsservice.ErrTextEmpty) || errors.Is(err, postsservice.ErrTextTooLong) {
+			writeBadRequest(w, err.Error())
+			return
+		}
 		writeInternalServerError(w, "failed to create post")
 		return
 	}
