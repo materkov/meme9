@@ -12,7 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var ErrTokenNotFound = errors.New("token not found")
+var (
+	ErrTokenNotFound = errors.New("token not found")
+	ErrUserNotFound  = errors.New("user not found")
+)
 
 type Adapter struct {
 	Client *mongo.Client
@@ -94,7 +97,10 @@ func (a *Adapter) GetUserByUsername(ctx context.Context, username string) (*User
 	var user User
 	err := collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrUserNotFound
+		}
+		return nil, fmt.Errorf("error finding user: %w", err)
 	}
 	return &user, nil
 }
@@ -108,7 +114,10 @@ func (a *Adapter) GetUserByID(ctx context.Context, userID string) (*User, error)
 	var user User
 	err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrUserNotFound
+		}
+		return nil, fmt.Errorf("error finding user: %w", err)
 	}
 	return &user, nil
 }

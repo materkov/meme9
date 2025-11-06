@@ -9,8 +9,6 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	mongodriver "go.mongodb.org/mongo-driver/mongo"
-
 	"github.com/materkov/meme9/web7/adapters/mongo"
 )
 
@@ -44,7 +42,7 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 		writeConflict(w, "username already exists")
 		return
 	}
-	if !errors.Is(err, mongodriver.ErrNoDocuments) {
+	if !errors.Is(err, mongo.ErrUserNotFound) {
 		writeInternalServerError(w, "database error")
 		return
 	}
