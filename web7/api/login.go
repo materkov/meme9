@@ -36,46 +36,40 @@ func generateToken() (string, error) {
 func (a *API) loginHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request body"})
+		writeBadRequest(w, "invalid request body")
 		return
 	}
 
 	var loginReq LoginReq
 	err = json.Unmarshal(body, &loginReq)
 	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid JSON"})
+		writeBadRequest(w, "invalid JSON")
 		return
 	}
 
 	if loginReq.Username == "" || loginReq.Password == "" {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(map[string]string{"error": "username and password required"})
+		writeBadRequest(w, "username and password required")
 		return
 	}
 
 	// Find user by username
 	user, err := a.mongo.GetUserByUsername(r.Context(), loginReq.Username)
 	if err != nil {
-		w.WriteHeader(401)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid credentials"})
+		writeUnauthorized(w, "invalid credentials")
 		return
 	}
 
 	// Verify password
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(loginReq.Password))
 	if err != nil {
-		w.WriteHeader(401)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid credentials"})
+		writeUnauthorized(w, "invalid credentials")
 		return
 	}
 
 	// Generate token
 	tokenValue, err := generateToken()
 	if err != nil {
-		w.WriteHeader(500)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to generate token"})
+		writeInternalServerError(w, "failed to generate token")
 		return
 	}
 
@@ -86,8 +80,7 @@ func (a *API) loginHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: time.Now(),
 	})
 	if err != nil {
-		w.WriteHeader(500)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to store token"})
+		writeInternalServerError(w, "failed to store token")
 		return
 	}
 

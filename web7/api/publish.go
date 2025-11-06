@@ -45,23 +45,20 @@ func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 	// Verify authentication token
 	userID, err := a.verifyToken(r)
 	if err != nil {
-		w.WriteHeader(401)
-		json.NewEncoder(w).Encode(map[string]string{"error": "unauthorized"})
+		writeUnauthorized(w, "unauthorized")
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request body"})
+		writeBadRequest(w, "invalid request body")
 		return
 	}
 
 	var publishReq PublishReq
 	err = json.Unmarshal(body, &publishReq)
 	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid JSON"})
+		writeBadRequest(w, "invalid JSON")
 		return
 	}
 
@@ -71,8 +68,7 @@ func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: time.Now(),
 	})
 	if err != nil {
-		w.WriteHeader(500)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to create post"})
+		writeInternalServerError(w, "failed to create post")
 		return
 	}
 

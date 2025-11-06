@@ -30,7 +30,7 @@ func mapMongoPostToAPIPost(mongoPost mongo.Post, username string) Post {
 func (a *API) feedHandler(w http.ResponseWriter, r *http.Request) {
 	mongoPosts, err := a.mongo.GetAllPosts(r.Context())
 	if err != nil {
-		w.WriteHeader(500)
+		writeInternalServerError(w, "failed to fetch posts")
 		return
 	}
 

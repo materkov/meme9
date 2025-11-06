@@ -22,43 +22,37 @@ type RegisterReq struct {
 func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request body"})
+		writeBadRequest(w, "invalid request body")
 		return
 	}
 
 	var registerReq RegisterReq
 	err = json.Unmarshal(body, &registerReq)
 	if err != nil {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(map[string]string{"error": "invalid JSON"})
+		writeBadRequest(w, "invalid JSON")
 		return
 	}
 
 	if registerReq.Username == "" || registerReq.Password == "" {
-		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(map[string]string{"error": "username and password required"})
+		writeBadRequest(w, "username and password required")
 		return
 	}
 
 	// Check if username already exists
 	_, err = a.mongo.GetUserByUsername(r.Context(), registerReq.Username)
 	if err == nil {
-		w.WriteHeader(409)
-		json.NewEncoder(w).Encode(map[string]string{"error": "username already exists"})
+		writeConflict(w, "username already exists")
 		return
 	}
 	if !errors.Is(err, mongodriver.ErrNoDocuments) {
-		w.WriteHeader(500)
-		json.NewEncoder(w).Encode(map[string]string{"error": "database error"})
+		writeInternalServerError(w, "database error")
 		return
 	}
 
 	// Hash password
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(registerReq.Password), bcrypt.DefaultCost)
 	if err != nil {
-		w.WriteHeader(500)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to hash password"})
+		writeInternalServerError(w, "failed to hash password")
 		return
 	}
 
@@ -69,16 +63,14 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:    time.Now(),
 	})
 	if err != nil {
-		w.WriteHeader(500)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to create user"})
+		writeInternalServerError(w, "failed to create user")
 		return
 	}
 
 	// Generate token
 	tokenValue, err := generateToken()
 	if err != nil {
-		w.WriteHeader(500)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to generate token"})
+		writeInternalServerError(w, "failed to generate token")
 		return
 	}
 
@@ -89,8 +81,7 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: time.Now(),
 	})
 	if err != nil {
-		w.WriteHeader(500)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to store token"})
+		writeInternalServerError(w, "failed to store token")
 		return
 	}
 
