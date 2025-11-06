@@ -24,7 +24,7 @@ type Adapter struct {
 	client *mongo.Client
 }
 
-func NewAdapter(client *mongo.Client) *Adapter {
+func New(client *mongo.Client) *Adapter {
 	return &Adapter{client: client}
 }
 

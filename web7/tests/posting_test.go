@@ -29,9 +29,9 @@ func initAPI() {
 	}
 
 	// Initialize adapters
-	postsAdapter := posts.NewAdapter(client)
-	usersAdapter := users.NewAdapter(client)
-	tokensAdapter := tokens.NewAdapter(client)
+	postsAdapter := posts.New(client)
+	usersAdapter := users.New(client)
+	tokensAdapter := tokens.New(client)
 
 	testAPI = api.NewAPI(postsAdapter, usersAdapter, tokensAdapter)
 }
