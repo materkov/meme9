@@ -49,6 +49,29 @@ func (a *Adapter) GetAll(ctx context.Context) ([]Post, error) {
 	return posts, nil
 }
 
+func (a *Adapter) GetByUserID(ctx context.Context, userID string) ([]Post, error) {
+	collection := a.client.Database("meme9").Collection("posts")
+
+	// Sort by _id in descending order (newest first, ObjectID contains timestamp)
+	opts := options.Find().SetSort(bson.D{{Key: "_id", Value: -1}})
+	cursor, err := collection.Find(ctx, bson.M{"user_id": userID}, opts)
+	if err != nil {
+		return nil, fmt.Errorf("error finding posts: %w", err)
+	}
+	defer cursor.Close(ctx)
+
+	posts := []Post{}
+	for cursor.Next(ctx) {
+		var post Post
+		err = cursor.Decode(&post)
+		if err != nil {
+			return nil, fmt.Errorf("error decoding post: %w", err)
+		}
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
 func (a *Adapter) Add(ctx context.Context, post Post) (*Post, error) {
 	collection := a.client.Database("meme9").Collection("posts")
 

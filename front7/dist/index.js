@@ -1085,7 +1085,7 @@ var app = (() => {
             }
             return dispatcher.useContext(Context);
           }
-          function useState4(initialState) {
+          function useState5(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1097,7 +1097,7 @@ var app = (() => {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect2(create, deps) {
+          function useEffect3(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1880,7 +1880,7 @@ var app = (() => {
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect2;
+          exports.useEffect = useEffect3;
           exports.useId = useId;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useInsertionEffect = useInsertionEffect;
@@ -1888,7 +1888,7 @@ var app = (() => {
           exports.useMemo = useMemo;
           exports.useReducer = useReducer;
           exports.useRef = useRef;
-          exports.useState = useState4;
+          exports.useState = useState5;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -24436,11 +24436,11 @@ var app = (() => {
               return jsxWithValidation(type, props, key, false);
             }
           }
-          var jsx6 = jsxWithValidationDynamic;
-          var jsxs5 = jsxWithValidationStatic;
+          var jsx7 = jsxWithValidationDynamic;
+          var jsxs6 = jsxWithValidationStatic;
           exports.Fragment = REACT_FRAGMENT_TYPE;
-          exports.jsx = jsx6;
-          exports.jsxs = jsxs5;
+          exports.jsx = jsx7;
+          exports.jsxs = jsxs6;
         })();
       }
     }
@@ -24462,21 +24462,33 @@ var app = (() => {
   var import_client = __toESM(require_client());
 
   // src/App.tsx
-  var import_react3 = __toESM(require_react());
+  var import_react4 = __toESM(require_react());
 
   // esbuild-css-modules-plugin-namespace:./src/App.module.css?esbuild-css-modules-plugin-building
   var App_default = { "container": "App-module__container_HBJwGq100", "empty": "App-module__empty_HBJwGq100", "feed": "App-module__feed_HBJwGq100", "header": "App-module__header_HBJwGq100", "loading": "App-module__loading_HBJwGq100", "logout": "App-module__logout_HBJwGq100", "main": "App-module__main_HBJwGq100", "userInfo": "App-module__userInfo_HBJwGq100", "username": "App-module__username_HBJwGq100" };
 
   // esbuild-css-modules-plugin-namespace:./src/Post/Post.module.css?esbuild-css-modules-plugin-building
-  var Post_default = { "date": "Post-module__date_ByJPLG100", "header": "Post-module__header_ByJPLG100", "post": "Post-module__post_ByJPLG100", "text": "Post-module__text_ByJPLG100", "username": "Post-module__username_ByJPLG100" };
+  var Post_default = { "date": "Post-module__date_ByJPLG100", "header": "Post-module__header_ByJPLG100", "post": "Post-module__post_ByJPLG100", "text": "Post-module__text_ByJPLG100", "username": "Post-module__username_ByJPLG100", "usernameClickable": "Post-module__usernameClickable_ByJPLG100" };
 
   // src/Post/Post.tsx
   var import_jsx_runtime = __toESM(require_jsx_runtime());
-  function Post({ text, username, createdAt }) {
+  function Post({ text, username, createdAt, userID, onUsernameClick }) {
     const formattedDate = new Date(createdAt).toLocaleString();
+    const handleUsernameClick = () => {
+      if (userID && onUsernameClick) {
+        onUsernameClick(userID);
+      }
+    };
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: Post_default.post, children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: Post_default.header, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: Post_default.username, children: username || "Unknown" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "span",
+          {
+            className: `${Post_default.username} ${userID && onUsernameClick ? Post_default.usernameClickable : ""}`,
+            onClick: handleUsernameClick,
+            children: username || "Unknown"
+          }
+        ),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("time", { className: Post_default.date, children: formattedDate })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: Post_default.text, children: text })
@@ -24505,6 +24517,19 @@ var app = (() => {
   }
   async function fetchPosts() {
     const response = await fetch(`${API_BASE_URL}/feed`);
+    if (!response.ok) {
+      throw await handleErrorResponse(response);
+    }
+    return response.json();
+  }
+  async function fetchUserPosts(userID) {
+    const response = await fetch(`${API_BASE_URL}/userPosts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ user_id: userID })
+    });
     if (!response.ok) {
       throw await handleErrorResponse(response);
     }
@@ -24741,26 +24766,66 @@ var app = (() => {
     ] }) });
   }
 
-  // src/App.tsx
+  // src/UserPostsPage/UserPostsPage.tsx
+  var import_react3 = __toESM(require_react());
+
+  // esbuild-css-modules-plugin-namespace:./src/UserPostsPage/UserPostsPage.module.css?esbuild-css-modules-plugin-building
+  var UserPostsPage_default = { "backButton": "UserPostsPage-module__backButton_VI8WUa100", "container": "UserPostsPage-module__container_VI8WUa100", "empty": "UserPostsPage-module__empty_VI8WUa100", "error": "UserPostsPage-module__error_VI8WUa100", "feed": "UserPostsPage-module__feed_VI8WUa100", "header": "UserPostsPage-module__header_VI8WUa100", "loading": "UserPostsPage-module__loading_VI8WUa100", "main": "UserPostsPage-module__main_VI8WUa100", "title": "UserPostsPage-module__title_VI8WUa100" };
+
+  // src/UserPostsPage/UserPostsPage.tsx
   var import_jsx_runtime4 = __toESM(require_jsx_runtime());
+  function UserPostsPage({ userID, onBack }) {
+    const [posts, setPosts] = (0, import_react3.useState)([]);
+    const [loading, setLoading] = (0, import_react3.useState)(true);
+    const [error, setError] = (0, import_react3.useState)(null);
+    const [username, setUsername] = (0, import_react3.useState)(null);
+    (0, import_react3.useEffect)(() => {
+      loadPosts();
+    }, [userID]);
+    const loadPosts = () => {
+      setLoading(true);
+      setError(null);
+      fetchUserPosts(userID).then((data) => {
+        setPosts(data);
+        if (data.length > 0) {
+          setUsername(data[0].username);
+        }
+        setLoading(false);
+      }).catch((err) => {
+        console.error("Error fetching user posts:", err);
+        setError(err instanceof ApiError ? err.errorDetails : "Failed to load posts");
+        setLoading(false);
+      });
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: UserPostsPage_default.container, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("header", { className: UserPostsPage_default.header, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { onClick: onBack, className: UserPostsPage_default.backButton, children: "\u2190 Back" }),
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { className: UserPostsPage_default.title, children: username ? `${username}'s Posts` : "User Posts" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("main", { className: UserPostsPage_default.main, children: loading ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: UserPostsPage_default.loading, children: "Loading posts..." }) : error ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: UserPostsPage_default.error, children: error }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: UserPostsPage_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: UserPostsPage_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+        Post,
+        {
+          text: post.text,
+          username: post.username,
+          createdAt: post.createdAt,
+          userID: post.user_id
+        },
+        post.id
+      )) }) })
+    ] });
+  }
+
+  // src/App.tsx
+  var import_jsx_runtime5 = __toESM(require_jsx_runtime());
   var AUTH_TOKEN_KEY = "auth_token";
   var AUTH_USER_KEY = "auth_user";
   function App() {
-    const [isAuthenticated, setIsAuthenticated] = (0, import_react3.useState)(false);
-    const [username, setUsername] = (0, import_react3.useState)(null);
-    const [posts, setPosts] = (0, import_react3.useState)([]);
-    const [loading, setLoading] = (0, import_react3.useState)(true);
-    (0, import_react3.useEffect)(() => {
-      const token = localStorage.getItem(AUTH_TOKEN_KEY);
-      const user = localStorage.getItem(AUTH_USER_KEY);
-      if (token && user) {
-        setIsAuthenticated(true);
-        setUsername(user);
-        loadPosts();
-      } else {
-        setLoading(false);
-      }
-    }, []);
+    const [isAuthenticated, setIsAuthenticated] = (0, import_react4.useState)(false);
+    const [username, setUsername] = (0, import_react4.useState)(null);
+    const [posts, setPosts] = (0, import_react4.useState)([]);
+    const [loading, setLoading] = (0, import_react4.useState)(true);
+    const [route, setRoute] = (0, import_react4.useState)("feed");
+    const [userID, setUserID] = (0, import_react4.useState)(null);
     const loadPosts = () => {
       setLoading(true);
       fetchPosts().then((data) => {
@@ -24770,6 +24835,52 @@ var app = (() => {
         console.error("Error fetching posts:", err);
         setLoading(false);
       });
+    };
+    const handleRouteChange = (shouldLoadPosts = false) => {
+      const path = window.location.pathname;
+      if (path.startsWith("/users/")) {
+        const id = path.replace("/users/", "").split("/")[0];
+        setUserID(id);
+        setRoute("user");
+      } else {
+        setRoute("feed");
+        setUserID(null);
+        if (shouldLoadPosts) {
+          loadPosts();
+        }
+      }
+    };
+    (0, import_react4.useEffect)(() => {
+      const token = localStorage.getItem(AUTH_TOKEN_KEY);
+      const user = localStorage.getItem(AUTH_USER_KEY);
+      if (token && user) {
+        setIsAuthenticated(true);
+        setUsername(user);
+        handleRouteChange(true);
+      } else {
+        setLoading(false);
+        handleRouteChange(false);
+      }
+    }, []);
+    (0, import_react4.useEffect)(() => {
+      const handlePopState = () => {
+        const path = window.location.pathname;
+        const shouldLoad = !path.startsWith("/users/") && isAuthenticated;
+        handleRouteChange(shouldLoad);
+      };
+      window.addEventListener("popstate", handlePopState);
+      return () => window.removeEventListener("popstate", handlePopState);
+    }, [isAuthenticated]);
+    const navigateToUser = (id) => {
+      window.history.pushState({}, "", `/users/${id}`);
+      setUserID(id);
+      setRoute("user");
+    };
+    const navigateToFeed = () => {
+      window.history.pushState({}, "", "/");
+      setRoute("feed");
+      setUserID(null);
+      loadPosts();
     };
     const handleAuthSuccess = (token, userId, username2) => {
       localStorage.setItem(AUTH_TOKEN_KEY, token);
@@ -24786,30 +24897,43 @@ var app = (() => {
       setPosts([]);
     };
     if (!isAuthenticated) {
-      return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Auth, { onAuthSuccess: handleAuthSuccess });
+      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Auth, { onAuthSuccess: handleAuthSuccess });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: App_default.container, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("header", { className: App_default.header, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { children: "Posts Feed" }),
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: App_default.userInfo, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { className: App_default.username, children: username }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { onClick: handleLogout, className: App_default.logout, children: "Logout" })
+    if (route === "user" && userID) {
+      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(UserPostsPage, { userID, onBack: navigateToFeed });
+    }
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: App_default.container, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("header", { className: App_default.header, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("h1", { children: "Posts Feed" }),
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: App_default.userInfo, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: App_default.username, children: username }),
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("button", { onClick: handleLogout, className: App_default.logout, children: "Logout" })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("main", { className: App_default.main, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PostForm, { onPostCreated: loadPosts }),
-        loading ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Post, { text: post.text, username: post.username, createdAt: post.createdAt }, post.id)) })
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("main", { className: App_default.main, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(PostForm, { onPostCreated: loadPosts }),
+        loading ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: App_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: App_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: App_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+          Post,
+          {
+            text: post.text,
+            username: post.username,
+            createdAt: post.createdAt,
+            userID: post.user_id,
+            onUsernameClick: navigateToUser
+          },
+          post.id
+        )) })
       ] })
     ] });
   }
   var App_default2 = App;
 
   // src/index.tsx
-  var import_jsx_runtime5 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime6 = __toESM(require_jsx_runtime());
   var container = document.getElementById("root");
   if (container) {
     const root = (0, import_client.createRoot)(container);
-    root.render(/* @__PURE__ */ (0, import_jsx_runtime5.jsx)(App_default2, {}));
+    root.render(/* @__PURE__ */ (0, import_jsx_runtime6.jsx)(App_default2, {}));
   }
 })();
 /*! Bundled license information:

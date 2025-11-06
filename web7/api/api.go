@@ -57,6 +57,7 @@ func (a *API) Serve() {
 	http.HandleFunc("/publish", corsMiddleware(jsonMiddleware(a.authMiddleware(a.publishHandler))))
 	http.HandleFunc("/login", corsMiddleware(jsonMiddleware(a.loginHandler)))
 	http.HandleFunc("/register", corsMiddleware(jsonMiddleware(a.registerHandler)))
+	http.HandleFunc("/userPosts", corsMiddleware(jsonMiddleware(a.userPostsHandler)))
 	http.HandleFunc("/static/", a.staticHandler)
 	http.HandleFunc("/", a.indexHandler)
 

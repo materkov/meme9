@@ -40,6 +40,24 @@ export async function fetchPosts(): Promise<Post[]> {
   return response.json();
 }
 
+export interface FetchUserPostsRequest {
+  user_id: string;
+}
+
+export async function fetchUserPosts(userID: string): Promise<Post[]> {
+  const response = await fetch(`${API_BASE_URL}/userPosts`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ user_id: userID }),
+  });
+  if (!response.ok) {
+    throw await handleErrorResponse(response);
+  }
+  return response.json();
+}
+
 export interface PublishPostRequest {
   text: string;
 }
