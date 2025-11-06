@@ -29,22 +29,20 @@ type Adapter struct {
 }
 
 func New(client *mongo.Client) *Adapter {
-	adapter := &Adapter{client: client}
+	return &Adapter{client: client}
+}
 
-	// Create unique index on username
-	ctx := context.Background()
-	collection := client.Database("meme9").Collection("users")
+func (a *Adapter) EnsureIndexes(ctx context.Context) error {
+	collection := a.client.Database("meme9").Collection("users")
 	indexModel := mongo.IndexModel{
 		Keys:    bson.D{{Key: "username", Value: 1}},
 		Options: options.Index().SetUnique(true),
 	}
 	_, err := collection.Indexes().CreateOne(ctx, indexModel)
 	if err != nil {
-		// Log error but don't fail - index might already exist
-		fmt.Printf("Warning: Failed to create username index: %v\n", err)
+		return fmt.Errorf("failed to create username index: %w", err)
 	}
-
-	return adapter
+	return nil
 }
 
 func (a *Adapter) GetByUsername(ctx context.Context, username string) (*User, error) {

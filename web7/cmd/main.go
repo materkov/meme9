@@ -40,6 +40,12 @@ func main() {
 	usersAdapter := users.New(client)
 	tokensAdapter := tokens.New(client)
 
+	// Ensure indexes
+	err = usersAdapter.EnsureIndexes(ctx)
+	if err != nil {
+		log.Printf("Warning: Failed to ensure user indexes: %v", err)
+	}
+
 	// Initialize services
 	postsService := postsservice.New(postsAdapter)
 	tokensService := tokensservice.New(tokensAdapter)
