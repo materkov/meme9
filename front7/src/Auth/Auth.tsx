@@ -11,11 +11,13 @@ export function Auth({ onAuthSuccess }: AuthProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setUsernameError('');
     setLoading(true);
 
     try {
@@ -25,7 +27,15 @@ export function Auth({ onAuthSuccess }: AuthProps) {
 
       onAuthSuccess(response.token, response.user_id, response.username);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      if (err instanceof api.ApiError) {
+        if (err.errorCode === 'username_exists') {
+          setUsernameError('Username already exists');
+        } else {
+          setError(err.message);
+        }
+      } else {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -40,6 +50,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
             onClick={() => {
               setIsLogin(true);
               setError('');
+              setUsernameError('');
             }}
           >
             Login
@@ -49,6 +60,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
             onClick={() => {
               setIsLogin(false);
               setError('');
+              setUsernameError('');
             }}
           >
             Register
@@ -62,10 +74,15 @@ export function Auth({ onAuthSuccess }: AuthProps) {
               id="username"
               type="text"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setUsernameError('');
+              }}
               required
               disabled={loading}
+              className={usernameError ? styles.inputError : ''}
             />
+            {usernameError && <div className={styles.fieldError}>{usernameError}</div>}
           </div>
 
           <div className={styles.field}>

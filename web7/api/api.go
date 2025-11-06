@@ -41,7 +41,7 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
@@ -54,7 +54,7 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 func (a *API) Serve() {
 	http.HandleFunc("/feed", corsMiddleware(jsonMiddleware(a.feedHandler)))
-	http.HandleFunc("/publish", corsMiddleware(jsonMiddleware(a.publishHandler)))
+	http.HandleFunc("/publish", corsMiddleware(jsonMiddleware(a.authMiddleware(a.publishHandler))))
 	http.HandleFunc("/login", corsMiddleware(jsonMiddleware(a.loginHandler)))
 	http.HandleFunc("/register", corsMiddleware(jsonMiddleware(a.registerHandler)))
 	http.HandleFunc("/static/", a.staticHandler)

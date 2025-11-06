@@ -31,7 +31,7 @@ func mapPostToAPIPost(post posts.Post, username string) Post {
 func (a *API) feedHandler(w http.ResponseWriter, r *http.Request) {
 	postsList, err := a.posts.GetAll(r.Context())
 	if err != nil {
-		writeInternalServerError(w, "failed to fetch posts")
+		writeInternalServerError(w, "internal_server_error", "")
 		return
 	}
 

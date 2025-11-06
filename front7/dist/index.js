@@ -24491,10 +24491,22 @@ var app = (() => {
 
   // src/api/api.ts
   var API_BASE_URL = window.API_BASE_URL;
+  var ApiError = class extends Error {
+    constructor(errorCode, errorDetails) {
+      super(`${errorCode}: ${errorDetails}`);
+      this.name = "ApiError";
+      this.errorCode = errorCode;
+      this.errorDetails = errorDetails;
+    }
+  };
+  async function handleErrorResponse(response) {
+    const errorData = await response.json();
+    return new ApiError(errorData.error, errorData.error_details);
+  }
   async function fetchPosts() {
     const response = await fetch(`${API_BASE_URL}/feed`);
     if (!response.ok) {
-      throw new Error("Failed to fetch posts");
+      throw await handleErrorResponse(response);
     }
     return response.json();
   }
@@ -24515,14 +24527,7 @@ var app = (() => {
       body: JSON.stringify(data)
     });
     if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error("Unauthorized. Please log in again.");
-      }
-      if (response.status === 400) {
-        const error = await response.json().catch(() => ({ error: "Invalid post data" }));
-        throw new Error(error.error || "Invalid post data");
-      }
-      throw new Error("Failed to create post");
+      throw await handleErrorResponse(response);
     }
     return response.json();
   }
@@ -24535,8 +24540,7 @@ var app = (() => {
       body: JSON.stringify(data)
     });
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: "Login failed" }));
-      throw new Error(error.error || "Login failed");
+      throw await handleErrorResponse(response);
     }
     return response.json();
   }
@@ -24549,8 +24553,7 @@ var app = (() => {
       body: JSON.stringify(data)
     });
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: "Registration failed" }));
-      throw new Error(error.error || "Registration failed");
+      throw await handleErrorResponse(response);
     }
     return response.json();
   }
@@ -24627,7 +24630,7 @@ var app = (() => {
   var import_react2 = __toESM(require_react());
 
   // esbuild-css-modules-plugin-namespace:./src/Auth/Auth.module.css?esbuild-css-modules-plugin-building
-  var Auth_default = { "active": "Auth-module__active_7Pe9Dq100", "card": "Auth-module__card_7Pe9Dq100", "container": "Auth-module__container_7Pe9Dq100", "error": "Auth-module__error_7Pe9Dq100", "field": "Auth-module__field_7Pe9Dq100", "form": "Auth-module__form_7Pe9Dq100", "submit": "Auth-module__submit_7Pe9Dq100", "tab": "Auth-module__tab_7Pe9Dq100", "tabs": "Auth-module__tabs_7Pe9Dq100" };
+  var Auth_default = { "active": "Auth-module__active_7Pe9Dq100", "card": "Auth-module__card_7Pe9Dq100", "container": "Auth-module__container_7Pe9Dq100", "error": "Auth-module__error_7Pe9Dq100", "field": "Auth-module__field_7Pe9Dq100", "fieldError": "Auth-module__fieldError_7Pe9Dq100", "form": "Auth-module__form_7Pe9Dq100", "inputError": "Auth-module__inputError_7Pe9Dq100", "submit": "Auth-module__submit_7Pe9Dq100", "tab": "Auth-module__tab_7Pe9Dq100", "tabs": "Auth-module__tabs_7Pe9Dq100" };
 
   // src/Auth/Auth.tsx
   var import_jsx_runtime3 = __toESM(require_jsx_runtime());
@@ -24636,16 +24639,26 @@ var app = (() => {
     const [username, setUsername] = (0, import_react2.useState)("");
     const [password, setPassword] = (0, import_react2.useState)("");
     const [error, setError] = (0, import_react2.useState)("");
+    const [usernameError, setUsernameError] = (0, import_react2.useState)("");
     const [loading, setLoading] = (0, import_react2.useState)(false);
     const handleSubmit = async (e) => {
       e.preventDefault();
       setError("");
+      setUsernameError("");
       setLoading(true);
       try {
         const response = isLogin ? await login({ username, password }) : await register({ username, password });
         onAuthSuccess(response.token, response.user_id, response.username);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        if (err instanceof ApiError) {
+          if (err.errorCode === "username_exists") {
+            setUsernameError("Username already exists");
+          } else {
+            setError(err.message);
+          }
+        } else {
+          setError(err instanceof Error ? err.message : "An error occurred");
+        }
       } finally {
         setLoading(false);
       }
@@ -24659,6 +24672,7 @@ var app = (() => {
             onClick: () => {
               setIsLogin(true);
               setError("");
+              setUsernameError("");
             },
             children: "Login"
           }
@@ -24670,6 +24684,7 @@ var app = (() => {
             onClick: () => {
               setIsLogin(false);
               setError("");
+              setUsernameError("");
             },
             children: "Register"
           }
@@ -24684,11 +24699,16 @@ var app = (() => {
               id: "username",
               type: "text",
               value: username,
-              onChange: (e) => setUsername(e.target.value),
+              onChange: (e) => {
+                setUsername(e.target.value);
+                setUsernameError("");
+              },
               required: true,
-              disabled: loading
+              disabled: loading,
+              className: usernameError ? Auth_default.inputError : ""
             }
-          )
+          ),
+          usernameError && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: Auth_default.fieldError, children: usernameError })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: Auth_default.field, children: [
           /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("label", { htmlFor: "password", children: "Password" }),

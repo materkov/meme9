@@ -9,9 +9,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var ErrNotFound = errors.New("user not found")
+var (
+	ErrNotFound       = errors.New("user not found")
+	ErrUsernameExists = errors.New("username already exists")
+)
 
 type User struct {
 	ID           string    `bson:"_id"`
@@ -25,7 +29,22 @@ type Adapter struct {
 }
 
 func New(client *mongo.Client) *Adapter {
-	return &Adapter{client: client}
+	adapter := &Adapter{client: client}
+
+	// Create unique index on username
+	ctx := context.Background()
+	collection := client.Database("meme9").Collection("users")
+	indexModel := mongo.IndexModel{
+		Keys:    bson.D{{Key: "username", Value: 1}},
+		Options: options.Index().SetUnique(true),
+	}
+	_, err := collection.Indexes().CreateOne(ctx, indexModel)
+	if err != nil {
+		// Log error but don't fail - index might already exist
+		fmt.Printf("Warning: Failed to create username index: %v\n", err)
+	}
+
+	return adapter
 }
 
 func (a *Adapter) GetByUsername(ctx context.Context, username string) (*User, error) {
@@ -110,6 +129,10 @@ func (a *Adapter) Create(ctx context.Context, user User) (*User, error) {
 	}
 	result, err := collection.InsertOne(ctx, insertDoc)
 	if err != nil {
+		// Check for duplicate key error (username already exists)
+		if mongo.IsDuplicateKeyError(err) {
+			return nil, ErrUsernameExists
+		}
 		return nil, fmt.Errorf("error creating user: %w", err)
 	}
 

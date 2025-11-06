@@ -79,6 +79,16 @@
   cursor: not-allowed;
 }
 
+.inputError {
+  border-color: #dc3545 !important;
+}
+
+.fieldError {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
 .error {
   padding: 0.75rem;
   background: #fee;

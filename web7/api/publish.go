@@ -20,32 +20,30 @@ type PublishResp struct {
 func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		writeBadRequest(w, "invalid request body")
+		writeErrorCode(w, "invalid_request_body", "")
 		return
 	}
 
 	var publishReq PublishReq
 	err = json.Unmarshal(body, &publishReq)
 	if err != nil {
-		writeBadRequest(w, "invalid JSON")
+		writeErrorCode(w, "invalid_json", "")
 		return
 	}
 
-	authHeader := r.Header.Get("Authorization")
-	userID, err := a.tokensService.VerifyToken(r.Context(), authHeader)
-	if err != nil {
-		writeUnauthorized(w, "unauthorized")
-		return
-	}
-
+	userID := getUserID(r)
 	post, err := a.postsService.CreatePost(r.Context(), publishReq.Text, userID)
 	if err != nil {
 		// Handle validation errors with 400 Bad Request
-		if errors.Is(err, postsservice.ErrTextEmpty) || errors.Is(err, postsservice.ErrTextTooLong) {
-			writeBadRequest(w, err.Error())
+		if errors.Is(err, postsservice.ErrTextEmpty) {
+			writeErrorCode(w, "text_empty", "")
 			return
 		}
-		writeInternalServerError(w, "failed to create post")
+		if errors.Is(err, postsservice.ErrTextTooLong) {
+			writeErrorCode(w, "text_too_long", "")
+			return
+		}
+		writeInternalServerError(w, "internal_server_error", "")
 		return
 	}
 

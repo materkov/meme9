@@ -21,37 +21,30 @@ type RegisterReq struct {
 func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		writeBadRequest(w, "invalid request body")
+		writeErrorCode(w, "invalid_request_body", "")
 		return
 	}
 
 	var registerReq RegisterReq
 	err = json.Unmarshal(body, &registerReq)
 	if err != nil {
-		writeBadRequest(w, "invalid JSON")
+		writeErrorCode(w, "invalid_json", "")
 		return
 	}
 
-	if registerReq.Username == "" || registerReq.Password == "" {
-		writeBadRequest(w, "username and password required")
+	if registerReq.Username == "" {
+		writeErrorCode(w, "username_required", "")
 		return
 	}
-
-	// Check if username already exists
-	_, err = a.users.GetByUsername(r.Context(), registerReq.Username)
-	if err == nil {
-		writeConflict(w, "username already exists")
-		return
-	}
-	if !errors.Is(err, users.ErrNotFound) {
-		writeInternalServerError(w, "database error")
+	if registerReq.Password == "" {
+		writeErrorCode(w, "password_required", "")
 		return
 	}
 
 	// Hash password
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(registerReq.Password), bcrypt.DefaultCost)
 	if err != nil {
-		writeInternalServerError(w, "failed to hash password")
+		writeInternalServerError(w, "internal_server_error", "")
 		return
 	}
 
@@ -62,14 +55,18 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:    time.Now(),
 	})
 	if err != nil {
-		writeInternalServerError(w, "failed to create user")
+		if errors.Is(err, users.ErrUsernameExists) {
+			writeErrorCode(w, "username_exists", "")
+			return
+		}
+		writeInternalServerError(w, "internal_server_error", "")
 		return
 	}
 
 	// Generate token
 	tokenValue, err := generateToken()
 	if err != nil {
-		writeInternalServerError(w, "failed to generate token")
+		writeInternalServerError(w, "internal_server_error", "")
 		return
 	}
 
@@ -80,7 +77,7 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: time.Now(),
 	})
 	if err != nil {
-		writeInternalServerError(w, "failed to store token")
+		writeInternalServerError(w, "internal_server_error", "")
 		return
 	}
 

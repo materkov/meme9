@@ -10,10 +10,32 @@ export interface Post {
   createdAd: string;
 }
 
+export interface ErrorResponse {
+  error: string;
+  error_details: string;
+}
+
+export class ApiError extends Error {
+  errorCode: string;
+  errorDetails: string;
+
+  constructor(errorCode: string, errorDetails: string) {
+    super(`${errorCode}: ${errorDetails}`);
+    this.name = 'ApiError';
+    this.errorCode = errorCode;
+    this.errorDetails = errorDetails;
+  }
+}
+
+async function handleErrorResponse(response: Response): Promise<ApiError> {
+  const errorData: ErrorResponse = await response.json();
+  return new ApiError(errorData.error, errorData.error_details);
+}
+
 export async function fetchPosts(): Promise<Post[]> {
   const response = await fetch(`${API_BASE_URL}/feed`);
   if (!response.ok) {
-    throw new Error('Failed to fetch posts');
+    throw await handleErrorResponse(response);
   }
   return response.json();
 }
@@ -47,14 +69,7 @@ export async function publishPost(data: PublishPostRequest): Promise<PublishPost
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Unauthorized. Please log in again.');
-    }
-    if (response.status === 400) {
-      const error = await response.json().catch(() => ({ error: 'Invalid post data' }));
-      throw new Error(error.error || 'Invalid post data');
-    }
-    throw new Error('Failed to create post');
+    throw await handleErrorResponse(response);
   }
 
   return response.json();
@@ -81,8 +96,7 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Login failed' }));
-    throw new Error(error.error || 'Login failed');
+    throw await handleErrorResponse(response);
   }
 
   return response.json();
@@ -103,8 +117,7 @@ export async function register(data: RegisterRequest): Promise<LoginResponse> {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Registration failed' }));
-    throw new Error(error.error || 'Registration failed');
+    throw await handleErrorResponse(response);
   }
 
   return response.json();
