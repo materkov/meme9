@@ -12,12 +12,18 @@ export function Auth({ onAuthSuccess }: AuthProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [usernameError, setUsernameError] = useState('');
+  const [credentialsError, setCredentialsError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const clearErrors = () => {
+    setError('');
+    setUsernameError('');
+    setCredentialsError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setUsernameError('');
+    clearErrors();
     setLoading(true);
 
     try {
@@ -30,6 +36,8 @@ export function Auth({ onAuthSuccess }: AuthProps) {
       if (err instanceof api.ApiError) {
         if (err.errorCode === 'username_exists') {
           setUsernameError('Username already exists');
+        } else if (err.errorCode === 'invalid_credentials' && isLogin) {
+          setCredentialsError('Invalid username or password');
         } else {
           setError(err.message);
         }
@@ -49,8 +57,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
             className={`${styles.tab} ${isLogin ? styles.active : ''}`}
             onClick={() => {
               setIsLogin(true);
-              setError('');
-              setUsernameError('');
+              clearErrors();
             }}
           >
             Login
@@ -59,8 +66,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
             className={`${styles.tab} ${!isLogin ? styles.active : ''}`}
             onClick={() => {
               setIsLogin(false);
-              setError('');
-              setUsernameError('');
+              clearErrors();
             }}
           >
             Register
@@ -77,6 +83,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
               onChange={(e) => {
                 setUsername(e.target.value);
                 setUsernameError('');
+                setCredentialsError('');
               }}
               required
               disabled={loading}
@@ -91,10 +98,15 @@ export function Auth({ onAuthSuccess }: AuthProps) {
               id="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setCredentialsError('');
+              }}
               required
               disabled={loading}
+              className={credentialsError ? styles.inputError : ''}
             />
+            {credentialsError && <div className={styles.fieldError}>{credentialsError}</div>}
           </div>
 
           {error && <div className={styles.error}>{error}</div>}

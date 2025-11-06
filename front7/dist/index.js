@@ -24640,11 +24640,16 @@ var app = (() => {
     const [password, setPassword] = (0, import_react2.useState)("");
     const [error, setError] = (0, import_react2.useState)("");
     const [usernameError, setUsernameError] = (0, import_react2.useState)("");
+    const [credentialsError, setCredentialsError] = (0, import_react2.useState)("");
     const [loading, setLoading] = (0, import_react2.useState)(false);
-    const handleSubmit = async (e) => {
-      e.preventDefault();
+    const clearErrors = () => {
       setError("");
       setUsernameError("");
+      setCredentialsError("");
+    };
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      clearErrors();
       setLoading(true);
       try {
         const response = isLogin ? await login({ username, password }) : await register({ username, password });
@@ -24653,6 +24658,8 @@ var app = (() => {
         if (err instanceof ApiError) {
           if (err.errorCode === "username_exists") {
             setUsernameError("Username already exists");
+          } else if (err.errorCode === "invalid_credentials" && isLogin) {
+            setCredentialsError("Invalid username or password");
           } else {
             setError(err.message);
           }
@@ -24671,8 +24678,7 @@ var app = (() => {
             className: `${Auth_default.tab} ${isLogin ? Auth_default.active : ""}`,
             onClick: () => {
               setIsLogin(true);
-              setError("");
-              setUsernameError("");
+              clearErrors();
             },
             children: "Login"
           }
@@ -24683,8 +24689,7 @@ var app = (() => {
             className: `${Auth_default.tab} ${!isLogin ? Auth_default.active : ""}`,
             onClick: () => {
               setIsLogin(false);
-              setError("");
-              setUsernameError("");
+              clearErrors();
             },
             children: "Register"
           }
@@ -24702,6 +24707,7 @@ var app = (() => {
               onChange: (e) => {
                 setUsername(e.target.value);
                 setUsernameError("");
+                setCredentialsError("");
               },
               required: true,
               disabled: loading,
@@ -24718,11 +24724,16 @@ var app = (() => {
               id: "password",
               type: "password",
               value: password,
-              onChange: (e) => setPassword(e.target.value),
+              onChange: (e) => {
+                setPassword(e.target.value);
+                setCredentialsError("");
+              },
               required: true,
-              disabled: loading
+              disabled: loading,
+              className: credentialsError ? Auth_default.inputError : ""
             }
-          )
+          ),
+          credentialsError && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: Auth_default.fieldError, children: credentialsError })
         ] }),
         error && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: Auth_default.error, children: error }),
         /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { type: "submit", disabled: loading, className: Auth_default.submit, children: loading ? "Loading..." : isLogin ? "Login" : "Register" })
