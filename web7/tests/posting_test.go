@@ -12,7 +12,8 @@ import (
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
-	"github.com/materkov/meme9/web7/services"
+	postsservice "github.com/materkov/meme9/web7/services/posts"
+	tokensservice "github.com/materkov/meme9/web7/services/tokens"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -35,9 +36,10 @@ func initAPI() {
 	tokensAdapter := tokens.New(client)
 
 	// Initialize services
-	postsService := services.NewPostsService(postsAdapter, tokensAdapter)
+	postsService := postsservice.New(postsAdapter)
+	tokensService := tokensservice.New(tokensAdapter)
 
-	testAPI = api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, postsService)
+	testAPI = api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, postsService, tokensService)
 }
 
 func apiRequest(t *testing.T, method string, req, resp any) {

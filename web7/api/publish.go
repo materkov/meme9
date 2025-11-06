@@ -29,7 +29,7 @@ func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authHeader := r.Header.Get("Authorization")
-	userID, err := a.postsService.VerifyToken(r.Context(), authHeader)
+	userID, err := a.tokensService.VerifyToken(r.Context(), authHeader)
 	if err != nil {
 		writeUnauthorized(w, "unauthorized")
 		return
