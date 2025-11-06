@@ -5,8 +5,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/materkov/meme9/web7/adapters/mongo"
+	"github.com/materkov/meme9/web7/adapters/posts"
+	"github.com/materkov/meme9/web7/adapters/tokens"
+	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
@@ -16,19 +20,24 @@ func main() {
 	}
 
 	ctx := context.Background()
-	mongoAdapter, err := mongo.NewAdapter(ctx, mongoURI)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 
 	// Ping MongoDB to verify connection
-	err = mongoAdapter.Client.Ping(ctx, nil)
+	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to ping MongoDB: %v", err)
 	}
 
 	log.Println("Successfully connected to MongoDB")
 
-	apiAdapter := api.NewAPI(mongoAdapter)
+	// Initialize adapters
+	postsAdapter := posts.NewAdapter(client)
+	usersAdapter := users.NewAdapter(client)
+	tokensAdapter := tokens.NewAdapter(client)
+
+	apiAdapter := api.NewAPI(postsAdapter, usersAdapter, tokensAdapter)
 	apiAdapter.Serve()
 }

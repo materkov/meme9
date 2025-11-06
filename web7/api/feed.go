@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/materkov/meme9/web7/adapters/mongo"
+	"github.com/materkov/meme9/web7/adapters/posts"
+	"github.com/materkov/meme9/web7/adapters/users"
 )
 
 type Post struct {
@@ -17,18 +18,18 @@ type Post struct {
 	CreatedAt string `json:"createdAd"`
 }
 
-func mapMongoPostToAPIPost(mongoPost mongo.Post, username string) Post {
+func mapPostToAPIPost(post posts.Post, username string) Post {
 	return Post{
-		ID:        mongoPost.ID,
-		Text:      mongoPost.Text,
-		UserID:    mongoPost.UserID,
+		ID:        post.ID,
+		Text:      post.Text,
+		UserID:    post.UserID,
 		Username:  username,
-		CreatedAt: mongoPost.CreatedAt.Format(time.RFC3339),
+		CreatedAt: post.CreatedAt.Format(time.RFC3339),
 	}
 }
 
 func (a *API) feedHandler(w http.ResponseWriter, r *http.Request) {
-	mongoPosts, err := a.mongo.GetAllPosts(r.Context())
+	postsList, err := a.posts.GetAll(r.Context())
 	if err != nil {
 		writeInternalServerError(w, "failed to fetch posts")
 		return
@@ -36,7 +37,7 @@ func (a *API) feedHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Collect unique user IDs
 	userIDSet := make(map[string]bool)
-	for _, post := range mongoPosts {
+	for _, post := range postsList {
 		if post.UserID != "" {
 			userIDSet[post.UserID] = true
 		}
@@ -49,24 +50,24 @@ func (a *API) feedHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch all users in a single batch query
-	users, err := a.mongo.GetUsersByIDs(r.Context(), userIDs)
+	usersMap, err := a.users.GetByIDs(r.Context(), userIDs)
 	if err != nil {
 		// Log error but continue with empty usernames
 		log.Printf("Error fetching users: %v", err)
-		users = make(map[string]*mongo.User)
+		usersMap = make(map[string]*users.User)
 	}
 
 	// Build username map
 	usernameMap := make(map[string]string)
-	for userID, user := range users {
+	for userID, user := range usersMap {
 		usernameMap[userID] = user.Username
 	}
 
 	// Map posts to API posts with usernames
-	apiPosts := make([]Post, len(mongoPosts))
-	for i, mongoPost := range mongoPosts {
-		username := usernameMap[mongoPost.UserID]
-		apiPosts[i] = mapMongoPostToAPIPost(mongoPost, username)
+	apiPosts := make([]Post, len(postsList))
+	for i, post := range postsList {
+		username := usernameMap[post.UserID]
+		apiPosts[i] = mapPostToAPIPost(post, username)
 	}
 
 	json.NewEncoder(w).Encode(apiPosts)

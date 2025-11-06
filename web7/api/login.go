@@ -10,7 +10,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/materkov/meme9/web7/adapters/mongo"
+	"github.com/materkov/meme9/web7/adapters/tokens"
 )
 
 type LoginReq struct {
@@ -53,7 +53,7 @@ func (a *API) loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Find user by username
-	user, err := a.mongo.GetUserByUsername(r.Context(), loginReq.Username)
+	user, err := a.users.GetByUsername(r.Context(), loginReq.Username)
 	if err != nil {
 		writeUnauthorized(w, "invalid credentials")
 		return
@@ -74,7 +74,7 @@ func (a *API) loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store token
-	_, err = a.mongo.CreateToken(r.Context(), mongo.Token{
+	_, err = a.tokens.Create(r.Context(), tokens.Token{
 		Token:     tokenValue,
 		UserID:    user.ID,
 		CreatedAt: time.Now(),

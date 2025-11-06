@@ -8,9 +8,13 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/materkov/meme9/web7/adapters/mongo"
+	"github.com/materkov/meme9/web7/adapters/posts"
+	"github.com/materkov/meme9/web7/adapters/tokens"
+	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const baseURL = "http://localhost:8080"
@@ -19,11 +23,17 @@ var testAPI *api.API
 
 func initAPI() {
 	ctx := context.Background()
-	mongoAdapter, err := mongo.NewAdapter(ctx, "mongodb://admin:password@localhost:27017/meme9?authSource=admin")
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://admin:password@localhost:27017/meme9?authSource=admin"))
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
-	testAPI = api.NewAPI(mongoAdapter)
+
+	// Initialize adapters
+	postsAdapter := posts.NewAdapter(client)
+	usersAdapter := users.NewAdapter(client)
+	tokensAdapter := tokens.NewAdapter(client)
+
+	testAPI = api.NewAPI(postsAdapter, usersAdapter, tokensAdapter)
 }
 
 func apiRequest(t *testing.T, method string, req, resp any) {

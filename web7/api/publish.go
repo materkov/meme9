@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/materkov/meme9/web7/adapters/mongo"
+	"github.com/materkov/meme9/web7/adapters/posts"
+	"github.com/materkov/meme9/web7/adapters/tokens"
 )
 
 type PublishReq struct {
@@ -30,9 +31,9 @@ func (a *API) verifyToken(r *http.Request) (string, error) {
 	tokenValue := strings.TrimPrefix(authHeader, "Bearer ")
 	tokenValue = strings.TrimSpace(tokenValue)
 
-	token, err := a.mongo.GetTokenByValue(r.Context(), tokenValue)
+	token, err := a.tokens.GetByValue(r.Context(), tokenValue)
 	if err != nil {
-		if errors.Is(err, mongo.ErrTokenNotFound) {
+		if errors.Is(err, tokens.ErrNotFound) {
 			return "", fmt.Errorf("invalid token")
 		}
 		return "", fmt.Errorf("error verifying token: %w", err)
@@ -62,7 +63,7 @@ func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := a.mongo.AddPost(r.Context(), mongo.Post{
+	post, err := a.posts.Add(r.Context(), posts.Post{
 		Text:      publishReq.Text,
 		UserID:    userID,
 		CreatedAt: time.Now(),

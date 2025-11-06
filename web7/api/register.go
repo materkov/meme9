@@ -9,7 +9,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/materkov/meme9/web7/adapters/mongo"
+	"github.com/materkov/meme9/web7/adapters/tokens"
+	"github.com/materkov/meme9/web7/adapters/users"
 )
 
 type RegisterReq struct {
@@ -37,12 +38,12 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if username already exists
-	_, err = a.mongo.GetUserByUsername(r.Context(), registerReq.Username)
+	_, err = a.users.GetByUsername(r.Context(), registerReq.Username)
 	if err == nil {
 		writeConflict(w, "username already exists")
 		return
 	}
-	if !errors.Is(err, mongo.ErrUserNotFound) {
+	if !errors.Is(err, users.ErrNotFound) {
 		writeInternalServerError(w, "database error")
 		return
 	}
@@ -55,7 +56,7 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	user, err := a.mongo.CreateUser(r.Context(), mongo.User{
+	user, err := a.users.Create(r.Context(), users.User{
 		Username:     registerReq.Username,
 		PasswordHash: string(passwordHash),
 		CreatedAt:    time.Now(),
@@ -73,7 +74,7 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store token
-	_, err = a.mongo.CreateToken(r.Context(), mongo.Token{
+	_, err = a.tokens.Create(r.Context(), tokens.Token{
 		Token:     tokenValue,
 		UserID:    user.ID,
 		CreatedAt: time.Now(),

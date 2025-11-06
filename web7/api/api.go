@@ -4,15 +4,23 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/materkov/meme9/web7/adapters/mongo"
+	"github.com/materkov/meme9/web7/adapters/posts"
+	"github.com/materkov/meme9/web7/adapters/tokens"
+	"github.com/materkov/meme9/web7/adapters/users"
 )
 
 type API struct {
-	mongo *mongo.Adapter
+	posts  *posts.Adapter
+	users  *users.Adapter
+	tokens *tokens.Adapter
 }
 
-func NewAPI(mongo *mongo.Adapter) *API {
-	return &API{mongo: mongo}
+func NewAPI(postsAdapter *posts.Adapter, usersAdapter *users.Adapter, tokensAdapter *tokens.Adapter) *API {
+	return &API{
+		posts:  postsAdapter,
+		users:  usersAdapter,
+		tokens: tokensAdapter,
+	}
 }
 
 func jsonMiddleware(next http.HandlerFunc) http.HandlerFunc {
