@@ -2,9 +2,12 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Install dependencies
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
+# Install dependencies (including optional dependencies for native modules)
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm install --include=optional
 
 # Copy source
 COPY . .

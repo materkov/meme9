@@ -28,10 +28,8 @@ func indexHTML() string {
 }
 
 func (a *API) indexHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
+	// Serve index.html for all routes (client-side routing)
+	// API routes and static files are handled by other handlers registered before this one
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(indexHTML()))
