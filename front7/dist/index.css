@@ -83,19 +83,29 @@ body {
 .Post-module__post_ByJPLG100:hover {
   box-shadow: 0 2px 8px #0000001a;
 }
-.Post-module__text_ByJPLG100 {
+.Post-module__header_ByJPLG100 {
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  display: flex;
+}
+.Post-module__username_ByJPLG100 {
   color: #333;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  margin: 0 0 12px;
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 15px;
+  font-weight: 600;
 }
 .Post-module__date_ByJPLG100 {
   color: #999;
   font-size: 14px;
   font-weight: 400;
-  display: block;
+}
+.Post-module__text_ByJPLG100 {
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 /* esbuild-css-modules-plugin-namespace:./src/PostForm/PostForm.module.css?esbuild-css-modules-plugin-built */

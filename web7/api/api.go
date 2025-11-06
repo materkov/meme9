@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -52,13 +53,17 @@ func NewAPI(mongo *mongo.Adapter) *API {
 type Post struct {
 	ID        string `json:"id"`
 	Text      string `json:"text"`
+	UserID    string `json:"user_id"`
+	Username  string `json:"username"`
 	CreatedAt string `json:"createdAd"`
 }
 
-func mapMongoPostToAPIPost(mongoPost mongo.Post) Post {
+func mapMongoPostToAPIPost(mongoPost mongo.Post, username string) Post {
 	return Post{
 		ID:        mongoPost.ID,
 		Text:      mongoPost.Text,
+		UserID:    mongoPost.UserID,
+		Username:  username,
 		CreatedAt: mongoPost.CreatedAt.Format(time.RFC3339),
 	}
 }
@@ -87,9 +92,39 @@ func (a *API) feedHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Collect unique user IDs
+	userIDSet := make(map[string]bool)
+	for _, post := range mongoPosts {
+		if post.UserID != "" {
+			userIDSet[post.UserID] = true
+		}
+	}
+
+	// Convert set to slice
+	userIDs := make([]string, 0, len(userIDSet))
+	for userID := range userIDSet {
+		userIDs = append(userIDs, userID)
+	}
+
+	// Fetch all users in a single batch query
+	users, err := a.mongo.GetUsersByIDs(r.Context(), userIDs)
+	if err != nil {
+		// Log error but continue with empty usernames
+		log.Printf("Error fetching users: %v", err)
+		users = make(map[string]*mongo.User)
+	}
+
+	// Build username map
+	usernameMap := make(map[string]string)
+	for userID, user := range users {
+		usernameMap[userID] = user.Username
+	}
+
+	// Map posts to API posts with usernames
 	apiPosts := make([]Post, len(mongoPosts))
 	for i, mongoPost := range mongoPosts {
-		apiPosts[i] = mapMongoPostToAPIPost(mongoPost)
+		username := usernameMap[mongoPost.UserID]
+		apiPosts[i] = mapMongoPostToAPIPost(mongoPost, username)
 	}
 
 	json.NewEncoder(w).Encode(apiPosts)
@@ -103,8 +138,38 @@ type PublishResp struct {
 	ID string `json:"id"`
 }
 
+func (a *API) verifyToken(r *http.Request) (string, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", fmt.Errorf("missing authorization header")
+	}
+
+	// Support both "Bearer token" and just "token"
+	tokenValue := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenValue = strings.TrimSpace(tokenValue)
+
+	token, err := a.mongo.GetTokenByValue(r.Context(), tokenValue)
+	if err != nil {
+		if errors.Is(err, mongodriver.ErrNoDocuments) {
+			return "", fmt.Errorf("invalid token")
+		}
+		return "", fmt.Errorf("error verifying token: %w", err)
+	}
+
+	return token.UserID, nil
+}
+
 func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	// Verify authentication token
+	userID, err := a.verifyToken(r)
+	if err != nil {
+		w.WriteHeader(401)
+		json.NewEncoder(w).Encode(map[string]string{"error": "unauthorized"})
+		return
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(400)
@@ -122,6 +187,7 @@ func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 
 	post, err := a.mongo.AddPost(r.Context(), mongo.Post{
 		Text:      publishReq.Text,
+		UserID:    userID,
 		CreatedAt: time.Now(),
 	})
 	if err != nil {
@@ -216,16 +282,28 @@ func (a *API) loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate token
-	token, err := generateToken()
+	tokenValue, err := generateToken()
 	if err != nil {
 		w.WriteHeader(500)
 		json.NewEncoder(w).Encode(map[string]string{"error": "failed to generate token"})
 		return
 	}
 
+	// Store token
+	_, err = a.mongo.CreateToken(r.Context(), mongo.Token{
+		Token:     tokenValue,
+		UserID:    user.ID,
+		CreatedAt: time.Now(),
+	})
+	if err != nil {
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to store token"})
+		return
+	}
+
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(LoginResp{
-		Token:    token,
+		Token:    tokenValue,
 		UserID:   user.ID,
 		Username: user.Username,
 	})
@@ -267,7 +345,7 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"error": "username already exists"})
 		return
 	}
-	if err != mongodriver.ErrNoDocuments {
+	if !errors.Is(err, mongodriver.ErrNoDocuments) {
 		w.WriteHeader(500)
 		json.NewEncoder(w).Encode(map[string]string{"error": "database error"})
 		return
@@ -294,16 +372,28 @@ func (a *API) registerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate token
-	token, err := generateToken()
+	tokenValue, err := generateToken()
 	if err != nil {
 		w.WriteHeader(500)
 		json.NewEncoder(w).Encode(map[string]string{"error": "failed to generate token"})
 		return
 	}
 
+	// Store token
+	_, err = a.mongo.CreateToken(r.Context(), mongo.Token{
+		Token:     tokenValue,
+		UserID:    user.ID,
+		CreatedAt: time.Now(),
+	})
+	if err != nil {
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to store token"})
+		return
+	}
+
 	w.WriteHeader(201)
 	json.NewEncoder(w).Encode(LoginResp{
-		Token:    token,
+		Token:    tokenValue,
 		UserID:   user.ID,
 		Username: user.Username,
 	})

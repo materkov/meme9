@@ -24468,15 +24468,18 @@ var app = (() => {
   var App_default = { "container": "App-module__container_HBJwGq100", "empty": "App-module__empty_HBJwGq100", "feed": "App-module__feed_HBJwGq100", "header": "App-module__header_HBJwGq100", "loading": "App-module__loading_HBJwGq100", "logout": "App-module__logout_HBJwGq100", "main": "App-module__main_HBJwGq100", "userInfo": "App-module__userInfo_HBJwGq100", "username": "App-module__username_HBJwGq100" };
 
   // esbuild-css-modules-plugin-namespace:./src/Post/Post.module.css?esbuild-css-modules-plugin-building
-  var Post_default = { "date": "Post-module__date_ByJPLG100", "post": "Post-module__post_ByJPLG100", "text": "Post-module__text_ByJPLG100" };
+  var Post_default = { "date": "Post-module__date_ByJPLG100", "header": "Post-module__header_ByJPLG100", "post": "Post-module__post_ByJPLG100", "text": "Post-module__text_ByJPLG100", "username": "Post-module__username_ByJPLG100" };
 
   // src/Post/Post.tsx
   var import_jsx_runtime = __toESM(require_jsx_runtime());
-  function Post({ text, createdAt }) {
+  function Post({ text, username, createdAt }) {
     const formattedDate = new Date(createdAt).toLocaleString();
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: Post_default.post, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: Post_default.text, children: text }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("time", { className: Post_default.date, children: formattedDate })
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: Post_default.header, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: Post_default.username, children: username || "Unknown" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("time", { className: Post_default.date, children: formattedDate })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: Post_default.text, children: text })
     ] });
   }
 
@@ -24495,15 +24498,26 @@ var app = (() => {
     }
     return response.json();
   }
+  function getAuthToken() {
+    return localStorage.getItem("auth_token");
+  }
   async function publishPost(data) {
+    const token = getAuthToken();
+    const headers = {
+      "Content-Type": "application/json"
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
     const response = await fetch(`${API_BASE_URL}/publish`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers,
       body: JSON.stringify(data)
     });
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
       throw new Error("Failed to create post");
     }
     return response.json();
@@ -24726,7 +24740,7 @@ var app = (() => {
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("main", { className: App_default.main, children: [
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PostForm, { onPostCreated: loadPosts }),
-        loading ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Post, { text: post.text, createdAt: post.createdAd }, post.id)) })
+        loading ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Post, { text: post.text, username: post.username, createdAt: post.createdAd }, post.id)) })
       ] })
     ] });
   }

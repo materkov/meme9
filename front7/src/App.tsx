@@ -80,7 +80,7 @@ function App() {
         ) : (
           <div className={styles.feed}>
             {posts.map(post => (
-              <Post key={post.id} text={post.text} createdAt={post.createdAd} />
+              <Post key={post.id} text={post.text} username={post.username} createdAt={post.createdAd} />
             ))}
           </div>
         )}

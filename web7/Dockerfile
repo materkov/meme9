@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine3.19
+FROM golang:1.24.9-alpine3.22
 RUN apk add --no-cache git gcc musl-dev
 WORKDIR /build
 COPY go.mod .
@@ -7,7 +7,7 @@ RUN go mod download
 COPY . .
 RUN go build -o /app /build/cmd
 
-FROM alpine:3.19.1
+FROM alpine:3.22
 RUN apk add --no-cache ca-certificates
 COPY --from=0 /app /app
 CMD ["/app"]
