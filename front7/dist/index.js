@@ -24798,7 +24798,7 @@ var app = (() => {
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("main", { className: App_default.main, children: [
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PostForm, { onPostCreated: loadPosts }),
-        loading ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Post, { text: post.text, username: post.username, createdAt: post.createdAd }, post.id)) })
+        loading ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: App_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Post, { text: post.text, username: post.username, createdAt: post.createdAt }, post.id)) })
       ] })
     ] });
   }

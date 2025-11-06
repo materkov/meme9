@@ -15,7 +15,7 @@ type Post struct {
 	Text      string `json:"text"`
 	UserID    string `json:"user_id"`
 	Username  string `json:"username"`
-	CreatedAt string `json:"createdAd"`
+	CreatedAt string `json:"createdAt"`
 }
 
 func mapPostToAPIPost(post posts.Post, username string) Post {

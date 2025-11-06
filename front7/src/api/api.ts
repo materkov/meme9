@@ -7,7 +7,7 @@ export interface Post {
   text: string;
   user_id: string;
   username: string;
-  createdAd: string;
+  createdAt: string;
 }
 
 export interface ErrorResponse {
