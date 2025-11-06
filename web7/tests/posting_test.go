@@ -12,6 +12,7 @@ import (
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
+	"github.com/materkov/meme9/web7/services"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -33,7 +34,10 @@ func initAPI() {
 	usersAdapter := users.New(client)
 	tokensAdapter := tokens.New(client)
 
-	testAPI = api.NewAPI(postsAdapter, usersAdapter, tokensAdapter)
+	// Initialize services
+	postsService := services.NewPostsService(postsAdapter, tokensAdapter)
+
+	testAPI = api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, postsService)
 }
 
 func apiRequest(t *testing.T, method string, req, resp any) {

@@ -7,19 +7,23 @@ import (
 	"github.com/materkov/meme9/web7/adapters/posts"
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
+	"github.com/materkov/meme9/web7/services"
 )
 
 type API struct {
 	posts  *posts.Adapter
 	users  *users.Adapter
 	tokens *tokens.Adapter
+
+	postsService *services.PostsService
 }
 
-func NewAPI(postsAdapter *posts.Adapter, usersAdapter *users.Adapter, tokensAdapter *tokens.Adapter) *API {
+func NewAPI(postsAdapter *posts.Adapter, usersAdapter *users.Adapter, tokensAdapter *tokens.Adapter, postsService *services.PostsService) *API {
 	return &API{
-		posts:  postsAdapter,
-		users:  usersAdapter,
-		tokens: tokensAdapter,
+		posts:        postsAdapter,
+		users:        usersAdapter,
+		tokens:       tokensAdapter,
+		postsService: postsService,
 	}
 }
 

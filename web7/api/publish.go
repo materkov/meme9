@@ -2,15 +2,8 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io"
 	"net/http"
-	"strings"
-	"time"
-
-	"github.com/materkov/meme9/web7/adapters/posts"
-	"github.com/materkov/meme9/web7/adapters/tokens"
 )
 
 type PublishReq struct {
@@ -21,35 +14,7 @@ type PublishResp struct {
 	ID string `json:"id"`
 }
 
-func (a *API) verifyToken(r *http.Request) (string, error) {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		return "", fmt.Errorf("missing authorization header")
-	}
-
-	// Support both "Bearer token" and just "token"
-	tokenValue := strings.TrimPrefix(authHeader, "Bearer ")
-	tokenValue = strings.TrimSpace(tokenValue)
-
-	token, err := a.tokens.GetByValue(r.Context(), tokenValue)
-	if err != nil {
-		if errors.Is(err, tokens.ErrNotFound) {
-			return "", fmt.Errorf("invalid token")
-		}
-		return "", fmt.Errorf("error verifying token: %w", err)
-	}
-
-	return token.UserID, nil
-}
-
 func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
-	// Verify authentication token
-	userID, err := a.verifyToken(r)
-	if err != nil {
-		writeUnauthorized(w, "unauthorized")
-		return
-	}
-
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		writeBadRequest(w, "invalid request body")
@@ -63,11 +28,14 @@ func (a *API) publishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := a.posts.Add(r.Context(), posts.Post{
-		Text:      publishReq.Text,
-		UserID:    userID,
-		CreatedAt: time.Now(),
-	})
+	authHeader := r.Header.Get("Authorization")
+	userID, err := a.postsService.VerifyToken(r.Context(), authHeader)
+	if err != nil {
+		writeUnauthorized(w, "unauthorized")
+		return
+	}
+
+	post, err := a.postsService.CreatePost(r.Context(), publishReq.Text, userID)
 	if err != nil {
 		writeInternalServerError(w, "failed to create post")
 		return
