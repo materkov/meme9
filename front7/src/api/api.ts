@@ -32,8 +32,18 @@ async function handleErrorResponse(response: Response): Promise<ApiError> {
   return new ApiError(errorData.error, errorData.error_details);
 }
 
-export async function fetchPosts(): Promise<Post[]> {
-  const response = await fetch(`${API_BASE_URL}/feed`);
+export type FeedType = 'global' | 'subscriptions';
+
+export interface FeedRequest {
+  type: FeedType;
+}
+
+export async function fetchPosts(feedType: FeedType = 'global'): Promise<Post[]> {
+  const response = await fetch(`${API_BASE_URL}/feed`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ type: feedType }),
+  });
   if (!response.ok) {
     throw await handleErrorResponse(response);
   }
@@ -47,9 +57,7 @@ export interface FetchUserPostsRequest {
 export async function fetchUserPosts(userID: string): Promise<Post[]> {
   const response = await fetch(`${API_BASE_URL}/userPosts`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getHeaders(),
     body: JSON.stringify({ user_id: userID }),
   });
   if (!response.ok) {
@@ -70,19 +78,23 @@ function getAuthToken(): string | null {
   return localStorage.getItem('auth_token');
 }
 
-export async function publishPost(data: PublishPostRequest): Promise<PublishPostResponse> {
-  const token = getAuthToken();
+function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-
+  const token = getAuthToken();
+  
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
+  
+  return headers;
+}
 
+export async function publishPost(data: PublishPostRequest): Promise<PublishPostResponse> {
   const response = await fetch(`${API_BASE_URL}/publish`, {
     method: 'POST',
-    headers,
+    headers: getHeaders(),
     body: JSON.stringify(data),
   });
 
@@ -107,9 +119,7 @@ export interface LoginResponse {
 export async function login(data: LoginRequest): Promise<LoginResponse> {
   const response = await fetch(`${API_BASE_URL}/login`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getHeaders(),
     body: JSON.stringify(data),
   });
 
@@ -128,10 +138,58 @@ export interface RegisterRequest {
 export async function register(data: RegisterRequest): Promise<LoginResponse> {
   const response = await fetch(`${API_BASE_URL}/register`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getHeaders(),
     body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw await handleErrorResponse(response);
+  }
+
+  return response.json();
+}
+
+export interface SubscribeRequest {
+  user_id: string;
+}
+
+export interface SubscribeResponse {
+  subscribed: boolean;
+}
+
+export async function subscribe(userID: string): Promise<SubscribeResponse> {
+  const response = await fetch(`${API_BASE_URL}/subscribe`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ user_id: userID }),
+  });
+
+  if (!response.ok) {
+    throw await handleErrorResponse(response);
+  }
+
+  return response.json();
+}
+
+export async function unsubscribe(userID: string): Promise<SubscribeResponse> {
+  const response = await fetch(`${API_BASE_URL}/unsubscribe`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ user_id: userID }),
+  });
+
+  if (!response.ok) {
+    throw await handleErrorResponse(response);
+  }
+
+  return response.json();
+}
+
+export async function getSubscriptionStatus(userID: string): Promise<SubscribeResponse> {
+  const response = await fetch(`${API_BASE_URL}/subscriptionStatus`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ user_id: userID }),
   });
 
   if (!response.ok) {

@@ -14,14 +14,11 @@ export function FeedPage({ username, onLogout }: FeedPageProps) {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<api.Post[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadPosts();
-  }, []);
+  const [feedType, setFeedType] = useState<api.FeedType>('global');
 
   const loadPosts = () => {
     setLoading(true);
-    api.fetchPosts()
+    api.fetchPosts(feedType)
       .then(data => {
         setPosts(data);
         setLoading(false);
@@ -31,6 +28,11 @@ export function FeedPage({ username, onLogout }: FeedPageProps) {
         setLoading(false);
       });
   };
+
+  useEffect(() => {
+    loadPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedType]);
 
   return (
     <div className={styles.container}>
@@ -44,11 +46,27 @@ export function FeedPage({ username, onLogout }: FeedPageProps) {
         </div>
       </header>
       <main className={styles.main}>
+        <div className={styles.feedTabs}>
+          <button
+            className={`${styles.tab} ${feedType === 'global' ? styles.active : ''}`}
+            onClick={() => setFeedType('global')}
+          >
+            Global Feed
+          </button>
+          <button
+            className={`${styles.tab} ${feedType === 'subscriptions' ? styles.active : ''}`}
+            onClick={() => setFeedType('subscriptions')}
+          >
+            Subscriptions
+          </button>
+        </div>
         <PostForm onPostCreated={loadPosts} />
         {loading ? (
           <div className={styles.loading}>Loading posts...</div>
         ) : posts.length === 0 ? (
-          <div className={styles.empty}>No posts yet</div>
+          <div className={styles.empty}>
+            {feedType === 'subscriptions' ? 'No posts from your subscriptions yet' : 'No posts yet'}
+          </div>
         ) : (
           <div className={styles.feed}>
             {posts.map(post => (

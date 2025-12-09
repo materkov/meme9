@@ -59,20 +59,17 @@ func (a *Adapter) GetByUsername(ctx context.Context, username string) (*User, er
 }
 
 func (a *Adapter) GetByID(ctx context.Context, userID string) (*User, error) {
-	collection := a.client.Database("meme9").Collection("users")
-	objID, err := primitive.ObjectIDFromHex(userID)
+	users, err := a.GetByIDs(ctx, []string{userID})
 	if err != nil {
-		return nil, fmt.Errorf("invalid user ID: %w", err)
+		return nil, err
 	}
-	var user User
-	err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
-	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, ErrNotFound
-		}
-		return nil, fmt.Errorf("error finding user: %w", err)
+
+	user, ok := users[userID]
+	if !ok {
+		return nil, ErrNotFound
 	}
-	return &user, nil
+
+	return user, nil
 }
 
 func (a *Adapter) GetByIDs(ctx context.Context, userIDs []string) (map[string]*User, error) {

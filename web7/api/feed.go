@@ -28,11 +28,61 @@ func mapPostToAPIPost(post posts.Post, username string) Post {
 	}
 }
 
+type FeedRequest struct {
+	Type string `json:"type"`
+}
+
 func (a *API) feedHandler(w http.ResponseWriter, r *http.Request) {
-	postsList, err := a.posts.GetAll(r.Context())
-	if err != nil {
-		writeInternalServerError(w, "internal_server_error", "")
+	if r.Method != http.MethodPost {
+		writeErrorCode(w, "method_not_allowed", "")
 		return
+	}
+
+	var req FeedRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeErrorCode(w, "invalid_request", "")
+		return
+	}
+
+	// Default to "global" if not specified
+	feedType := req.Type
+	if feedType == "" {
+		feedType = "global"
+	}
+
+	var postsList []posts.Post
+	var err error
+
+	// For subscriptions feed, require authentication
+	if feedType == "subscriptions" {
+		userID := getUserID(r)
+		if userID == "" {
+			writeErrorCode(w, "unauthorized", "Authentication required for subscriptions feed")
+			return
+		}
+
+		// Get subscriptions for the current user
+		followingIDs, err := a.subscriptions.GetFollowing(r.Context(), userID)
+		if err != nil {
+			log.Printf("Error fetching subscriptions: %v", err)
+			// Continue with empty subscriptions
+			followingIDs = []string{}
+		}
+
+		// Include own posts and posts from subscribed users
+		subscribedUserIDs := append(followingIDs, userID)
+		postsList, err = a.posts.GetByUserIDs(r.Context(), subscribedUserIDs)
+		if err != nil {
+			writeInternalServerError(w, "internal_server_error", "")
+			return
+		}
+	} else {
+		// Global feed - show all posts
+		postsList, err = a.posts.GetAll(r.Context())
+		if err != nil {
+			writeInternalServerError(w, "internal_server_error", "")
+			return
+		}
 	}
 
 	// Collect unique user IDs

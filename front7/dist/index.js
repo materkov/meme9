@@ -1139,9 +1139,9 @@ var app = (() => {
             var dispatcher = resolveDispatcher();
             return dispatcher.useId();
           }
-          function useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot) {
+          function useSyncExternalStore(subscribe2, getSnapshot, getServerSnapshot) {
             var dispatcher = resolveDispatcher();
-            return dispatcher.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+            return dispatcher.useSyncExternalStore(subscribe2, getSnapshot, getServerSnapshot);
           }
           var disabledDepth = 0;
           var prevLog;
@@ -13781,17 +13781,17 @@ var app = (() => {
             }
             return [newState, dispatch];
           }
-          function mountMutableSource(source, getSnapshot, subscribe) {
+          function mountMutableSource(source, getSnapshot, subscribe2) {
             {
               return void 0;
             }
           }
-          function updateMutableSource(source, getSnapshot, subscribe) {
+          function updateMutableSource(source, getSnapshot, subscribe2) {
             {
               return void 0;
             }
           }
-          function mountSyncExternalStore(subscribe, getSnapshot, getServerSnapshot) {
+          function mountSyncExternalStore(subscribe2, getSnapshot, getServerSnapshot) {
             var fiber = currentlyRenderingFiber$1;
             var hook = mountWorkInProgressHook();
             var nextSnapshot;
@@ -13834,12 +13834,12 @@ var app = (() => {
               getSnapshot
             };
             hook.queue = inst;
-            mountEffect(subscribeToStore.bind(null, fiber, inst, subscribe), [subscribe]);
+            mountEffect(subscribeToStore.bind(null, fiber, inst, subscribe2), [subscribe2]);
             fiber.flags |= Passive;
             pushEffect(HasEffect | Passive$1, updateStoreInstance.bind(null, fiber, inst, nextSnapshot, getSnapshot), void 0, null);
             return nextSnapshot;
           }
-          function updateSyncExternalStore(subscribe, getSnapshot, getServerSnapshot) {
+          function updateSyncExternalStore(subscribe2, getSnapshot, getServerSnapshot) {
             var fiber = currentlyRenderingFiber$1;
             var hook = updateWorkInProgressHook();
             var nextSnapshot = getSnapshot();
@@ -13859,7 +13859,7 @@ var app = (() => {
               markWorkInProgressReceivedUpdate();
             }
             var inst = hook.queue;
-            updateEffect(subscribeToStore.bind(null, fiber, inst, subscribe), [subscribe]);
+            updateEffect(subscribeToStore.bind(null, fiber, inst, subscribe2), [subscribe2]);
             if (inst.getSnapshot !== getSnapshot || snapshotChanged || // Check if the susbcribe function changed. We can save some memory by
             // checking whether we scheduled a subscription effect above.
             workInProgressHook !== null && workInProgressHook.memoizedState.tag & HasEffect) {
@@ -13902,13 +13902,13 @@ var app = (() => {
               forceStoreRerender(fiber);
             }
           }
-          function subscribeToStore(fiber, inst, subscribe) {
+          function subscribeToStore(fiber, inst, subscribe2) {
             var handleStoreChange = function() {
               if (checkIfSnapshotChanged(inst)) {
                 forceStoreRerender(fiber);
               }
             };
-            return subscribe(handleStoreChange);
+            return subscribe2(handleStoreChange);
           }
           function checkIfSnapshotChanged(inst) {
             var latestGetSnapshot = inst.getSnapshot;
@@ -14489,15 +14489,15 @@ var app = (() => {
                 mountHookTypesDev();
                 return mountTransition();
               },
-              useMutableSource: function(source, getSnapshot, subscribe) {
+              useMutableSource: function(source, getSnapshot, subscribe2) {
                 currentHookNameInDev = "useMutableSource";
                 mountHookTypesDev();
                 return mountMutableSource();
               },
-              useSyncExternalStore: function(subscribe, getSnapshot, getServerSnapshot) {
+              useSyncExternalStore: function(subscribe2, getSnapshot, getServerSnapshot) {
                 currentHookNameInDev = "useSyncExternalStore";
                 mountHookTypesDev();
-                return mountSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+                return mountSyncExternalStore(subscribe2, getSnapshot, getServerSnapshot);
               },
               useId: function() {
                 currentHookNameInDev = "useId";
@@ -14593,15 +14593,15 @@ var app = (() => {
                 updateHookTypesDev();
                 return mountTransition();
               },
-              useMutableSource: function(source, getSnapshot, subscribe) {
+              useMutableSource: function(source, getSnapshot, subscribe2) {
                 currentHookNameInDev = "useMutableSource";
                 updateHookTypesDev();
                 return mountMutableSource();
               },
-              useSyncExternalStore: function(subscribe, getSnapshot, getServerSnapshot) {
+              useSyncExternalStore: function(subscribe2, getSnapshot, getServerSnapshot) {
                 currentHookNameInDev = "useSyncExternalStore";
                 updateHookTypesDev();
-                return mountSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+                return mountSyncExternalStore(subscribe2, getSnapshot, getServerSnapshot);
               },
               useId: function() {
                 currentHookNameInDev = "useId";
@@ -14697,15 +14697,15 @@ var app = (() => {
                 updateHookTypesDev();
                 return updateTransition();
               },
-              useMutableSource: function(source, getSnapshot, subscribe) {
+              useMutableSource: function(source, getSnapshot, subscribe2) {
                 currentHookNameInDev = "useMutableSource";
                 updateHookTypesDev();
                 return updateMutableSource();
               },
-              useSyncExternalStore: function(subscribe, getSnapshot, getServerSnapshot) {
+              useSyncExternalStore: function(subscribe2, getSnapshot, getServerSnapshot) {
                 currentHookNameInDev = "useSyncExternalStore";
                 updateHookTypesDev();
-                return updateSyncExternalStore(subscribe, getSnapshot);
+                return updateSyncExternalStore(subscribe2, getSnapshot);
               },
               useId: function() {
                 currentHookNameInDev = "useId";
@@ -14801,15 +14801,15 @@ var app = (() => {
                 updateHookTypesDev();
                 return rerenderTransition();
               },
-              useMutableSource: function(source, getSnapshot, subscribe) {
+              useMutableSource: function(source, getSnapshot, subscribe2) {
                 currentHookNameInDev = "useMutableSource";
                 updateHookTypesDev();
                 return updateMutableSource();
               },
-              useSyncExternalStore: function(subscribe, getSnapshot, getServerSnapshot) {
+              useSyncExternalStore: function(subscribe2, getSnapshot, getServerSnapshot) {
                 currentHookNameInDev = "useSyncExternalStore";
                 updateHookTypesDev();
-                return updateSyncExternalStore(subscribe, getSnapshot);
+                return updateSyncExternalStore(subscribe2, getSnapshot);
               },
               useId: function() {
                 currentHookNameInDev = "useId";
@@ -14919,17 +14919,17 @@ var app = (() => {
                 mountHookTypesDev();
                 return mountTransition();
               },
-              useMutableSource: function(source, getSnapshot, subscribe) {
+              useMutableSource: function(source, getSnapshot, subscribe2) {
                 currentHookNameInDev = "useMutableSource";
                 warnInvalidHookAccess();
                 mountHookTypesDev();
                 return mountMutableSource();
               },
-              useSyncExternalStore: function(subscribe, getSnapshot, getServerSnapshot) {
+              useSyncExternalStore: function(subscribe2, getSnapshot, getServerSnapshot) {
                 currentHookNameInDev = "useSyncExternalStore";
                 warnInvalidHookAccess();
                 mountHookTypesDev();
-                return mountSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+                return mountSyncExternalStore(subscribe2, getSnapshot, getServerSnapshot);
               },
               useId: function() {
                 currentHookNameInDev = "useId";
@@ -15040,17 +15040,17 @@ var app = (() => {
                 updateHookTypesDev();
                 return updateTransition();
               },
-              useMutableSource: function(source, getSnapshot, subscribe) {
+              useMutableSource: function(source, getSnapshot, subscribe2) {
                 currentHookNameInDev = "useMutableSource";
                 warnInvalidHookAccess();
                 updateHookTypesDev();
                 return updateMutableSource();
               },
-              useSyncExternalStore: function(subscribe, getSnapshot, getServerSnapshot) {
+              useSyncExternalStore: function(subscribe2, getSnapshot, getServerSnapshot) {
                 currentHookNameInDev = "useSyncExternalStore";
                 warnInvalidHookAccess();
                 updateHookTypesDev();
-                return updateSyncExternalStore(subscribe, getSnapshot);
+                return updateSyncExternalStore(subscribe2, getSnapshot);
               },
               useId: function() {
                 currentHookNameInDev = "useId";
@@ -15161,17 +15161,17 @@ var app = (() => {
                 updateHookTypesDev();
                 return rerenderTransition();
               },
-              useMutableSource: function(source, getSnapshot, subscribe) {
+              useMutableSource: function(source, getSnapshot, subscribe2) {
                 currentHookNameInDev = "useMutableSource";
                 warnInvalidHookAccess();
                 updateHookTypesDev();
                 return updateMutableSource();
               },
-              useSyncExternalStore: function(subscribe, getSnapshot, getServerSnapshot) {
+              useSyncExternalStore: function(subscribe2, getSnapshot, getServerSnapshot) {
                 currentHookNameInDev = "useSyncExternalStore";
                 warnInvalidHookAccess();
                 updateHookTypesDev();
-                return updateSyncExternalStore(subscribe, getSnapshot);
+                return updateSyncExternalStore(subscribe2, getSnapshot);
               },
               useId: function() {
                 currentHookNameInDev = "useId";
@@ -26879,8 +26879,12 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
     const errorData = await response.json();
     return new ApiError(errorData.error, errorData.error_details);
   }
-  async function fetchPosts() {
-    const response = await fetch(`${API_BASE_URL}/feed`);
+  async function fetchPosts(feedType = "global") {
+    const response = await fetch(`${API_BASE_URL}/feed`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ type: feedType })
+    });
     if (!response.ok) {
       throw await handleErrorResponse(response);
     }
@@ -26889,9 +26893,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
   async function fetchUserPosts(userID) {
     const response = await fetch(`${API_BASE_URL}/userPosts`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: getHeaders(),
       body: JSON.stringify({ user_id: userID })
     });
     if (!response.ok) {
@@ -26902,17 +26904,20 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
   function getAuthToken() {
     return localStorage.getItem("auth_token");
   }
-  async function publishPost(data2) {
-    const token = getAuthToken();
+  function getHeaders() {
     const headers = {
       "Content-Type": "application/json"
     };
+    const token = getAuthToken();
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
+    return headers;
+  }
+  async function publishPost(data2) {
     const response = await fetch(`${API_BASE_URL}/publish`, {
       method: "POST",
-      headers,
+      headers: getHeaders(),
       body: JSON.stringify(data2)
     });
     if (!response.ok) {
@@ -26923,9 +26928,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
   async function login(data2) {
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: getHeaders(),
       body: JSON.stringify(data2)
     });
     if (!response.ok) {
@@ -26936,10 +26939,41 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
   async function register(data2) {
     const response = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: getHeaders(),
       body: JSON.stringify(data2)
+    });
+    if (!response.ok) {
+      throw await handleErrorResponse(response);
+    }
+    return response.json();
+  }
+  async function subscribe(userID) {
+    const response = await fetch(`${API_BASE_URL}/subscribe`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ user_id: userID })
+    });
+    if (!response.ok) {
+      throw await handleErrorResponse(response);
+    }
+    return response.json();
+  }
+  async function unsubscribe(userID) {
+    const response = await fetch(`${API_BASE_URL}/unsubscribe`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ user_id: userID })
+    });
+    if (!response.ok) {
+      throw await handleErrorResponse(response);
+    }
+    return response.json();
+  }
+  async function getSubscriptionStatus(userID) {
+    const response = await fetch(`${API_BASE_URL}/subscriptionStatus`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ user_id: userID })
     });
     if (!response.ok) {
       throw await handleErrorResponse(response);
@@ -27063,7 +27097,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
   var import_react3 = __toESM(require_react());
 
   // esbuild-css-modules-plugin-namespace:./src/FeedPage/FeedPage.module.css?esbuild-css-modules-plugin-building
-  var FeedPage_default = { "container": "FeedPage-module__container_VVjn2a100", "empty": "FeedPage-module__empty_VVjn2a100", "feed": "FeedPage-module__feed_VVjn2a100", "header": "FeedPage-module__header_VVjn2a100", "loading": "FeedPage-module__loading_VVjn2a100", "logout": "FeedPage-module__logout_VVjn2a100", "main": "FeedPage-module__main_VVjn2a100", "userInfo": "FeedPage-module__userInfo_VVjn2a100", "username": "FeedPage-module__username_VVjn2a100" };
+  var FeedPage_default = { "active": "FeedPage-module__active_VVjn2a100", "container": "FeedPage-module__container_VVjn2a100", "empty": "FeedPage-module__empty_VVjn2a100", "feed": "FeedPage-module__feed_VVjn2a100", "feedTabs": "FeedPage-module__feedTabs_VVjn2a100", "header": "FeedPage-module__header_VVjn2a100", "loading": "FeedPage-module__loading_VVjn2a100", "logout": "FeedPage-module__logout_VVjn2a100", "main": "FeedPage-module__main_VVjn2a100", "tab": "FeedPage-module__tab_VVjn2a100", "userInfo": "FeedPage-module__userInfo_VVjn2a100", "username": "FeedPage-module__username_VVjn2a100" };
 
   // esbuild-css-modules-plugin-namespace:./src/Post/Post.module.css?esbuild-css-modules-plugin-building
   var Post_default = { "date": "Post-module__date_ByJPLG100", "header": "Post-module__header_ByJPLG100", "post": "Post-module__post_ByJPLG100", "text": "Post-module__text_ByJPLG100", "username": "Post-module__username_ByJPLG100", "usernameClickable": "Post-module__usernameClickable_ByJPLG100" };
@@ -27173,12 +27207,10 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
     const navigate = useNavigate();
     const [posts, setPosts] = (0, import_react3.useState)([]);
     const [loading, setLoading] = (0, import_react3.useState)(true);
-    (0, import_react3.useEffect)(() => {
-      loadPosts();
-    }, []);
+    const [feedType, setFeedType] = (0, import_react3.useState)("global");
     const loadPosts = () => {
       setLoading(true);
-      fetchPosts().then((data2) => {
+      fetchPosts(feedType).then((data2) => {
         setPosts(data2);
         setLoading(false);
       }).catch((err) => {
@@ -27186,6 +27218,9 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
         setLoading(false);
       });
     };
+    (0, import_react3.useEffect)(() => {
+      loadPosts();
+    }, [feedType]);
     return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: FeedPage_default.container, children: [
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("header", { className: FeedPage_default.header, children: [
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { children: "Posts Feed" }),
@@ -27195,8 +27230,26 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
         ] })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("main", { className: FeedPage_default.main, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: FeedPage_default.feedTabs, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+            "button",
+            {
+              className: `${FeedPage_default.tab} ${feedType === "global" ? FeedPage_default.active : ""}`,
+              onClick: () => setFeedType("global"),
+              children: "Global Feed"
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+            "button",
+            {
+              className: `${FeedPage_default.tab} ${feedType === "subscriptions" ? FeedPage_default.active : ""}`,
+              onClick: () => setFeedType("subscriptions"),
+              children: "Subscriptions"
+            }
+          )
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PostForm, { onPostCreated: loadPosts }),
-        loading ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: FeedPage_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: FeedPage_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: FeedPage_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+        loading ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: FeedPage_default.loading, children: "Loading posts..." }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: FeedPage_default.empty, children: feedType === "subscriptions" ? "No posts from your subscriptions yet" : "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: FeedPage_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
           Post,
           {
             text: post.text,
@@ -27212,26 +27265,81 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
   }
 
   // src/UserPostsPage/UserPostsPage.tsx
-  var import_react4 = __toESM(require_react());
+  var import_react5 = __toESM(require_react());
 
   // esbuild-css-modules-plugin-namespace:./src/UserPostsPage/UserPostsPage.module.css?esbuild-css-modules-plugin-building
-  var UserPostsPage_default = { "backButton": "UserPostsPage-module__backButton_VI8WUa100", "container": "UserPostsPage-module__container_VI8WUa100", "empty": "UserPostsPage-module__empty_VI8WUa100", "error": "UserPostsPage-module__error_VI8WUa100", "feed": "UserPostsPage-module__feed_VI8WUa100", "header": "UserPostsPage-module__header_VI8WUa100", "loading": "UserPostsPage-module__loading_VI8WUa100", "main": "UserPostsPage-module__main_VI8WUa100", "title": "UserPostsPage-module__title_VI8WUa100" };
+  var UserPostsPage_default = { "backButton": "UserPostsPage-module__backButton_VI8WUa100", "container": "UserPostsPage-module__container_VI8WUa100", "empty": "UserPostsPage-module__empty_VI8WUa100", "error": "UserPostsPage-module__error_VI8WUa100", "feed": "UserPostsPage-module__feed_VI8WUa100", "header": "UserPostsPage-module__header_VI8WUa100", "loading": "UserPostsPage-module__loading_VI8WUa100", "main": "UserPostsPage-module__main_VI8WUa100", "subscribeButton": "UserPostsPage-module__subscribeButton_VI8WUa100", "subscribeSection": "UserPostsPage-module__subscribeSection_VI8WUa100", "title": "UserPostsPage-module__title_VI8WUa100", "unsubscribeButton": "UserPostsPage-module__unsubscribeButton_VI8WUa100" };
+
+  // src/hooks/useAuth.ts
+  var import_react4 = __toESM(require_react());
+  var AUTH_TOKEN_KEY = "auth_token";
+  var AUTH_USER_KEY = "auth_user";
+  var AUTH_USER_ID_KEY = "auth_user_id";
+  function useAuth() {
+    const [isAuthenticated, setIsAuthenticated] = (0, import_react4.useState)(false);
+    const [username, setUsername] = (0, import_react4.useState)(null);
+    const [userID, setUserID] = (0, import_react4.useState)(null);
+    const [loading, setLoading] = (0, import_react4.useState)(true);
+    (0, import_react4.useEffect)(() => {
+      const token = localStorage.getItem(AUTH_TOKEN_KEY);
+      const user = localStorage.getItem(AUTH_USER_KEY);
+      const userId = localStorage.getItem(AUTH_USER_ID_KEY);
+      if (token && user) {
+        setIsAuthenticated(true);
+        setUsername(user);
+        setUserID(userId);
+      }
+      setLoading(false);
+    }, []);
+    const login2 = (token, userId, username2) => {
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+      localStorage.setItem(AUTH_USER_KEY, username2);
+      localStorage.setItem(AUTH_USER_ID_KEY, userId);
+      setIsAuthenticated(true);
+      setUsername(username2);
+      setUserID(userId);
+    };
+    const logout = () => {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(AUTH_USER_KEY);
+      localStorage.removeItem(AUTH_USER_ID_KEY);
+      setIsAuthenticated(false);
+      setUsername(null);
+      setUserID(null);
+    };
+    return {
+      isAuthenticated,
+      username,
+      userID,
+      loading,
+      login: login2,
+      logout
+    };
+  }
 
   // src/UserPostsPage/UserPostsPage.tsx
   var import_jsx_runtime5 = __toESM(require_jsx_runtime());
   function UserPostsPage() {
     const { id: userID } = useParams();
     const navigate = useNavigate();
-    const [posts, setPosts] = (0, import_react4.useState)([]);
-    const [loading, setLoading] = (0, import_react4.useState)(true);
-    const [error, setError] = (0, import_react4.useState)(null);
-    const [username, setUsername] = (0, import_react4.useState)(null);
+    const { userID: currentUserID } = useAuth();
+    const [posts, setPosts] = (0, import_react5.useState)([]);
+    const [loading, setLoading] = (0, import_react5.useState)(true);
+    const [error, setError] = (0, import_react5.useState)(null);
+    const [username, setUsername] = (0, import_react5.useState)(null);
+    const [isSubscribed, setIsSubscribed] = (0, import_react5.useState)(null);
+    const [subscriptionLoading, setSubscriptionLoading] = (0, import_react5.useState)(false);
     if (!userID) {
       return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { children: "Invalid user ID" });
     }
-    (0, import_react4.useEffect)(() => {
+    (0, import_react5.useEffect)(() => {
       loadPosts();
-    }, [userID]);
+      if (currentUserID && userID && currentUserID !== userID) {
+        loadSubscriptionStatus();
+      } else {
+        setIsSubscribed(null);
+      }
+    }, [userID, currentUserID]);
     const loadPosts = () => {
       setLoading(true);
       setError(null);
@@ -27247,10 +27355,73 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
         setLoading(false);
       });
     };
+    const loadSubscriptionStatus = () => {
+      if (!userID)
+        return;
+      getSubscriptionStatus(userID).then((response) => {
+        setIsSubscribed(response.subscribed);
+      }).catch((err) => {
+        console.error("Error fetching subscription status:", err);
+        setIsSubscribed(null);
+      });
+    };
+    const handleSubscribe = async () => {
+      if (!userID)
+        return;
+      setSubscriptionLoading(true);
+      try {
+        await subscribe(userID);
+        setIsSubscribed(true);
+      } catch (err) {
+        console.error("Error subscribing:", err);
+        alert(err instanceof ApiError ? err.errorDetails : "Failed to subscribe");
+      } finally {
+        setSubscriptionLoading(false);
+      }
+    };
+    const handleUnsubscribe = async () => {
+      if (!userID)
+        return;
+      setSubscriptionLoading(true);
+      try {
+        await unsubscribe(userID);
+        setIsSubscribed(false);
+      } catch (err) {
+        console.error("Error unsubscribing:", err);
+        alert(err instanceof ApiError ? err.errorDetails : "Failed to unsubscribe");
+      } finally {
+        setSubscriptionLoading(false);
+      }
+    };
     return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: UserPostsPage_default.container, children: [
       /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("header", { className: UserPostsPage_default.header, children: [
         /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("button", { onClick: () => navigate("/"), className: UserPostsPage_default.backButton, children: "\u2190 Back" }),
-        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("h1", { className: UserPostsPage_default.title, children: username ? `${username}'s Posts` : "User Posts" })
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("h1", { className: UserPostsPage_default.title, children: username ? `${username}'s Posts` : "User Posts" }),
+        currentUserID && userID && currentUserID !== userID && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: UserPostsPage_default.subscribeSection, children: isSubscribed === null ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+          "button",
+          {
+            onClick: loadSubscriptionStatus,
+            className: UserPostsPage_default.subscribeButton,
+            disabled: subscriptionLoading,
+            children: "Check Subscription"
+          }
+        ) : isSubscribed ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+          "button",
+          {
+            onClick: handleUnsubscribe,
+            className: UserPostsPage_default.unsubscribeButton,
+            disabled: subscriptionLoading,
+            children: subscriptionLoading ? "Unsubscribing..." : "Unsubscribe"
+          }
+        ) : /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+          "button",
+          {
+            onClick: handleSubscribe,
+            className: UserPostsPage_default.subscribeButton,
+            disabled: subscriptionLoading,
+            children: subscriptionLoading ? "Subscribing..." : "Subscribe"
+          }
+        ) })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("main", { className: UserPostsPage_default.main, children: loading ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: UserPostsPage_default.loading, children: "Loading posts..." }) : error ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: UserPostsPage_default.error, children: error }) : posts.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: UserPostsPage_default.empty, children: "No posts yet" }) : /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: UserPostsPage_default.feed, children: posts.map((post) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
         Post,
@@ -27263,44 +27434,6 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
         post.id
       )) }) })
     ] });
-  }
-
-  // src/hooks/useAuth.ts
-  var import_react5 = __toESM(require_react());
-  var AUTH_TOKEN_KEY = "auth_token";
-  var AUTH_USER_KEY = "auth_user";
-  function useAuth() {
-    const [isAuthenticated, setIsAuthenticated] = (0, import_react5.useState)(false);
-    const [username, setUsername] = (0, import_react5.useState)(null);
-    const [loading, setLoading] = (0, import_react5.useState)(true);
-    (0, import_react5.useEffect)(() => {
-      const token = localStorage.getItem(AUTH_TOKEN_KEY);
-      const user = localStorage.getItem(AUTH_USER_KEY);
-      if (token && user) {
-        setIsAuthenticated(true);
-        setUsername(user);
-      }
-      setLoading(false);
-    }, []);
-    const login2 = (token, userId, username2) => {
-      localStorage.setItem(AUTH_TOKEN_KEY, token);
-      localStorage.setItem(AUTH_USER_KEY, username2);
-      setIsAuthenticated(true);
-      setUsername(username2);
-    };
-    const logout = () => {
-      localStorage.removeItem(AUTH_TOKEN_KEY);
-      localStorage.removeItem(AUTH_USER_KEY);
-      setIsAuthenticated(false);
-      setUsername(null);
-    };
-    return {
-      isAuthenticated,
-      username,
-      loading,
-      login: login2,
-      logout
-    };
   }
 
   // src/App.tsx

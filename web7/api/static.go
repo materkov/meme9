@@ -15,7 +15,7 @@ func (a *API) staticHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Build file path relative to web7 directory
-	staticDir := filepath.Join("..", "front7", "dist")
+	staticDir := filepath.Join("..", "..", "front7", "dist")
 	filePath := filepath.Join(staticDir, path)
 
 	// Prevent directory traversal

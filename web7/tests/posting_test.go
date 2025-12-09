@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/materkov/meme9/web7/adapters/posts"
+	"github.com/materkov/meme9/web7/adapters/subscriptions"
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
@@ -34,12 +35,13 @@ func initAPI() {
 	postsAdapter := posts.New(client)
 	usersAdapter := users.New(client)
 	tokensAdapter := tokens.New(client)
+	subscriptionsAdapter := subscriptions.New(client)
 
 	// Initialize services
 	postsService := postsservice.New(postsAdapter)
 	tokensService := tokensservice.New(tokensAdapter)
 
-	testAPI = api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, postsService, tokensService)
+	testAPI = api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, subscriptionsAdapter, postsService, tokensService)
 }
 
 func apiRequest(t *testing.T, method string, req, resp any) {

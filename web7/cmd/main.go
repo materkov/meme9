@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/materkov/meme9/web7/adapters/posts"
+	"github.com/materkov/meme9/web7/adapters/subscriptions"
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
@@ -39,17 +40,22 @@ func main() {
 	postsAdapter := posts.New(client)
 	usersAdapter := users.New(client)
 	tokensAdapter := tokens.New(client)
+	subscriptionsAdapter := subscriptions.New(client)
 
 	// Ensure indexes
 	err = usersAdapter.EnsureIndexes(ctx)
 	if err != nil {
 		log.Printf("Warning: Failed to ensure user indexes: %v", err)
 	}
+	err = subscriptionsAdapter.EnsureIndexes(ctx)
+	if err != nil {
+		log.Printf("Warning: Failed to ensure subscription indexes: %v", err)
+	}
 
 	// Initialize services
 	postsService := postsservice.New(postsAdapter)
 	tokensService := tokensservice.New(tokensAdapter)
 
-	apiAdapter := api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, postsService, tokensService)
+	apiAdapter := api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, subscriptionsAdapter, postsService, tokensService)
 	apiAdapter.Serve()
 }
