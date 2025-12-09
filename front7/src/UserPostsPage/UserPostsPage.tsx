@@ -20,16 +20,46 @@ export function UserPostsPage() {
     return <div>Invalid user ID</div>;
   }
 
+  // Load posts - only depends on userID
   useEffect(() => {
-    loadPosts();
-    if (currentUserID && userID && currentUserID !== userID) {
-      loadSubscriptionStatus();
-    } else {
+    if (!userID) return;
+
+    setLoading(true);
+    setError(null);
+    api.fetchUserPosts(userID)
+      .then(data => {
+        setPosts(data);
+        if (data.length > 0) {
+          setUsername(data[0].username);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching user posts:', err);
+        setError(err instanceof api.ApiError ? err.errorDetails : 'Failed to load posts');
+        setLoading(false);
+      });
+  }, [userID]);
+
+  // Load subscription status - separate effect
+  useEffect(() => {
+    if (!userID || !currentUserID || currentUserID === userID) {
       setIsSubscribed(null);
+      return;
     }
+
+    api.getSubscriptionStatus(userID)
+      .then(response => {
+        setIsSubscribed(response.subscribed);
+      })
+      .catch(err => {
+        console.error('Error fetching subscription status:', err);
+        setIsSubscribed(null);
+      });
   }, [userID, currentUserID]);
 
   const loadPosts = () => {
+    if (!userID) return;
     setLoading(true);
     setError(null);
     api.fetchUserPosts(userID)

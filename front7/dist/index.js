@@ -27333,14 +27333,37 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
       return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { children: "Invalid user ID" });
     }
     (0, import_react5.useEffect)(() => {
-      loadPosts();
-      if (currentUserID && userID && currentUserID !== userID) {
-        loadSubscriptionStatus();
-      } else {
+      if (!userID)
+        return;
+      setLoading(true);
+      setError(null);
+      fetchUserPosts(userID).then((data2) => {
+        setPosts(data2);
+        if (data2.length > 0) {
+          setUsername(data2[0].username);
+        }
+        setLoading(false);
+      }).catch((err) => {
+        console.error("Error fetching user posts:", err);
+        setError(err instanceof ApiError ? err.errorDetails : "Failed to load posts");
+        setLoading(false);
+      });
+    }, [userID]);
+    (0, import_react5.useEffect)(() => {
+      if (!userID || !currentUserID || currentUserID === userID) {
         setIsSubscribed(null);
+        return;
       }
+      getSubscriptionStatus(userID).then((response) => {
+        setIsSubscribed(response.subscribed);
+      }).catch((err) => {
+        console.error("Error fetching subscription status:", err);
+        setIsSubscribed(null);
+      });
     }, [userID, currentUserID]);
     const loadPosts = () => {
+      if (!userID)
+        return;
       setLoading(true);
       setError(null);
       fetchUserPosts(userID).then((data2) => {
