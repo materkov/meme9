@@ -11,14 +11,28 @@ import (
 
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
+	"github.com/materkov/meme9/web7/api"
 )
+
+// RegisterHandler handles user registration requests
+type RegisterHandler struct {
+	*BaseHandler
+}
+
+// NewRegisterHandler creates a new register handler
+func NewRegisterHandler(api *api.API) *RegisterHandler {
+	return &RegisterHandler{
+		BaseHandler: NewBaseHandler(api),
+	}
+}
 
 type RegisterRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-func (r *Router) registerHandler(w http.ResponseWriter, req *http.Request) {
+// Handle processes registration requests
+func (h *RegisterHandler) Handle(w http.ResponseWriter, req *http.Request) {
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		writeErrorCode(w, "invalid_request_body", "")
@@ -46,7 +60,7 @@ func (r *Router) registerHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, err := r.api.CreateUser(req.Context(), users.User{
+	user, err := h.api.CreateUser(req.Context(), users.User{
 		Username:     reqBody.Username,
 		PasswordHash: string(passwordHash),
 		CreatedAt:    time.Now(),
@@ -66,7 +80,7 @@ func (r *Router) registerHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = r.api.CreateToken(req.Context(), tokens.Token{
+	err = h.api.CreateToken(req.Context(), tokens.Token{
 		Token:     tokenValue,
 		UserID:    user.ID,
 		CreatedAt: time.Now(),

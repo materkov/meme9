@@ -11,7 +11,20 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/materkov/meme9/web7/adapters/tokens"
+	"github.com/materkov/meme9/web7/api"
 )
+
+// LoginHandler handles login requests
+type LoginHandler struct {
+	*BaseHandler
+}
+
+// NewLoginHandler creates a new login handler
+func NewLoginHandler(api *api.API) *LoginHandler {
+	return &LoginHandler{
+		BaseHandler: NewBaseHandler(api),
+	}
+}
 
 type LoginRequest struct {
 	Username string `json:"username"`
@@ -33,7 +46,8 @@ func generateToken() (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-func (r *Router) loginHandler(w http.ResponseWriter, req *http.Request) {
+// Handle processes login requests
+func (h *LoginHandler) Handle(w http.ResponseWriter, req *http.Request) {
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		writeErrorCode(w, "invalid_request_body", "")
@@ -55,7 +69,7 @@ func (r *Router) loginHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, err := r.api.GetUserByUsername(req.Context(), reqBody.Username)
+	user, err := h.api.GetUserByUsername(req.Context(), reqBody.Username)
 	if err != nil {
 		writeErrorCode(w, "invalid_credentials", "")
 		return
@@ -73,7 +87,7 @@ func (r *Router) loginHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = r.api.CreateToken(req.Context(), tokens.Token{
+	err = h.api.CreateToken(req.Context(), tokens.Token{
 		Token:     tokenValue,
 		UserID:    user.ID,
 		CreatedAt: time.Now(),

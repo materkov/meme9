@@ -9,6 +9,18 @@ import (
 	"github.com/materkov/meme9/web7/api"
 )
 
+// UserPostsHandler handles user posts requests
+type UserPostsHandler struct {
+	*BaseHandler
+}
+
+// NewUserPostsHandler creates a new user posts handler
+func NewUserPostsHandler(api *api.API) *UserPostsHandler {
+	return &UserPostsHandler{
+		BaseHandler: NewBaseHandler(api),
+	}
+}
+
 type UserPostsRequest struct {
 	UserID string `json:"user_id"`
 }
@@ -21,7 +33,8 @@ type UserPostResponse struct {
 	CreatedAt string `json:"createdAt"`
 }
 
-func (r *Router) userPostsHandler(w http.ResponseWriter, req *http.Request) {
+// Handle processes user posts requests
+func (h *UserPostsHandler) Handle(w http.ResponseWriter, req *http.Request) {
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		writeErrorCode(w, "invalid_request_body", "")
@@ -38,7 +51,7 @@ func (r *Router) userPostsHandler(w http.ResponseWriter, req *http.Request) {
 		UserID: reqBody.UserID,
 	}
 
-	userPosts, err := r.api.GetUserPosts(req.Context(), apiReq)
+	userPosts, err := h.api.GetUserPosts(req.Context(), apiReq)
 	if err != nil {
 		if err.Error() == "user_id is required" {
 			writeErrorCode(w, "user_id_required", "")

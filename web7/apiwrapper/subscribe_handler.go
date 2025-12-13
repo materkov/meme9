@@ -7,6 +7,18 @@ import (
 	"github.com/materkov/meme9/web7/api"
 )
 
+// SubscribeHandler handles subscription-related requests
+type SubscribeHandler struct {
+	*BaseHandler
+}
+
+// NewSubscribeHandler creates a new subscribe handler
+func NewSubscribeHandler(api *api.API) *SubscribeHandler {
+	return &SubscribeHandler{
+		BaseHandler: NewBaseHandler(api),
+	}
+}
+
 type SubscribeRequest struct {
 	UserID string `json:"user_id"`
 }
@@ -15,14 +27,15 @@ type SubscribeResponse struct {
 	Subscribed bool `json:"subscribed"`
 }
 
-func (r *Router) subscribeHandler(w http.ResponseWriter, req *http.Request) {
+// HandleSubscribe processes subscribe requests
+func (h *SubscribeHandler) HandleSubscribe(w http.ResponseWriter, req *http.Request) {
 	var reqBody SubscribeRequest
 	if err := json.NewDecoder(req.Body).Decode(&reqBody); err != nil {
 		writeErrorCode(w, "invalid_request", "")
 		return
 	}
 
-	followerID := getUserID(req)
+	followerID := GetUserID(req)
 	if followerID == "" {
 		writeErrorCode(w, "unauthorized", "")
 		return
@@ -32,7 +45,7 @@ func (r *Router) subscribeHandler(w http.ResponseWriter, req *http.Request) {
 		UserID: reqBody.UserID,
 	}
 
-	resp, err := r.api.Subscribe(req.Context(), apiReq, followerID)
+	resp, err := h.api.Subscribe(req.Context(), apiReq, followerID)
 	if err != nil {
 		if err.Error() == "user_id is required" {
 			writeErrorCode(w, "invalid_request", "user_id is required")
@@ -49,14 +62,15 @@ func (r *Router) subscribeHandler(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(SubscribeResponse{Subscribed: resp.Subscribed})
 }
 
-func (r *Router) unsubscribeHandler(w http.ResponseWriter, req *http.Request) {
+// HandleUnsubscribe processes unsubscribe requests
+func (h *SubscribeHandler) HandleUnsubscribe(w http.ResponseWriter, req *http.Request) {
 	var reqBody SubscribeRequest
 	if err := json.NewDecoder(req.Body).Decode(&reqBody); err != nil {
 		writeErrorCode(w, "invalid_request", "")
 		return
 	}
 
-	followerID := getUserID(req)
+	followerID := GetUserID(req)
 	if followerID == "" {
 		writeErrorCode(w, "unauthorized", "")
 		return
@@ -66,7 +80,7 @@ func (r *Router) unsubscribeHandler(w http.ResponseWriter, req *http.Request) {
 		UserID: reqBody.UserID,
 	}
 
-	resp, err := r.api.Unsubscribe(req.Context(), apiReq, followerID)
+	resp, err := h.api.Unsubscribe(req.Context(), apiReq, followerID)
 	if err != nil {
 		if err.Error() == "user_id is required" {
 			writeErrorCode(w, "invalid_request", "user_id is required")
@@ -83,14 +97,15 @@ func (r *Router) unsubscribeHandler(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(SubscribeResponse{Subscribed: resp.Subscribed})
 }
 
-func (r *Router) subscriptionStatusHandler(w http.ResponseWriter, req *http.Request) {
+// HandleSubscriptionStatus processes subscription status requests
+func (h *SubscribeHandler) HandleSubscriptionStatus(w http.ResponseWriter, req *http.Request) {
 	var reqBody SubscribeRequest
 	if err := json.NewDecoder(req.Body).Decode(&reqBody); err != nil {
 		writeErrorCode(w, "invalid_request", "")
 		return
 	}
 
-	followerID := getUserID(req)
+	followerID := GetUserID(req)
 	if followerID == "" {
 		writeErrorCode(w, "unauthorized", "")
 		return
@@ -100,7 +115,7 @@ func (r *Router) subscriptionStatusHandler(w http.ResponseWriter, req *http.Requ
 		UserID: reqBody.UserID,
 	}
 
-	resp, err := r.api.GetSubscriptionStatus(req.Context(), apiReq, followerID)
+	resp, err := h.api.GetSubscriptionStatus(req.Context(), apiReq, followerID)
 	if err != nil {
 		if err.Error() == "user_id is required" {
 			writeErrorCode(w, "invalid_request", "user_id is required")

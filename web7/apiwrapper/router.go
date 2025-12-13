@@ -8,45 +8,38 @@ import (
 )
 
 type Router struct {
-	api *api.API
+	baseHandler      *BaseHandler
+	feedHandler      *FeedHandler
+	publishHandler   *PublishHandler
+	loginHandler     *LoginHandler
+	registerHandler  *RegisterHandler
+	userPostsHandler *UserPostsHandler
+	subscribeHandler *SubscribeHandler
 }
 
 func NewRouter(api *api.API) *Router {
-	return &Router{api: api}
-}
-
-func jsonMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		next(w, r)
-	}
-}
-
-func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next(w, r)
+	return &Router{
+		baseHandler:      NewBaseHandler(api),
+		feedHandler:      NewFeedHandler(api),
+		publishHandler:   NewPublishHandler(api),
+		loginHandler:     NewLoginHandler(api),
+		registerHandler:  NewRegisterHandler(api),
+		userPostsHandler: NewUserPostsHandler(api),
+		subscribeHandler: NewSubscribeHandler(api),
 	}
 }
 
 func (r *Router) RegisterRoutes() {
+
 	// API Endpoints (JSON responses)
-	http.HandleFunc("/api/feed", corsMiddleware(jsonMiddleware(r.feedHandler)))
-	http.HandleFunc("/api/publish", corsMiddleware(jsonMiddleware(r.authMiddleware(r.publishHandler))))
-	http.HandleFunc("/api/login", corsMiddleware(jsonMiddleware(r.loginHandler)))
-	http.HandleFunc("/api/register", corsMiddleware(jsonMiddleware(r.registerHandler)))
-	http.HandleFunc("/api/userPosts", corsMiddleware(jsonMiddleware(r.userPostsHandler)))
-	http.HandleFunc("/api/subscribe", corsMiddleware(jsonMiddleware(r.authMiddleware(r.subscribeHandler))))
-	http.HandleFunc("/api/unsubscribe", corsMiddleware(jsonMiddleware(r.authMiddleware(r.unsubscribeHandler))))
-	http.HandleFunc("/api/subscriptionStatus", corsMiddleware(jsonMiddleware(r.authMiddleware(r.subscriptionStatusHandler))))
+	http.HandleFunc("/api/feed", CORSMiddleware(JSONMiddleware(r.feedHandler.Handle)))
+	http.HandleFunc("/api/publish", CORSMiddleware(JSONMiddleware(r.baseHandler.AuthMiddleware(r.publishHandler.Handle))))
+	http.HandleFunc("/api/login", CORSMiddleware(JSONMiddleware(r.loginHandler.Handle)))
+	http.HandleFunc("/api/register", CORSMiddleware(JSONMiddleware(r.registerHandler.Handle)))
+	http.HandleFunc("/api/userPosts", CORSMiddleware(JSONMiddleware(r.userPostsHandler.Handle)))
+	http.HandleFunc("/api/subscribe", CORSMiddleware(JSONMiddleware(r.baseHandler.AuthMiddleware(r.subscribeHandler.HandleSubscribe))))
+	http.HandleFunc("/api/unsubscribe", CORSMiddleware(JSONMiddleware(r.baseHandler.AuthMiddleware(r.subscribeHandler.HandleUnsubscribe))))
+	http.HandleFunc("/api/subscriptionStatus", CORSMiddleware(JSONMiddleware(r.baseHandler.AuthMiddleware(r.subscribeHandler.HandleSubscriptionStatus))))
 }
 
 func (r *Router) StartServer(addr string) {

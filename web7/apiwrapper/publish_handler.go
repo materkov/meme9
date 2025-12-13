@@ -9,6 +9,18 @@ import (
 	"github.com/materkov/meme9/web7/api"
 )
 
+// PublishHandler handles post publishing requests
+type PublishHandler struct {
+	*BaseHandler
+}
+
+// NewPublishHandler creates a new publish handler
+func NewPublishHandler(api *api.API) *PublishHandler {
+	return &PublishHandler{
+		BaseHandler: NewBaseHandler(api),
+	}
+}
+
 type PublishRequest struct {
 	Text string `json:"text"`
 }
@@ -17,7 +29,8 @@ type PublishResponse struct {
 	ID string `json:"id"`
 }
 
-func (r *Router) publishHandler(w http.ResponseWriter, req *http.Request) {
+// Handle processes publish requests
+func (h *PublishHandler) Handle(w http.ResponseWriter, req *http.Request) {
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		writeErrorCode(w, "invalid_request_body", "")
@@ -30,7 +43,7 @@ func (r *Router) publishHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	userID := getUserID(req)
+	userID := GetUserID(req)
 	if userID == "" {
 		writeErrorCode(w, "unauthorized", "")
 		return
@@ -40,7 +53,7 @@ func (r *Router) publishHandler(w http.ResponseWriter, req *http.Request) {
 		Text: reqBody.Text,
 	}
 
-	resp, err := r.api.Publish(req.Context(), apiReq, userID)
+	resp, err := h.api.Publish(req.Context(), apiReq, userID)
 	if err != nil {
 		if err.Error() == "text_empty" {
 			writeErrorCode(w, "text_empty", "")

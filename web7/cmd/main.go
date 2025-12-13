@@ -72,8 +72,9 @@ func main() {
 	http.HandleFunc("/users/{id}", htmlRouter.UserPageHandler)
 	http.HandleFunc("/posts/{id}", htmlRouter.PostPageHandler)
 	http.HandleFunc("/feed", htmlRouter.FeedPageHandler)
-	http.HandleFunc("/favicon.ico", apiRouter.FaviconHandler)
-	http.HandleFunc("/static/", apiRouter.StaticHandler)
+	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
 	http.HandleFunc("/", htmlRouter.IndexHandler)
 
 	// Start server

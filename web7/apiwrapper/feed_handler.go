@@ -8,6 +8,18 @@ import (
 	"github.com/materkov/meme9/web7/api"
 )
 
+// FeedHandler handles feed-related requests
+type FeedHandler struct {
+	*BaseHandler
+}
+
+// NewFeedHandler creates a new feed handler
+func NewFeedHandler(api *api.API) *FeedHandler {
+	return &FeedHandler{
+		BaseHandler: NewBaseHandler(api),
+	}
+}
+
 type FeedPostResponse struct {
 	ID        string `json:"id"`
 	Text      string `json:"text"`
@@ -20,14 +32,15 @@ type FeedRequest struct {
 	Type string `json:"type"`
 }
 
-func (r *Router) feedHandler(w http.ResponseWriter, req *http.Request) {
+// Handle processes feed requests
+func (h *FeedHandler) Handle(w http.ResponseWriter, req *http.Request) {
 	authHeader := req.Header.Get("Authorization")
 	if authHeader == "" {
 		writeErrorCode(w, "unauthorized", "")
 		return
 	}
 
-	userID, err := r.api.VerifyToken(req.Context(), authHeader)
+	userID, err := h.api.VerifyToken(req.Context(), authHeader)
 	if err != nil {
 		writeErrorCode(w, "unauthorized", "")
 		return
@@ -43,7 +56,7 @@ func (r *Router) feedHandler(w http.ResponseWriter, req *http.Request) {
 		Type: reqBody.Type,
 	}
 
-	feedPosts, err := r.api.GetFeed(req.Context(), apiReq, userID)
+	feedPosts, err := h.api.GetFeed(req.Context(), apiReq, userID)
 	if err != nil {
 		if err.Error() == "authentication required for subscriptions feed" {
 			writeErrorCode(w, "unauthorized", err.Error())
