@@ -3,13 +3,13 @@ package html
 import (
 	"fmt"
 	"html"
-	"time"
+	"strings"
 )
 
 // FeedPageData contains data for rendering the feed page
 type FeedPageData struct {
 	FeedType              string
-	Posts                 []Post
+	Posts                 []*Post
 	UsernameMap           map[string]string
 	GlobalTabClass        string
 	SubscriptionsTabClass string
@@ -28,11 +28,11 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
 		postsHTML = fmt.Sprintf(`<div class="empty">%s</div>`, emptyMsg)
 	} else {
 		for _, post := range data.Posts {
-			username := data.UsernameMap[post.UserID]
+			username := data.UsernameMap[post.UserId]
 			if username == "" {
 				username = "Unknown"
 			}
-			formattedDate := post.CreatedAt.Format(time.RFC3339)
+			formattedDate := post.CreatedAt
 			escapedText := html.EscapeString(post.Text)
 			postsHTML += fmt.Sprintf(`
       <article class="post">
@@ -41,7 +41,7 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
           <time class="date">%s</time>
         </div>
         <p class="text"><a href="/posts/%s" class="post-link">%s</a></p>
-      </article>`, post.UserID, username, formattedDate, post.ID, escapedText)
+      </article>`, post.UserId, username, formattedDate, post.Id, escapedText)
 		}
 	}
 
@@ -51,6 +51,14 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
           <span class="username" id="currentUsername"></span>
           <button onclick="logout()" class="logout">Logout</button>
         </div>`
+
+	// Escape any % characters in all strings to prevent format specifier errors
+	// This is needed because strings may contain % characters that would be interpreted as format specifiers
+	userInfoHTMLStr := strings.ReplaceAll(userInfoHTML, "%", "%%")
+	globalTabClassStr := strings.ReplaceAll(data.GlobalTabClass, "%", "%%")
+	subscriptionsTabClassStr := strings.ReplaceAll(data.SubscriptionsTabClass, "%", "%%")
+	postsHTMLStr := strings.ReplaceAll(postsHTML, "%", "%%")
+	currentUsernameStr := strings.ReplaceAll(data.CurrentUsername, "%", "%%")
 
 	return fmt.Sprintf(`<!DOCTYPE html>
 <html lang="en">
@@ -115,6 +123,12 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
       gap: 0.5rem;
       margin-bottom: 20px;
       border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 12px;
+      position: relative;
+      z-index: 1;
+      overflow: visible;
+      width: 100%;
+      box-sizing: border-box;
     }
     .tab {
       padding: 0.75rem 1.5rem;
@@ -210,7 +224,7 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
     <main class="main">
       <div class="feedTabs">
         <a href="/feed?type=global" class="tab %s">Global Feed</a>
-        <a href="/feed?type=subscriptions" class="tab %s">Subscriptions</a>
+        <a href="/feed?type=subscriptions" class="tab">Subscriptions</a>
       </div>
       <div class="feed">
 %s
@@ -246,5 +260,5 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
     }
   </script>
 </body>
-</html>`, userInfoHTML, data.GlobalTabClass, data.SubscriptionsTabClass, postsHTML, data.CurrentUsername)
+</html>`, userInfoHTMLStr, globalTabClassStr, subscriptionsTabClassStr, postsHTMLStr, currentUsernameStr)
 }

@@ -28,6 +28,27 @@ service JsonAPI {
   
   // SubscriptionStatus API - POST /api/subscriptionStatus
   rpc GetSubscriptionStatus(SubscribeRequest) returns (SubscribeResponse);
+  
+  // GetFollowing API - POST /api/getFollowing
+  rpc GetFollowing(GetFollowingRequest) returns (GetFollowingResponse);
+  
+  // GetPost API - POST /api/getPost
+  rpc GetPost(GetPostRequest) returns (GetPostResponse);
+  
+  // GetUser API - POST /api/getUser
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  
+  // VerifyToken API - POST /api/verifyToken
+  rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+  
+  // IsSubscribed API - POST /api/isSubscribed
+  rpc IsSubscribed(IsSubscribedRequest) returns (IsSubscribedResponse);
+  
+  // GetPostsByUserIDs API - POST /api/getPostsByUserIDs
+  rpc GetPostsByUserIDs(GetPostsByUserIDsRequest) returns (GetPostsByUserIDsResponse);
+  
+  // GetUsersByIDs API - POST /api/getUsersByIDs
+  rpc GetUsersByIDs(GetUsersByIDsRequest) returns (GetUsersByIDsResponse);
 }
 
 // Feed API - GET /api/feed
@@ -107,6 +128,74 @@ message SubscribeResponse {
 
 // SubscriptionStatus API - POST /api/subscriptionStatus
 // Uses SubscribeRequest and SubscribeResponse
+
+// GetFollowing API - POST /api/getFollowing
+message GetFollowingRequest {
+  string user_id = 1;
+}
+
+message GetFollowingResponse {
+  repeated string user_ids = 1;
+}
+
+// GetPost API - POST /api/getPost
+message GetPostRequest {
+  string post_id = 1;
+}
+
+message GetPostResponse {
+  string id = 1;
+  string text = 2;
+  string user_id = 3;
+  string created_at = 4; // RFC3339 format
+}
+
+// GetUser API - POST /api/getUser
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  string id = 1;
+  string username = 2;
+}
+
+// VerifyToken API - POST /api/verifyToken
+message VerifyTokenRequest {
+  string token = 1;
+}
+
+message VerifyTokenResponse {
+  string user_id = 1;
+}
+
+// IsSubscribed API - POST /api/isSubscribed
+message IsSubscribedRequest {
+  string subscriber_id = 1;
+  string target_user_id = 2;
+}
+
+message IsSubscribedResponse {
+  bool subscribed = 1;
+}
+
+// GetPostsByUserIDs API - POST /api/getPostsByUserIDs
+message GetPostsByUserIDsRequest {
+  repeated string user_ids = 1;
+}
+
+message GetPostsByUserIDsResponse {
+  repeated GetPostResponse posts = 1;
+}
+
+// GetUsersByIDs API - POST /api/getUsersByIDs
+message GetUsersByIDsRequest {
+  repeated string user_ids = 1;
+}
+
+message GetUsersByIDsResponse {
+  map<string, GetUserResponse> users = 1;
+}
 
 // Error response (used across all endpoints)
 message ErrorResponse {

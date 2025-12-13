@@ -27,6 +27,13 @@ const (
 	JsonAPI_Subscribe_FullMethodName             = "/meme.json_api.JsonAPI/Subscribe"
 	JsonAPI_Unsubscribe_FullMethodName           = "/meme.json_api.JsonAPI/Unsubscribe"
 	JsonAPI_GetSubscriptionStatus_FullMethodName = "/meme.json_api.JsonAPI/GetSubscriptionStatus"
+	JsonAPI_GetFollowing_FullMethodName          = "/meme.json_api.JsonAPI/GetFollowing"
+	JsonAPI_GetPost_FullMethodName               = "/meme.json_api.JsonAPI/GetPost"
+	JsonAPI_GetUser_FullMethodName               = "/meme.json_api.JsonAPI/GetUser"
+	JsonAPI_VerifyToken_FullMethodName           = "/meme.json_api.JsonAPI/VerifyToken"
+	JsonAPI_IsSubscribed_FullMethodName          = "/meme.json_api.JsonAPI/IsSubscribed"
+	JsonAPI_GetPostsByUserIDs_FullMethodName     = "/meme.json_api.JsonAPI/GetPostsByUserIDs"
+	JsonAPI_GetUsersByIDs_FullMethodName         = "/meme.json_api.JsonAPI/GetUsersByIDs"
 )
 
 // JsonAPIClient is the client API for JsonAPI service.
@@ -51,6 +58,20 @@ type JsonAPIClient interface {
 	Unsubscribe(ctx context.Context, in *SubscribeRequest, opts ...grpc.CallOption) (*SubscribeResponse, error)
 	// SubscriptionStatus API - POST /api/subscriptionStatus
 	GetSubscriptionStatus(ctx context.Context, in *SubscribeRequest, opts ...grpc.CallOption) (*SubscribeResponse, error)
+	// GetFollowing API - POST /api/getFollowing
+	GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*GetFollowingResponse, error)
+	// GetPost API - POST /api/getPost
+	GetPost(ctx context.Context, in *GetPostRequest, opts ...grpc.CallOption) (*GetPostResponse, error)
+	// GetUser API - POST /api/getUser
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	// VerifyToken API - POST /api/verifyToken
+	VerifyToken(ctx context.Context, in *VerifyTokenRequest, opts ...grpc.CallOption) (*VerifyTokenResponse, error)
+	// IsSubscribed API - POST /api/isSubscribed
+	IsSubscribed(ctx context.Context, in *IsSubscribedRequest, opts ...grpc.CallOption) (*IsSubscribedResponse, error)
+	// GetPostsByUserIDs API - POST /api/getPostsByUserIDs
+	GetPostsByUserIDs(ctx context.Context, in *GetPostsByUserIDsRequest, opts ...grpc.CallOption) (*GetPostsByUserIDsResponse, error)
+	// GetUsersByIDs API - POST /api/getUsersByIDs
+	GetUsersByIDs(ctx context.Context, in *GetUsersByIDsRequest, opts ...grpc.CallOption) (*GetUsersByIDsResponse, error)
 }
 
 type jsonAPIClient struct {
@@ -141,6 +162,76 @@ func (c *jsonAPIClient) GetSubscriptionStatus(ctx context.Context, in *Subscribe
 	return out, nil
 }
 
+func (c *jsonAPIClient) GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*GetFollowingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFollowingResponse)
+	err := c.cc.Invoke(ctx, JsonAPI_GetFollowing_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *jsonAPIClient) GetPost(ctx context.Context, in *GetPostRequest, opts ...grpc.CallOption) (*GetPostResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPostResponse)
+	err := c.cc.Invoke(ctx, JsonAPI_GetPost_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *jsonAPIClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserResponse)
+	err := c.cc.Invoke(ctx, JsonAPI_GetUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *jsonAPIClient) VerifyToken(ctx context.Context, in *VerifyTokenRequest, opts ...grpc.CallOption) (*VerifyTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VerifyTokenResponse)
+	err := c.cc.Invoke(ctx, JsonAPI_VerifyToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *jsonAPIClient) IsSubscribed(ctx context.Context, in *IsSubscribedRequest, opts ...grpc.CallOption) (*IsSubscribedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IsSubscribedResponse)
+	err := c.cc.Invoke(ctx, JsonAPI_IsSubscribed_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *jsonAPIClient) GetPostsByUserIDs(ctx context.Context, in *GetPostsByUserIDsRequest, opts ...grpc.CallOption) (*GetPostsByUserIDsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPostsByUserIDsResponse)
+	err := c.cc.Invoke(ctx, JsonAPI_GetPostsByUserIDs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *jsonAPIClient) GetUsersByIDs(ctx context.Context, in *GetUsersByIDsRequest, opts ...grpc.CallOption) (*GetUsersByIDsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUsersByIDsResponse)
+	err := c.cc.Invoke(ctx, JsonAPI_GetUsersByIDs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // JsonAPIServer is the server API for JsonAPI service.
 // All implementations must embed UnimplementedJsonAPIServer
 // for forward compatibility.
@@ -163,6 +254,20 @@ type JsonAPIServer interface {
 	Unsubscribe(context.Context, *SubscribeRequest) (*SubscribeResponse, error)
 	// SubscriptionStatus API - POST /api/subscriptionStatus
 	GetSubscriptionStatus(context.Context, *SubscribeRequest) (*SubscribeResponse, error)
+	// GetFollowing API - POST /api/getFollowing
+	GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error)
+	// GetPost API - POST /api/getPost
+	GetPost(context.Context, *GetPostRequest) (*GetPostResponse, error)
+	// GetUser API - POST /api/getUser
+	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	// VerifyToken API - POST /api/verifyToken
+	VerifyToken(context.Context, *VerifyTokenRequest) (*VerifyTokenResponse, error)
+	// IsSubscribed API - POST /api/isSubscribed
+	IsSubscribed(context.Context, *IsSubscribedRequest) (*IsSubscribedResponse, error)
+	// GetPostsByUserIDs API - POST /api/getPostsByUserIDs
+	GetPostsByUserIDs(context.Context, *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error)
+	// GetUsersByIDs API - POST /api/getUsersByIDs
+	GetUsersByIDs(context.Context, *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error)
 	mustEmbedUnimplementedJsonAPIServer()
 }
 
@@ -196,6 +301,27 @@ func (UnimplementedJsonAPIServer) Unsubscribe(context.Context, *SubscribeRequest
 }
 func (UnimplementedJsonAPIServer) GetSubscriptionStatus(context.Context, *SubscribeRequest) (*SubscribeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetSubscriptionStatus not implemented")
+}
+func (UnimplementedJsonAPIServer) GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFollowing not implemented")
+}
+func (UnimplementedJsonAPIServer) GetPost(context.Context, *GetPostRequest) (*GetPostResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPost not implemented")
+}
+func (UnimplementedJsonAPIServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedJsonAPIServer) VerifyToken(context.Context, *VerifyTokenRequest) (*VerifyTokenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method VerifyToken not implemented")
+}
+func (UnimplementedJsonAPIServer) IsSubscribed(context.Context, *IsSubscribedRequest) (*IsSubscribedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method IsSubscribed not implemented")
+}
+func (UnimplementedJsonAPIServer) GetPostsByUserIDs(context.Context, *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPostsByUserIDs not implemented")
+}
+func (UnimplementedJsonAPIServer) GetUsersByIDs(context.Context, *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUsersByIDs not implemented")
 }
 func (UnimplementedJsonAPIServer) mustEmbedUnimplementedJsonAPIServer() {}
 func (UnimplementedJsonAPIServer) testEmbeddedByValue()                 {}
@@ -362,6 +488,132 @@ func _JsonAPI_GetSubscriptionStatus_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _JsonAPI_GetFollowing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JsonAPIServer).GetFollowing(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JsonAPI_GetFollowing_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JsonAPIServer).GetFollowing(ctx, req.(*GetFollowingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _JsonAPI_GetPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JsonAPIServer).GetPost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JsonAPI_GetPost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JsonAPIServer).GetPost(ctx, req.(*GetPostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _JsonAPI_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JsonAPIServer).GetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JsonAPI_GetUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JsonAPIServer).GetUser(ctx, req.(*GetUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _JsonAPI_VerifyToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JsonAPIServer).VerifyToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JsonAPI_VerifyToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JsonAPIServer).VerifyToken(ctx, req.(*VerifyTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _JsonAPI_IsSubscribed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IsSubscribedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JsonAPIServer).IsSubscribed(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JsonAPI_IsSubscribed_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JsonAPIServer).IsSubscribed(ctx, req.(*IsSubscribedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _JsonAPI_GetPostsByUserIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPostsByUserIDsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JsonAPIServer).GetPostsByUserIDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JsonAPI_GetPostsByUserIDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JsonAPIServer).GetPostsByUserIDs(ctx, req.(*GetPostsByUserIDsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _JsonAPI_GetUsersByIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUsersByIDsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JsonAPIServer).GetUsersByIDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JsonAPI_GetUsersByIDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JsonAPIServer).GetUsersByIDs(ctx, req.(*GetUsersByIDsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // JsonAPI_ServiceDesc is the grpc.ServiceDesc for JsonAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -400,6 +652,34 @@ var JsonAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSubscriptionStatus",
 			Handler:    _JsonAPI_GetSubscriptionStatus_Handler,
+		},
+		{
+			MethodName: "GetFollowing",
+			Handler:    _JsonAPI_GetFollowing_Handler,
+		},
+		{
+			MethodName: "GetPost",
+			Handler:    _JsonAPI_GetPost_Handler,
+		},
+		{
+			MethodName: "GetUser",
+			Handler:    _JsonAPI_GetUser_Handler,
+		},
+		{
+			MethodName: "VerifyToken",
+			Handler:    _JsonAPI_VerifyToken_Handler,
+		},
+		{
+			MethodName: "IsSubscribed",
+			Handler:    _JsonAPI_IsSubscribed_Handler,
+		},
+		{
+			MethodName: "GetPostsByUserIDs",
+			Handler:    _JsonAPI_GetPostsByUserIDs_Handler,
+		},
+		{
+			MethodName: "GetUsersByIDs",
+			Handler:    _JsonAPI_GetUsersByIDs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,12 +1,15 @@
 package html
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/materkov/meme9/web7/api"
+	json_api "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/json_api"
 )
 
 // Router handles HTML page routing
@@ -17,45 +20,6 @@ type Router struct {
 // NewRouter creates a new HTML router
 func NewRouter(api *api.API) *Router {
 	return &Router{api: api}
-}
-
-// convertAPIPostToPost converts API PostData to html Post
-func convertAPIPostToPost(apiPost api.PostData) Post {
-	return Post{
-		ID:        apiPost.ID,
-		Text:      apiPost.Text,
-		UserID:    apiPost.UserID,
-		CreatedAt: apiPost.CreatedAt,
-	}
-}
-
-// convertAPIPostsToPosts converts API PostData slice to html Post slice
-func convertAPIPostsToPosts(apiPosts []api.PostData) []Post {
-	result := make([]Post, len(apiPosts))
-	for i, apiPost := range apiPosts {
-		result[i] = convertAPIPostToPost(apiPost)
-	}
-	return result
-}
-
-// convertAPIUserToUser converts API UserData to html User
-func convertAPIUserToUser(apiUser *api.UserData) *User {
-	if apiUser == nil {
-		return nil
-	}
-	return &User{
-		ID:       apiUser.ID,
-		Username: apiUser.Username,
-	}
-}
-
-// convertAPIUsersToUsers converts API UserData map to html User map
-func convertAPIUsersToUsers(apiUsers map[string]*api.UserData) map[string]*User {
-	result := make(map[string]*User)
-	for userID, apiUser := range apiUsers {
-		result[userID] = convertAPIUserToUser(apiUser)
-	}
-	return result
 }
 
 // parseCookies parses a cookie header string into a map
@@ -90,11 +54,15 @@ func (r *Router) getCurrentUserID(req *http.Request) string {
 	if token == "" {
 		return ""
 	}
-	userID, err := r.api.VerifyToken(req.Context(), "Bearer "+token)
-	if err != nil {
+	// Use proto VerifyToken method
+	verifyReq := &json_api.VerifyTokenRequest{
+		Token: "Bearer " + token,
+	}
+	verifyResp, err := r.api.VerifyToken(req.Context(), verifyReq)
+	if err != nil || verifyResp == nil {
 		return ""
 	}
-	return userID
+	return verifyResp.UserId
 }
 
 // isAuthenticated checks if the request contains a valid authentication token
@@ -119,49 +87,46 @@ func (r *Router) FeedPageHandler(w http.ResponseWriter, req *http.Request) {
 	// Try to get current user from cookie (optional - for subscriptions feed)
 	currentUserID := r.getCurrentUserID(req)
 
-	// Fetch posts based on feed type
-	var postsList []Post
-	var err error
-
+	// Fetch posts based on feed type using proto GetFeed
+	feedReqType := "all"
+	ctx := req.Context()
 	if feedType == "subscriptions" {
 		if currentUserID == "" {
 			// Redirect to login or show error
 			http.Redirect(w, req, "/?error=Authentication required for subscriptions feed", http.StatusFound)
 			return
 		}
+		feedReqType = "subscriptions"
+		// Set user ID in context for GetFeed to use
+		ctx = context.WithValue(ctx, api.UserIDKey, currentUserID)
+	}
 
-		// Get subscriptions for the current user
-		followingIDs, err := r.api.GetFollowing(req.Context(), currentUserID)
-		if err != nil {
-			log.Printf("Error fetching subscriptions: %v", err)
-			followingIDs = []string{}
-		}
-
-		// Include own posts and posts from subscribed users
-		subscribedUserIDs := append(followingIDs, currentUserID)
-		apiPosts, err := r.api.GetPostsByUserIDsHTML(req.Context(), subscribedUserIDs)
-		if err != nil {
-			log.Printf("Error fetching subscription posts: %v", err)
-			postsList = []Post{}
-		} else {
-			postsList = convertAPIPostsToPosts(apiPosts)
-		}
+	feedReq := &json_api.FeedRequest{
+		Type: feedReqType,
+	}
+	feedResp, err := r.api.GetFeed(ctx, feedReq)
+	var postsList []*Post
+	if err != nil {
+		log.Printf("Error fetching posts: %v", err)
+		postsList = []*Post{}
 	} else {
-		// Global feed - show all posts
-		apiPosts, err := r.api.GetAllPostsHTML(req.Context())
-		if err != nil {
-			log.Printf("Error fetching posts: %v", err)
-			postsList = []Post{}
-		} else {
-			postsList = convertAPIPostsToPosts(apiPosts)
+		// Convert FeedPostResponse to Post format
+		postsList = make([]*Post, len(feedResp.Posts))
+		for i, feedPost := range feedResp.Posts {
+			postsList[i] = &Post{
+				Id:        feedPost.Id,
+				Text:      feedPost.Text,
+				UserId:    feedPost.UserId,
+				CreatedAt: feedPost.CreatedAt,
+			}
 		}
 	}
 
 	// Collect unique user IDs
 	userIDSet := make(map[string]bool)
 	for _, post := range postsList {
-		if post.UserID != "" {
-			userIDSet[post.UserID] = true
+		if post.UserId != "" {
+			userIDSet[post.UserId] = true
 		}
 	}
 
@@ -171,13 +136,16 @@ func (r *Router) FeedPageHandler(w http.ResponseWriter, req *http.Request) {
 		userIDs = append(userIDs, userID)
 	}
 
-	// Fetch all users in a single batch query
-	apiUsersMap, err := r.api.GetUsersByIDsHTML(req.Context(), userIDs)
+	// Fetch all users in a single batch query using proto GetUsersByIDs
+	usersByIDsReq := &json_api.GetUsersByIDsRequest{
+		UserIds: userIDs,
+	}
+	usersByIDsResp, err := r.api.GetUsersByIDs(req.Context(), usersByIDsReq)
 	usersMap := make(map[string]*User)
 	if err != nil {
 		log.Printf("Error fetching users: %v", err)
 	} else {
-		usersMap = convertAPIUsersToUsers(apiUsersMap)
+		usersMap = usersByIDsResp.Users
 	}
 
 	// Build username map
@@ -195,12 +163,15 @@ func (r *Router) FeedPageHandler(w http.ResponseWriter, req *http.Request) {
 		subscriptionsTabClass = "active"
 	}
 
-	// Get current user info for header
+	// Get current user info for header using proto GetUser
 	currentUsername := ""
 	if currentUserID != "" {
-		currentUser, err := r.api.GetUserByIDHTML(req.Context(), currentUserID)
-		if err == nil && currentUser != nil {
-			currentUsername = currentUser.Username
+		getUserReq := &json_api.GetUserRequest{
+			UserId: currentUserID,
+		}
+		getUserResp, err := r.api.GetUser(req.Context(), getUserReq)
+		if err == nil && getUserResp != nil {
+			currentUsername = getUserResp.Username
 		}
 	}
 
@@ -233,8 +204,8 @@ func (r *Router) UserPageHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Fetch user info, posts, and subscription status in parallel
 	var (
-		apiUser      *api.UserData
-		apiPosts     []api.PostData
+		apiUser      *json_api.GetUserResponse
+		apiPosts     []*json_api.GetPostResponse
 		isSubscribed bool
 		userErr      error
 		postsErr     error
@@ -242,28 +213,52 @@ func (r *Router) UserPageHandler(w http.ResponseWriter, req *http.Request) {
 
 	var wg sync.WaitGroup
 
-	// Fetch user info
+	// Fetch user info using proto GetUser
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		apiUser, userErr = r.api.GetUserByIDHTML(ctx, userID)
+		getUserReq := &json_api.GetUserRequest{
+			UserId: userID,
+		}
+		apiUser, userErr = r.api.GetUser(ctx, getUserReq)
 	}()
 
-	// Fetch posts in parallel
+	// Fetch posts in parallel using proto GetUserPosts
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		apiPosts, postsErr = r.api.GetPostsByUserIDHTML(ctx, userID)
+		userPostsReq := &json_api.UserPostsRequest{
+			UserId: userID,
+		}
+		userPostsResp, err := r.api.GetUserPosts(ctx, userPostsReq)
+		if err != nil {
+			postsErr = err
+		} else {
+			// Convert UserPostResponse to GetPostResponse format
+			apiPosts = make([]*json_api.GetPostResponse, len(userPostsResp.Posts))
+			for i, userPost := range userPostsResp.Posts {
+				apiPosts[i] = &json_api.GetPostResponse{
+					Id:        userPost.Id,
+					Text:      userPost.Text,
+					UserId:    userPost.UserId,
+					CreatedAt: userPost.CreatedAt,
+				}
+			}
+		}
 	}()
 
-	// Check subscription status in parallel (only if authenticated and different user)
+	// Check subscription status in parallel using proto IsSubscribed (only if authenticated and different user)
 	if currentUserIDFromToken != "" && currentUserIDFromToken != userID {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			subscribed, err := r.api.IsSubscribed(ctx, currentUserIDFromToken, userID)
-			if err == nil {
-				isSubscribed = subscribed
+			isSubscribedReq := &json_api.IsSubscribedRequest{
+				SubscriberId: currentUserIDFromToken,
+				TargetUserId: userID,
+			}
+			isSubscribedResp, err := r.api.IsSubscribed(ctx, isSubscribedReq)
+			if err == nil && isSubscribedResp != nil {
+				isSubscribed = isSubscribedResp.Subscribed
 			}
 		}()
 	}
@@ -284,19 +279,22 @@ func (r *Router) UserPageHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Convert posts
-	postsList := []Post{}
+	postsList := []*Post{}
 	if postsErr != nil {
 		log.Printf("Error fetching posts: %v", postsErr)
 	} else {
-		postsList = convertAPIPostsToPosts(apiPosts)
+		postsList = apiPosts
 	}
 
-	// Get current user info for header
+	// Get current user info for header using proto GetUser
 	currentUsername := ""
 	if currentUserIDFromToken != "" {
-		currentUser, err := r.api.GetUserByIDHTML(req.Context(), currentUserIDFromToken)
-		if err == nil && currentUser != nil {
-			currentUsername = currentUser.Username
+		getUserReq := &json_api.GetUserRequest{
+			UserId: currentUserIDFromToken,
+		}
+		getUserResp, err := r.api.GetUser(req.Context(), getUserReq)
+		if err == nil && getUserResp != nil {
+			currentUsername = getUserResp.Username
 		}
 	}
 
@@ -328,40 +326,52 @@ func (r *Router) PostPageHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Fetch post from database
-	apiPost, err := r.api.GetPostByIDHTML(req.Context(), postID)
+	// Fetch post from database using proto GetPost
+	getPostReq := &json_api.GetPostRequest{
+		PostId: postID,
+	}
+	apiPost, err := r.api.GetPost(req.Context(), getPostReq)
 	if err != nil {
 		log.Printf("Error fetching post: %v", err)
 		http.NotFound(w, req)
 		return
 	}
 
-	post := convertAPIPostToPost(*apiPost)
+	post := apiPost
 
-	// Fetch user info
-	apiUser, err := r.api.GetUserByIDHTML(req.Context(), post.UserID)
+	// Fetch user info using proto GetUser
+	getUserReq := &json_api.GetUserRequest{
+		UserId: post.UserId,
+	}
+	apiUser, err := r.api.GetUser(req.Context(), getUserReq)
 	username := "Unknown"
 	if err == nil && apiUser != nil {
 		username = apiUser.Username
 	}
 
-	// Get current user info for header
+	// Get current user info for header using proto GetUser
 	currentUsername := ""
 	currentUserID := r.getCurrentUserID(req)
 	if currentUserID != "" {
-		currentUser, err := r.api.GetUserByIDHTML(req.Context(), currentUserID)
-		if err == nil && currentUser != nil {
-			currentUsername = currentUser.Username
+		getCurrentUserReq := &json_api.GetUserRequest{
+			UserId: currentUserID,
+		}
+		getCurrentUserResp, err := r.api.GetUser(req.Context(), getCurrentUserReq)
+		if err == nil && getCurrentUserResp != nil {
+			currentUsername = getCurrentUserResp.Username
 		}
 	}
 
+	// Parse CreatedAt string to time.Time for template
+	createdAt, _ := time.Parse(time.RFC3339, post.CreatedAt)
+
 	// Render HTML using html package
 	htmlContent := r.RenderPostPage(PostPageData{
-		PostID:          post.ID,
-		UserID:          post.UserID,
+		PostID:          post.Id,
+		UserID:          post.UserId,
 		Username:        username,
 		Text:            post.Text,
-		CreatedAt:       post.CreatedAt,
+		CreatedAt:       createdAt,
 		CurrentUsername: currentUsername,
 	})
 

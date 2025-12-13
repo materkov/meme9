@@ -7,7 +7,10 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/materkov/meme9/web7/api"
+	json_api "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/json_api"
 )
+
+type contextKey string
 
 const httpHeadersKey contextKey = "httpHeaders"
 
@@ -59,8 +62,11 @@ func AuthHook(apiAdapter *api.API) *twirp.ServerHooks {
 				return ctx, nil
 			}
 
-			// VerifyToken handles both "Bearer token" and just "token" formats
-			userID, err := apiAdapter.VerifyToken(ctx, authHeader)
+			// Use proto VerifyToken method
+			verifyReq := &json_api.VerifyTokenRequest{
+				Token: authHeader,
+			}
+			verifyResp, err := apiAdapter.VerifyToken(ctx, verifyReq)
 			if err != nil {
 				if requiresAuth {
 					// Return error for methods that require auth
@@ -69,9 +75,10 @@ func AuthHook(apiAdapter *api.API) *twirp.ServerHooks {
 				// For optional auth endpoints, let the handler decide
 				return ctx, nil
 			}
+			userID := verifyResp.UserId
 
-			// Add user ID to context
-			ctx = context.WithValue(ctx, userIDKey, userID)
+			// Add user ID to context using api package's context key
+			ctx = context.WithValue(ctx, api.UserIDKey, userID)
 			return ctx, nil
 		},
 	}

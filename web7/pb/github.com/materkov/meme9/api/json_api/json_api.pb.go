@@ -695,6 +695,669 @@ func (x *SubscribeResponse) GetSubscribed() bool {
 	return false
 }
 
+// GetFollowing API - POST /api/getFollowing
+type GetFollowingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFollowingRequest) Reset() {
+	*x = GetFollowingRequest{}
+	mi := &file_json_api_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFollowingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFollowingRequest) ProtoMessage() {}
+
+func (x *GetFollowingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFollowingRequest.ProtoReflect.Descriptor instead.
+func (*GetFollowingRequest) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetFollowingRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetFollowingResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserIds       []string               `protobuf:"bytes,1,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFollowingResponse) Reset() {
+	*x = GetFollowingResponse{}
+	mi := &file_json_api_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFollowingResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFollowingResponse) ProtoMessage() {}
+
+func (x *GetFollowingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFollowingResponse.ProtoReflect.Descriptor instead.
+func (*GetFollowingResponse) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetFollowingResponse) GetUserIds() []string {
+	if x != nil {
+		return x.UserIds
+	}
+	return nil
+}
+
+// GetPost API - POST /api/getPost
+type GetPostRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PostId        string                 `protobuf:"bytes,1,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPostRequest) Reset() {
+	*x = GetPostRequest{}
+	mi := &file_json_api_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPostRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPostRequest) ProtoMessage() {}
+
+func (x *GetPostRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPostRequest.ProtoReflect.Descriptor instead.
+func (*GetPostRequest) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetPostRequest) GetPostId() string {
+	if x != nil {
+		return x.PostId
+	}
+	return ""
+}
+
+type GetPostResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Text          string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // RFC3339 format
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPostResponse) Reset() {
+	*x = GetPostResponse{}
+	mi := &file_json_api_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPostResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPostResponse) ProtoMessage() {}
+
+func (x *GetPostResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPostResponse.ProtoReflect.Descriptor instead.
+func (*GetPostResponse) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetPostResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetPostResponse) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *GetPostResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetPostResponse) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+// GetUser API - POST /api/getUser
+type GetUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserRequest) Reset() {
+	*x = GetUserRequest{}
+	mi := &file_json_api_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserRequest) ProtoMessage() {}
+
+func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
+func (*GetUserRequest) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetUserRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserResponse) Reset() {
+	*x = GetUserResponse{}
+	mi := &file_json_api_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserResponse) ProtoMessage() {}
+
+func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserResponse.ProtoReflect.Descriptor instead.
+func (*GetUserResponse) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetUserResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetUserResponse) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+// VerifyToken API - POST /api/verifyToken
+type VerifyTokenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifyTokenRequest) Reset() {
+	*x = VerifyTokenRequest{}
+	mi := &file_json_api_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifyTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyTokenRequest) ProtoMessage() {}
+
+func (x *VerifyTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyTokenRequest.ProtoReflect.Descriptor instead.
+func (*VerifyTokenRequest) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *VerifyTokenRequest) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+type VerifyTokenResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifyTokenResponse) Reset() {
+	*x = VerifyTokenResponse{}
+	mi := &file_json_api_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifyTokenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyTokenResponse) ProtoMessage() {}
+
+func (x *VerifyTokenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyTokenResponse.ProtoReflect.Descriptor instead.
+func (*VerifyTokenResponse) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *VerifyTokenResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+// IsSubscribed API - POST /api/isSubscribed
+type IsSubscribedRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SubscriberId  string                 `protobuf:"bytes,1,opt,name=subscriber_id,json=subscriberId,proto3" json:"subscriber_id,omitempty"`
+	TargetUserId  string                 `protobuf:"bytes,2,opt,name=target_user_id,json=targetUserId,proto3" json:"target_user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IsSubscribedRequest) Reset() {
+	*x = IsSubscribedRequest{}
+	mi := &file_json_api_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IsSubscribedRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IsSubscribedRequest) ProtoMessage() {}
+
+func (x *IsSubscribedRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IsSubscribedRequest.ProtoReflect.Descriptor instead.
+func (*IsSubscribedRequest) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *IsSubscribedRequest) GetSubscriberId() string {
+	if x != nil {
+		return x.SubscriberId
+	}
+	return ""
+}
+
+func (x *IsSubscribedRequest) GetTargetUserId() string {
+	if x != nil {
+		return x.TargetUserId
+	}
+	return ""
+}
+
+type IsSubscribedResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subscribed    bool                   `protobuf:"varint,1,opt,name=subscribed,proto3" json:"subscribed,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IsSubscribedResponse) Reset() {
+	*x = IsSubscribedResponse{}
+	mi := &file_json_api_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IsSubscribedResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IsSubscribedResponse) ProtoMessage() {}
+
+func (x *IsSubscribedResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IsSubscribedResponse.ProtoReflect.Descriptor instead.
+func (*IsSubscribedResponse) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *IsSubscribedResponse) GetSubscribed() bool {
+	if x != nil {
+		return x.Subscribed
+	}
+	return false
+}
+
+// GetPostsByUserIDs API - POST /api/getPostsByUserIDs
+type GetPostsByUserIDsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserIds       []string               `protobuf:"bytes,1,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPostsByUserIDsRequest) Reset() {
+	*x = GetPostsByUserIDsRequest{}
+	mi := &file_json_api_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPostsByUserIDsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPostsByUserIDsRequest) ProtoMessage() {}
+
+func (x *GetPostsByUserIDsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPostsByUserIDsRequest.ProtoReflect.Descriptor instead.
+func (*GetPostsByUserIDsRequest) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *GetPostsByUserIDsRequest) GetUserIds() []string {
+	if x != nil {
+		return x.UserIds
+	}
+	return nil
+}
+
+type GetPostsByUserIDsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Posts         []*GetPostResponse     `protobuf:"bytes,1,rep,name=posts,proto3" json:"posts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPostsByUserIDsResponse) Reset() {
+	*x = GetPostsByUserIDsResponse{}
+	mi := &file_json_api_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPostsByUserIDsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPostsByUserIDsResponse) ProtoMessage() {}
+
+func (x *GetPostsByUserIDsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPostsByUserIDsResponse.ProtoReflect.Descriptor instead.
+func (*GetPostsByUserIDsResponse) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetPostsByUserIDsResponse) GetPosts() []*GetPostResponse {
+	if x != nil {
+		return x.Posts
+	}
+	return nil
+}
+
+// GetUsersByIDs API - POST /api/getUsersByIDs
+type GetUsersByIDsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserIds       []string               `protobuf:"bytes,1,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUsersByIDsRequest) Reset() {
+	*x = GetUsersByIDsRequest{}
+	mi := &file_json_api_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUsersByIDsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUsersByIDsRequest) ProtoMessage() {}
+
+func (x *GetUsersByIDsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUsersByIDsRequest.ProtoReflect.Descriptor instead.
+func (*GetUsersByIDsRequest) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *GetUsersByIDsRequest) GetUserIds() []string {
+	if x != nil {
+		return x.UserIds
+	}
+	return nil
+}
+
+type GetUsersByIDsResponse struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Users         map[string]*GetUserResponse `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUsersByIDsResponse) Reset() {
+	*x = GetUsersByIDsResponse{}
+	mi := &file_json_api_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUsersByIDsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUsersByIDsResponse) ProtoMessage() {}
+
+func (x *GetUsersByIDsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_json_api_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUsersByIDsResponse.ProtoReflect.Descriptor instead.
+func (*GetUsersByIDsResponse) Descriptor() ([]byte, []int) {
+	return file_json_api_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *GetUsersByIDsResponse) GetUsers() map[string]*GetUserResponse {
+	if x != nil {
+		return x.Users
+	}
+	return nil
+}
+
 // Error response (used across all endpoints)
 type ErrorResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -706,7 +1369,7 @@ type ErrorResponse struct {
 
 func (x *ErrorResponse) Reset() {
 	*x = ErrorResponse{}
-	mi := &file_json_api_proto_msgTypes[13]
+	mi := &file_json_api_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -718,7 +1381,7 @@ func (x *ErrorResponse) String() string {
 func (*ErrorResponse) ProtoMessage() {}
 
 func (x *ErrorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_json_api_proto_msgTypes[13]
+	mi := &file_json_api_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -731,7 +1394,7 @@ func (x *ErrorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorResponse.ProtoReflect.Descriptor instead.
 func (*ErrorResponse) Descriptor() ([]byte, []int) {
-	return file_json_api_proto_rawDescGZIP(), []int{13}
+	return file_json_api_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ErrorResponse) GetError() string {
@@ -794,10 +1457,50 @@ const file_json_api_proto_rawDesc = "" +
 	"\x11SubscribeResponse\x12\x1e\n" +
 	"\n" +
 	"subscribed\x18\x01 \x01(\bR\n" +
-	"subscribed\"J\n" +
+	"subscribed\".\n" +
+	"\x13GetFollowingRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"1\n" +
+	"\x14GetFollowingResponse\x12\x19\n" +
+	"\buser_ids\x18\x01 \x03(\tR\auserIds\")\n" +
+	"\x0eGetPostRequest\x12\x17\n" +
+	"\apost_id\x18\x01 \x01(\tR\x06postId\"m\n" +
+	"\x0fGetPostResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04text\x18\x02 \x01(\tR\x04text\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x04 \x01(\tR\tcreatedAt\")\n" +
+	"\x0eGetUserRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"=\n" +
+	"\x0fGetUserResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\"*\n" +
+	"\x12VerifyTokenRequest\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\".\n" +
+	"\x13VerifyTokenResponse\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"`\n" +
+	"\x13IsSubscribedRequest\x12#\n" +
+	"\rsubscriber_id\x18\x01 \x01(\tR\fsubscriberId\x12$\n" +
+	"\x0etarget_user_id\x18\x02 \x01(\tR\ftargetUserId\"6\n" +
+	"\x14IsSubscribedResponse\x12\x1e\n" +
+	"\n" +
+	"subscribed\x18\x01 \x01(\bR\n" +
+	"subscribed\"5\n" +
+	"\x18GetPostsByUserIDsRequest\x12\x19\n" +
+	"\buser_ids\x18\x01 \x03(\tR\auserIds\"Q\n" +
+	"\x19GetPostsByUserIDsResponse\x124\n" +
+	"\x05posts\x18\x01 \x03(\v2\x1e.meme.json_api.GetPostResponseR\x05posts\"1\n" +
+	"\x14GetUsersByIDsRequest\x12\x19\n" +
+	"\buser_ids\x18\x01 \x03(\tR\auserIds\"\xb8\x01\n" +
+	"\x15GetUsersByIDsResponse\x12E\n" +
+	"\x05users\x18\x01 \x03(\v2/.meme.json_api.GetUsersByIDsResponse.UsersEntryR\x05users\x1aX\n" +
+	"\n" +
+	"UsersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x124\n" +
+	"\x05value\x18\x02 \x01(\v2\x1e.meme.json_api.GetUserResponseR\x05value:\x028\x01\"J\n" +
 	"\rErrorResponse\x12\x14\n" +
 	"\x05error\x18\x01 \x01(\tR\x05error\x12#\n" +
-	"\rerror_details\x18\x02 \x01(\tR\ferrorDetails2\xf6\x04\n" +
+	"\rerror_details\x18\x02 \x01(\tR\ferrorDetails2\xd6\t\n" +
 	"\aJsonAPI\x12B\n" +
 	"\aGetFeed\x12\x1a.meme.json_api.FeedRequest\x1a\x1b.meme.json_api.FeedResponse\x12H\n" +
 	"\aPublish\x12\x1d.meme.json_api.PublishRequest\x1a\x1e.meme.json_api.PublishResponse\x12B\n" +
@@ -806,7 +1509,14 @@ const file_json_api_proto_rawDesc = "" +
 	"\fGetUserPosts\x12\x1f.meme.json_api.UserPostsRequest\x1a .meme.json_api.UserPostsResponse\x12N\n" +
 	"\tSubscribe\x12\x1f.meme.json_api.SubscribeRequest\x1a .meme.json_api.SubscribeResponse\x12P\n" +
 	"\vUnsubscribe\x12\x1f.meme.json_api.SubscribeRequest\x1a .meme.json_api.SubscribeResponse\x12Z\n" +
-	"\x15GetSubscriptionStatus\x12\x1f.meme.json_api.SubscribeRequest\x1a .meme.json_api.SubscribeResponseB(Z&github.com/materkov/meme9/api/json_apib\x06proto3"
+	"\x15GetSubscriptionStatus\x12\x1f.meme.json_api.SubscribeRequest\x1a .meme.json_api.SubscribeResponse\x12W\n" +
+	"\fGetFollowing\x12\".meme.json_api.GetFollowingRequest\x1a#.meme.json_api.GetFollowingResponse\x12H\n" +
+	"\aGetPost\x12\x1d.meme.json_api.GetPostRequest\x1a\x1e.meme.json_api.GetPostResponse\x12H\n" +
+	"\aGetUser\x12\x1d.meme.json_api.GetUserRequest\x1a\x1e.meme.json_api.GetUserResponse\x12T\n" +
+	"\vVerifyToken\x12!.meme.json_api.VerifyTokenRequest\x1a\".meme.json_api.VerifyTokenResponse\x12W\n" +
+	"\fIsSubscribed\x12\".meme.json_api.IsSubscribedRequest\x1a#.meme.json_api.IsSubscribedResponse\x12f\n" +
+	"\x11GetPostsByUserIDs\x12'.meme.json_api.GetPostsByUserIDsRequest\x1a(.meme.json_api.GetPostsByUserIDsResponse\x12Z\n" +
+	"\rGetUsersByIDs\x12#.meme.json_api.GetUsersByIDsRequest\x1a$.meme.json_api.GetUsersByIDsResponseB(Z&github.com/materkov/meme9/api/json_apib\x06proto3"
 
 var (
 	file_json_api_proto_rawDescOnce sync.Once
@@ -820,47 +1530,79 @@ func file_json_api_proto_rawDescGZIP() []byte {
 	return file_json_api_proto_rawDescData
 }
 
-var file_json_api_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_json_api_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_json_api_proto_goTypes = []any{
-	(*FeedRequest)(nil),       // 0: meme.json_api.FeedRequest
-	(*FeedPostResponse)(nil),  // 1: meme.json_api.FeedPostResponse
-	(*FeedResponse)(nil),      // 2: meme.json_api.FeedResponse
-	(*PublishRequest)(nil),    // 3: meme.json_api.PublishRequest
-	(*PublishResponse)(nil),   // 4: meme.json_api.PublishResponse
-	(*LoginRequest)(nil),      // 5: meme.json_api.LoginRequest
-	(*LoginResponse)(nil),     // 6: meme.json_api.LoginResponse
-	(*RegisterRequest)(nil),   // 7: meme.json_api.RegisterRequest
-	(*UserPostsRequest)(nil),  // 8: meme.json_api.UserPostsRequest
-	(*UserPostResponse)(nil),  // 9: meme.json_api.UserPostResponse
-	(*UserPostsResponse)(nil), // 10: meme.json_api.UserPostsResponse
-	(*SubscribeRequest)(nil),  // 11: meme.json_api.SubscribeRequest
-	(*SubscribeResponse)(nil), // 12: meme.json_api.SubscribeResponse
-	(*ErrorResponse)(nil),     // 13: meme.json_api.ErrorResponse
+	(*FeedRequest)(nil),               // 0: meme.json_api.FeedRequest
+	(*FeedPostResponse)(nil),          // 1: meme.json_api.FeedPostResponse
+	(*FeedResponse)(nil),              // 2: meme.json_api.FeedResponse
+	(*PublishRequest)(nil),            // 3: meme.json_api.PublishRequest
+	(*PublishResponse)(nil),           // 4: meme.json_api.PublishResponse
+	(*LoginRequest)(nil),              // 5: meme.json_api.LoginRequest
+	(*LoginResponse)(nil),             // 6: meme.json_api.LoginResponse
+	(*RegisterRequest)(nil),           // 7: meme.json_api.RegisterRequest
+	(*UserPostsRequest)(nil),          // 8: meme.json_api.UserPostsRequest
+	(*UserPostResponse)(nil),          // 9: meme.json_api.UserPostResponse
+	(*UserPostsResponse)(nil),         // 10: meme.json_api.UserPostsResponse
+	(*SubscribeRequest)(nil),          // 11: meme.json_api.SubscribeRequest
+	(*SubscribeResponse)(nil),         // 12: meme.json_api.SubscribeResponse
+	(*GetFollowingRequest)(nil),       // 13: meme.json_api.GetFollowingRequest
+	(*GetFollowingResponse)(nil),      // 14: meme.json_api.GetFollowingResponse
+	(*GetPostRequest)(nil),            // 15: meme.json_api.GetPostRequest
+	(*GetPostResponse)(nil),           // 16: meme.json_api.GetPostResponse
+	(*GetUserRequest)(nil),            // 17: meme.json_api.GetUserRequest
+	(*GetUserResponse)(nil),           // 18: meme.json_api.GetUserResponse
+	(*VerifyTokenRequest)(nil),        // 19: meme.json_api.VerifyTokenRequest
+	(*VerifyTokenResponse)(nil),       // 20: meme.json_api.VerifyTokenResponse
+	(*IsSubscribedRequest)(nil),       // 21: meme.json_api.IsSubscribedRequest
+	(*IsSubscribedResponse)(nil),      // 22: meme.json_api.IsSubscribedResponse
+	(*GetPostsByUserIDsRequest)(nil),  // 23: meme.json_api.GetPostsByUserIDsRequest
+	(*GetPostsByUserIDsResponse)(nil), // 24: meme.json_api.GetPostsByUserIDsResponse
+	(*GetUsersByIDsRequest)(nil),      // 25: meme.json_api.GetUsersByIDsRequest
+	(*GetUsersByIDsResponse)(nil),     // 26: meme.json_api.GetUsersByIDsResponse
+	(*ErrorResponse)(nil),             // 27: meme.json_api.ErrorResponse
+	nil,                               // 28: meme.json_api.GetUsersByIDsResponse.UsersEntry
 }
 var file_json_api_proto_depIdxs = []int32{
 	1,  // 0: meme.json_api.FeedResponse.posts:type_name -> meme.json_api.FeedPostResponse
 	9,  // 1: meme.json_api.UserPostsResponse.posts:type_name -> meme.json_api.UserPostResponse
-	0,  // 2: meme.json_api.JsonAPI.GetFeed:input_type -> meme.json_api.FeedRequest
-	3,  // 3: meme.json_api.JsonAPI.Publish:input_type -> meme.json_api.PublishRequest
-	5,  // 4: meme.json_api.JsonAPI.Login:input_type -> meme.json_api.LoginRequest
-	7,  // 5: meme.json_api.JsonAPI.Register:input_type -> meme.json_api.RegisterRequest
-	8,  // 6: meme.json_api.JsonAPI.GetUserPosts:input_type -> meme.json_api.UserPostsRequest
-	11, // 7: meme.json_api.JsonAPI.Subscribe:input_type -> meme.json_api.SubscribeRequest
-	11, // 8: meme.json_api.JsonAPI.Unsubscribe:input_type -> meme.json_api.SubscribeRequest
-	11, // 9: meme.json_api.JsonAPI.GetSubscriptionStatus:input_type -> meme.json_api.SubscribeRequest
-	2,  // 10: meme.json_api.JsonAPI.GetFeed:output_type -> meme.json_api.FeedResponse
-	4,  // 11: meme.json_api.JsonAPI.Publish:output_type -> meme.json_api.PublishResponse
-	6,  // 12: meme.json_api.JsonAPI.Login:output_type -> meme.json_api.LoginResponse
-	6,  // 13: meme.json_api.JsonAPI.Register:output_type -> meme.json_api.LoginResponse
-	10, // 14: meme.json_api.JsonAPI.GetUserPosts:output_type -> meme.json_api.UserPostsResponse
-	12, // 15: meme.json_api.JsonAPI.Subscribe:output_type -> meme.json_api.SubscribeResponse
-	12, // 16: meme.json_api.JsonAPI.Unsubscribe:output_type -> meme.json_api.SubscribeResponse
-	12, // 17: meme.json_api.JsonAPI.GetSubscriptionStatus:output_type -> meme.json_api.SubscribeResponse
-	10, // [10:18] is the sub-list for method output_type
-	2,  // [2:10] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	16, // 2: meme.json_api.GetPostsByUserIDsResponse.posts:type_name -> meme.json_api.GetPostResponse
+	28, // 3: meme.json_api.GetUsersByIDsResponse.users:type_name -> meme.json_api.GetUsersByIDsResponse.UsersEntry
+	18, // 4: meme.json_api.GetUsersByIDsResponse.UsersEntry.value:type_name -> meme.json_api.GetUserResponse
+	0,  // 5: meme.json_api.JsonAPI.GetFeed:input_type -> meme.json_api.FeedRequest
+	3,  // 6: meme.json_api.JsonAPI.Publish:input_type -> meme.json_api.PublishRequest
+	5,  // 7: meme.json_api.JsonAPI.Login:input_type -> meme.json_api.LoginRequest
+	7,  // 8: meme.json_api.JsonAPI.Register:input_type -> meme.json_api.RegisterRequest
+	8,  // 9: meme.json_api.JsonAPI.GetUserPosts:input_type -> meme.json_api.UserPostsRequest
+	11, // 10: meme.json_api.JsonAPI.Subscribe:input_type -> meme.json_api.SubscribeRequest
+	11, // 11: meme.json_api.JsonAPI.Unsubscribe:input_type -> meme.json_api.SubscribeRequest
+	11, // 12: meme.json_api.JsonAPI.GetSubscriptionStatus:input_type -> meme.json_api.SubscribeRequest
+	13, // 13: meme.json_api.JsonAPI.GetFollowing:input_type -> meme.json_api.GetFollowingRequest
+	15, // 14: meme.json_api.JsonAPI.GetPost:input_type -> meme.json_api.GetPostRequest
+	17, // 15: meme.json_api.JsonAPI.GetUser:input_type -> meme.json_api.GetUserRequest
+	19, // 16: meme.json_api.JsonAPI.VerifyToken:input_type -> meme.json_api.VerifyTokenRequest
+	21, // 17: meme.json_api.JsonAPI.IsSubscribed:input_type -> meme.json_api.IsSubscribedRequest
+	23, // 18: meme.json_api.JsonAPI.GetPostsByUserIDs:input_type -> meme.json_api.GetPostsByUserIDsRequest
+	25, // 19: meme.json_api.JsonAPI.GetUsersByIDs:input_type -> meme.json_api.GetUsersByIDsRequest
+	2,  // 20: meme.json_api.JsonAPI.GetFeed:output_type -> meme.json_api.FeedResponse
+	4,  // 21: meme.json_api.JsonAPI.Publish:output_type -> meme.json_api.PublishResponse
+	6,  // 22: meme.json_api.JsonAPI.Login:output_type -> meme.json_api.LoginResponse
+	6,  // 23: meme.json_api.JsonAPI.Register:output_type -> meme.json_api.LoginResponse
+	10, // 24: meme.json_api.JsonAPI.GetUserPosts:output_type -> meme.json_api.UserPostsResponse
+	12, // 25: meme.json_api.JsonAPI.Subscribe:output_type -> meme.json_api.SubscribeResponse
+	12, // 26: meme.json_api.JsonAPI.Unsubscribe:output_type -> meme.json_api.SubscribeResponse
+	12, // 27: meme.json_api.JsonAPI.GetSubscriptionStatus:output_type -> meme.json_api.SubscribeResponse
+	14, // 28: meme.json_api.JsonAPI.GetFollowing:output_type -> meme.json_api.GetFollowingResponse
+	16, // 29: meme.json_api.JsonAPI.GetPost:output_type -> meme.json_api.GetPostResponse
+	18, // 30: meme.json_api.JsonAPI.GetUser:output_type -> meme.json_api.GetUserResponse
+	20, // 31: meme.json_api.JsonAPI.VerifyToken:output_type -> meme.json_api.VerifyTokenResponse
+	22, // 32: meme.json_api.JsonAPI.IsSubscribed:output_type -> meme.json_api.IsSubscribedResponse
+	24, // 33: meme.json_api.JsonAPI.GetPostsByUserIDs:output_type -> meme.json_api.GetPostsByUserIDsResponse
+	26, // 34: meme.json_api.JsonAPI.GetUsersByIDs:output_type -> meme.json_api.GetUsersByIDsResponse
+	20, // [20:35] is the sub-list for method output_type
+	5,  // [5:20] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_json_api_proto_init() }
@@ -874,7 +1616,7 @@ func file_json_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_json_api_proto_rawDesc), len(file_json_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

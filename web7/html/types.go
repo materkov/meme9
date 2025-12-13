@@ -1,17 +1,11 @@
 package html
 
-import "time"
+import (
+	json_api "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/json_api"
+)
 
-// Post represents a post for HTML rendering
-type Post struct {
-	ID        string
-	Text      string
-	UserID    string
-	CreatedAt time.Time
-}
+// Post is an alias for proto GetPostResponse
+type Post = json_api.GetPostResponse
 
-// User represents a user for HTML rendering
-type User struct {
-	ID       string
-	Username string
-}
+// User is an alias for proto GetUserResponse
+type User = json_api.GetUserResponse

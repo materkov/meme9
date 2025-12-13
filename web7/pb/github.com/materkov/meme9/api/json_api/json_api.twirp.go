@@ -56,6 +56,27 @@ type JsonAPI interface {
 
 	// SubscriptionStatus API - POST /api/subscriptionStatus
 	GetSubscriptionStatus(context.Context, *SubscribeRequest) (*SubscribeResponse, error)
+
+	// GetFollowing API - POST /api/getFollowing
+	GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error)
+
+	// GetPost API - POST /api/getPost
+	GetPost(context.Context, *GetPostRequest) (*GetPostResponse, error)
+
+	// GetUser API - POST /api/getUser
+	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+
+	// VerifyToken API - POST /api/verifyToken
+	VerifyToken(context.Context, *VerifyTokenRequest) (*VerifyTokenResponse, error)
+
+	// IsSubscribed API - POST /api/isSubscribed
+	IsSubscribed(context.Context, *IsSubscribedRequest) (*IsSubscribedResponse, error)
+
+	// GetPostsByUserIDs API - POST /api/getPostsByUserIDs
+	GetPostsByUserIDs(context.Context, *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error)
+
+	// GetUsersByIDs API - POST /api/getUsersByIDs
+	GetUsersByIDs(context.Context, *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error)
 }
 
 // =======================
@@ -64,7 +85,7 @@ type JsonAPI interface {
 
 type jsonAPIProtobufClient struct {
 	client      HTTPClient
-	urls        [8]string
+	urls        [15]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -92,7 +113,7 @@ func NewJsonAPIProtobufClient(baseURL string, client HTTPClient, opts ...twirp.C
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "meme.json_api", "JsonAPI")
-	urls := [8]string{
+	urls := [15]string{
 		serviceURL + "GetFeed",
 		serviceURL + "Publish",
 		serviceURL + "Login",
@@ -101,6 +122,13 @@ func NewJsonAPIProtobufClient(baseURL string, client HTTPClient, opts ...twirp.C
 		serviceURL + "Subscribe",
 		serviceURL + "Unsubscribe",
 		serviceURL + "GetSubscriptionStatus",
+		serviceURL + "GetFollowing",
+		serviceURL + "GetPost",
+		serviceURL + "GetUser",
+		serviceURL + "VerifyToken",
+		serviceURL + "IsSubscribed",
+		serviceURL + "GetPostsByUserIDs",
+		serviceURL + "GetUsersByIDs",
 	}
 
 	return &jsonAPIProtobufClient{
@@ -479,13 +507,335 @@ func (c *jsonAPIProtobufClient) callGetSubscriptionStatus(ctx context.Context, i
 	return out, nil
 }
 
+func (c *jsonAPIProtobufClient) GetFollowing(ctx context.Context, in *GetFollowingRequest) (*GetFollowingResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetFollowing")
+	caller := c.callGetFollowing
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetFollowingRequest) (*GetFollowingResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetFollowingRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetFollowingRequest) when calling interceptor")
+					}
+					return c.callGetFollowing(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetFollowingResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetFollowingResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIProtobufClient) callGetFollowing(ctx context.Context, in *GetFollowingRequest) (*GetFollowingResponse, error) {
+	out := new(GetFollowingResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIProtobufClient) GetPost(ctx context.Context, in *GetPostRequest) (*GetPostResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetPost")
+	caller := c.callGetPost
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetPostRequest) (*GetPostResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetPostRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetPostRequest) when calling interceptor")
+					}
+					return c.callGetPost(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetPostResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetPostResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIProtobufClient) callGetPost(ctx context.Context, in *GetPostRequest) (*GetPostResponse, error) {
+	out := new(GetPostResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIProtobufClient) GetUser(ctx context.Context, in *GetUserRequest) (*GetUserResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetUser")
+	caller := c.callGetUser
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetUserRequest) (*GetUserResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetUserRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetUserRequest) when calling interceptor")
+					}
+					return c.callGetUser(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetUserResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetUserResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIProtobufClient) callGetUser(ctx context.Context, in *GetUserRequest) (*GetUserResponse, error) {
+	out := new(GetUserResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIProtobufClient) VerifyToken(ctx context.Context, in *VerifyTokenRequest) (*VerifyTokenResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "VerifyToken")
+	caller := c.callVerifyToken
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *VerifyTokenRequest) (*VerifyTokenResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*VerifyTokenRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*VerifyTokenRequest) when calling interceptor")
+					}
+					return c.callVerifyToken(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*VerifyTokenResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*VerifyTokenResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIProtobufClient) callVerifyToken(ctx context.Context, in *VerifyTokenRequest) (*VerifyTokenResponse, error) {
+	out := new(VerifyTokenResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIProtobufClient) IsSubscribed(ctx context.Context, in *IsSubscribedRequest) (*IsSubscribedResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "IsSubscribed")
+	caller := c.callIsSubscribed
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *IsSubscribedRequest) (*IsSubscribedResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*IsSubscribedRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*IsSubscribedRequest) when calling interceptor")
+					}
+					return c.callIsSubscribed(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*IsSubscribedResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*IsSubscribedResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIProtobufClient) callIsSubscribed(ctx context.Context, in *IsSubscribedRequest) (*IsSubscribedResponse, error) {
+	out := new(IsSubscribedResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIProtobufClient) GetPostsByUserIDs(ctx context.Context, in *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetPostsByUserIDs")
+	caller := c.callGetPostsByUserIDs
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetPostsByUserIDsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetPostsByUserIDsRequest) when calling interceptor")
+					}
+					return c.callGetPostsByUserIDs(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetPostsByUserIDsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetPostsByUserIDsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIProtobufClient) callGetPostsByUserIDs(ctx context.Context, in *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error) {
+	out := new(GetPostsByUserIDsResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIProtobufClient) GetUsersByIDs(ctx context.Context, in *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetUsersByIDs")
+	caller := c.callGetUsersByIDs
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetUsersByIDsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetUsersByIDsRequest) when calling interceptor")
+					}
+					return c.callGetUsersByIDs(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetUsersByIDsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetUsersByIDsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIProtobufClient) callGetUsersByIDs(ctx context.Context, in *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error) {
+	out := new(GetUsersByIDsResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
 // ===================
 // JsonAPI JSON Client
 // ===================
 
 type jsonAPIJSONClient struct {
 	client      HTTPClient
-	urls        [8]string
+	urls        [15]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -513,7 +863,7 @@ func NewJsonAPIJSONClient(baseURL string, client HTTPClient, opts ...twirp.Clien
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "meme.json_api", "JsonAPI")
-	urls := [8]string{
+	urls := [15]string{
 		serviceURL + "GetFeed",
 		serviceURL + "Publish",
 		serviceURL + "Login",
@@ -522,6 +872,13 @@ func NewJsonAPIJSONClient(baseURL string, client HTTPClient, opts ...twirp.Clien
 		serviceURL + "Subscribe",
 		serviceURL + "Unsubscribe",
 		serviceURL + "GetSubscriptionStatus",
+		serviceURL + "GetFollowing",
+		serviceURL + "GetPost",
+		serviceURL + "GetUser",
+		serviceURL + "VerifyToken",
+		serviceURL + "IsSubscribed",
+		serviceURL + "GetPostsByUserIDs",
+		serviceURL + "GetUsersByIDs",
 	}
 
 	return &jsonAPIJSONClient{
@@ -900,6 +1257,328 @@ func (c *jsonAPIJSONClient) callGetSubscriptionStatus(ctx context.Context, in *S
 	return out, nil
 }
 
+func (c *jsonAPIJSONClient) GetFollowing(ctx context.Context, in *GetFollowingRequest) (*GetFollowingResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetFollowing")
+	caller := c.callGetFollowing
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetFollowingRequest) (*GetFollowingResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetFollowingRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetFollowingRequest) when calling interceptor")
+					}
+					return c.callGetFollowing(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetFollowingResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetFollowingResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIJSONClient) callGetFollowing(ctx context.Context, in *GetFollowingRequest) (*GetFollowingResponse, error) {
+	out := new(GetFollowingResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[8], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIJSONClient) GetPost(ctx context.Context, in *GetPostRequest) (*GetPostResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetPost")
+	caller := c.callGetPost
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetPostRequest) (*GetPostResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetPostRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetPostRequest) when calling interceptor")
+					}
+					return c.callGetPost(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetPostResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetPostResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIJSONClient) callGetPost(ctx context.Context, in *GetPostRequest) (*GetPostResponse, error) {
+	out := new(GetPostResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[9], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIJSONClient) GetUser(ctx context.Context, in *GetUserRequest) (*GetUserResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetUser")
+	caller := c.callGetUser
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetUserRequest) (*GetUserResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetUserRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetUserRequest) when calling interceptor")
+					}
+					return c.callGetUser(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetUserResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetUserResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIJSONClient) callGetUser(ctx context.Context, in *GetUserRequest) (*GetUserResponse, error) {
+	out := new(GetUserResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[10], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIJSONClient) VerifyToken(ctx context.Context, in *VerifyTokenRequest) (*VerifyTokenResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "VerifyToken")
+	caller := c.callVerifyToken
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *VerifyTokenRequest) (*VerifyTokenResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*VerifyTokenRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*VerifyTokenRequest) when calling interceptor")
+					}
+					return c.callVerifyToken(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*VerifyTokenResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*VerifyTokenResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIJSONClient) callVerifyToken(ctx context.Context, in *VerifyTokenRequest) (*VerifyTokenResponse, error) {
+	out := new(VerifyTokenResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[11], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIJSONClient) IsSubscribed(ctx context.Context, in *IsSubscribedRequest) (*IsSubscribedResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "IsSubscribed")
+	caller := c.callIsSubscribed
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *IsSubscribedRequest) (*IsSubscribedResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*IsSubscribedRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*IsSubscribedRequest) when calling interceptor")
+					}
+					return c.callIsSubscribed(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*IsSubscribedResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*IsSubscribedResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIJSONClient) callIsSubscribed(ctx context.Context, in *IsSubscribedRequest) (*IsSubscribedResponse, error) {
+	out := new(IsSubscribedResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[12], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIJSONClient) GetPostsByUserIDs(ctx context.Context, in *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetPostsByUserIDs")
+	caller := c.callGetPostsByUserIDs
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetPostsByUserIDsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetPostsByUserIDsRequest) when calling interceptor")
+					}
+					return c.callGetPostsByUserIDs(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetPostsByUserIDsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetPostsByUserIDsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIJSONClient) callGetPostsByUserIDs(ctx context.Context, in *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error) {
+	out := new(GetPostsByUserIDsResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[13], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *jsonAPIJSONClient) GetUsersByIDs(ctx context.Context, in *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.json_api")
+	ctx = ctxsetters.WithServiceName(ctx, "JsonAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetUsersByIDs")
+	caller := c.callGetUsersByIDs
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetUsersByIDsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetUsersByIDsRequest) when calling interceptor")
+					}
+					return c.callGetUsersByIDs(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetUsersByIDsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetUsersByIDsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *jsonAPIJSONClient) callGetUsersByIDs(ctx context.Context, in *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error) {
+	out := new(GetUsersByIDsResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[14], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
 // ======================
 // JsonAPI Server Handler
 // ======================
@@ -1020,6 +1699,27 @@ func (s *jsonAPIServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		return
 	case "GetSubscriptionStatus":
 		s.serveGetSubscriptionStatus(ctx, resp, req)
+		return
+	case "GetFollowing":
+		s.serveGetFollowing(ctx, resp, req)
+		return
+	case "GetPost":
+		s.serveGetPost(ctx, resp, req)
+		return
+	case "GetUser":
+		s.serveGetUser(ctx, resp, req)
+		return
+	case "VerifyToken":
+		s.serveVerifyToken(ctx, resp, req)
+		return
+	case "IsSubscribed":
+		s.serveIsSubscribed(ctx, resp, req)
+		return
+	case "GetPostsByUserIDs":
+		s.serveGetPostsByUserIDs(ctx, resp, req)
+		return
+	case "GetUsersByIDs":
+		s.serveGetUsersByIDs(ctx, resp, req)
 		return
 	default:
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
@@ -2468,6 +3168,1266 @@ func (s *jsonAPIServer) serveGetSubscriptionStatusProtobuf(ctx context.Context, 
 	callResponseSent(ctx, s.hooks)
 }
 
+func (s *jsonAPIServer) serveGetFollowing(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetFollowingJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetFollowingProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *jsonAPIServer) serveGetFollowingJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetFollowing")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetFollowingRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.JsonAPI.GetFollowing
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetFollowingRequest) (*GetFollowingResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetFollowingRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetFollowingRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetFollowing(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetFollowingResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetFollowingResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetFollowingResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetFollowingResponse and nil error while calling GetFollowing. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveGetFollowingProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetFollowing")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetFollowingRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.JsonAPI.GetFollowing
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetFollowingRequest) (*GetFollowingResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetFollowingRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetFollowingRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetFollowing(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetFollowingResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetFollowingResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetFollowingResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetFollowingResponse and nil error while calling GetFollowing. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveGetPost(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetPostJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetPostProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *jsonAPIServer) serveGetPostJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetPost")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetPostRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.JsonAPI.GetPost
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetPostRequest) (*GetPostResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetPostRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetPostRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetPost(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetPostResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetPostResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetPostResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetPostResponse and nil error while calling GetPost. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveGetPostProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetPost")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetPostRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.JsonAPI.GetPost
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetPostRequest) (*GetPostResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetPostRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetPostRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetPost(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetPostResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetPostResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetPostResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetPostResponse and nil error while calling GetPost. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveGetUser(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetUserJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetUserProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *jsonAPIServer) serveGetUserJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetUser")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetUserRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.JsonAPI.GetUser
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetUserRequest) (*GetUserResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetUserRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetUserRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetUser(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetUserResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetUserResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetUserResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetUserResponse and nil error while calling GetUser. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveGetUserProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetUser")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetUserRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.JsonAPI.GetUser
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetUserRequest) (*GetUserResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetUserRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetUserRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetUser(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetUserResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetUserResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetUserResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetUserResponse and nil error while calling GetUser. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveVerifyToken(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveVerifyTokenJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveVerifyTokenProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *jsonAPIServer) serveVerifyTokenJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "VerifyToken")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(VerifyTokenRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.JsonAPI.VerifyToken
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *VerifyTokenRequest) (*VerifyTokenResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*VerifyTokenRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*VerifyTokenRequest) when calling interceptor")
+					}
+					return s.JsonAPI.VerifyToken(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*VerifyTokenResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*VerifyTokenResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *VerifyTokenResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *VerifyTokenResponse and nil error while calling VerifyToken. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveVerifyTokenProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "VerifyToken")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(VerifyTokenRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.JsonAPI.VerifyToken
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *VerifyTokenRequest) (*VerifyTokenResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*VerifyTokenRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*VerifyTokenRequest) when calling interceptor")
+					}
+					return s.JsonAPI.VerifyToken(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*VerifyTokenResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*VerifyTokenResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *VerifyTokenResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *VerifyTokenResponse and nil error while calling VerifyToken. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveIsSubscribed(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveIsSubscribedJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveIsSubscribedProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *jsonAPIServer) serveIsSubscribedJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "IsSubscribed")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(IsSubscribedRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.JsonAPI.IsSubscribed
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *IsSubscribedRequest) (*IsSubscribedResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*IsSubscribedRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*IsSubscribedRequest) when calling interceptor")
+					}
+					return s.JsonAPI.IsSubscribed(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*IsSubscribedResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*IsSubscribedResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *IsSubscribedResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *IsSubscribedResponse and nil error while calling IsSubscribed. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveIsSubscribedProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "IsSubscribed")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(IsSubscribedRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.JsonAPI.IsSubscribed
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *IsSubscribedRequest) (*IsSubscribedResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*IsSubscribedRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*IsSubscribedRequest) when calling interceptor")
+					}
+					return s.JsonAPI.IsSubscribed(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*IsSubscribedResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*IsSubscribedResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *IsSubscribedResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *IsSubscribedResponse and nil error while calling IsSubscribed. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveGetPostsByUserIDs(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetPostsByUserIDsJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetPostsByUserIDsProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *jsonAPIServer) serveGetPostsByUserIDsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetPostsByUserIDs")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetPostsByUserIDsRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.JsonAPI.GetPostsByUserIDs
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetPostsByUserIDsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetPostsByUserIDsRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetPostsByUserIDs(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetPostsByUserIDsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetPostsByUserIDsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetPostsByUserIDsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetPostsByUserIDsResponse and nil error while calling GetPostsByUserIDs. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveGetPostsByUserIDsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetPostsByUserIDs")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetPostsByUserIDsRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.JsonAPI.GetPostsByUserIDs
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetPostsByUserIDsRequest) (*GetPostsByUserIDsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetPostsByUserIDsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetPostsByUserIDsRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetPostsByUserIDs(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetPostsByUserIDsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetPostsByUserIDsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetPostsByUserIDsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetPostsByUserIDsResponse and nil error while calling GetPostsByUserIDs. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveGetUsersByIDs(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetUsersByIDsJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetUsersByIDsProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *jsonAPIServer) serveGetUsersByIDsJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetUsersByIDs")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetUsersByIDsRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.JsonAPI.GetUsersByIDs
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetUsersByIDsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetUsersByIDsRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetUsersByIDs(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetUsersByIDsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetUsersByIDsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetUsersByIDsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetUsersByIDsResponse and nil error while calling GetUsersByIDs. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *jsonAPIServer) serveGetUsersByIDsProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetUsersByIDs")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetUsersByIDsRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.JsonAPI.GetUsersByIDs
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetUsersByIDsRequest) (*GetUsersByIDsResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetUsersByIDsRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetUsersByIDsRequest) when calling interceptor")
+					}
+					return s.JsonAPI.GetUsersByIDs(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetUsersByIDsResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetUsersByIDsResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetUsersByIDsResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetUsersByIDsResponse and nil error while calling GetUsersByIDs. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
 func (s *jsonAPIServer) ServiceDescriptor() ([]byte, int) {
 	return twirpFileDescriptor0, 0
 }
@@ -3049,41 +5009,64 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 571 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x55, 0x4b, 0x6f, 0xd3, 0x40,
-	0x10, 0x96, 0xf3, 0x68, 0x92, 0xc9, 0xa3, 0xe9, 0x0a, 0x84, 0x65, 0x68, 0x49, 0x0d, 0x42, 0x91,
-	0x2a, 0x25, 0x52, 0x2b, 0x0e, 0x1c, 0x1b, 0xd1, 0x86, 0x44, 0x08, 0x05, 0x57, 0xbd, 0xe4, 0x12,
-	0x39, 0xf1, 0x28, 0x5d, 0xda, 0x78, 0xcd, 0xee, 0x1a, 0xca, 0x5f, 0xe0, 0x07, 0x73, 0x46, 0x5e,
-	0xaf, 0x8d, 0xe3, 0x24, 0x2a, 0x12, 0x95, 0xb8, 0xed, 0xbc, 0xbe, 0xf9, 0x66, 0xfc, 0x8d, 0x0c,
-	0xad, 0x2f, 0x82, 0xf9, 0x33, 0x37, 0xa0, 0xbd, 0x80, 0x33, 0xc9, 0x48, 0x73, 0x85, 0x2b, 0xec,
-	0x25, 0x4e, 0xfb, 0x18, 0xea, 0x97, 0x88, 0x9e, 0x83, 0x5f, 0x43, 0x14, 0x92, 0x10, 0x28, 0xc9,
-	0x1f, 0x01, 0x9a, 0x46, 0xc7, 0xe8, 0xd6, 0x1c, 0xf5, 0xb6, 0x7f, 0x1a, 0xd0, 0x8e, 0x72, 0x26,
-	0x4c, 0x48, 0x07, 0x45, 0xc0, 0x7c, 0x81, 0xa4, 0x05, 0x05, 0xea, 0xe9, 0xb4, 0x02, 0xf5, 0x54,
-	0x21, 0xde, 0x4b, 0xb3, 0xa0, 0x0b, 0xf1, 0x5e, 0x92, 0x67, 0x50, 0x09, 0x05, 0xf2, 0x19, 0xf5,
-	0xcc, 0xa2, 0x72, 0xef, 0x45, 0xe6, 0xc8, 0x23, 0x16, 0x54, 0xa3, 0x97, 0xef, 0xae, 0xd0, 0x2c,
-	0xa9, 0x48, 0x6a, 0x93, 0x43, 0x80, 0x05, 0x47, 0x57, 0xa2, 0x37, 0x73, 0xa5, 0x59, 0x56, 0xd1,
-	0x9a, 0xf6, 0x9c, 0x4b, 0xfb, 0x02, 0x1a, 0x31, 0x5f, 0xcd, 0xe3, 0x2d, 0x94, 0x03, 0x26, 0xa4,
-	0x30, 0x8d, 0x4e, 0xb1, 0x5b, 0x3f, 0x7d, 0xd9, 0x5b, 0x1b, 0xaf, 0x97, 0xe7, 0xed, 0xc4, 0xd9,
-	0xf6, 0x6b, 0x68, 0x4d, 0xc2, 0xf9, 0x1d, 0x15, 0x37, 0xd9, 0xc9, 0xa3, 0x01, 0x8c, 0x3f, 0x03,
-	0xd8, 0xc7, 0xb0, 0x9f, 0x66, 0x6d, 0x9f, 0xdb, 0xbe, 0x84, 0xc6, 0x47, 0xb6, 0xa4, 0x7e, 0x02,
-	0x93, 0x1d, 0xcd, 0xc8, 0x8d, 0x66, 0x41, 0x35, 0x70, 0x85, 0xf8, 0xce, 0xb8, 0xa7, 0xf7, 0x94,
-	0xda, 0xf6, 0x14, 0x9a, 0x1a, 0x47, 0x37, 0x7a, 0x02, 0x65, 0xc9, 0x6e, 0xd1, 0xd7, 0x28, 0xb1,
-	0x91, 0x5d, 0x69, 0x61, 0xe7, 0x4a, 0x8b, 0xeb, 0x7d, 0xed, 0x11, 0xec, 0x3b, 0xb8, 0xa4, 0x42,
-	0x22, 0xff, 0x57, 0x9a, 0x27, 0xd0, 0xbe, 0x16, 0xc8, 0xa3, 0x95, 0x8a, 0x04, 0x2b, 0xc3, 0xc9,
-	0xc8, 0x72, 0x52, 0xc2, 0x49, 0xb2, 0xff, 0xbb, 0x70, 0xc6, 0x70, 0x90, 0x61, 0xfe, 0x77, 0xea,
-	0xc9, 0x93, 0x4f, 0xd4, 0x73, 0x02, 0xed, 0xab, 0x70, 0x2e, 0x16, 0x9c, 0xce, 0xf1, 0xc1, 0x2d,
-	0x9c, 0xc1, 0x41, 0x26, 0x59, 0x37, 0x3e, 0x02, 0x10, 0x89, 0x33, 0x2e, 0xa8, 0x3a, 0x19, 0x8f,
-	0x3d, 0x86, 0xe6, 0x05, 0xe7, 0x8c, 0x67, 0xe5, 0x80, 0x91, 0x23, 0x91, 0x83, 0x32, 0xc8, 0x2b,
-	0x68, 0xaa, 0xc7, 0xcc, 0x43, 0xe9, 0xd2, 0x3b, 0xa1, 0xb7, 0xd8, 0x50, 0xce, 0xf7, 0xb1, 0xef,
-	0xf4, 0x57, 0x09, 0x2a, 0x63, 0xc1, 0xfc, 0xf3, 0xc9, 0x88, 0x0c, 0xa0, 0x32, 0x44, 0x19, 0x5d,
-	0x05, 0xb1, 0xb6, 0x9c, 0x8a, 0x1e, 0xc6, 0x7a, 0xbe, 0x35, 0xa6, 0xa9, 0x7c, 0x80, 0x8a, 0xbe,
-	0x0a, 0x72, 0x98, 0xcb, 0x5b, 0xbf, 0x29, 0xeb, 0x68, 0x57, 0x58, 0x23, 0x0d, 0xa0, 0xac, 0x44,
-	0x4f, 0xf2, 0xfd, 0xb2, 0x27, 0x65, 0xbd, 0xd8, 0x1e, 0x4c, 0xd9, 0x54, 0x13, 0x71, 0x93, 0x7c,
-	0xbf, 0x9c, 0xea, 0x1f, 0x40, 0xfa, 0x0c, 0x8d, 0x21, 0xca, 0x54, 0x24, 0x64, 0x97, 0x1a, 0x12,
-	0xe1, 0x5b, 0x9d, 0xdd, 0x09, 0x1a, 0xf2, 0x13, 0xd4, 0xd2, 0x6f, 0xbf, 0x81, 0x97, 0x97, 0xd0,
-	0x06, 0xde, 0xa6, 0x6c, 0x26, 0x50, 0xbf, 0xf6, 0xc5, 0x63, 0x22, 0x4e, 0xe1, 0xe9, 0x10, 0xa5,
-	0xf6, 0x07, 0x92, 0x32, 0xff, 0x4a, 0xba, 0x32, 0x14, 0x8f, 0x80, 0x3d, 0xe8, 0x4e, 0xdf, 0x2c,
-	0xa9, 0xbc, 0x09, 0xe7, 0xbd, 0x05, 0x5b, 0xf5, 0x57, 0xae, 0x44, 0x7e, 0xcb, 0xbe, 0xf5, 0xa3,
-	0xb2, 0x77, 0x7d, 0x37, 0xa0, 0xfd, 0xa4, 0x76, 0xbe, 0xa7, 0xfe, 0x4d, 0x67, 0xbf, 0x03, 0x00,
-	0x00, 0xff, 0xff, 0x7e, 0xbf, 0xb2, 0x21, 0xad, 0x06, 0x00, 0x00,
+	// 937 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x57, 0xeb, 0x6e, 0x1b, 0x55,
+	0x10, 0xd6, 0xda, 0x71, 0x6d, 0x8f, 0x2f, 0x71, 0x4e, 0x83, 0x70, 0x17, 0x1a, 0x92, 0x4d, 0x04,
+	0x86, 0x4a, 0xb6, 0x68, 0x29, 0x02, 0x24, 0x7e, 0xd4, 0xaa, 0x53, 0x1c, 0x21, 0xe4, 0x6e, 0x1b,
+	0x40, 0xf9, 0x63, 0xd6, 0xd9, 0x53, 0x77, 0x89, 0xbd, 0x67, 0xd9, 0x73, 0xdc, 0xc6, 0xaf, 0xc0,
+	0x13, 0xf1, 0x24, 0x3c, 0x0f, 0x3a, 0x97, 0x5d, 0x9f, 0xbd, 0xf8, 0x22, 0x11, 0xa9, 0xff, 0x7c,
+	0x66, 0xe7, 0xf2, 0xcd, 0xcc, 0x37, 0x33, 0x32, 0x34, 0xff, 0xa4, 0xc4, 0x1f, 0x3b, 0x81, 0xd7,
+	0x0d, 0x42, 0xc2, 0x08, 0x6a, 0xcc, 0xf1, 0x1c, 0x77, 0x23, 0xa1, 0x75, 0x02, 0xb5, 0x73, 0x8c,
+	0x5d, 0x1b, 0xff, 0xb5, 0xc0, 0x94, 0x21, 0x04, 0x7b, 0x6c, 0x19, 0xe0, 0xb6, 0x71, 0x6c, 0x74,
+	0xaa, 0xb6, 0xf8, 0x6d, 0xfd, 0x6d, 0x40, 0x8b, 0xeb, 0x8c, 0x08, 0x65, 0x36, 0xa6, 0x01, 0xf1,
+	0x29, 0x46, 0x4d, 0x28, 0x78, 0xae, 0x52, 0x2b, 0x78, 0xae, 0x30, 0xc4, 0xb7, 0xac, 0x5d, 0x50,
+	0x86, 0xf8, 0x96, 0xa1, 0x8f, 0xa1, 0xbc, 0xa0, 0x38, 0x1c, 0x7b, 0x6e, 0xbb, 0x28, 0xc4, 0xf7,
+	0xf8, 0x73, 0xe8, 0x22, 0x13, 0x2a, 0xfc, 0x97, 0xef, 0xcc, 0x71, 0x7b, 0x4f, 0x7c, 0x89, 0xdf,
+	0xe8, 0x21, 0xc0, 0x75, 0x88, 0x1d, 0x86, 0xdd, 0xb1, 0xc3, 0xda, 0x25, 0xf1, 0xb5, 0xaa, 0x24,
+	0xcf, 0x98, 0x35, 0x80, 0xba, 0xc4, 0xab, 0x70, 0x3c, 0x85, 0x52, 0x40, 0x28, 0xa3, 0x6d, 0xe3,
+	0xb8, 0xd8, 0xa9, 0x3d, 0xfe, 0xac, 0x9b, 0x48, 0xaf, 0x9b, 0xc6, 0x6d, 0x4b, 0x6d, 0xeb, 0x0c,
+	0x9a, 0xa3, 0xc5, 0x64, 0xe6, 0xd1, 0xb7, 0x7a, 0xe6, 0x3c, 0x01, 0x63, 0x95, 0x80, 0x75, 0x02,
+	0xfb, 0xb1, 0x56, 0x7e, 0xde, 0xd6, 0x39, 0xd4, 0x7f, 0x26, 0x53, 0xcf, 0x8f, 0xdc, 0xe8, 0xa9,
+	0x19, 0xa9, 0xd4, 0x4c, 0xa8, 0x04, 0x0e, 0xa5, 0xef, 0x49, 0xe8, 0xaa, 0x3a, 0xc5, 0x6f, 0xeb,
+	0x0a, 0x1a, 0xca, 0x8f, 0x0a, 0x74, 0x08, 0x25, 0x46, 0x6e, 0xb0, 0xaf, 0xbc, 0xc8, 0x87, 0x5e,
+	0xd2, 0xc2, 0xda, 0x92, 0x16, 0x93, 0x71, 0xad, 0x21, 0xec, 0xdb, 0x78, 0xea, 0x51, 0x86, 0xc3,
+	0xff, 0x0b, 0xf3, 0x11, 0xb4, 0x2e, 0x29, 0x0e, 0x79, 0x49, 0x69, 0xe4, 0x4b, 0xc3, 0x64, 0xe8,
+	0x98, 0x04, 0x71, 0x22, 0xed, 0x0f, 0x4e, 0x9c, 0x0b, 0x38, 0xd0, 0x90, 0xef, 0xc6, 0x9e, 0x34,
+	0xf8, 0x88, 0x3d, 0x8f, 0xa0, 0xf5, 0x6a, 0x31, 0xa1, 0xd7, 0xa1, 0x37, 0xc1, 0x5b, 0xab, 0xf0,
+	0x04, 0x0e, 0x34, 0x65, 0x15, 0xf8, 0x08, 0x80, 0x46, 0x42, 0x69, 0x50, 0xb1, 0x35, 0x89, 0xd5,
+	0x85, 0xfb, 0x2f, 0x30, 0x3b, 0x27, 0xb3, 0x19, 0x79, 0xef, 0xf9, 0xd3, 0xad, 0x41, 0xbe, 0x86,
+	0xc3, 0xa4, 0xbe, 0x8a, 0xf3, 0x40, 0x16, 0x6c, 0xec, 0xb9, 0x32, 0xc7, 0xaa, 0x5d, 0x96, 0x16,
+	0xd4, 0xfa, 0x12, 0x9a, 0x2f, 0x30, 0x93, 0xe9, 0xc5, 0xde, 0x79, 0x7e, 0x9a, 0x77, 0xfe, 0x1c,
+	0xba, 0xd6, 0x1c, 0xf6, 0x63, 0xd5, 0xbb, 0x68, 0x63, 0xb2, 0x55, 0x7b, 0xe9, 0x56, 0x49, 0x64,
+	0xbc, 0xf8, 0x5b, 0xf3, 0xfe, 0x51, 0x20, 0x93, 0xaa, 0x6b, 0x90, 0xe9, 0x9c, 0x29, 0xa4, 0x26,
+	0xe3, 0x2b, 0x40, 0xbf, 0xe2, 0xd0, 0x7b, 0xb3, 0x7c, 0xcd, 0xa7, 0x2b, 0x8a, 0x96, 0x3b, 0x7a,
+	0xbc, 0x25, 0x09, 0x5d, 0x15, 0x6e, 0x2d, 0xb4, 0x3f, 0xe0, 0xfe, 0x90, 0xc6, 0x9d, 0x8f, 0x37,
+	0xec, 0x29, 0x34, 0xe2, 0x3e, 0x6b, 0x56, 0xf5, 0x95, 0x70, 0xe8, 0xa2, 0x33, 0x68, 0x32, 0x27,
+	0x9c, 0x62, 0x36, 0x4e, 0x4e, 0x7b, 0x5d, 0x4a, 0x2f, 0x65, 0x84, 0x6f, 0xe1, 0x30, 0x19, 0x61,
+	0x47, 0x72, 0x3d, 0x85, 0xb6, 0x6a, 0x27, 0xed, 0x2f, 0x85, 0xaf, 0xe7, 0xf1, 0x30, 0x6f, 0x20,
+	0xcc, 0x4b, 0x78, 0x90, 0x63, 0xa6, 0x62, 0x7e, 0x93, 0x9c, 0xa4, 0xa3, 0xd4, 0x24, 0xa5, 0xe8,
+	0x13, 0x0d, 0x92, 0xa4, 0x2d, 0xf7, 0x45, 0xfb, 0xcb, 0xdd, 0x50, 0xfc, 0x63, 0xc0, 0x47, 0x29,
+	0x1b, 0x05, 0x61, 0x00, 0x25, 0xae, 0x14, 0x41, 0xe8, 0x65, 0x21, 0x64, 0x8d, 0xc4, 0x88, 0xd3,
+	0x81, 0xcf, 0xc2, 0xa5, 0x2d, 0xad, 0xcd, 0xdf, 0x01, 0x56, 0x42, 0xd4, 0x82, 0xe2, 0x0d, 0x5e,
+	0xaa, 0x26, 0xf1, 0x9f, 0x3c, 0xd3, 0x77, 0xce, 0x6c, 0x21, 0xc9, 0x94, 0x9b, 0xa9, 0x4e, 0x47,
+	0x5b, 0x2a, 0xff, 0x50, 0xf8, 0xce, 0xb0, 0x2e, 0xa0, 0x31, 0x08, 0x43, 0x12, 0xea, 0x3b, 0x1e,
+	0x73, 0x41, 0x44, 0x34, 0xf1, 0xe0, 0x0c, 0x11, 0x3f, 0xc6, 0x2e, 0x66, 0x8e, 0x37, 0xa3, 0x51,
+	0xef, 0x85, 0xf0, 0xb9, 0x94, 0x3d, 0xfe, 0xb7, 0x0a, 0xe5, 0x0b, 0x4a, 0xfc, 0x67, 0xa3, 0x21,
+	0xea, 0x43, 0x99, 0x0f, 0x3f, 0xc6, 0x2e, 0x32, 0x73, 0xee, 0x9f, 0x2a, 0xaa, 0xf9, 0x49, 0xee,
+	0x37, 0x05, 0xe5, 0x27, 0x28, 0xab, 0x53, 0x87, 0x1e, 0xa6, 0xf4, 0x92, 0x87, 0xd2, 0x3c, 0x5a,
+	0xf7, 0x59, 0x79, 0xea, 0x43, 0x49, 0x5c, 0x32, 0x94, 0x8e, 0xa7, 0xdf, 0x49, 0xf3, 0xd3, 0xfc,
+	0x8f, 0x31, 0x9a, 0x4a, 0x74, 0xb1, 0x50, 0x3a, 0x5e, 0xea, 0x94, 0x6d, 0xf1, 0xf4, 0x12, 0xea,
+	0xaa, 0x23, 0x82, 0xb8, 0x68, 0xdd, 0x8a, 0x8f, 0xa8, 0x67, 0x1e, 0xaf, 0x57, 0x50, 0x2e, 0x7f,
+	0x81, 0x6a, 0x3c, 0x74, 0x19, 0x7f, 0xe9, 0xbb, 0x90, 0xf1, 0x97, 0xbd, 0x05, 0x23, 0xa8, 0x5d,
+	0xfa, 0xf4, 0x2e, 0x3d, 0x5e, 0x89, 0x11, 0x51, 0xf2, 0x80, 0x79, 0xc4, 0x7f, 0xc5, 0x1c, 0xb6,
+	0xa0, 0x77, 0xe1, 0xfb, 0x37, 0x51, 0xd0, 0xf8, 0xd2, 0x20, 0x2b, 0xcb, 0xff, 0xf4, 0xd9, 0x32,
+	0x4f, 0x37, 0xea, 0xac, 0x18, 0xa8, 0xb6, 0x44, 0x86, 0x81, 0xc9, 0x3b, 0x65, 0x6e, 0x59, 0x2e,
+	0xca, 0x13, 0x6f, 0x5c, 0x9e, 0x27, 0xed, 0xae, 0x98, 0x5b, 0x86, 0x17, 0xbd, 0x86, 0x9a, 0xb6,
+	0xf3, 0xd1, 0x49, 0x4a, 0x3d, 0x7b, 0x3b, 0x4c, 0x6b, 0x93, 0xca, 0xaa, 0x84, 0xfa, 0xde, 0xce,
+	0x94, 0x30, 0xe7, 0x6c, 0x64, 0x4a, 0x98, 0xbb, 0xf8, 0xdf, 0xc0, 0x41, 0x66, 0x43, 0xa3, 0x2f,
+	0xf2, 0xab, 0x95, 0x59, 0xfd, 0x66, 0x67, 0xbb, 0x62, 0xcc, 0xaf, 0x46, 0x62, 0x9b, 0xa2, 0xd3,
+	0xcd, 0xbb, 0x56, 0xfa, 0x3f, 0xdb, 0x65, 0x21, 0xf7, 0x3b, 0x57, 0x9f, 0x4f, 0x3d, 0xf6, 0x76,
+	0x31, 0xe9, 0x5e, 0x93, 0x79, 0x6f, 0xee, 0x30, 0x1c, 0xde, 0x90, 0x77, 0x3d, 0x6e, 0xfa, 0x7d,
+	0xcf, 0x09, 0xbc, 0x5e, 0x64, 0x3f, 0xb9, 0x27, 0xfe, 0xd0, 0x3c, 0xf9, 0x2f, 0x00, 0x00, 0xff,
+	0xff, 0xa0, 0x78, 0x39, 0x16, 0xe2, 0x0c, 0x00, 0x00,
 }

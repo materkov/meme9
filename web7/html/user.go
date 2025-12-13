@@ -3,14 +3,13 @@ package html
 import (
 	"fmt"
 	"html"
-	"time"
 )
 
 // UserPageData contains data for rendering the user posts page
 type UserPageData struct {
 	Username             string
 	UserID               string
-	Posts                []Post
+	Posts                []*Post
 	IsSubscribed         bool
 	CurrentUsername      string
 	ShowSubscribeSection bool
@@ -30,7 +29,7 @@ func (r *Router) RenderUserPage(data UserPageData) string {
 		postsHTML = `<div class="empty">No posts yet</div>`
 	} else {
 		for _, post := range data.Posts {
-			formattedDate := post.CreatedAt.Format(time.RFC3339)
+			formattedDate := post.CreatedAt
 			escapedText := html.EscapeString(post.Text)
 			postsHTML += fmt.Sprintf(`
       <article class="post">
@@ -39,7 +38,7 @@ func (r *Router) RenderUserPage(data UserPageData) string {
           <time class="date">%s</time>
         </div>
         <p class="text"><a href="/posts/%s" class="post-link">%s</a></p>
-      </article>`, post.UserID, data.Username, formattedDate, post.ID, escapedText)
+      </article>`, post.UserId, data.Username, formattedDate, post.Id, escapedText)
 		}
 	}
 
