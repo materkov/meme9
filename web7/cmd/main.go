@@ -3,8 +3,14 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
+	json_api "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/json_api"
 
 	"github.com/materkov/meme9/web7/adapters/posts"
 	"github.com/materkov/meme9/web7/adapters/subscriptions"
@@ -12,6 +18,7 @@ import (
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
 	"github.com/materkov/meme9/web7/apiwrapper"
+	grpcservice "github.com/materkov/meme9/web7/grpc"
 	"github.com/materkov/meme9/web7/html"
 	postsservice "github.com/materkov/meme9/web7/services/posts"
 	tokensservice "github.com/materkov/meme9/web7/services/tokens"
@@ -77,6 +84,31 @@ func main() {
 	})
 	http.HandleFunc("/", htmlRouter.IndexHandler)
 
-	// Start server
+	// Start gRPC server
+	go startGRPCServer(apiAdapter)
+
+	// Start HTTP server
 	apiRouter.StartServer("127.0.0.1:8080")
+}
+
+func startGRPCServer(apiAdapter *api.API) {
+	lis, err := net.Listen("tcp", "127.0.0.1:8081")
+	if err != nil {
+		log.Fatalf("Failed to listen on gRPC port: %v", err)
+	}
+
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(grpcservice.AuthInterceptor(apiAdapter)),
+	)
+
+	grpcService := grpcservice.NewServer(apiAdapter)
+	json_api.RegisterJsonAPIServer(grpcServer, grpcService)
+
+	// Enable server reflection for grpcui
+	reflection.Register(grpcServer)
+
+	log.Printf("Starting gRPC server at %s", lis.Addr().String())
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve gRPC: %v", err)
+	}
 }
