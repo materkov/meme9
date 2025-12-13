@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/materkov/meme9/web7/api"
+	"github.com/materkov/meme9/web7/html/render"
 	json_api "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/json_api"
 )
 
@@ -105,15 +106,15 @@ func (r *Router) FeedPageHandler(w http.ResponseWriter, req *http.Request) {
 		Type: feedReqType,
 	}
 	feedResp, err := r.api.GetFeed(ctx, feedReq)
-	var postsList []*Post
+	var postsList []*render.Post
 	if err != nil {
 		log.Printf("Error fetching posts: %v", err)
-		postsList = []*Post{}
+		postsList = []*render.Post{}
 	} else {
 		// Convert FeedPostResponse to Post format
-		postsList = make([]*Post, len(feedResp.Posts))
+		postsList = make([]*render.Post, len(feedResp.Posts))
 		for i, feedPost := range feedResp.Posts {
-			postsList[i] = &Post{
+			postsList[i] = &render.Post{
 				Id:        feedPost.Id,
 				Text:      feedPost.Text,
 				UserId:    feedPost.UserId,
@@ -141,7 +142,7 @@ func (r *Router) FeedPageHandler(w http.ResponseWriter, req *http.Request) {
 		UserIds: userIDs,
 	}
 	usersByIDsResp, err := r.api.GetUsersByIDs(req.Context(), usersByIDsReq)
-	usersMap := make(map[string]*User)
+	usersMap := make(map[string]*render.User)
 	if err != nil {
 		log.Printf("Error fetching users: %v", err)
 	} else {
@@ -175,8 +176,8 @@ func (r *Router) FeedPageHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	// Render HTML using html package
-	htmlContent := r.RenderFeedPage(FeedPageData{
+	// Render HTML using render package
+	htmlContent := render.RenderFeedPage(render.FeedPageData{
 		FeedType:              feedType,
 		Posts:                 postsList,
 		UsernameMap:           usernameMap,
@@ -280,7 +281,7 @@ func (r *Router) UserPageHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Convert posts
-	postsList := []*Post{}
+	postsList := []*render.Post{}
 	if postsErr != nil {
 		log.Printf("Error fetching posts: %v", postsErr)
 	} else {
@@ -303,8 +304,8 @@ func (r *Router) UserPageHandler(w http.ResponseWriter, req *http.Request) {
 	// Only show if authenticated and viewing someone else's profile
 	showSubscribeSection := currentUserIDFromToken != "" && currentUserIDFromToken != userID
 
-	// Render HTML using html package
-	htmlContent := r.RenderUserPage(UserPageData{
+	// Render HTML using render package
+	htmlContent := render.RenderUserPage(render.UserPageData{
 		Username:             username,
 		UserID:               userID,
 		Posts:                postsList,
@@ -366,8 +367,8 @@ func (r *Router) PostPageHandler(w http.ResponseWriter, req *http.Request) {
 	// Parse CreatedAt string to time.Time for template
 	createdAt, _ := time.Parse(time.RFC3339, post.CreatedAt)
 
-	// Render HTML using html package
-	htmlContent := r.RenderPostPage(PostPageData{
+	// Render HTML using render package
+	htmlContent := render.RenderPostPage(render.PostPageData{
 		PostID:          post.Id,
 		UserID:          post.UserId,
 		Username:        username,
@@ -426,8 +427,8 @@ func (r *Router) AuthPageHandler(w http.ResponseWriter, req *http.Request) {
 		passwordInputClass = `class="inputError"`
 	}
 
-	// Render HTML using html package
-	htmlContent := r.RenderAuthPage(AuthPageData{
+	// Render HTML using render package
+	htmlContent := render.RenderAuthPage(render.AuthPageData{
 		Tab:                  tab,
 		UsernameError:        usernameError,
 		CredentialsError:     credentialsError,
