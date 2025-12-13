@@ -1,4 +1,4 @@
-package api
+package apiwrapper
 
 import (
 	"net/http"
@@ -6,25 +6,21 @@ import (
 	"strings"
 )
 
-func (a *API) staticHandler(w http.ResponseWriter, r *http.Request) {
-	// Strip /static prefix
-	path := strings.TrimPrefix(r.URL.Path, "/static/")
+func (r *Router) StaticHandler(w http.ResponseWriter, req *http.Request) {
+	path := strings.TrimPrefix(req.URL.Path, "/static/")
 	if path == "" {
-		http.NotFound(w, r)
+		http.NotFound(w, req)
 		return
 	}
 
-	// Build file path relative to web7 directory
 	staticDir := filepath.Join("..", "..", "front7", "dist")
 	filePath := filepath.Join(staticDir, path)
 
-	// Prevent directory traversal
 	if !strings.HasPrefix(filepath.Clean(filePath), filepath.Clean(staticDir)) {
-		http.NotFound(w, r)
+		http.NotFound(w, req)
 		return
 	}
 
-	// Set correct MIME type based on file extension
 	ext := strings.ToLower(filepath.Ext(path))
 	switch ext {
 	case ".css":
@@ -45,14 +41,11 @@ func (a *API) staticHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	case ".ico":
 		w.Header().Set("Content-Type", "image/x-icon")
-	default:
-		// Let http.ServeFile detect MIME type for other files
 	}
 
-	http.ServeFile(w, r, filePath)
+	http.ServeFile(w, req, filePath)
 }
 
-func (a *API) faviconHandler(w http.ResponseWriter, r *http.Request) {
-	// Return 404 for favicon requests
-	http.NotFound(w, r)
+func (r *Router) FaviconHandler(w http.ResponseWriter, req *http.Request) {
+	http.NotFound(w, req)
 }

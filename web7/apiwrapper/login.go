@@ -1,4 +1,4 @@
-package api
+package apiwrapper
 
 import (
 	"crypto/rand"
@@ -13,12 +13,12 @@ import (
 	"github.com/materkov/meme9/web7/adapters/tokens"
 )
 
-type LoginReq struct {
+type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-type LoginResp struct {
+type LoginResponse struct {
 	Token    string `json:"token"`
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
@@ -33,52 +33,47 @@ func generateToken() (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-func (a *API) loginHandler(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
+func (r *Router) loginHandler(w http.ResponseWriter, req *http.Request) {
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		writeErrorCode(w, "invalid_request_body", "")
 		return
 	}
 
-	var loginReq LoginReq
-	err = json.Unmarshal(body, &loginReq)
-	if err != nil {
+	var reqBody LoginRequest
+	if err := json.Unmarshal(body, &reqBody); err != nil {
 		writeErrorCode(w, "invalid_json", "")
 		return
 	}
 
-	if loginReq.Username == "" {
+	if reqBody.Username == "" {
 		writeErrorCode(w, "username_required", "")
 		return
 	}
-	if loginReq.Password == "" {
+	if reqBody.Password == "" {
 		writeErrorCode(w, "password_required", "")
 		return
 	}
 
-	// Find user by username
-	user, err := a.users.GetByUsername(r.Context(), loginReq.Username)
+	user, err := r.api.GetUserByUsername(req.Context(), reqBody.Username)
 	if err != nil {
 		writeErrorCode(w, "invalid_credentials", "")
 		return
 	}
 
-	// Verify password
-	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(loginReq.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(reqBody.Password))
 	if err != nil {
 		writeErrorCode(w, "invalid_credentials", "")
 		return
 	}
 
-	// Generate token
 	tokenValue, err := generateToken()
 	if err != nil {
 		writeInternalServerError(w, "internal_server_error", "")
 		return
 	}
 
-	// Store token
-	_, err = a.tokens.Create(r.Context(), tokens.Token{
+	err = r.api.CreateToken(req.Context(), tokens.Token{
 		Token:     tokenValue,
 		UserID:    user.ID,
 		CreatedAt: time.Now(),
@@ -88,7 +83,7 @@ func (a *API) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(LoginResp{
+	json.NewEncoder(w).Encode(LoginResponse{
 		Token:    tokenValue,
 		UserID:   user.ID,
 		Username: user.Username,

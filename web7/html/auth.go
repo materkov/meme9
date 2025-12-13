@@ -1,61 +1,42 @@
-package api
+package html
 
 import (
 	"fmt"
 	"html"
-	"net/http"
 )
 
-func (a *API) authPageHandler(w http.ResponseWriter, r *http.Request) {
-	// Get query parameter for tab (login or register)
-	tab := r.URL.Query().Get("tab")
-	if tab != "register" {
-		tab = "login"
-	}
+// AuthPageData contains data for rendering the auth page
+type AuthPageData struct {
+	Tab                  string
+	UsernameError        string
+	CredentialsError     string
+	Error                string
+	LoginTabClass        string
+	RegisterTabClass     string
+	PasswordAutocomplete string
+	SubmitText           string
+	UsernameInputClass   string
+	PasswordInputClass   string
+}
 
-	// Check for error messages from query params (for redirects after failed auth)
-	errorMsg := r.URL.Query().Get("error")
-	usernameError := r.URL.Query().Get("usernameError")
-	credentialsError := r.URL.Query().Get("credentialsError")
-
-	// Build error HTML (escape to prevent XSS)
+// RenderAuthPage renders the auth page HTML
+func (r *Router) RenderAuthPage(data AuthPageData) string {
 	usernameErrorHTML := ""
-	if usernameError != "" {
-		usernameErrorHTML = fmt.Sprintf(`<div class="fieldError">%s</div>`, html.EscapeString(usernameError))
+	if data.UsernameError != "" {
+		usernameErrorHTML = fmt.Sprintf(`<div class="fieldError">%s</div>`, html.EscapeString(data.UsernameError))
 	}
 
 	credentialsErrorHTML := ""
-	if credentialsError != "" {
-		credentialsErrorHTML = fmt.Sprintf(`<div class="fieldError">%s</div>`, html.EscapeString(credentialsError))
+	if data.CredentialsError != "" {
+		credentialsErrorHTML = fmt.Sprintf(`<div class="fieldError">%s</div>`, html.EscapeString(data.CredentialsError))
 	}
 
 	errorHTML := ""
-	if errorMsg != "" {
-		errorHTML = fmt.Sprintf(`<div class="error">%s</div>`, html.EscapeString(errorMsg))
+	if data.Error != "" {
+		errorHTML = fmt.Sprintf(`<div class="error">%s</div>`, html.EscapeString(data.Error))
 	}
 
-	// Determine active tab classes
-	loginTabClass := ""
-	registerTabClass := ""
-	if tab == "login" {
-		loginTabClass = "active"
-	} else {
-		registerTabClass = "active"
-	}
-
-	// Submit button text
-	submitText := "Login"
-	if tab == "register" {
-		submitText = "Register"
-	}
-
-	// Password autocomplete
-	passwordAutocomplete := "current-password"
-	if tab == "register" {
-		passwordAutocomplete = "new-password"
-	}
-
-	htmlContent := fmt.Sprintf(`<!DOCTYPE html>
+	return fmt.Sprintf(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -75,7 +56,7 @@ func (a *API) authPageHandler(w http.ResponseWriter, r *http.Request) {
       background: white;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      width: 100%s;
+      width: 100%%;
       max-width: 400px;
       padding: 2rem;
     }
@@ -243,11 +224,7 @@ func (a *API) authPageHandler(w http.ResponseWriter, r *http.Request) {
 
         if (response.ok) {
           const result = await response.json();
-          // Store token and user info in localStorage
-          localStorage.setItem('auth_token', result.token);
-          localStorage.setItem('auth_user_id', result.user_id);
-          localStorage.setItem('auth_username', result.username);
-          // Set cookie for server-side auth checks
+          // Set cookie for authentication
           document.cookie = 'auth_token=' + result.token + '; path=/; max-age=86400'; // 24 hours
           // Redirect to feed
           window.location.href = '/feed';
@@ -268,13 +245,13 @@ func (a *API) authPageHandler(w http.ResponseWriter, r *http.Request) {
           usernameField.classList.remove('inputError');
           passwordField.classList.remove('inputError');
           
-          if (error.error_code === 'username_exists') {
+          if (error.error === 'username_exists') {
             usernameField.classList.add('inputError');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'fieldError';
             errorDiv.textContent = 'Username already exists';
             usernameFieldDiv.appendChild(errorDiv);
-          } else if (error.error_code === 'invalid_credentials') {
+          } else if (error.error === 'invalid_credentials') {
             passwordField.classList.add('inputError');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'fieldError';
@@ -283,7 +260,7 @@ func (a *API) authPageHandler(w http.ResponseWriter, r *http.Request) {
           } else {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'error';
-            errorDiv.textContent = error.error_details || error.error_code || 'An error occurred';
+            errorDiv.textContent = error.error_details || error.error || 'An error occurred';
             form.insertBefore(errorDiv, form.querySelector('.submit'));
           }
           
@@ -306,29 +283,14 @@ func (a *API) authPageHandler(w http.ResponseWriter, r *http.Request) {
   </script>
 </body>
 </html>`,
-		"%",
-		loginTabClass,
-		registerTabClass,
-		func() string {
-			if usernameError != "" {
-				return `class="inputError"`
-			}
-			return ""
-		}(),
+		data.LoginTabClass,
+		data.RegisterTabClass,
+		data.UsernameInputClass,
 		usernameErrorHTML,
-		passwordAutocomplete,
-		func() string {
-			if credentialsError != "" {
-				return `class="inputError"`
-			}
-			return ""
-		}(),
+		data.PasswordAutocomplete,
+		data.PasswordInputClass,
 		credentialsErrorHTML,
 		errorHTML,
-		submitText,
+		data.SubmitText,
 	)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(htmlContent))
 }

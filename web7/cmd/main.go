@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/materkov/meme9/web7/adapters/posts"
@@ -10,6 +11,8 @@ import (
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
+	"github.com/materkov/meme9/web7/apiwrapper"
+	"github.com/materkov/meme9/web7/html"
 	postsservice "github.com/materkov/meme9/web7/services/posts"
 	tokensservice "github.com/materkov/meme9/web7/services/tokens"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -57,5 +60,22 @@ func main() {
 	tokensService := tokensservice.New(tokensAdapter)
 
 	apiAdapter := api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, subscriptionsAdapter, postsService, tokensService)
-	apiAdapter.Serve()
+
+	// Create API wrapper router
+	apiRouter := apiwrapper.NewRouter(apiAdapter)
+	apiRouter.RegisterRoutes()
+
+	// Create HTML router
+	htmlRouter := html.NewRouter(apiAdapter)
+
+	// Register HTML routes
+	http.HandleFunc("/users/{id}", htmlRouter.UserPageHandler)
+	http.HandleFunc("/posts/{id}", htmlRouter.PostPageHandler)
+	http.HandleFunc("/feed", htmlRouter.FeedPageHandler)
+	http.HandleFunc("/favicon.ico", apiRouter.FaviconHandler)
+	http.HandleFunc("/static/", apiRouter.StaticHandler)
+	http.HandleFunc("/", htmlRouter.IndexHandler)
+
+	// Start server
+	apiRouter.StartServer("127.0.0.1:8080")
 }

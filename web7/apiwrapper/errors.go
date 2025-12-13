@@ -1,4 +1,4 @@
-package api
+package apiwrapper
 
 import (
 	"encoding/json"

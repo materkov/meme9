@@ -1,114 +1,34 @@
-package api
+package html
 
 import (
 	"fmt"
 	"html"
-	"log"
-	"net/http"
 	"time"
-
-	"github.com/materkov/meme9/web7/adapters/posts"
-	"github.com/materkov/meme9/web7/adapters/users"
 )
 
-func (a *API) feedPageHandler(w http.ResponseWriter, r *http.Request) {
-	// Only handle GET requests (POST goes to API endpoint)
-	if r.Method != http.MethodGet {
-		http.NotFound(w, r)
-		return
-	}
+// FeedPageData contains data for rendering the feed page
+type FeedPageData struct {
+	FeedType              string
+	Posts                 []Post
+	UsernameMap           map[string]string
+	GlobalTabClass        string
+	SubscriptionsTabClass string
+	CurrentUsername       string
+}
 
-	// Get feed type from query parameter (default to "global")
-	feedType := r.URL.Query().Get("type")
-	if feedType != "subscriptions" {
-		feedType = "global"
-	}
-
-	// Try to get current user from cookie (optional - for subscriptions feed)
-	var currentUserID string
-	cookie := r.Header.Get("Cookie")
-	if cookie != "" {
-		cookies := parseCookies(cookie)
-		if token, ok := cookies["auth_token"]; ok && token != "" {
-			userID, err := a.tokensService.VerifyToken(r.Context(), "Bearer "+token)
-			if err == nil {
-				currentUserID = userID
-			}
-		}
-	}
-
-	// Fetch posts based on feed type
-	var postsList []posts.Post
-	var err error
-
-	if feedType == "subscriptions" {
-		if currentUserID == "" {
-			// Redirect to login or show error
-			http.Redirect(w, r, "/?error=Authentication required for subscriptions feed", http.StatusFound)
-			return
-		}
-
-		// Get subscriptions for the current user
-		followingIDs, err := a.subscriptions.GetFollowing(r.Context(), currentUserID)
-		if err != nil {
-			log.Printf("Error fetching subscriptions: %v", err)
-			followingIDs = []string{}
-		}
-
-		// Include own posts and posts from subscribed users
-		subscribedUserIDs := append(followingIDs, currentUserID)
-		postsList, err = a.posts.GetByUserIDs(r.Context(), subscribedUserIDs)
-		if err != nil {
-			log.Printf("Error fetching subscription posts: %v", err)
-			postsList = []posts.Post{}
-		}
-	} else {
-		// Global feed - show all posts
-		postsList, err = a.posts.GetAll(r.Context())
-		if err != nil {
-			log.Printf("Error fetching posts: %v", err)
-			postsList = []posts.Post{}
-		}
-	}
-
-	// Collect unique user IDs
-	userIDSet := make(map[string]bool)
-	for _, post := range postsList {
-		if post.UserID != "" {
-			userIDSet[post.UserID] = true
-		}
-	}
-
-	// Convert set to slice
-	userIDs := make([]string, 0, len(userIDSet))
-	for userID := range userIDSet {
-		userIDs = append(userIDs, userID)
-	}
-
-	// Fetch all users in a single batch query
-	usersMap, err := a.users.GetByIDs(r.Context(), userIDs)
-	if err != nil {
-		log.Printf("Error fetching users: %v", err)
-		usersMap = make(map[string]*users.User)
-	}
-
-	// Build username map
-	usernameMap := make(map[string]string)
-	for userID, user := range usersMap {
-		usernameMap[userID] = user.Username
-	}
-
+// RenderFeedPage renders the feed page HTML
+func (r *Router) RenderFeedPage(data FeedPageData) string {
 	// Build posts HTML
 	postsHTML := ""
-	if len(postsList) == 0 {
+	if len(data.Posts) == 0 {
 		emptyMsg := "No posts yet"
-		if feedType == "subscriptions" {
+		if data.FeedType == "subscriptions" {
 			emptyMsg = "No posts from your subscriptions yet"
 		}
 		postsHTML = fmt.Sprintf(`<div class="empty">%s</div>`, emptyMsg)
 	} else {
-		for _, post := range postsList {
-			username := usernameMap[post.UserID]
+		for _, post := range data.Posts {
+			username := data.UsernameMap[post.UserID]
 			if username == "" {
 				username = "Unknown"
 			}
@@ -125,23 +45,14 @@ func (a *API) feedPageHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Build user info HTML - will be populated by JavaScript from localStorage
+	// Build user info HTML
 	userInfoHTML := `
         <div class="userInfo" id="userInfo" style="display: none;">
           <span class="username" id="currentUsername"></span>
           <button onclick="logout()" class="logout">Logout</button>
         </div>`
 
-	// Build feed tabs HTML
-	globalTabClass := ""
-	subscriptionsTabClass := ""
-	if feedType == "global" {
-		globalTabClass = "active"
-	} else {
-		subscriptionsTabClass = "active"
-	}
-
-	htmlContent := fmt.Sprintf(`<!DOCTYPE html>
+	return fmt.Sprintf(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -310,7 +221,7 @@ func (a *API) feedPageHandler(w http.ResponseWriter, r *http.Request) {
   <script>
     // Load and display current user info
     (function() {
-      const username = localStorage.getItem('auth_username');
+      const username = '%s';
       if (username) {
         const userInfoDiv = document.getElementById('userInfo');
         const usernameSpan = document.getElementById('currentUsername');
@@ -321,19 +232,19 @@ func (a *API) feedPageHandler(w http.ResponseWriter, r *http.Request) {
       }
     })();
 
+    function getCookie(name) {
+      const value = '; ' + document.cookie;
+      const parts = value.split('; ' + name + '=');
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+
     function logout() {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user_id');
-      localStorage.removeItem('auth_username');
       // Clear cookie
       document.cookie = 'auth_token=; path=/; max-age=0';
       window.location.href = '/';
     }
   </script>
 </body>
-</html>`, userInfoHTML, globalTabClass, subscriptionsTabClass, postsHTML)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(htmlContent))
+</html>`, userInfoHTML, data.GlobalTabClass, data.SubscriptionsTabClass, postsHTML, data.CurrentUsername)
 }

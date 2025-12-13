@@ -1,86 +1,28 @@
-package api
+package html
 
 import (
 	"fmt"
 	"html"
-	"log"
-	"net/http"
-	"strings"
 	"time"
-
-	"github.com/materkov/meme9/web7/adapters/posts"
 )
 
-// parseCookies parses a cookie header string into a map
-func parseCookies(cookieHeader string) map[string]string {
-	cookies := make(map[string]string)
-	pairs := strings.Split(cookieHeader, ";")
-	for _, pair := range pairs {
-		parts := strings.SplitN(strings.TrimSpace(pair), "=", 2)
-		if len(parts) == 2 {
-			cookies[parts[0]] = parts[1]
-		}
-	}
-	return cookies
+// UserPageData contains data for rendering the user posts page
+type UserPageData struct {
+	Username        string
+	UserID          string
+	Posts           []Post
+	IsSubscribed    bool
+	CurrentUsername string
 }
 
-func (a *API) userPageHandler(w http.ResponseWriter, r *http.Request) {
-	// Extract user ID from path /users/{id}
-	userID := r.PathValue("id")
-	if userID == "" {
-		http.NotFound(w, r)
-		return
-	}
-
-	// Fetch user info
-	user, err := a.users.GetByID(r.Context(), userID)
-	if err != nil {
-		log.Printf("Error fetching user: %v", err)
-		http.NotFound(w, r)
-		return
-	}
-
-	username := user.Username
-	if username == "" {
-		username = "Unknown"
-	}
-
-	// Try to get current user and subscription status from cookie
-	var isSubscribed bool
-	cookie := r.Header.Get("Cookie")
-	if cookie != "" {
-		// Parse cookie to get auth_token
-		authToken := ""
-		cookies := parseCookies(cookie)
-		if token, ok := cookies["auth_token"]; ok {
-			authToken = token
-		}
-
-		if authToken != "" {
-			currentUserIDFromToken, err := a.tokensService.VerifyToken(r.Context(), "Bearer "+authToken)
-			if err == nil && currentUserIDFromToken != "" && currentUserIDFromToken != userID {
-				// Check subscription status for SSR
-				subscribed, err := a.subscriptions.IsSubscribed(r.Context(), currentUserIDFromToken, userID)
-				if err == nil {
-					isSubscribed = subscribed
-				}
-			}
-		}
-	}
-
-	// Fetch posts for this user
-	postsList, err := a.posts.GetByUserID(r.Context(), userID)
-	if err != nil {
-		log.Printf("Error fetching posts: %v", err)
-		postsList = []posts.Post{}
-	}
-
+// RenderUserPage renders the user posts page HTML
+func (r *Router) RenderUserPage(data UserPageData) string {
 	// Build posts HTML
 	postsHTML := ""
-	if len(postsList) == 0 {
+	if len(data.Posts) == 0 {
 		postsHTML = `<div class="empty">No posts yet</div>`
 	} else {
-		for _, post := range postsList {
+		for _, post := range data.Posts {
 			formattedDate := post.CreatedAt.Format(time.RFC3339)
 			escapedText := html.EscapeString(post.Text)
 			postsHTML += fmt.Sprintf(`
@@ -90,12 +32,18 @@ func (a *API) userPageHandler(w http.ResponseWriter, r *http.Request) {
           <time class="date">%s</time>
         </div>
         <p class="text"><a href="/posts/%s" class="post-link">%s</a></p>
-      </article>`, post.UserID, username, formattedDate, post.ID, escapedText)
+      </article>`, post.UserID, data.Username, formattedDate, post.ID, escapedText)
 		}
 	}
 
-	// Render HTML similar to frontend UserPostsPage
-	htmlContent := fmt.Sprintf(`<!DOCTYPE html>
+	// Build user info HTML
+	userInfoHTML := `
+        <div class="userInfo" id="userInfo" style="display: none;">
+          <span class="username" id="currentUsername"></span>
+          <button onclick="logout()" class="logout">Logout</button>
+        </div>`
+
+	return fmt.Sprintf(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -119,10 +67,34 @@ func (a *API) userPageHandler(w http.ResponseWriter, r *http.Request) {
       padding-bottom: 20px;
       margin-bottom: 30px;
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .userInfo {
+      display: flex;
       align-items: center;
       gap: 1rem;
     }
+    .userInfo .username {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .logout {
+      padding: 0.5rem 1rem;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout:hover {
+      background: #e0e0e0;
+      border-color: #ccc;
+    }
     .backButton {
+      display: inline-block;
+      margin-bottom: 20px;
       padding: 0.5rem 1rem;
       background: #f5f5f5;
       border: 1px solid #ddd;
@@ -244,14 +216,14 @@ func (a *API) userPageHandler(w http.ResponseWriter, r *http.Request) {
   </style>
 </head>
 <body>
+  <a href="/feed" class="backButton">← Back to Feed</a>
   <div class="container">
     <header class="header">
-      <a href="/feed" class="backButton">← Back</a>
       <h1 class="title">%s's Posts</h1>
       <div class="subscribeSection" id="subscribeSection" style="display: none;">
         <button id="subscribeButton" class="subscribeButton" onclick="handleSubscribe()" style="display: none;">Subscribe</button>
         <button id="unsubscribeButton" class="unsubscribeButton" onclick="handleUnsubscribe()" style="display: none;">Unsubscribe</button>
-      </div>
+      </div>%s
     </header>
     <main class="main">
       <div class="feed">
@@ -261,15 +233,46 @@ func (a *API) userPageHandler(w http.ResponseWriter, r *http.Request) {
   </div>
 
   <script>
+    // Load and display current user info
+    (function() {
+      const username = '%s';
+      if (username) {
+        const userInfoDiv = document.getElementById('userInfo');
+        const usernameSpan = document.getElementById('currentUsername');
+        if (userInfoDiv && usernameSpan) {
+          usernameSpan.textContent = username;
+          userInfoDiv.style.display = 'flex';
+        }
+      }
+    })();
+
+    function getCookie(name) {
+      const value = '; ' + document.cookie;
+      const parts = value.split('; ' + name + '=');
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+
+    function logout() {
+      // Clear cookie
+      document.cookie = 'auth_token=; path=/; max-age=0';
+      window.location.href = '/';
+    }
+
     const userID = '%s';
     let isSubscribed = %t;
     let subscriptionLoading = false;
+      const value = '; ' + document.cookie;
+      const parts = value.split('; ' + name + '=');
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
 
     // Load subscription status on page load
     (function() {
-      const currentUserID = localStorage.getItem('auth_user_id');
-      if (currentUserID && currentUserID !== userID) {
-        // Show subscription section
+      const token = getCookie('auth_token');
+      if (token) {
+        // Show subscription section if authenticated
         const subscribeSection = document.getElementById('subscribeSection');
         if (subscribeSection) {
           subscribeSection.style.display = 'block';
@@ -296,7 +299,7 @@ func (a *API) userPageHandler(w http.ResponseWriter, r *http.Request) {
     async function handleSubscribe() {
       if (subscriptionLoading) return;
       
-      const token = localStorage.getItem('auth_token');
+      const token = getCookie('auth_token');
       if (!token) {
         window.location.href = '/';
         return;
@@ -342,7 +345,7 @@ func (a *API) userPageHandler(w http.ResponseWriter, r *http.Request) {
     async function handleUnsubscribe() {
       if (subscriptionLoading) return;
       
-      const token = localStorage.getItem('auth_token');
+      const token = getCookie('auth_token');
       if (!token) {
         window.location.href = '/';
         return;
@@ -386,9 +389,5 @@ func (a *API) userPageHandler(w http.ResponseWriter, r *http.Request) {
     }
   </script>
 </body>
-</html>`, username, username, postsHTML, userID, isSubscribed)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(htmlContent))
+</html>`, data.Username, data.Username, userInfoHTML, postsHTML, data.CurrentUsername, data.UserID, data.IsSubscribed)
 }
