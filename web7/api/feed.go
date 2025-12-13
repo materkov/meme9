@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -33,10 +34,34 @@ type FeedRequest struct {
 }
 
 func (a *API) feedHandler(w http.ResponseWriter, r *http.Request) {
+	// Handle GET requests with feed page (no auth required)
+	if r.Method == http.MethodGet {
+		a.feedPageHandler(w, r)
+		return
+	}
+
+	// Handle POST requests with API endpoint (auth required)
 	if r.Method != http.MethodPost {
 		writeErrorCode(w, "method_not_allowed", "")
 		return
 	}
+
+	// Check authentication for POST requests
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		writeErrorCode(w, "unauthorized", "")
+		return
+	}
+
+	userID, authErr := a.tokensService.VerifyToken(r.Context(), authHeader)
+	if authErr != nil {
+		writeErrorCode(w, "unauthorized", "")
+		return
+	}
+
+	// Set userID in context for use in handler
+	ctx := context.WithValue(r.Context(), userIDKey, userID)
+	r = r.WithContext(ctx)
 
 	var req FeedRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

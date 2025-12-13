@@ -99,6 +99,21 @@ func (a *Adapter) GetByUserIDs(ctx context.Context, userIDs []string) ([]Post, e
 	return posts, nil
 }
 
+func (a *Adapter) GetByID(ctx context.Context, postID string) (*Post, error) {
+	objID, err := primitive.ObjectIDFromHex(postID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid post ID: %w", err)
+	}
+
+	collection := a.client.Database("meme9").Collection("posts")
+	var post Post
+	err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&post)
+	if err != nil {
+		return nil, fmt.Errorf("error finding post: %w", err)
+	}
+	return &post, nil
+}
+
 func (a *Adapter) Add(ctx context.Context, post Post) (*Post, error) {
 	collection := a.client.Database("meme9").Collection("posts")
 

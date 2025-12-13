@@ -56,14 +56,18 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func (a *API) Serve() {
-	http.HandleFunc("/feed", corsMiddleware(jsonMiddleware(a.authMiddleware(a.feedHandler))))
-	http.HandleFunc("/publish", corsMiddleware(jsonMiddleware(a.authMiddleware(a.publishHandler))))
-	http.HandleFunc("/login", corsMiddleware(jsonMiddleware(a.loginHandler)))
-	http.HandleFunc("/register", corsMiddleware(jsonMiddleware(a.registerHandler)))
-	http.HandleFunc("/userPosts", corsMiddleware(jsonMiddleware(a.userPostsHandler)))
-	http.HandleFunc("/subscribe", corsMiddleware(jsonMiddleware(a.authMiddleware(a.subscribeHandler))))
-	http.HandleFunc("/unsubscribe", corsMiddleware(jsonMiddleware(a.authMiddleware(a.unsubscribeHandler))))
-	http.HandleFunc("/subscriptionStatus", corsMiddleware(jsonMiddleware(a.authMiddleware(a.subscriptionStatusHandler))))
+	http.HandleFunc("/api/feed", corsMiddleware(jsonMiddleware(a.feedHandler)))
+	http.HandleFunc("/api/publish", corsMiddleware(jsonMiddleware(a.authMiddleware(a.publishHandler))))
+	http.HandleFunc("/api/login", corsMiddleware(jsonMiddleware(a.loginHandler)))
+	http.HandleFunc("/api/register", corsMiddleware(jsonMiddleware(a.registerHandler)))
+	http.HandleFunc("/api/userPosts", corsMiddleware(jsonMiddleware(a.userPostsHandler)))
+	http.HandleFunc("/api/subscribe", corsMiddleware(jsonMiddleware(a.authMiddleware(a.subscribeHandler))))
+	http.HandleFunc("/api/unsubscribe", corsMiddleware(jsonMiddleware(a.authMiddleware(a.unsubscribeHandler))))
+	http.HandleFunc("/api/subscriptionStatus", corsMiddleware(jsonMiddleware(a.authMiddleware(a.subscriptionStatusHandler))))
+	http.HandleFunc("/users/{id}", a.userPageHandler)
+	http.HandleFunc("/posts/{id}", a.postPageHandler)
+	http.HandleFunc("/feed", a.feedPageHandler)
+	http.HandleFunc("/favicon.ico", a.faviconHandler)
 	http.HandleFunc("/static/", a.staticHandler)
 	http.HandleFunc("/", a.indexHandler)
 

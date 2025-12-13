@@ -66,7 +66,7 @@ func (a *Adapter) GetByID(ctx context.Context, userID string) (*User, error) {
 
 	user, ok := users[userID]
 	if !ok {
-		return nil, ErrNotFound
+			return nil, ErrNotFound
 	}
 
 	return user, nil

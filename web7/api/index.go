@@ -28,9 +28,29 @@ func indexHTML() string {
 }
 
 func (a *API) indexHandler(w http.ResponseWriter, r *http.Request) {
-	// Serve index.html for all routes (client-side routing)
-	// API routes and static files are handled by other handlers registered before this one
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(indexHTML()))
+	// Check if user is authenticated - if yes, redirect to feed, otherwise show auth page
+	cookie := r.Header.Get("Cookie")
+	isAuthenticated := false
+	if cookie != "" {
+		cookies := parseCookies(cookie)
+		if token, ok := cookies["auth_token"]; ok && token != "" {
+			_, err := a.tokensService.VerifyToken(r.Context(), "Bearer "+token)
+			if err == nil {
+				isAuthenticated = true
+			}
+		}
+	}
+
+	if isAuthenticated {
+		// Redirect authenticated users to feed, preserving query parameters
+		redirectURL := "/feed"
+		if r.URL.RawQuery != "" {
+			redirectURL += "?" + r.URL.RawQuery
+		}
+		http.Redirect(w, r, redirectURL, http.StatusFound)
+		return
+	}
+
+	// Serve auth page for unauthenticated users
+	a.authPageHandler(w, r)
 }
