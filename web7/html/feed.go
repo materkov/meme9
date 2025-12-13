@@ -14,6 +14,7 @@ type FeedPageData struct {
 	GlobalTabClass        string
 	SubscriptionsTabClass string
 	CurrentUsername       string
+	IsAuthenticated       bool
 }
 
 // RenderFeedPage renders the feed page HTML
@@ -52,11 +53,33 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
           <button onclick="logout()" class="logout">Logout</button>
         </div>`
 
+	// Build post form HTML (only show if authenticated)
+	postFormHTML := ""
+	if data.IsAuthenticated {
+		postFormHTML = `<form class="postForm" id="postForm" onsubmit="handlePostSubmit(event)">
+<textarea
+  id="postText"
+  placeholder="What's on your mind?"
+  rows="4"
+  maxlength="1000"
+  required
+></textarea>
+<div class="footer">
+  <div class="meta">
+    <div id="postError" class="error" style="display: none;"></div>
+    <div class="counter" id="postCounter">0 / 1000</div>
+  </div>
+  <button type="submit" class="button" id="postButton">Post</button>
+</div>
+</form>`
+	}
+
 	// Escape any % characters in all strings to prevent format specifier errors
 	// This is needed because strings may contain % characters that would be interpreted as format specifiers
 	userInfoHTMLStr := strings.ReplaceAll(userInfoHTML, "%", "%%")
 	globalTabClassStr := strings.ReplaceAll(data.GlobalTabClass, "%", "%%")
 	subscriptionsTabClassStr := strings.ReplaceAll(data.SubscriptionsTabClass, "%", "%%")
+	postFormHTMLStr := strings.ReplaceAll(postFormHTML, "%", "%%")
 	postsHTMLStr := strings.ReplaceAll(postsHTML, "%", "%%")
 	currentUsernameStr := strings.ReplaceAll(data.CurrentUsername, "%", "%%")
 
@@ -127,7 +150,7 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
       position: relative;
       z-index: 1;
       overflow: visible;
-      width: 100%;
+      width: 100%%;
       box-sizing: border-box;
     }
     .tab {
@@ -213,6 +236,79 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
     .post-link:hover {
       color: #1976d2;
     }
+    .postForm {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: #fff;
+    }
+    .postForm textarea {
+      width: 100%%;
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 16px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+      min-height: 100px;
+      background: #fff;
+    }
+    .postForm textarea:focus {
+      outline: none;
+      border-color: #666;
+    }
+    .postForm textarea:disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+    }
+    .postForm .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+    }
+    .postForm .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .postForm .error {
+      color: #dc3545;
+      font-size: 14px;
+      margin: 0;
+    }
+    .postForm .counter {
+      font-size: 12px;
+      color: #666;
+      text-align: left;
+    }
+    .postForm .counter.error {
+      color: #dc3545;
+      font-weight: 500;
+    }
+    .postForm .button {
+      padding: 10px 24px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+    }
+    .postForm .button:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+    .postForm .button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -224,8 +320,9 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
     <main class="main">
       <div class="feedTabs">
         <a href="/feed?type=global" class="tab %s">Global Feed</a>
-        <a href="/feed?type=subscriptions" class="tab">Subscriptions</a>
+        <a href="/feed?type=subscriptions" class="tab %s">Subscriptions</a>
       </div>
+%s
       <div class="feed">
 %s
       </div>
@@ -258,7 +355,95 @@ func (r *Router) RenderFeedPage(data FeedPageData) string {
       document.cookie = 'auth_token=; path=/; max-age=0';
       window.location.href = '/';
     }
+
+    // Post form handling
+    const postForm = document.getElementById('postForm');
+    const postText = document.getElementById('postText');
+    const postCounter = document.getElementById('postCounter');
+    const postError = document.getElementById('postError');
+    const postButton = document.getElementById('postButton');
+
+    if (postText && postCounter) {
+      postText.addEventListener('input', function() {
+        const length = this.value.length;
+        postCounter.textContent = length + ' / 1000';
+        if (length > 1000) {
+          postCounter.classList.add('error');
+        } else {
+          postCounter.classList.remove('error');
+        }
+        if (postError) {
+          postError.style.display = 'none';
+        }
+      });
+    }
+
+    async function handlePostSubmit(event) {
+      event.preventDefault();
+      
+      if (!postText || !postButton) return;
+
+      const text = postText.value.trim();
+      if (!text || text.length > 1000) {
+        return;
+      }
+
+      const token = getCookie('auth_token');
+      if (!token) {
+        window.location.href = '/';
+        return;
+      }
+
+      postButton.disabled = true;
+      postButton.textContent = 'Posting...';
+      if (postError) {
+        postError.style.display = 'none';
+      }
+
+      try {
+        const response = await fetch('/twirp/meme.json_api.JsonAPI/Publish', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ text: text })
+        });
+
+        if (response.ok) {
+          // Clear form and reload page to show new post
+          postText.value = '';
+          postCounter.textContent = '0 / 1000';
+          window.location.reload();
+        } else {
+          let error;
+          try {
+            error = await response.json();
+          } catch (e) {
+            error = { error: 'unknown_error', error_details: 'Failed to parse error response' };
+          }
+          const errorMsg = error.msg || error.error_details || 'Failed to create post';
+          if (postError) {
+            postError.textContent = errorMsg;
+            postError.style.display = 'block';
+          } else {
+            alert(errorMsg);
+          }
+        }
+      } catch (err) {
+        const errorMsg = 'Network error. Please try again.';
+        if (postError) {
+          postError.textContent = errorMsg;
+          postError.style.display = 'block';
+        } else {
+          alert(errorMsg);
+        }
+      } finally {
+        postButton.disabled = false;
+        postButton.textContent = 'Post';
+      }
+    }
   </script>
 </body>
-</html>`, userInfoHTMLStr, globalTabClassStr, subscriptionsTabClassStr, postsHTMLStr, currentUsernameStr)
+</html>`, userInfoHTMLStr, globalTabClassStr, subscriptionsTabClassStr, postFormHTMLStr, postsHTMLStr, currentUsernameStr)
 }

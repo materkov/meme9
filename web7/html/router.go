@@ -183,6 +183,7 @@ func (r *Router) FeedPageHandler(w http.ResponseWriter, req *http.Request) {
 		GlobalTabClass:        globalTabClass,
 		SubscriptionsTabClass: subscriptionsTabClass,
 		CurrentUsername:       currentUsername,
+		IsAuthenticated:       currentUserID != "",
 	})
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
