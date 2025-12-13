@@ -300,13 +300,18 @@ func (r *Router) UserPageHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	// Determine if subscription section should be shown
+	// Only show if authenticated and viewing someone else's profile
+	showSubscribeSection := currentUserIDFromToken != "" && currentUserIDFromToken != userID
+
 	// Render HTML using html package
 	htmlContent := r.RenderUserPage(UserPageData{
-		Username:        username,
-		UserID:          userID,
-		Posts:           postsList,
-		IsSubscribed:    isSubscribed,
-		CurrentUsername: currentUsername,
+		Username:             username,
+		UserID:               userID,
+		Posts:                postsList,
+		IsSubscribed:         isSubscribed,
+		CurrentUsername:      currentUsername,
+		ShowSubscribeSection: showSubscribeSection,
 	})
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

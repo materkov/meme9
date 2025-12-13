@@ -11,17 +11,18 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	json_api "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/json_api"
+	"github.com/twitchtv/twirp"
 
 	"github.com/materkov/meme9/web7/adapters/posts"
 	"github.com/materkov/meme9/web7/adapters/subscriptions"
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
-	"github.com/materkov/meme9/web7/apiwrapper"
 	grpcservice "github.com/materkov/meme9/web7/grpc"
 	"github.com/materkov/meme9/web7/html"
 	postsservice "github.com/materkov/meme9/web7/services/posts"
 	tokensservice "github.com/materkov/meme9/web7/services/tokens"
+	twirpservice "github.com/materkov/meme9/web7/twirp"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -68,10 +69,6 @@ func main() {
 
 	apiAdapter := api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, subscriptionsAdapter, postsService, tokensService)
 
-	// Create API wrapper router
-	apiRouter := apiwrapper.NewRouter(apiAdapter)
-	apiRouter.RegisterRoutes()
-
 	// Create HTML router
 	htmlRouter := html.NewRouter(apiAdapter)
 
@@ -87,8 +84,19 @@ func main() {
 	// Start gRPC server
 	go startGRPCServer(apiAdapter)
 
+	// Create Twirp server
+	twirpServer := twirpservice.NewServer(apiAdapter)
+	twirpHandler := json_api.NewJsonAPIServer(twirpServer, twirp.WithServerHooks(twirpservice.AuthHook(apiAdapter)))
+	// Wrap with auth middleware to inject headers into context
+	twirpHandlerWithAuth := twirpservice.AuthMiddleware(apiAdapter, twirpHandler)
+	http.Handle(twirpHandler.PathPrefix(), twirpHandlerWithAuth)
+
 	// Start HTTP server
-	apiRouter.StartServer("127.0.0.1:8080")
+	addr := "127.0.0.1:8080"
+	log.Printf("Starting HTTP server at http://%s", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		log.Fatalf("Error starting HTTP server: %s", err)
+	}
 }
 
 func startGRPCServer(apiAdapter *api.API) {

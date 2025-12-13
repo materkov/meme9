@@ -8,15 +8,22 @@ import (
 
 // UserPageData contains data for rendering the user posts page
 type UserPageData struct {
-	Username        string
-	UserID          string
-	Posts           []Post
-	IsSubscribed    bool
-	CurrentUsername string
+	Username             string
+	UserID               string
+	Posts                []Post
+	IsSubscribed         bool
+	CurrentUsername      string
+	ShowSubscribeSection bool
 }
 
 // RenderUserPage renders the user posts page HTML
 func (r *Router) RenderUserPage(data UserPageData) string {
+	// Determine display style for subscription section
+	subscribeSectionDisplay := "none"
+	if data.ShowSubscribeSection {
+		subscribeSectionDisplay = "block"
+	}
+
 	// Build posts HTML
 	postsHTML := ""
 	if len(data.Posts) == 0 {
@@ -220,7 +227,7 @@ func (r *Router) RenderUserPage(data UserPageData) string {
   <div class="container">
     <header class="header">
       <h1 class="title">%s's Posts</h1>
-      <div class="subscribeSection" id="subscribeSection" style="display: none;">
+      <div class="subscribeSection" id="subscribeSection" style="display: %s;">
         <button id="subscribeButton" class="subscribeButton" onclick="handleSubscribe()" style="display: none;">Subscribe</button>
         <button id="unsubscribeButton" class="unsubscribeButton" onclick="handleUnsubscribe()" style="display: none;">Unsubscribe</button>
       </div>%s
@@ -262,23 +269,13 @@ func (r *Router) RenderUserPage(data UserPageData) string {
     const userID = '%s';
     let isSubscribed = %t;
     let subscriptionLoading = false;
-      const value = '; ' + document.cookie;
-      const parts = value.split('; ' + name + '=');
-      if (parts.length === 2) return parts.pop().split(';').shift();
-      return null;
-    }
 
     // Load subscription status on page load
     (function() {
-      const token = getCookie('auth_token');
-      if (token) {
-        // Show subscription section if authenticated
-        const subscribeSection = document.getElementById('subscribeSection');
-        if (subscribeSection) {
-          subscribeSection.style.display = 'block';
-        }
-        
-        // Use server-provided subscription status
+      // Subscription section visibility is controlled by server
+      // Only update UI if section is visible
+      const subscribeSection = document.getElementById('subscribeSection');
+      if (subscribeSection && subscribeSection.style.display !== 'none') {
         updateSubscriptionUI();
       }
     })();
@@ -315,7 +312,7 @@ func (r *Router) RenderUserPage(data UserPageData) string {
       }
 
       try {
-        const response = await fetch('/api/subscribe', {
+        const response = await fetch('/twirp/meme.json_api.JsonAPI/Subscribe', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -325,11 +322,17 @@ func (r *Router) RenderUserPage(data UserPageData) string {
         });
 
         if (response.ok) {
-          isSubscribed = true;
+          const result = await response.json();
+          isSubscribed = result.subscribed || true;
           updateSubscriptionUI();
         } else {
-          const error = await response.json();
-          alert(error.error_details || 'Failed to subscribe');
+          let error;
+          try {
+            error = await response.json();
+          } catch (e) {
+            error = { error: 'unknown_error', error_details: 'Failed to parse error response' };
+          }
+          alert(error.msg || error.error_details || 'Failed to subscribe');
         }
       } catch (err) {
         alert('Network error. Please try again.');
@@ -361,7 +364,7 @@ func (r *Router) RenderUserPage(data UserPageData) string {
       }
 
       try {
-        const response = await fetch('/api/unsubscribe', {
+        const response = await fetch('/twirp/meme.json_api.JsonAPI/Unsubscribe', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -371,11 +374,17 @@ func (r *Router) RenderUserPage(data UserPageData) string {
         });
 
         if (response.ok) {
-          isSubscribed = false;
+          const result = await response.json();
+          isSubscribed = result.subscribed || false;
           updateSubscriptionUI();
         } else {
-          const error = await response.json();
-          alert(error.error_details || 'Failed to unsubscribe');
+          let error;
+          try {
+            error = await response.json();
+          } catch (e) {
+            error = { error: 'unknown_error', error_details: 'Failed to parse error response' };
+          }
+          alert(error.msg || error.error_details || 'Failed to unsubscribe');
         }
       } catch (err) {
         alert('Network error. Please try again.');
@@ -389,5 +398,5 @@ func (r *Router) RenderUserPage(data UserPageData) string {
     }
   </script>
 </body>
-</html>`, data.Username, data.Username, userInfoHTML, postsHTML, data.CurrentUsername, data.UserID, data.IsSubscribed)
+</html>`, data.Username, data.Username, subscribeSectionDisplay, userInfoHTML, postsHTML, data.CurrentUsername, data.UserID, data.IsSubscribed)
 }

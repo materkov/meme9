@@ -211,7 +211,7 @@ func (r *Router) RenderAuthPage(data AuthPageData) string {
 
       // Determine endpoint based on current tab
       const currentTab = window.location.search.includes('tab=register') ? 'register' : 'login';
-      const apiEndpoint = currentTab === 'login' ? '/api/login' : '/api/register';
+      const apiEndpoint = currentTab === 'login' ? '/twirp/meme.json_api.JsonAPI/Login' : '/twirp/meme.json_api.JsonAPI/Register';
 
       try {
         const response = await fetch(apiEndpoint, {
@@ -229,7 +229,12 @@ func (r *Router) RenderAuthPage(data AuthPageData) string {
           // Redirect to feed
           window.location.href = '/feed';
         } else {
-          const error = await response.json();
+          let error;
+          try {
+            error = await response.json();
+          } catch (e) {
+            error = { error: 'unknown_error', error_details: 'Failed to parse error response' };
+          }
           // Show error inline without page reload
           const usernameField = document.getElementById('username');
           const passwordField = document.getElementById('password');
@@ -245,13 +250,17 @@ func (r *Router) RenderAuthPage(data AuthPageData) string {
           usernameField.classList.remove('inputError');
           passwordField.classList.remove('inputError');
           
-          if (error.error === 'username_exists') {
+          // Twirp errors use 'code' and 'msg', fallback to old format for compatibility
+          const errorCode = error.code || error.error;
+          const errorMsg = error.msg || error.error_details || error.error || 'An error occurred';
+          
+          if (errorCode === 'already_exists' || errorMsg === 'username_exists') {
             usernameField.classList.add('inputError');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'fieldError';
             errorDiv.textContent = 'Username already exists';
             usernameFieldDiv.appendChild(errorDiv);
-          } else if (error.error === 'invalid_credentials') {
+          } else if (errorCode === 'unauthenticated' || errorMsg === 'invalid_credentials') {
             passwordField.classList.add('inputError');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'fieldError';
@@ -260,7 +269,7 @@ func (r *Router) RenderAuthPage(data AuthPageData) string {
           } else {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'error';
-            errorDiv.textContent = error.error_details || error.error || 'An error occurred';
+            errorDiv.textContent = errorMsg;
             form.insertBefore(errorDiv, form.querySelector('.submit'));
           }
           
