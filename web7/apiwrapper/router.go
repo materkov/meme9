@@ -8,7 +8,7 @@ import (
 )
 
 type Router struct {
-	baseHandler      *BaseHandler
+	api              *api.API
 	feedHandler      *FeedHandler
 	publishHandler   *PublishHandler
 	loginHandler     *LoginHandler
@@ -19,7 +19,7 @@ type Router struct {
 
 func NewRouter(api *api.API) *Router {
 	return &Router{
-		baseHandler:      NewBaseHandler(api),
+		api:              api,
 		feedHandler:      NewFeedHandler(api),
 		publishHandler:   NewPublishHandler(api),
 		loginHandler:     NewLoginHandler(api),
@@ -33,13 +33,13 @@ func (r *Router) RegisterRoutes() {
 
 	// API Endpoints (JSON responses)
 	http.HandleFunc("/api/feed", CORSMiddleware(JSONMiddleware(r.feedHandler.Handle)))
-	http.HandleFunc("/api/publish", CORSMiddleware(JSONMiddleware(r.baseHandler.AuthMiddleware(r.publishHandler.Handle))))
+	http.HandleFunc("/api/publish", CORSMiddleware(JSONMiddleware(AuthMiddleware(r.api, r.publishHandler.Handle))))
 	http.HandleFunc("/api/login", CORSMiddleware(JSONMiddleware(r.loginHandler.Handle)))
 	http.HandleFunc("/api/register", CORSMiddleware(JSONMiddleware(r.registerHandler.Handle)))
 	http.HandleFunc("/api/userPosts", CORSMiddleware(JSONMiddleware(r.userPostsHandler.Handle)))
-	http.HandleFunc("/api/subscribe", CORSMiddleware(JSONMiddleware(r.baseHandler.AuthMiddleware(r.subscribeHandler.HandleSubscribe))))
-	http.HandleFunc("/api/unsubscribe", CORSMiddleware(JSONMiddleware(r.baseHandler.AuthMiddleware(r.subscribeHandler.HandleUnsubscribe))))
-	http.HandleFunc("/api/subscriptionStatus", CORSMiddleware(JSONMiddleware(r.baseHandler.AuthMiddleware(r.subscribeHandler.HandleSubscriptionStatus))))
+	http.HandleFunc("/api/subscribe", CORSMiddleware(JSONMiddleware(AuthMiddleware(r.api, r.subscribeHandler.HandleSubscribe))))
+	http.HandleFunc("/api/unsubscribe", CORSMiddleware(JSONMiddleware(AuthMiddleware(r.api, r.subscribeHandler.HandleUnsubscribe))))
+	http.HandleFunc("/api/subscriptionStatus", CORSMiddleware(JSONMiddleware(AuthMiddleware(r.api, r.subscribeHandler.HandleSubscriptionStatus))))
 }
 
 func (r *Router) StartServer(addr string) {

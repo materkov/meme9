@@ -11,13 +11,13 @@ import (
 
 // UserPostsHandler handles user posts requests
 type UserPostsHandler struct {
-	*BaseHandler
+	api *api.API
 }
 
 // NewUserPostsHandler creates a new user posts handler
 func NewUserPostsHandler(api *api.API) *UserPostsHandler {
 	return &UserPostsHandler{
-		BaseHandler: NewBaseHandler(api),
+		api: api,
 	}
 }
 

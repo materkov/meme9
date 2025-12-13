@@ -9,13 +9,13 @@ import (
 
 // SubscribeHandler handles subscription-related requests
 type SubscribeHandler struct {
-	*BaseHandler
+	api *api.API
 }
 
 // NewSubscribeHandler creates a new subscribe handler
 func NewSubscribeHandler(api *api.API) *SubscribeHandler {
 	return &SubscribeHandler{
-		BaseHandler: NewBaseHandler(api),
+		api: api,
 	}
 }
 

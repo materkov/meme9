@@ -11,13 +11,13 @@ import (
 
 // PublishHandler handles post publishing requests
 type PublishHandler struct {
-	*BaseHandler
+	api *api.API
 }
 
 // NewPublishHandler creates a new publish handler
 func NewPublishHandler(api *api.API) *PublishHandler {
 	return &PublishHandler{
-		BaseHandler: NewBaseHandler(api),
+		api: api,
 	}
 }
 

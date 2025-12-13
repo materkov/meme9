@@ -16,13 +16,13 @@ import (
 
 // RegisterHandler handles user registration requests
 type RegisterHandler struct {
-	*BaseHandler
+	api *api.API
 }
 
 // NewRegisterHandler creates a new register handler
 func NewRegisterHandler(api *api.API) *RegisterHandler {
 	return &RegisterHandler{
-		BaseHandler: NewBaseHandler(api),
+		api: api,
 	}
 }
 

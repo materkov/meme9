@@ -16,13 +16,13 @@ import (
 
 // LoginHandler handles login requests
 type LoginHandler struct {
-	*BaseHandler
+	api *api.API
 }
 
 // NewLoginHandler creates a new login handler
 func NewLoginHandler(api *api.API) *LoginHandler {
 	return &LoginHandler{
-		BaseHandler: NewBaseHandler(api),
+		api: api,
 	}
 }
 

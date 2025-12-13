@@ -7,25 +7,15 @@ import (
 	"github.com/materkov/meme9/web7/api"
 )
 
-// BaseHandler provides common functionality for all route handlers
-type BaseHandler struct {
-	api *api.API
-}
-
-// NewBaseHandler creates a new base handler
-func NewBaseHandler(api *api.API) *BaseHandler {
-	return &BaseHandler{api: api}
-}
-
 type contextKey string
 
 const userIDKey contextKey = "userID"
 
 // AuthMiddleware creates middleware that verifies authentication token
-func (h *BaseHandler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func AuthMiddleware(api *api.API, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		authHeader := req.Header.Get("Authorization")
-		userID, err := h.api.VerifyToken(req.Context(), authHeader)
+		userID, err := api.VerifyToken(req.Context(), authHeader)
 		if err != nil {
 			writeErrorCode(w, "unauthorized", "")
 			return

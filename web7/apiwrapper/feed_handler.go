@@ -10,13 +10,13 @@ import (
 
 // FeedHandler handles feed-related requests
 type FeedHandler struct {
-	*BaseHandler
+	api *api.API
 }
 
 // NewFeedHandler creates a new feed handler
 func NewFeedHandler(api *api.API) *FeedHandler {
 	return &FeedHandler{
-		BaseHandler: NewBaseHandler(api),
+		api: api,
 	}
 }
 
