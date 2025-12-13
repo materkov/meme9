@@ -36,20 +36,60 @@ func RenderAuthPage(data AuthPageData) string {
 		errorHTML = fmt.Sprintf(`<div class="error">%s</div>`, html.EscapeString(data.Error))
 	}
 
-	return fmt.Sprintf(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - meme9</title>
-  <style>
-    body {
+	// Build page content
+	content := fmt.Sprintf(`<div class="tabs">
+      <a href="/?tab=login" class="tab %s">Login</a>
+      <a href="/?tab=register" class="tab %s">Register</a>
+    </div>
+
+    <form id="authForm" class="form">
+      <div class="field">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          required
+          autocomplete="username"
+          %s
+        />
+        %s
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autocomplete="%s"
+          %s
+        />
+        %s
+      </div>
+
+      %s
+
+      <button type="submit" class="submit">%s</button>
+    </form>`,
+		data.LoginTabClass,
+		data.RegisterTabClass,
+		data.UsernameInputClass,
+		usernameErrorHTML,
+		data.PasswordAutocomplete,
+		data.PasswordInputClass,
+		credentialsErrorHTML,
+		errorHTML,
+		data.SubmitText,
+	)
+
+	// Page-specific CSS (auth page has centered layout)
+	extraCSS := `body {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f5f5f5;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       margin: 0;
     }
     .container {
@@ -59,6 +99,9 @@ func RenderAuthPage(data AuthPageData) string {
       width: 100%%;
       max-width: 400px;
       padding: 2rem;
+    }
+    .header {
+      display: none;
     }
     .tabs {
       display: flex;
@@ -142,51 +185,10 @@ func RenderAuthPage(data AuthPageData) string {
     }
     .submit:hover {
       background: #555;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="tabs">
-      <a href="/?tab=login" class="tab %s">Login</a>
-      <a href="/?tab=register" class="tab %s">Register</a>
-    </div>
+    }`
 
-    <form id="authForm" class="form">
-      <div class="field">
-        <label for="username">Username</label>
-        <input
-          id="username"
-          name="username"
-          type="text"
-          required
-          autocomplete="username"
-          %s
-        />
-        %s
-      </div>
-
-      <div class="field">
-        <label for="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          autocomplete="%s"
-          %s
-        />
-        %s
-      </div>
-
-      %s
-
-      <button type="submit" class="submit">%s</button>
-    </form>
-  </div>
-
-  <script>
-    // Handle form submission with fetch API
+	// Page-specific JavaScript
+	extraJS := `// Handle form submission with fetch API
     document.getElementById('authForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
@@ -288,18 +290,14 @@ func RenderAuthPage(data AuthPageData) string {
         submitButton.disabled = false;
         submitButton.textContent = originalButtonText;
       }
-    });
-  </script>
-</body>
-</html>`,
-		data.LoginTabClass,
-		data.RegisterTabClass,
-		data.UsernameInputClass,
-		usernameErrorHTML,
-		data.PasswordAutocomplete,
-		data.PasswordInputClass,
-		credentialsErrorHTML,
-		errorHTML,
-		data.SubmitText,
-	)
+    });`
+
+	// Use page container (auth page doesn't need user info)
+	return RenderPageContainer(PageContainerData{
+		Title:        "Login - meme9",
+		UserInfoHTML: "", // Auth page doesn't show user info
+		Content:      content,
+		ExtraCSS:     extraCSS,
+		ExtraJS:      extraJS,
+	})
 }

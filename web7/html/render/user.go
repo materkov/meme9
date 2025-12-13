@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"html"
+	"strings"
 )
 
 // UserPageData contains data for rendering the user posts page
@@ -42,63 +43,21 @@ func RenderUserPage(data UserPageData) string {
 		}
 	}
 
-	// Build user info HTML
-	userInfoHTML := `
-        <div class="userInfo" id="userInfo" style="display: none;">
-          <span class="username" id="currentUsername"></span>
-          <button onclick="logout()" class="logout">Logout</button>
-        </div>`
+	// Build header HTML with title and subscription section
+	headerHTML := fmt.Sprintf(`<h1 class="title">%s's Posts</h1>
+      <div class="subscribeSection" id="subscribeSection" style="display: %s;">
+        <button id="subscribeButton" class="subscribeButton" onclick="handleSubscribe()" style="display: none;">Subscribe</button>
+        <button id="unsubscribeButton" class="unsubscribeButton" onclick="handleUnsubscribe()" style="display: none;">Unsubscribe</button>
+      </div>`, data.Username, subscribeSectionDisplay)
 
-	return fmt.Sprintf(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>%s's Posts</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    .container {
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-    }
-    .header {
-      border-bottom: 1px solid #e0e0e0;
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .userInfo {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .userInfo .username {
-      color: #666;
-      font-size: 0.9rem;
-    }
-    .logout {
-      padding: 0.5rem 1rem;
-      background: #f5f5f5;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .logout:hover {
-      background: #e0e0e0;
-      border-color: #ccc;
-    }
-    .backButton {
+	// Build page content with back button
+	content := fmt.Sprintf(`<a href="/feed" class="backButton">← Back to Feed</a>
+      <div class="feed">
+%s
+      </div>`, postsHTML)
+
+	// Page-specific CSS
+	extraCSS := `.backButton {
       display: inline-block;
       margin-bottom: 20px;
       padding: 0.5rem 1rem;
@@ -155,9 +114,6 @@ func RenderUserPage(data UserPageData) string {
     .unsubscribeButton:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-    }
-    .main {
-      min-height: 400px;
     }
     .empty {
       text-align: center;
@@ -218,53 +174,11 @@ func RenderUserPage(data UserPageData) string {
     }
     .post-link:hover {
       color: #1976d2;
-    }
-  </style>
-</head>
-<body>
-  <a href="/feed" class="backButton">← Back to Feed</a>
-  <div class="container">
-    <header class="header">
-      <h1 class="title">%s's Posts</h1>
-      <div class="subscribeSection" id="subscribeSection" style="display: %s;">
-        <button id="subscribeButton" class="subscribeButton" onclick="handleSubscribe()" style="display: none;">Subscribe</button>
-        <button id="unsubscribeButton" class="unsubscribeButton" onclick="handleUnsubscribe()" style="display: none;">Unsubscribe</button>
-      </div>%s
-    </header>
-    <main class="main">
-      <div class="feed">
-%s
-      </div>
-    </main>
-  </div>
+    }`
 
-  <script>
-    // Load and display current user info
-    (function() {
-      const username = '%s';
-      if (username) {
-        const userInfoDiv = document.getElementById('userInfo');
-        const usernameSpan = document.getElementById('currentUsername');
-        if (userInfoDiv && usernameSpan) {
-          usernameSpan.textContent = username;
-          userInfoDiv.style.display = 'flex';
-        }
-      }
-    })();
-
-    function getCookie(name) {
-      const value = '; ' + document.cookie;
-      const parts = value.split('; ' + name + '=');
-      if (parts.length === 2) return parts.pop().split(';').shift();
-      return null;
-    }
-
-    function logout() {
-      // Clear cookie
-      document.cookie = 'auth_token=; path=/; max-age=0';
-      window.location.href = '/';
-    }
-
+	// Page-specific JavaScript
+	userIDStr := strings.ReplaceAll(data.UserID, "'", "\\'")
+	extraJS := GetUserInfoScript(data.CurrentUsername) + fmt.Sprintf(`
     const userID = '%s';
     let isSubscribed = %t;
     let subscriptionLoading = false;
@@ -394,8 +308,15 @@ func RenderUserPage(data UserPageData) string {
           unsubscribeBtn.textContent = 'Unsubscribe';
         }
       }
-    }
-  </script>
-</body>
-</html>`, data.Username, data.Username, subscribeSectionDisplay, userInfoHTML, postsHTML, data.CurrentUsername, data.UserID, data.IsSubscribed)
+    }`, userIDStr, data.IsSubscribed)
+
+	// Use page container
+	return RenderPageContainer(PageContainerData{
+		Title:        fmt.Sprintf("%s's Posts - meme9", data.Username),
+		HeaderHTML:   headerHTML,
+		UserInfoHTML: GetUserInfoHTML(),
+		Content:      content,
+		ExtraCSS:     extraCSS,
+		ExtraJS:      extraJS,
+	})
 }

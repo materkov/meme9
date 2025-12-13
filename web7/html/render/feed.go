@@ -46,13 +46,6 @@ func RenderFeedPage(data FeedPageData) string {
 		}
 	}
 
-	// Build user info HTML
-	userInfoHTML := `
-        <div class="userInfo" id="userInfo" style="display: none;">
-          <span class="username" id="currentUsername"></span>
-          <button onclick="logout()" class="logout">Logout</button>
-        </div>`
-
 	// Build post form HTML (only show if authenticated)
 	postFormHTML := ""
 	if data.IsAuthenticated {
@@ -75,73 +68,23 @@ func RenderFeedPage(data FeedPageData) string {
 	}
 
 	// Escape any % characters in all strings to prevent format specifier errors
-	// This is needed because strings may contain % characters that would be interpreted as format specifiers
-	userInfoHTMLStr := strings.ReplaceAll(userInfoHTML, "%", "%%")
 	globalTabClassStr := strings.ReplaceAll(data.GlobalTabClass, "%", "%%")
 	subscriptionsTabClassStr := strings.ReplaceAll(data.SubscriptionsTabClass, "%", "%%")
 	postFormHTMLStr := strings.ReplaceAll(postFormHTML, "%", "%%")
 	postsHTMLStr := strings.ReplaceAll(postsHTML, "%", "%%")
-	currentUsernameStr := strings.ReplaceAll(data.CurrentUsername, "%", "%%")
 
-	return fmt.Sprintf(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Posts Feed - meme9</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    .container {
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-    }
-    .header {
-      border-bottom: 1px solid #e0e0e0;
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 32px;
-      font-weight: 600;
-      color: #333;
-    }
-    .userInfo {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .userInfo .username {
-      color: #666;
-      font-size: 0.9rem;
-    }
-    .logout {
-      padding: 0.5rem 1rem;
-      background: #f5f5f5;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .logout:hover {
-      background: #e0e0e0;
-      border-color: #ccc;
-    }
-    .main {
-      min-height: 400px;
-    }
-    .feedTabs {
+	// Build page content
+	content := fmt.Sprintf(`<div class="feedTabs">
+        <a href="/feed?type=global" class="tab %s">Global Feed</a>
+        <a href="/feed?type=subscriptions" class="tab %s">Subscriptions</a>
+      </div>
+%s
+      <div class="feed">
+%s
+      </div>`, globalTabClassStr, subscriptionsTabClassStr, postFormHTMLStr, postsHTMLStr)
+
+	// Page-specific CSS
+	extraCSS := `.feedTabs {
       display: flex;
       gap: 0.5rem;
       margin-bottom: 20px;
@@ -308,54 +251,10 @@ func RenderFeedPage(data FeedPageData) string {
     .postForm .button:disabled {
       background-color: #ccc;
       cursor: not-allowed;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header class="header">
-      <h1>Posts Feed</h1>
-      %s
-    </header>
-    <main class="main">
-      <div class="feedTabs">
-        <a href="/feed?type=global" class="tab %s">Global Feed</a>
-        <a href="/feed?type=subscriptions" class="tab %s">Subscriptions</a>
-      </div>
-%s
-      <div class="feed">
-%s
-      </div>
-    </main>
-  </div>
+    }`
 
-  <script>
-    // Load and display current user info
-    (function() {
-      const username = '%s';
-      if (username) {
-        const userInfoDiv = document.getElementById('userInfo');
-        const usernameSpan = document.getElementById('currentUsername');
-        if (userInfoDiv && usernameSpan) {
-          usernameSpan.textContent = username;
-          userInfoDiv.style.display = 'flex';
-        }
-      }
-    })();
-
-    function getCookie(name) {
-      const value = '; ' + document.cookie;
-      const parts = value.split('; ' + name + '=');
-      if (parts.length === 2) return parts.pop().split(';').shift();
-      return null;
-    }
-
-    function logout() {
-      // Clear cookie
-      document.cookie = 'auth_token=; path=/; max-age=0';
-      window.location.href = '/';
-    }
-
+	// Page-specific JavaScript
+	extraJS := GetUserInfoScript(data.CurrentUsername) + `
     // Post form handling
     const postForm = document.getElementById('postForm');
     const postText = document.getElementById('postText');
@@ -442,8 +341,14 @@ func RenderFeedPage(data FeedPageData) string {
         postButton.disabled = false;
         postButton.textContent = 'Post';
       }
-    }
-  </script>
-</body>
-</html>`, userInfoHTMLStr, globalTabClassStr, subscriptionsTabClassStr, postFormHTMLStr, postsHTMLStr, currentUsernameStr)
+    }`
+
+	// Use page container
+	return RenderPageContainer(PageContainerData{
+		Title:        "Posts Feed - meme9",
+		UserInfoHTML: GetUserInfoHTML(),
+		Content:      content,
+		ExtraCSS:     extraCSS,
+		ExtraJS:      extraJS,
+	})
 }
