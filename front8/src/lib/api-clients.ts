@@ -153,6 +153,8 @@ export function setAuthToken(token: string): void {
 export function removeAuthToken(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(AUTH_TOKEN_KEY);
+  localStorage.removeItem('auth_username');
+  localStorage.removeItem('auth_user_id');
 }
 
 // Feed Service Client - pre-configured instance
