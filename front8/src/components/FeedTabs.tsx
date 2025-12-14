@@ -37,11 +37,7 @@ export default function FeedTabs() {
     <div className="flex border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
       <button
         onClick={() => setFeedType(FeedType.ALL)}
-        className={`${classes} ${
-          currentFeedType === FeedType.ALL
-            ? inactiveClasses
-            : activeClasses
-        }`}
+        className={`${classes} ${currentFeedType === FeedType.ALL ? inactiveClasses : activeClasses}`}
       >
         Global
       </button>
@@ -49,11 +45,7 @@ export default function FeedTabs() {
       <button
         onClick={() => setFeedType(FeedType.SUBSCRIPTIONS)}
         disabled={!isAuthenticated}
-        className={`${classes} ${
-          currentFeedType === FeedType.SUBSCRIPTIONS
-            ? inactiveClasses
-            : activeClasses
-        } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`${classes} ${currentFeedType === FeedType.SUBSCRIPTIONS ? inactiveClasses : activeClasses} ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
         title={!isAuthenticated ? 'Login to view subscriptions' : ''}
       >
         Subscriptions

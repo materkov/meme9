@@ -2,38 +2,36 @@ import { Suspense } from 'react';
 import { PostsClient } from '@/lib/api-clients';
 import type { Post } from '@/schema/posts';
 import { FeedType } from '@/schema/posts';
+import { getAuthToken } from '@/lib/authHelpers';
 import FeedTabs from '@/components/FeedTabs';
 import Composer from '@/components/Composer';
 import PostCard from './PostCard';
 
 interface FeedPageProps {
-  searchParams: Promise<{ feed?: string }> | { feed?: string };
+  searchParams: Promise<{ feed?: string }>;
 }
 
 export default async function FeedPage({ searchParams }: FeedPageProps) {
   let posts: Post[] = [];
   let error: string | null = null;
   
-  // Handle searchParams as either Promise or object (Next.js 15+ compatibility)
-  const resolvedSearchParams = searchParams instanceof Promise 
-    ? await searchParams 
-    : searchParams;
-  
-  // Determine feed type from searchParams, default to ALL
-  // Let the backend handle authentication - if user requests subscriptions but isn't authenticated,
-  // the backend will return an error which we'll handle
+  const resolvedSearchParams = await searchParams;
   const feedParam = resolvedSearchParams?.feed;
   const feedType = feedParam === 'subscriptions' ? FeedType.SUBSCRIPTIONS : FeedType.ALL;
 
-  try {
-    // Standard client automatically reads token from cookies on server, localStorage on client
-    const response = await PostsClient.GetFeed({ type: feedType });
-    posts = response.posts || [];
-  } catch (err) {
-    error = err instanceof Error ? err.message : 'Failed to load feed';
-    // If it's an authentication error for subscriptions, show a helpful message
-    if (feedType === FeedType.SUBSCRIPTIONS && error.includes('authentication')) {
-      error = 'Please login to view subscriptions feed';
+  if (feedType === FeedType.SUBSCRIPTIONS) {
+    const token = await getAuthToken();
+    if (!token) {
+      error = 'Please login, to view subscriptions feed';
+    }
+  }
+
+  if (!error) {
+    try {
+      const response = await PostsClient.GetFeed({ type: feedType });
+      posts = response.posts || [];
+    } catch (err) {
+      error = 'Failed to load feed';
     }
   }
 
@@ -72,4 +70,3 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     </div>
   );
 }
-

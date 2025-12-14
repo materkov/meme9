@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import Auth from './Auth';
+import AuthPopup from './AuthPopup';
 
 export default function Header() {
   const { isAuthenticated } = useAuth();
@@ -26,7 +26,8 @@ export default function Header() {
           </div>
         </div>
       </header>
-      {showAuth && <Auth onClose={() => setShowAuth(false)} />}
+
+      {showAuth && <AuthPopup onClose={() => setShowAuth(false)} />}
     </>
   );
 }

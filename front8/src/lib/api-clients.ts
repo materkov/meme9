@@ -37,27 +37,30 @@ class TwirpRpcImpl {
     if (token) {
       headers['Authorization'] = token;
     }
-    
+
+    let response: Response;
+    let responseBody: any = null;
     try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(data),
-    });
+      response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      throw new Error(`Network error`);
+    }
+
+    try {
+      responseBody = await response.json();
+    } catch (error) {
+      throw new Error('Response is not json');
+    }
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ 
-        code: 'unknown',
-        msg: `HTTP ${response.status}: ${response.statusText}` 
-      }));
-      throw new Error(errorData.msg || errorData.error || `Request failed: ${response.statusText}`);
+      throw new ApiError(responseBody.msg || `internal_error`);
     }
 
-    return response.json();
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Network error';
-      throw new Error(`Failed to connect to server: ${errorMessage}. Please check if the server is running at ${baseURL}`);
-    }
+    return responseBody;
   }
 }
 
@@ -67,3 +70,13 @@ export const AuthClient = new AuthClientJSON(rpcImpl);
 export const PostsClient = new PostsClientJSON(rpcImpl);
 export const UsersClient = new UsersClientJSON(rpcImpl);
 export const SubscriptionsClient = new SubscriptionsClientJSON(rpcImpl);
+
+export class ApiError extends Error {
+  err: string;
+
+  constructor(err: string) {
+    super(err);
+    this.name = 'ApiError';
+    this.err = err;
+  }
+}

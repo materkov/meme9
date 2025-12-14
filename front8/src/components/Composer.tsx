@@ -6,37 +6,30 @@ import { PostsClient } from '@/lib/api-clients';
 import { useRouter } from 'next/navigation';
 
 export default function Composer() {
-  const { isAuthenticated } = useAuth();
+  const { userId: viewerId } = useAuth();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  if (!isAuthenticated) {
+  if (!viewerId) {
     return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
-    if (!text.trim()) {
-      setError('Post text cannot be empty');
-      return;
-    }
 
     setLoading(true);
 
     try {
-      // PostsClient uses getAuthToken() automatically from localStorage
       await PostsClient.Publish({ text: text.trim() });
       setText('');
       setError(null);
       
-      // Refresh the page to show the new post
-        router.refresh();
+      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to publish post');
+      setError('Failed to publish post');
     } finally {
       setLoading(false);
     }

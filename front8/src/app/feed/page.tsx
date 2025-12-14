@@ -1,7 +1,7 @@
 import FeedPage from '@/components/FeedPage';
 
 interface FeedProps {
-  searchParams: Promise<{ feed?: string }> | { feed?: string };
+  searchParams: Promise<{ feed?: string }>;
 }
 
 export default async function Feed({ searchParams }: FeedProps) {

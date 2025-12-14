@@ -1,15 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { AuthClient } from '@/lib/api-clients';
+import { AuthClient, ApiError } from '@/lib/api-clients';
 import type { LoginResponse } from '@/schema/auth';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface AuthProps {
-  onClose?: () => void;
+interface AuthPopupProps {
+  onClose: () => void;
 }
 
-export default function Auth({ onClose }: AuthProps) {
+export default function AuthPopup({ onClose }: AuthPopupProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -29,12 +29,17 @@ export default function Auth({ onClose }: AuthProps) {
       } else {
         response = await AuthClient.Register({ username, password });
       }
+
       authLogin(response);
-      if (onClose) {
-        onClose();
-      }
+      onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      if (err instanceof ApiError && err.err === "username_exists") {
+        setError('This username is already taken, please choose another one');
+      } else if (err instanceof ApiError && err.err === "invalid_credentials") {
+        setError('Invalid username or password');
+      } else {
+        setError('Something bad happened');
+      }
     } finally {
       setLoading(false);
     }
@@ -45,28 +50,26 @@ export default function Auth({ onClose }: AuthProps) {
       <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-black dark:text-zinc-50">
-            {isLogin ? 'Login' : 'Register'}
+            Authorization
           </h2>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          <button
+            onClick={onClose}
+            className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          )}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
         <div className="flex mb-6 border-b border-zinc-200 dark:border-zinc-700">
@@ -83,6 +86,7 @@ export default function Auth({ onClose }: AuthProps) {
           >
             Login
           </button>
+
           <button
             onClick={() => {
               setIsLogin(false);
@@ -153,3 +157,4 @@ export default function Auth({ onClose }: AuthProps) {
     </div>
   );
 }
+
