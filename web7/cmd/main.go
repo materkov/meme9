@@ -17,7 +17,6 @@ import (
 	"github.com/materkov/meme9/web7/html"
 	postsservice "github.com/materkov/meme9/web7/services/posts"
 	tokensservice "github.com/materkov/meme9/web7/services/tokens"
-	twirpservice "github.com/materkov/meme9/web7/twirp"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -77,10 +76,12 @@ func main() {
 	http.HandleFunc("/", htmlRouter.IndexHandler)
 
 	// Create Twirp server - api.API implements JsonAPI interface directly
-	twirpHandler := json_api.NewJsonAPIServer(apiAdapter, twirp.WithServerHooks(twirpservice.AuthHook(apiAdapter)))
+	twirpHandler := json_api.NewJsonAPIServer(apiAdapter, twirp.WithServerHooks(api.AuthHook(apiAdapter)))
 	// Wrap with auth middleware to inject headers into context
-	twirpHandlerWithAuth := twirpservice.AuthMiddleware(apiAdapter, twirpHandler)
-	http.Handle(twirpHandler.PathPrefix(), twirpHandlerWithAuth)
+	twirpHandlerWithAuth := api.AuthMiddleware(apiAdapter, twirpHandler)
+	// Wrap with CORS middleware to allow frontend requests
+	twirpHandlerWithCORS := api.CORSMiddleware(twirpHandlerWithAuth)
+	http.Handle(twirpHandler.PathPrefix(), twirpHandlerWithCORS)
 
 	// Start HTTP server
 	addr := "127.0.0.1:8080"

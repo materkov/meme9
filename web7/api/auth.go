@@ -1,21 +1,17 @@
-package twirp
+package api
 
 import (
 	"context"
 	"net/http"
 
-	"github.com/twitchtv/twirp"
-
-	"github.com/materkov/meme9/web7/api"
 	json_api "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/json_api"
+	"github.com/twitchtv/twirp"
 )
-
-type contextKey string
 
 const httpHeadersKey contextKey = "httpHeaders"
 
 // AuthHook creates a Twirp server hook for authentication
-func AuthHook(apiAdapter *api.API) *twirp.ServerHooks {
+func AuthHook(apiAdapter *API) *twirp.ServerHooks {
 	return &twirp.ServerHooks{
 		RequestRouted: func(ctx context.Context) (context.Context, error) {
 			// Skip auth for login and register
@@ -78,14 +74,37 @@ func AuthHook(apiAdapter *api.API) *twirp.ServerHooks {
 			userID := verifyResp.UserId
 
 			// Add user ID to context using api package's context key
-			ctx = context.WithValue(ctx, api.UserIDKey, userID)
+			ctx = context.WithValue(ctx, UserIDKey, userID)
 			return ctx, nil
 		},
 	}
 }
 
+// CORSMiddleware adds CORS headers to allow requests from frontend
+func CORSMiddleware(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set CORS headers
+		origin := r.Header.Get("Origin")
+		// Allow requests from localhost:3000 (frontend) or any origin in development
+		if origin == "http://localhost:3000" || origin == "http://127.0.0.1:3000" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// Handle preflight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		handler.ServeHTTP(w, r)
+	})
+}
+
 // AuthMiddleware wraps the Twirp handler to inject HTTP headers into context
-func AuthMiddleware(apiAdapter *api.API, handler http.Handler) http.Handler {
+func AuthMiddleware(apiAdapter *API, handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if ctx == nil {
