@@ -4,21 +4,21 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SubscriptionsClient } from '@/lib/api-clients';
 import type { GetUserResponse as User } from '@/schema/users';
-import type { UserPostResponse as UserPost } from '@/schema/posts';
+import type { Post } from '@/schema/posts';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import FormattedDate from './FormattedDate';
 
 interface UserProfileProps {
   user: User;
-  initialPosts: UserPost[];
+  initialPosts: Post[];
   initialSubscribed: boolean;
 }
 
 export default function UserProfile({ user, initialPosts, initialSubscribed }: UserProfileProps) {
   const { isAuthenticated, userId } = useAuth();
   const router = useRouter();
-  const [posts, setPosts] = useState<UserPost[]>(initialPosts);
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [isSubscribed, setIsSubscribed] = useState(initialSubscribed);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { UsersClient, PostsClient, SubscriptionsClient } from '@/lib/api-clients';
-import type { UserPostResponse as UserPost } from '@/schema/posts';
+import type { Post } from '@/schema/posts';
 import UserProfile from '@/components/UserProfile';
 
 interface PageProps {
@@ -12,7 +12,7 @@ interface PageProps {
 export default async function UserPage({ params }: PageProps) {
   const { id } = await params;
   let user;
-  let posts: UserPost[] = [];
+  let posts: Post[] = [];
   let subscriptionStatus = { subscribed: false };
   let error: string | null = null;
 

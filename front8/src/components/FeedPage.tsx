@@ -1,9 +1,9 @@
 import { Suspense } from 'react';
 import { FeedClient } from '@/lib/api-clients';
 import type { FeedPostResponse as FeedPost } from '@/schema/feed';
-import FeedPosts from '@/components/FeedPosts';
 import FeedTabs from '@/components/FeedTabs';
 import PostForm from '@/components/PostForm';
+import PostCard from './PostCard';
 
 interface FeedPageProps {
   searchParams: Promise<{ feed?: string }> | { feed?: string };
@@ -57,8 +57,16 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             No posts from your subscriptions. Try following some users!
           </p>
         </div>
+      ) : posts.length === 0 ? (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-zinc-600 dark:text-zinc-400">No posts found</p>
+        </div>
       ) : (
-        <FeedPosts posts={posts} />
+        <>
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </>
       )}
     </div>
   );

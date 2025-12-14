@@ -5,11 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PostsClient } from '@/lib/api-clients';
 import { useRouter } from 'next/navigation';
 
-interface PostFormProps {
-  onPostCreated?: () => void;
-}
-
-export default function PostForm({ onPostCreated }: PostFormProps) {
+export default function PostForm() {
   const { isAuthenticated } = useAuth();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,11 +34,7 @@ export default function PostForm({ onPostCreated }: PostFormProps) {
       setError(null);
       
       // Refresh the page to show the new post
-      if (onPostCreated) {
-        onPostCreated();
-      } else {
-        router.refresh();
-      }
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to publish post');
     } finally {

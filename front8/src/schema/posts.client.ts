@@ -4,7 +4,7 @@
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Posts } from "./posts";
-import type { GetPostResponse } from "./posts";
+import type { Post } from "./posts";
 import type { GetPostRequest } from "./posts";
 import type { GetByUsersResponse } from "./posts";
 import type { GetByUsersRequest } from "./posts";
@@ -30,7 +30,7 @@ export interface IPostsClient {
     /**
      * @generated from protobuf rpc: Get
      */
-    get(input: GetPostRequest, options?: RpcOptions): UnaryCall<GetPostRequest, GetPostResponse>;
+    get(input: GetPostRequest, options?: RpcOptions): UnaryCall<GetPostRequest, Post>;
 }
 /**
  * Posts service
@@ -60,8 +60,8 @@ export class PostsClient implements IPostsClient, ServiceInfo {
     /**
      * @generated from protobuf rpc: Get
      */
-    get(input: GetPostRequest, options?: RpcOptions): UnaryCall<GetPostRequest, GetPostResponse> {
+    get(input: GetPostRequest, options?: RpcOptions): UnaryCall<GetPostRequest, Post> {
         const method = this.methods[2], opt = this._transport.mergeOptions(options);
-        return stackIntercept<GetPostRequest, GetPostResponse>("unary", this._transport, method, opt, input);
+        return stackIntercept<GetPostRequest, Post>("unary", this._transport, method, opt, input);
     }
 }

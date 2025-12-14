@@ -39,38 +39,13 @@ export interface GetByUsersRequest {
     userId: string;
 }
 /**
- * @generated from protobuf message meme.posts.UserPostResponse
- */
-export interface UserPostResponse {
-    /**
-     * @generated from protobuf field: string id = 1
-     */
-    id: string;
-    /**
-     * @generated from protobuf field: string text = 2
-     */
-    text: string;
-    /**
-     * @generated from protobuf field: string userId = 3
-     */
-    userId: string;
-    /**
-     * @generated from protobuf field: string username = 4
-     */
-    username: string;
-    /**
-     * @generated from protobuf field: string createdAt = 5
-     */
-    createdAt: string; // RFC3339 format
-}
-/**
  * @generated from protobuf message meme.posts.GetByUsersResponse
  */
 export interface GetByUsersResponse {
     /**
-     * @generated from protobuf field: repeated meme.posts.UserPostResponse posts = 1
+     * @generated from protobuf field: repeated meme.posts.Post posts = 1
      */
-    posts: UserPostResponse[];
+    posts: Post[];
 }
 /**
  * @generated from protobuf message meme.posts.GetPostRequest
@@ -82,9 +57,9 @@ export interface GetPostRequest {
     postId: string;
 }
 /**
- * @generated from protobuf message meme.posts.GetPostResponse
+ * @generated from protobuf message meme.posts.Post
  */
-export interface GetPostResponse {
+export interface Post {
     /**
      * @generated from protobuf field: string id = 1
      */
@@ -98,7 +73,11 @@ export interface GetPostResponse {
      */
     userId: string;
     /**
-     * @generated from protobuf field: string createdAt = 4
+     * @generated from protobuf field: string userName = 4
+     */
+    userName: string;
+    /**
+     * @generated from protobuf field: string createdAt = 5
      */
     createdAt: string; // RFC3339 format
 }
@@ -244,89 +223,10 @@ class GetByUsersRequest$Type extends MessageType<GetByUsersRequest> {
  */
 export const GetByUsersRequest = new GetByUsersRequest$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class UserPostResponse$Type extends MessageType<UserPostResponse> {
-    constructor() {
-        super("meme.posts.UserPostResponse", [
-            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "text", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "userId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 5, name: "createdAt", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
-        ]);
-    }
-    create(value?: PartialMessage<UserPostResponse>): UserPostResponse {
-        const message = globalThis.Object.create((this.messagePrototype!));
-        message.id = "";
-        message.text = "";
-        message.userId = "";
-        message.username = "";
-        message.createdAt = "";
-        if (value !== undefined)
-            reflectionMergePartial<UserPostResponse>(this, message, value);
-        return message;
-    }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: UserPostResponse): UserPostResponse {
-        let message = target ?? this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-            let [fieldNo, wireType] = reader.tag();
-            switch (fieldNo) {
-                case /* string id */ 1:
-                    message.id = reader.string();
-                    break;
-                case /* string text */ 2:
-                    message.text = reader.string();
-                    break;
-                case /* string userId */ 3:
-                    message.userId = reader.string();
-                    break;
-                case /* string username */ 4:
-                    message.username = reader.string();
-                    break;
-                case /* string createdAt */ 5:
-                    message.createdAt = reader.string();
-                    break;
-                default:
-                    let u = options.readUnknownField;
-                    if (u === "throw")
-                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-                    let d = reader.skip(wireType);
-                    if (u !== false)
-                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-            }
-        }
-        return message;
-    }
-    internalBinaryWrite(message: UserPostResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* string id = 1; */
-        if (message.id !== "")
-            writer.tag(1, WireType.LengthDelimited).string(message.id);
-        /* string text = 2; */
-        if (message.text !== "")
-            writer.tag(2, WireType.LengthDelimited).string(message.text);
-        /* string userId = 3; */
-        if (message.userId !== "")
-            writer.tag(3, WireType.LengthDelimited).string(message.userId);
-        /* string username = 4; */
-        if (message.username !== "")
-            writer.tag(4, WireType.LengthDelimited).string(message.username);
-        /* string createdAt = 5; */
-        if (message.createdAt !== "")
-            writer.tag(5, WireType.LengthDelimited).string(message.createdAt);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-    }
-}
-/**
- * @generated MessageType for protobuf message meme.posts.UserPostResponse
- */
-export const UserPostResponse = new UserPostResponse$Type();
-// @generated message type with reflection information, may provide speed optimized methods
 class GetByUsersResponse$Type extends MessageType<GetByUsersResponse> {
     constructor() {
         super("meme.posts.GetByUsersResponse", [
-            { no: 1, name: "posts", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => UserPostResponse }
+            { no: 1, name: "posts", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Post }
         ]);
     }
     create(value?: PartialMessage<GetByUsersResponse>): GetByUsersResponse {
@@ -341,8 +241,8 @@ class GetByUsersResponse$Type extends MessageType<GetByUsersResponse> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* repeated meme.posts.UserPostResponse posts */ 1:
-                    message.posts.push(UserPostResponse.internalBinaryRead(reader, reader.uint32(), options));
+                case /* repeated meme.posts.Post posts */ 1:
+                    message.posts.push(Post.internalBinaryRead(reader, reader.uint32(), options));
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -356,9 +256,9 @@ class GetByUsersResponse$Type extends MessageType<GetByUsersResponse> {
         return message;
     }
     internalBinaryWrite(message: GetByUsersResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* repeated meme.posts.UserPostResponse posts = 1; */
+        /* repeated meme.posts.Post posts = 1; */
         for (let i = 0; i < message.posts.length; i++)
-            UserPostResponse.internalBinaryWrite(message.posts[i], writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+            Post.internalBinaryWrite(message.posts[i], writer.tag(1, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -417,26 +317,28 @@ class GetPostRequest$Type extends MessageType<GetPostRequest> {
  */
 export const GetPostRequest = new GetPostRequest$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class GetPostResponse$Type extends MessageType<GetPostResponse> {
+class Post$Type extends MessageType<Post> {
     constructor() {
-        super("meme.posts.GetPostResponse", [
+        super("meme.posts.Post", [
             { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "text", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "userId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "createdAt", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 4, name: "userName", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "createdAt", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
-    create(value?: PartialMessage<GetPostResponse>): GetPostResponse {
+    create(value?: PartialMessage<Post>): Post {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.id = "";
         message.text = "";
         message.userId = "";
+        message.userName = "";
         message.createdAt = "";
         if (value !== undefined)
-            reflectionMergePartial<GetPostResponse>(this, message, value);
+            reflectionMergePartial<Post>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetPostResponse): GetPostResponse {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Post): Post {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
@@ -450,7 +352,10 @@ class GetPostResponse$Type extends MessageType<GetPostResponse> {
                 case /* string userId */ 3:
                     message.userId = reader.string();
                     break;
-                case /* string createdAt */ 4:
+                case /* string userName */ 4:
+                    message.userName = reader.string();
+                    break;
+                case /* string createdAt */ 5:
                     message.createdAt = reader.string();
                     break;
                 default:
@@ -464,7 +369,7 @@ class GetPostResponse$Type extends MessageType<GetPostResponse> {
         }
         return message;
     }
-    internalBinaryWrite(message: GetPostResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: Post, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* string id = 1; */
         if (message.id !== "")
             writer.tag(1, WireType.LengthDelimited).string(message.id);
@@ -474,9 +379,12 @@ class GetPostResponse$Type extends MessageType<GetPostResponse> {
         /* string userId = 3; */
         if (message.userId !== "")
             writer.tag(3, WireType.LengthDelimited).string(message.userId);
-        /* string createdAt = 4; */
+        /* string userName = 4; */
+        if (message.userName !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.userName);
+        /* string createdAt = 5; */
         if (message.createdAt !== "")
-            writer.tag(4, WireType.LengthDelimited).string(message.createdAt);
+            writer.tag(5, WireType.LengthDelimited).string(message.createdAt);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -484,14 +392,14 @@ class GetPostResponse$Type extends MessageType<GetPostResponse> {
     }
 }
 /**
- * @generated MessageType for protobuf message meme.posts.GetPostResponse
+ * @generated MessageType for protobuf message meme.posts.Post
  */
-export const GetPostResponse = new GetPostResponse$Type();
+export const Post = new Post$Type();
 /**
  * @generated ServiceType for protobuf service meme.posts.Posts
  */
 export const Posts = new ServiceType("meme.posts.Posts", [
     { name: "Publish", options: {}, I: PublishRequest, O: PublishResponse },
     { name: "GetByUsers", options: {}, I: GetByUsersRequest, O: GetByUsersResponse },
-    { name: "Get", options: {}, I: GetPostRequest, O: GetPostResponse }
+    { name: "Get", options: {}, I: GetPostRequest, O: Post }
 ]);

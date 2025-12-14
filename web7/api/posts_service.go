@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/twitchtv/twirp"
@@ -67,13 +68,13 @@ func (s *PostsService) GetByUsers(ctx context.Context, req *postsapi.GetByUsersR
 		username = user.Username
 	}
 
-	userPosts := make([]*postsapi.UserPostResponse, len(postsList))
+	userPosts := make([]*postsapi.Post, len(postsList))
 	for i, post := range postsList {
-		userPosts[i] = &postsapi.UserPostResponse{
+		userPosts[i] = &postsapi.Post{
 			Id:        post.ID,
 			Text:      post.Text,
 			UserId:    post.UserID,
-			Username:  username,
+			UserName:  username,
 			CreatedAt: post.CreatedAt.Format(time.RFC3339),
 		}
 	}
@@ -84,7 +85,7 @@ func (s *PostsService) GetByUsers(ctx context.Context, req *postsapi.GetByUsersR
 }
 
 // Get implements the Posts Get method
-func (s *PostsService) Get(ctx context.Context, req *postsapi.GetPostRequest) (*postsapi.GetPostResponse, error) {
+func (s *PostsService) Get(ctx context.Context, req *postsapi.GetPostRequest) (*postsapi.Post, error) {
 	if req.PostId == "" {
 		return nil, twirp.NewError(twirp.InvalidArgument, "post_id is required")
 	}
@@ -94,10 +95,19 @@ func (s *PostsService) Get(ctx context.Context, req *postsapi.GetPostRequest) (*
 		return nil, twirp.NewError(twirp.NotFound, "post not found")
 	}
 
-	return &postsapi.GetPostResponse{
+	userName := ""
+	user, err := s.users.GetByID(ctx, post.UserID)
+	if err != nil {
+		log.Printf("Cannot load user info: %s", err)
+	} else {
+		userName = user.Username
+	}
+
+	return &postsapi.Post{
 		Id:        post.ID,
 		Text:      post.Text,
 		UserId:    post.UserID,
+		UserName:  userName,
 		CreatedAt: post.CreatedAt.Format(time.RFC3339),
 	}, nil
 }

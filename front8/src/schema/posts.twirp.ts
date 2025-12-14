@@ -14,7 +14,7 @@ import {
   GetByUsersRequest,
   GetByUsersResponse,
   GetPostRequest,
-  GetPostResponse,
+  Post,
 } from "./posts";
 
 //==================================//
@@ -33,7 +33,7 @@ interface Rpc {
 export interface PostsClient {
   Publish(request: PublishRequest): Promise<PublishResponse>;
   GetByUsers(request: GetByUsersRequest): Promise<GetByUsersResponse>;
-  Get(request: GetPostRequest): Promise<GetPostResponse>;
+  Get(request: GetPostRequest): Promise<Post>;
 }
 
 export class PostsClientJSON implements PostsClient {
@@ -76,7 +76,7 @@ export class PostsClientJSON implements PostsClient {
     );
   }
 
-  Get(request: GetPostRequest): Promise<GetPostResponse> {
+  Get(request: GetPostRequest): Promise<Post> {
     const data = GetPostRequest.toJson(request, {
       useProtoFieldName: true,
       emitDefaultValues: false,
@@ -88,7 +88,7 @@ export class PostsClientJSON implements PostsClient {
       data as object
     );
     return promise.then((data) =>
-      GetPostResponse.fromJson(data as any, { ignoreUnknownFields: true })
+      Post.fromJson(data as any, { ignoreUnknownFields: true })
     );
   }
 }
@@ -127,7 +127,7 @@ export class PostsClientProtobuf implements PostsClient {
     );
   }
 
-  Get(request: GetPostRequest): Promise<GetPostResponse> {
+  Get(request: GetPostRequest): Promise<Post> {
     const data = GetPostRequest.toBinary(request);
     const promise = this.rpc.request(
       "meme.posts.Posts",
@@ -135,9 +135,7 @@ export class PostsClientProtobuf implements PostsClient {
       "application/protobuf",
       data
     );
-    return promise.then((data) =>
-      GetPostResponse.fromBinary(data as Uint8Array)
-    );
+    return promise.then((data) => Post.fromBinary(data as Uint8Array));
   }
 }
 
@@ -148,7 +146,7 @@ export class PostsClientProtobuf implements PostsClient {
 export interface PostsTwirp<T extends TwirpContext = TwirpContext> {
   Publish(ctx: T, request: PublishRequest): Promise<PublishResponse>;
   GetByUsers(ctx: T, request: GetByUsersRequest): Promise<GetByUsersResponse>;
-  Get(ctx: T, request: GetPostRequest): Promise<GetPostResponse>;
+  Get(ctx: T, request: GetPostRequest): Promise<Post>;
 }
 
 export enum PostsMethod {
@@ -207,7 +205,7 @@ function matchPostsRoute<T extends TwirpContext = TwirpContext>(
         ctx: T,
         service: PostsTwirp,
         data: Buffer,
-        interceptors?: Interceptor<T, GetPostRequest, GetPostResponse>[]
+        interceptors?: Interceptor<T, GetPostRequest, Post>[]
       ) => {
         ctx = { ...ctx, methodName: "Get" };
         await events.onMatch(ctx);
@@ -258,7 +256,7 @@ function handlePostsGetRequest<T extends TwirpContext = TwirpContext>(
   ctx: T,
   service: PostsTwirp,
   data: Buffer,
-  interceptors?: Interceptor<T, GetPostRequest, GetPostResponse>[]
+  interceptors?: Interceptor<T, GetPostRequest, Post>[]
 ): Promise<string | Uint8Array> {
   switch (ctx.contentType) {
     case TwirpContentType.JSON:
@@ -354,10 +352,10 @@ async function handlePostsGetJSON<T extends TwirpContext = TwirpContext>(
   ctx: T,
   service: PostsTwirp,
   data: Buffer,
-  interceptors?: Interceptor<T, GetPostRequest, GetPostResponse>[]
+  interceptors?: Interceptor<T, GetPostRequest, Post>[]
 ) {
   let request: GetPostRequest;
-  let response: GetPostResponse;
+  let response: Post;
 
   try {
     const body = JSON.parse(data.toString() || "{}");
@@ -373,7 +371,7 @@ async function handlePostsGetJSON<T extends TwirpContext = TwirpContext>(
     const interceptor = chainInterceptors(...interceptors) as Interceptor<
       T,
       GetPostRequest,
-      GetPostResponse
+      Post
     >;
     response = await interceptor(ctx, request!, (ctx, inputReq) => {
       return service.Get(ctx, inputReq);
@@ -383,7 +381,7 @@ async function handlePostsGetJSON<T extends TwirpContext = TwirpContext>(
   }
 
   return JSON.stringify(
-    GetPostResponse.toJson(response, {
+    Post.toJson(response, {
       useProtoFieldName: true,
       emitDefaultValues: false,
     }) as string
@@ -465,10 +463,10 @@ async function handlePostsGetProtobuf<T extends TwirpContext = TwirpContext>(
   ctx: T,
   service: PostsTwirp,
   data: Buffer,
-  interceptors?: Interceptor<T, GetPostRequest, GetPostResponse>[]
+  interceptors?: Interceptor<T, GetPostRequest, Post>[]
 ) {
   let request: GetPostRequest;
-  let response: GetPostResponse;
+  let response: Post;
 
   try {
     request = GetPostRequest.fromBinary(data);
@@ -483,7 +481,7 @@ async function handlePostsGetProtobuf<T extends TwirpContext = TwirpContext>(
     const interceptor = chainInterceptors(...interceptors) as Interceptor<
       T,
       GetPostRequest,
-      GetPostResponse
+      Post
     >;
     response = await interceptor(ctx, request!, (ctx, inputReq) => {
       return service.Get(ctx, inputReq);
@@ -492,5 +490,5 @@ async function handlePostsGetProtobuf<T extends TwirpContext = TwirpContext>(
     response = await service.Get(ctx, request!);
   }
 
-  return Buffer.from(GetPostResponse.toBinary(response));
+  return Buffer.from(Post.toBinary(response));
 }

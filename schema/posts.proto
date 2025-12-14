@@ -7,7 +7,7 @@ option go_package = "github.com/materkov/meme9/api/posts";
 service Posts {
   rpc Publish(PublishRequest) returns (PublishResponse);
   rpc GetByUsers(GetByUsersRequest) returns (GetByUsersResponse);
-  rpc Get(GetPostRequest) returns (GetPostResponse);
+  rpc Get(GetPostRequest) returns (Post);
 }
 
 message PublishRequest {
@@ -22,26 +22,19 @@ message GetByUsersRequest {
   string userId = 1;
 }
 
-message UserPostResponse {
-  string id = 1;
-  string text = 2;
-  string userId = 3;
-  string username = 4;
-  string createdAt = 5; // RFC3339 format
-}
-
 message GetByUsersResponse {
-  repeated UserPostResponse posts = 1;
+  repeated Post posts = 1;
 }
 
 message GetPostRequest {
   string postId = 1;
 }
 
-message GetPostResponse {
+message Post {
   string id = 1;
   string text = 2;
   string userId = 3;
-  string createdAt = 4; // RFC3339 format
+  string userName = 4;
+  string createdAt = 5; // RFC3339 format
 }
 

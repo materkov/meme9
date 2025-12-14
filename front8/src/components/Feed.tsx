@@ -43,23 +43,6 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
     loadFeed();
   }, [feedType]);
 
-  const handlePostCreated = () => {
-    // Reload the current feed after posting
-    router.refresh();
-    // Also reload via API
-    const loadFeed = async () => {
-      try {
-        // FeedClient uses getAuthToken() automatically from localStorage
-        const response = await FeedClient.GetFeed({ type: feedType });
-        const feedPosts = response.posts || [];
-        setPosts(feedPosts);
-      } catch (err) {
-        console.error('Failed to reload feed:', err);
-      }
-    };
-    loadFeed();
-  };
-
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between mb-6">
@@ -92,7 +75,7 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
         </div>
       </div>
       
-      <PostForm onPostCreated={handlePostCreated} />
+      <PostForm />
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
