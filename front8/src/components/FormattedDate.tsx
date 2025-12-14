@@ -1,33 +1,22 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-
 interface FormattedDateProps {
-  date: string | Date;
-  month?: 'short' | 'long';
-  className?: string;
+  date: string;
 }
 
-export default function FormattedDate({ date, month = 'short', className }: FormattedDateProps) {
-  const [formattedDate, setFormattedDate] = useState<string>('');
+export default function FormattedDate({ date }: FormattedDateProps) {
+  const className = "text-sm text-zinc-500 dark:text-zinc-400";
 
-  useEffect(() => {
-    // Format date only on client to prevent hydration mismatch
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    const formatted = dateObj.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: month,
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-    setFormattedDate(formatted);
-  }, [date, month]);
+  const dateObj = new Date(date);
+  const formattedDate = dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   return (
-    <time className={className} suppressHydrationWarning>
-      {formattedDate || ''}
+    <time className={className}>
+      {formattedDate}
     </time>
   );
 }
-

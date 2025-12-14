@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Auth from './Auth';
 
 export default function Header() {
-  const { isAuthenticated, username, logout } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
 
   return (
@@ -18,26 +18,10 @@ export default function Header() {
               Meme9
             </Link>
             <div className="flex items-center gap-4 min-w-[140px] justify-end" suppressHydrationWarning>
-              {isAuthenticated ? (
-                <>
-                  <span className="text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
-                    Welcome, <span className="font-semibold">{username}</span>
-                  </span>
-                  <button
-                    onClick={logout}
-                    className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors whitespace-nowrap"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setShowAuth(true)}
-                  className="px-4 py-2 bg-black dark:bg-zinc-50 text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors whitespace-nowrap"
-                >
-                  Login / Register
-                </button>
-              )}
+              {isAuthenticated ? 
+                <Authentcated/> :
+                <NotAuthentcated onAuthClick={() => setShowAuth(true)}/>
+              }
             </div>
           </div>
         </div>
@@ -45,4 +29,33 @@ export default function Header() {
       {showAuth && <Auth onClose={() => setShowAuth(false)} />}
     </>
   );
+}
+
+function Authentcated() {
+  const { username, logout } = useAuth();
+
+  return (<>
+    <span className="text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+      Welcome, <span className="font-semibold">{username}</span>
+    </span>
+    <button
+      onClick={logout}
+      className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors whitespace-nowrap"
+    >
+      Logout
+    </button>
+  </>)
+}
+
+function NotAuthentcated(props: {onAuthClick: () => void}) {
+  return (
+    <>
+      <button
+        onClick={props.onAuthClick}
+        className="px-4 py-2 bg-black dark:bg-zinc-50 text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors whitespace-nowrap"
+      >
+        Login / Register
+      </button>
+    </>
+  )
 }

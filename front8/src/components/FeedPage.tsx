@@ -3,7 +3,7 @@ import { PostsClient } from '@/lib/api-clients';
 import type { Post } from '@/schema/posts';
 import { FeedType } from '@/schema/posts';
 import FeedTabs from '@/components/FeedTabs';
-import PostForm from '@/components/PostForm';
+import Composer from '@/components/Composer';
 import PostCard from './PostCard';
 
 interface FeedPageProps {
@@ -46,7 +46,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         </Suspense>
       </div>
       
-      <PostForm />
+      <Composer />
 
       {error ? (
         <div className="flex items-center justify-center py-12">

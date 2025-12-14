@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PostsClient } from '@/lib/api-clients';
 import { useRouter } from 'next/navigation';
 
-export default function PostForm() {
+export default function Composer() {
   const { isAuthenticated } = useAuth();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -82,3 +82,4 @@ export default function PostForm() {
     </div>
   );
 }
+
