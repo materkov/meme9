@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import { FeedClient } from '@/lib/api-clients';
-import type { FeedPostResponse as FeedPost } from '@/schema/feed';
+import { PostsClient } from '@/lib/api-clients';
+import type { Post } from '@/schema/posts';
 import FeedTabs from '@/components/FeedTabs';
 import PostForm from '@/components/PostForm';
 import PostCard from './PostCard';
@@ -10,7 +10,7 @@ interface FeedPageProps {
 }
 
 export default async function FeedPage({ searchParams }: FeedPageProps) {
-  let posts: FeedPost[] = [];
+  let posts: Post[] = [];
   let error: string | null = null;
   
   // Handle searchParams as either Promise or object (Next.js 15+ compatibility)
@@ -26,7 +26,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
   try {
     // Standard client automatically reads token from cookies on server, localStorage on client
-    const response = await FeedClient.GetFeed({ type: feedType });
+    const response = await PostsClient.GetFeed({ type: feedType });
     posts = response.posts || [];
   } catch (err) {
     error = err instanceof Error ? err.message : 'Failed to load feed';

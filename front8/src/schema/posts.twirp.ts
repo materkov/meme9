@@ -15,6 +15,8 @@ import {
   GetByUsersResponse,
   GetPostRequest,
   Post,
+  FeedRequest,
+  FeedResponse,
 } from "./posts";
 
 //==================================//
@@ -34,6 +36,7 @@ export interface PostsClient {
   Publish(request: PublishRequest): Promise<PublishResponse>;
   GetByUsers(request: GetByUsersRequest): Promise<GetByUsersResponse>;
   Get(request: GetPostRequest): Promise<Post>;
+  GetFeed(request: FeedRequest): Promise<FeedResponse>;
 }
 
 export class PostsClientJSON implements PostsClient {
@@ -43,6 +46,7 @@ export class PostsClientJSON implements PostsClient {
     this.Publish.bind(this);
     this.GetByUsers.bind(this);
     this.Get.bind(this);
+    this.GetFeed.bind(this);
   }
   Publish(request: PublishRequest): Promise<PublishResponse> {
     const data = PublishRequest.toJson(request, {
@@ -91,6 +95,22 @@ export class PostsClientJSON implements PostsClient {
       Post.fromJson(data as any, { ignoreUnknownFields: true })
     );
   }
+
+  GetFeed(request: FeedRequest): Promise<FeedResponse> {
+    const data = FeedRequest.toJson(request, {
+      useProtoFieldName: true,
+      emitDefaultValues: false,
+    });
+    const promise = this.rpc.request(
+      "meme.posts.Posts",
+      "GetFeed",
+      "application/json",
+      data as object
+    );
+    return promise.then((data) =>
+      FeedResponse.fromJson(data as any, { ignoreUnknownFields: true })
+    );
+  }
 }
 
 export class PostsClientProtobuf implements PostsClient {
@@ -100,6 +120,7 @@ export class PostsClientProtobuf implements PostsClient {
     this.Publish.bind(this);
     this.GetByUsers.bind(this);
     this.Get.bind(this);
+    this.GetFeed.bind(this);
   }
   Publish(request: PublishRequest): Promise<PublishResponse> {
     const data = PublishRequest.toBinary(request);
@@ -137,6 +158,17 @@ export class PostsClientProtobuf implements PostsClient {
     );
     return promise.then((data) => Post.fromBinary(data as Uint8Array));
   }
+
+  GetFeed(request: FeedRequest): Promise<FeedResponse> {
+    const data = FeedRequest.toBinary(request);
+    const promise = this.rpc.request(
+      "meme.posts.Posts",
+      "GetFeed",
+      "application/protobuf",
+      data
+    );
+    return promise.then((data) => FeedResponse.fromBinary(data as Uint8Array));
+  }
 }
 
 //==================================//
@@ -147,18 +179,21 @@ export interface PostsTwirp<T extends TwirpContext = TwirpContext> {
   Publish(ctx: T, request: PublishRequest): Promise<PublishResponse>;
   GetByUsers(ctx: T, request: GetByUsersRequest): Promise<GetByUsersResponse>;
   Get(ctx: T, request: GetPostRequest): Promise<Post>;
+  GetFeed(ctx: T, request: FeedRequest): Promise<FeedResponse>;
 }
 
 export enum PostsMethod {
   Publish = "Publish",
   GetByUsers = "GetByUsers",
   Get = "Get",
+  GetFeed = "GetFeed",
 }
 
 export const PostsMethodList = [
   PostsMethod.Publish,
   PostsMethod.GetByUsers,
   PostsMethod.Get,
+  PostsMethod.GetFeed,
 ];
 
 export function createPostsServer<T extends TwirpContext = TwirpContext>(
@@ -210,6 +245,17 @@ function matchPostsRoute<T extends TwirpContext = TwirpContext>(
         ctx = { ...ctx, methodName: "Get" };
         await events.onMatch(ctx);
         return handlePostsGetRequest(ctx, service, data, interceptors);
+      };
+    case "GetFeed":
+      return async (
+        ctx: T,
+        service: PostsTwirp,
+        data: Buffer,
+        interceptors?: Interceptor<T, FeedRequest, FeedResponse>[]
+      ) => {
+        ctx = { ...ctx, methodName: "GetFeed" };
+        await events.onMatch(ctx);
+        return handlePostsGetFeedRequest(ctx, service, data, interceptors);
       };
     default:
       events.onNotFound();
@@ -263,6 +309,23 @@ function handlePostsGetRequest<T extends TwirpContext = TwirpContext>(
       return handlePostsGetJSON<T>(ctx, service, data, interceptors);
     case TwirpContentType.Protobuf:
       return handlePostsGetProtobuf<T>(ctx, service, data, interceptors);
+    default:
+      const msg = "unexpected Content-Type";
+      throw new TwirpError(TwirpErrorCode.BadRoute, msg);
+  }
+}
+
+function handlePostsGetFeedRequest<T extends TwirpContext = TwirpContext>(
+  ctx: T,
+  service: PostsTwirp,
+  data: Buffer,
+  interceptors?: Interceptor<T, FeedRequest, FeedResponse>[]
+): Promise<string | Uint8Array> {
+  switch (ctx.contentType) {
+    case TwirpContentType.JSON:
+      return handlePostsGetFeedJSON<T>(ctx, service, data, interceptors);
+    case TwirpContentType.Protobuf:
+      return handlePostsGetFeedProtobuf<T>(ctx, service, data, interceptors);
     default:
       const msg = "unexpected Content-Type";
       throw new TwirpError(TwirpErrorCode.BadRoute, msg);
@@ -387,6 +450,46 @@ async function handlePostsGetJSON<T extends TwirpContext = TwirpContext>(
     }) as string
   );
 }
+
+async function handlePostsGetFeedJSON<T extends TwirpContext = TwirpContext>(
+  ctx: T,
+  service: PostsTwirp,
+  data: Buffer,
+  interceptors?: Interceptor<T, FeedRequest, FeedResponse>[]
+) {
+  let request: FeedRequest;
+  let response: FeedResponse;
+
+  try {
+    const body = JSON.parse(data.toString() || "{}");
+    request = FeedRequest.fromJson(body, { ignoreUnknownFields: true });
+  } catch (e) {
+    if (e instanceof Error) {
+      const msg = "the json request could not be decoded";
+      throw new TwirpError(TwirpErrorCode.Malformed, msg).withCause(e, true);
+    }
+  }
+
+  if (interceptors && interceptors.length > 0) {
+    const interceptor = chainInterceptors(...interceptors) as Interceptor<
+      T,
+      FeedRequest,
+      FeedResponse
+    >;
+    response = await interceptor(ctx, request!, (ctx, inputReq) => {
+      return service.GetFeed(ctx, inputReq);
+    });
+  } else {
+    response = await service.GetFeed(ctx, request!);
+  }
+
+  return JSON.stringify(
+    FeedResponse.toJson(response, {
+      useProtoFieldName: true,
+      emitDefaultValues: false,
+    }) as string
+  );
+}
 async function handlePostsPublishProtobuf<
   T extends TwirpContext = TwirpContext
 >(
@@ -491,4 +594,40 @@ async function handlePostsGetProtobuf<T extends TwirpContext = TwirpContext>(
   }
 
   return Buffer.from(Post.toBinary(response));
+}
+
+async function handlePostsGetFeedProtobuf<
+  T extends TwirpContext = TwirpContext
+>(
+  ctx: T,
+  service: PostsTwirp,
+  data: Buffer,
+  interceptors?: Interceptor<T, FeedRequest, FeedResponse>[]
+) {
+  let request: FeedRequest;
+  let response: FeedResponse;
+
+  try {
+    request = FeedRequest.fromBinary(data);
+  } catch (e) {
+    if (e instanceof Error) {
+      const msg = "the protobuf request could not be decoded";
+      throw new TwirpError(TwirpErrorCode.Malformed, msg).withCause(e, true);
+    }
+  }
+
+  if (interceptors && interceptors.length > 0) {
+    const interceptor = chainInterceptors(...interceptors) as Interceptor<
+      T,
+      FeedRequest,
+      FeedResponse
+    >;
+    response = await interceptor(ctx, request!, (ctx, inputReq) => {
+      return service.GetFeed(ctx, inputReq);
+    });
+  } else {
+    response = await service.GetFeed(ctx, request!);
+  }
+
+  return Buffer.from(FeedResponse.toBinary(response));
 }

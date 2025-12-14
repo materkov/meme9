@@ -14,7 +14,6 @@ import (
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
 	authapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/auth"
-	feedapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/feed"
 	postsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/posts"
 	subscriptionsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/subscriptions"
 	usersapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/users"
@@ -65,8 +64,7 @@ func main() {
 	tokensService := tokensservice.New(tokensAdapter)
 
 	// Create separate service instances
-	feedService := api.NewFeedService(postsAdapter, usersAdapter, subscriptionsAdapter)
-	postsServiceInstance := api.NewPostsService(postsAdapter, usersAdapter, postsService)
+	postsServiceInstance := api.NewPostsService(postsAdapter, usersAdapter, postsService, subscriptionsAdapter)
 	authService := api.NewAuthService(usersAdapter, tokensAdapter, tokensService)
 	usersService := api.NewUsersService(usersAdapter)
 	subscriptionsService := api.NewSubscriptionsService(subscriptionsAdapter)
@@ -74,7 +72,6 @@ func main() {
 	// Create Twirp servers for each service
 	authHooks := api.AuthHook(authService)
 
-	feedHandler := feedapi.NewFeedServer(feedService, twirp.WithServerHooks(authHooks))
 	postsHandler := postsapi.NewPostsServer(postsServiceInstance, twirp.WithServerHooks(authHooks))
 	// Auth service should NOT have authHooks applied - it handles its own validation
 	// and VerifyToken is called from within the hook, which would cause infinite recursion
@@ -83,21 +80,18 @@ func main() {
 	subscriptionsHandler := subscriptionsapi.NewSubscriptionsServer(subscriptionsService, twirp.WithServerHooks(authHooks))
 
 	// Wrap with auth middleware to inject headers into context
-	feedHandlerWithAuth := api.AuthMiddleware(feedHandler)
 	postsHandlerWithAuth := api.AuthMiddleware(postsHandler)
 	authHandlerWithAuth := api.AuthMiddleware(authHandler)
 	usersHandlerWithAuth := api.AuthMiddleware(usersHandler)
 	subscriptionsHandlerWithAuth := api.AuthMiddleware(subscriptionsHandler)
 
 	// Wrap with CORS middleware
-	feedHandlerWithCORS := api.CORSMiddleware(feedHandlerWithAuth)
 	postsHandlerWithCORS := api.CORSMiddleware(postsHandlerWithAuth)
 	authHandlerWithCORS := api.CORSMiddleware(authHandlerWithAuth)
 	usersHandlerWithCORS := api.CORSMiddleware(usersHandlerWithAuth)
 	subscriptionsHandlerWithCORS := api.CORSMiddleware(subscriptionsHandlerWithAuth)
 
 	// Register all handlers
-	http.Handle(feedHandler.PathPrefix(), feedHandlerWithCORS)
 	http.Handle(postsHandler.PathPrefix(), postsHandlerWithCORS)
 	http.Handle(authHandler.PathPrefix(), authHandlerWithCORS)
 	http.Handle(usersHandler.PathPrefix(), usersHandlerWithCORS)

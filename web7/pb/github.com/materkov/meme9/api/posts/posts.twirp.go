@@ -38,6 +38,8 @@ type Posts interface {
 	GetByUsers(context.Context, *GetByUsersRequest) (*GetByUsersResponse, error)
 
 	Get(context.Context, *GetPostRequest) (*Post, error)
+
+	GetFeed(context.Context, *FeedRequest) (*FeedResponse, error)
 }
 
 // =====================
@@ -46,7 +48,7 @@ type Posts interface {
 
 type postsProtobufClient struct {
 	client      HTTPClient
-	urls        [3]string
+	urls        [4]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -74,10 +76,11 @@ func NewPostsProtobufClient(baseURL string, client HTTPClient, opts ...twirp.Cli
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "meme.posts", "Posts")
-	urls := [3]string{
+	urls := [4]string{
 		serviceURL + "Publish",
 		serviceURL + "GetByUsers",
 		serviceURL + "Get",
+		serviceURL + "GetFeed",
 	}
 
 	return &postsProtobufClient{
@@ -226,13 +229,59 @@ func (c *postsProtobufClient) callGet(ctx context.Context, in *GetPostRequest) (
 	return out, nil
 }
 
+func (c *postsProtobufClient) GetFeed(ctx context.Context, in *FeedRequest) (*FeedResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.posts")
+	ctx = ctxsetters.WithServiceName(ctx, "Posts")
+	ctx = ctxsetters.WithMethodName(ctx, "GetFeed")
+	caller := c.callGetFeed
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *FeedRequest) (*FeedResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*FeedRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*FeedRequest) when calling interceptor")
+					}
+					return c.callGetFeed(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*FeedResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*FeedResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *postsProtobufClient) callGetFeed(ctx context.Context, in *FeedRequest) (*FeedResponse, error) {
+	out := new(FeedResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
 // =================
 // Posts JSON Client
 // =================
 
 type postsJSONClient struct {
 	client      HTTPClient
-	urls        [3]string
+	urls        [4]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -260,10 +309,11 @@ func NewPostsJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientO
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "meme.posts", "Posts")
-	urls := [3]string{
+	urls := [4]string{
 		serviceURL + "Publish",
 		serviceURL + "GetByUsers",
 		serviceURL + "Get",
+		serviceURL + "GetFeed",
 	}
 
 	return &postsJSONClient{
@@ -412,6 +462,52 @@ func (c *postsJSONClient) callGet(ctx context.Context, in *GetPostRequest) (*Pos
 	return out, nil
 }
 
+func (c *postsJSONClient) GetFeed(ctx context.Context, in *FeedRequest) (*FeedResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "meme.posts")
+	ctx = ctxsetters.WithServiceName(ctx, "Posts")
+	ctx = ctxsetters.WithMethodName(ctx, "GetFeed")
+	caller := c.callGetFeed
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *FeedRequest) (*FeedResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*FeedRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*FeedRequest) when calling interceptor")
+					}
+					return c.callGetFeed(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*FeedResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*FeedResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *postsJSONClient) callGetFeed(ctx context.Context, in *FeedRequest) (*FeedResponse, error) {
+	out := new(FeedResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
 // ====================
 // Posts Server Handler
 // ====================
@@ -517,6 +613,9 @@ func (s *postsServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		return
 	case "Get":
 		s.serveGet(ctx, resp, req)
+		return
+	case "GetFeed":
+		s.serveGetFeed(ctx, resp, req)
 		return
 	default:
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
@@ -1042,6 +1141,186 @@ func (s *postsServer) serveGetProtobuf(ctx context.Context, resp http.ResponseWr
 	}
 	if respContent == nil {
 		s.writeError(ctx, resp, twirp.InternalError("received a nil *Post and nil error while calling Get. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *postsServer) serveGetFeed(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetFeedJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetFeedProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *postsServer) serveGetFeedJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetFeed")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(FeedRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.Posts.GetFeed
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *FeedRequest) (*FeedResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*FeedRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*FeedRequest) when calling interceptor")
+					}
+					return s.Posts.GetFeed(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*FeedResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*FeedResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *FeedResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *FeedResponse and nil error while calling GetFeed. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *postsServer) serveGetFeedProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetFeed")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(FeedRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.Posts.GetFeed
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *FeedRequest) (*FeedResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*FeedRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*FeedRequest) when calling interceptor")
+					}
+					return s.Posts.GetFeed(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*FeedResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*FeedResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *FeedResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *FeedResponse and nil error while calling GetFeed. nil responses are not supported"))
 		return
 	}
 
@@ -1646,26 +1925,28 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 322 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x92, 0xcb, 0x4b, 0xc3, 0x40,
-	0x10, 0xc6, 0x49, 0x5f, 0xda, 0x29, 0x54, 0xdd, 0x83, 0x84, 0xf8, 0xa0, 0xae, 0x0f, 0x0a, 0x42,
-	0x02, 0xed, 0x49, 0xf0, 0x62, 0x2f, 0x41, 0x04, 0x29, 0x01, 0x2f, 0xde, 0x92, 0x66, 0xb0, 0x41,
-	0xe3, 0xc6, 0xec, 0x44, 0x14, 0xfc, 0x17, 0xfd, 0x9f, 0x24, 0xdb, 0x6d, 0x36, 0xb1, 0x7a, 0xdb,
-	0x99, 0xef, 0xc7, 0xcc, 0x37, 0x1f, 0x0b, 0x83, 0x4c, 0x48, 0x92, 0x6e, 0x96, 0x0b, 0x12, 0x0c,
-	0x52, 0x4c, 0xd1, 0x55, 0x1d, 0x7e, 0x06, 0xc3, 0x79, 0x11, 0xbd, 0x24, 0x72, 0x19, 0xe0, 0x5b,
-	0x81, 0x92, 0x18, 0x83, 0x0e, 0xe1, 0x07, 0xd9, 0xd6, 0xc8, 0x1a, 0xf7, 0x03, 0xf5, 0xe6, 0x27,
-	0xb0, 0x53, 0x51, 0x32, 0x13, 0xaf, 0x12, 0xd9, 0x10, 0x5a, 0x49, 0xac, 0xa1, 0x56, 0x12, 0xf3,
-	0x4b, 0xd8, 0xf3, 0x91, 0x66, 0x9f, 0x0f, 0x12, 0x73, 0xb9, 0x9e, 0xb5, 0x0f, 0xbd, 0x42, 0x62,
-	0x7e, 0xbb, 0x06, 0x75, 0xc5, 0xaf, 0x81, 0xd5, 0x61, 0x3d, 0xf2, 0x02, 0xba, 0xca, 0x94, 0x6d,
-	0x8d, 0xda, 0xe3, 0xc1, 0x64, 0xd7, 0x35, 0x3e, 0xdd, 0xb9, 0x90, 0x14, 0xac, 0x64, 0x3e, 0x86,
-	0xa1, 0x8f, 0xa4, 0x3a, 0x66, 0x4f, 0x29, 0x99, 0x3d, 0xab, 0x8a, 0x7f, 0x41, 0xa7, 0xc4, 0x7e,
-	0x9b, 0xad, 0x6e, 0x6c, 0x99, 0x1b, 0x6b, 0x5e, 0xdb, 0x75, 0xaf, 0xcc, 0x81, 0xed, 0xf2, 0x75,
-	0x1f, 0xa6, 0x68, 0x77, 0x94, 0x52, 0xd5, 0xec, 0x10, 0xfa, 0x8b, 0x1c, 0x43, 0xc2, 0xf8, 0x86,
-	0xec, 0xae, 0x12, 0x4d, 0x63, 0xf2, 0x6d, 0x41, 0xb7, 0x5c, 0x2f, 0xd9, 0x0c, 0xb6, 0x74, 0x7e,
-	0xcc, 0x69, 0x5c, 0xd5, 0x88, 0xde, 0x39, 0xf8, 0x53, 0xd3, 0xe9, 0xdc, 0x01, 0x98, 0xcc, 0xd8,
-	0x51, 0x1d, 0xdd, 0x08, 0xde, 0x39, 0xfe, 0x4f, 0xd6, 0xc3, 0xa6, 0xd0, 0xf6, 0x91, 0x9a, 0x66,
-	0x9a, 0x99, 0x3a, 0x1b, 0xf1, 0xcf, 0xce, 0x1f, 0x4f, 0x9f, 0x12, 0x5a, 0x16, 0x91, 0xbb, 0x10,
-	0xa9, 0x97, 0x86, 0x84, 0xf9, 0xb3, 0x78, 0xf7, 0x4a, 0xec, 0xca, 0x0b, 0xb3, 0xc4, 0x53, 0x6c,
-	0xd4, 0x53, 0xbf, 0x6c, 0xfa, 0x13, 0x00, 0x00, 0xff, 0xff, 0xae, 0x5e, 0x20, 0xcf, 0x74, 0x02,
-	0x00, 0x00,
+	// 367 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x52, 0x4d, 0x4b, 0xeb, 0x50,
+	0x10, 0xa5, 0xe9, 0xd7, 0xeb, 0xf4, 0xd1, 0xf7, 0xde, 0x5d, 0x3c, 0x43, 0xfc, 0xa0, 0xbd, 0x7e,
+	0x50, 0x10, 0x12, 0x68, 0x41, 0x10, 0xba, 0xb1, 0x0b, 0x83, 0x08, 0x52, 0x0a, 0x6e, 0xdc, 0xa5,
+	0xcd, 0x60, 0x83, 0xc6, 0x1b, 0x73, 0x27, 0x62, 0xc1, 0x7f, 0xe0, 0x9f, 0x96, 0xdc, 0xa4, 0xc9,
+	0x8d, 0xd5, 0x85, 0xbb, 0x3b, 0x73, 0x4e, 0x66, 0xce, 0x9c, 0x13, 0xe8, 0x46, 0x42, 0x92, 0xb4,
+	0xa3, 0x58, 0x90, 0x60, 0x10, 0x62, 0x88, 0xb6, 0xea, 0xf0, 0x23, 0xe8, 0xcd, 0x92, 0xc5, 0x63,
+	0x20, 0x57, 0x73, 0x7c, 0x4e, 0x50, 0x12, 0x63, 0xd0, 0x20, 0x7c, 0x25, 0xb3, 0xd6, 0xaf, 0x0d,
+	0x3b, 0x73, 0xf5, 0xe6, 0x03, 0xf8, 0x53, 0xb0, 0x64, 0x24, 0x9e, 0x24, 0xb2, 0x1e, 0x18, 0x81,
+	0x9f, 0x93, 0x8c, 0xc0, 0xe7, 0xa7, 0xf0, 0xcf, 0x45, 0x9a, 0xae, 0x6f, 0x25, 0xc6, 0x72, 0x33,
+	0xeb, 0x3f, 0xb4, 0x12, 0x89, 0xf1, 0xd5, 0x86, 0x98, 0x57, 0x7c, 0x02, 0x4c, 0x27, 0xe7, 0x23,
+	0x4f, 0xa0, 0xa9, 0x44, 0x99, 0xb5, 0x7e, 0x7d, 0xd8, 0x1d, 0xfd, 0xb5, 0x4b, 0x9d, 0xf6, 0x4c,
+	0x48, 0x9a, 0x67, 0x30, 0x1f, 0x42, 0xcf, 0x45, 0x52, 0x9d, 0x72, 0x4f, 0x0a, 0x95, 0x7b, 0xb2,
+	0x8a, 0xbf, 0x41, 0x23, 0xa5, 0x7d, 0x16, 0x5b, 0xdc, 0x68, 0x94, 0x37, 0x6a, 0x5a, 0xeb, 0xba,
+	0x56, 0x66, 0xc1, 0xaf, 0xf4, 0x75, 0xe3, 0x85, 0x68, 0x36, 0x14, 0x52, 0xd4, 0x6c, 0x0f, 0x3a,
+	0xcb, 0x18, 0x3d, 0x42, 0xff, 0x82, 0xcc, 0xa6, 0x02, 0xcb, 0x06, 0x1f, 0x40, 0xf7, 0x12, 0xd1,
+	0xd7, 0x8d, 0x5d, 0x47, 0x58, 0x18, 0xbb, 0x8e, 0x90, 0x9f, 0xc1, 0xef, 0x8c, 0xf2, 0x33, 0x0b,
+	0x46, 0xef, 0x06, 0x34, 0xd3, 0x5a, 0xb2, 0x29, 0xb4, 0xf3, 0x68, 0x98, 0x55, 0x61, 0x57, 0x52,
+	0xb5, 0x76, 0xbf, 0xc4, 0xf2, 0xad, 0xd7, 0x00, 0x65, 0x1c, 0x6c, 0x5f, 0xa7, 0x6e, 0x65, 0x6a,
+	0x1d, 0x7c, 0x07, 0xe7, 0xc3, 0xc6, 0x50, 0x77, 0x91, 0xaa, 0x62, 0xaa, 0x71, 0x59, 0x5b, 0x67,
+	0xb1, 0x09, 0xb4, 0x5d, 0xa4, 0xd4, 0x0a, 0xb6, 0xa3, 0x83, 0x9a, 0x7f, 0x96, 0xb9, 0x0d, 0x64,
+	0x2b, 0xa7, 0xc7, 0x77, 0x87, 0xf7, 0x01, 0xad, 0x92, 0x85, 0xbd, 0x14, 0xa1, 0x13, 0x7a, 0x84,
+	0xf1, 0x83, 0x78, 0x71, 0x52, 0xfa, 0xb9, 0xe3, 0x45, 0x81, 0xa3, 0xbe, 0x59, 0xb4, 0xd4, 0xef,
+	0x3f, 0xfe, 0x08, 0x00, 0x00, 0xff, 0xff, 0x07, 0xa0, 0x57, 0x3a, 0x0d, 0x03, 0x00, 0x00,
 }

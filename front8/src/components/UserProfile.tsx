@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { SubscriptionsClient } from '@/lib/api-clients';
 import type { GetUserResponse as User } from '@/schema/users';
 import type { Post } from '@/schema/posts';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import FormattedDate from './FormattedDate';
+import PostCard from './PostCard';
 
 interface UserProfileProps {
   user: User;
@@ -116,29 +115,7 @@ export default function UserProfile({ user, initialPosts, initialSubscribed }: U
         ) : (
           <div className="space-y-4">
             {posts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/post/${post.id}`}
-                className="block bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <p className="font-semibold text-black dark:text-zinc-50">
-                      {post.username || 'Unknown User'}
-                    </p>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      {post.userId}
-                    </p>
-                  </div>
-                  <FormattedDate 
-                    date={post.createdAt} 
-                    className="text-sm text-zinc-500 dark:text-zinc-400"
-                  />
-                </div>
-                <p className="text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap">
-                  {post.text}
-                </p>
-              </Link>
+              <PostCard key={post.id} post={post} />
             ))}
           </div>
         )}

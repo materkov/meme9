@@ -1,24 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { FeedClient } from '@/lib/api-clients';
-import type { FeedPostResponse as FeedPost } from '@/schema/feed';
+import { PostsClient } from '@/lib/api-clients';
+import type { Post } from '@/schema/posts';
 import PostForm from './PostForm';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import FormattedDate from './FormattedDate';
+import PostCard from './PostCard';
 
 interface FeedProps {
-  initialPosts?: FeedPost[];
+  initialPosts?: Post[];
   initialFeedType?: 'all' | 'subscriptions';
 }
 
 export default function Feed({ initialPosts = [], initialFeedType = 'all' }: FeedProps) {
-  const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [feedType, setFeedType] = useState<'all' | 'subscriptions'>(initialFeedType);
-  const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,8 +25,8 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
       setError(null);
       
       try {
-        // FeedClient uses getAuthToken() automatically from localStorage
-        const response = await FeedClient.GetFeed({ type: feedType });
+        // PostsClient uses getAuthToken() automatically from localStorage
+        const response = await PostsClient.GetFeed({ type: feedType });
         const feedPosts = response.posts || [];
         setPosts(feedPosts);
       } catch (err) {
@@ -94,35 +91,11 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
           </p>
         </div>
       ) : (
-        posts.map((post) => (
-        <div
-          key={post.id}
-          onClick={() => router.push(`/post/${post.id}`)}
-          className="block bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <Link
-                href={`/user/${post.userId}`}
-                onClick={(e) => e.stopPropagation()}
-                className="font-semibold text-black dark:text-zinc-50 hover:underline"
-              >
-                {post.username || 'Unknown User'}
-              </Link>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {post.userId}
-              </p>
-            </div>
-            <FormattedDate 
-              date={post.createdAt} 
-              className="text-sm text-zinc-500 dark:text-zinc-400"
-            />
-          </div>
-          <p className="text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap">
-            {post.text}
-          </p>
+        <div className="space-y-4">
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
         </div>
-        ))
       )}
     </div>
   );

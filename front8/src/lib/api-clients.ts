@@ -1,5 +1,4 @@
 import { AuthClientJSON } from '@/schema/auth.twirp';
-import { FeedClientJSON } from '@/schema/feed.twirp';
 import { PostsClientJSON } from '@/schema/posts.twirp';
 import { UsersClientJSON } from '@/schema/users.twirp';
 import { SubscriptionsClientJSON } from '@/schema/subscriptions.twirp';
@@ -38,23 +37,23 @@ class TwirpRpcImpl {
     if (token) {
       headers['Authorization'] = token;
     }
-
+    
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(data),
-      });
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ 
-          code: 'unknown',
-          msg: `HTTP ${response.status}: ${response.statusText}` 
-        }));
-        throw new Error(errorData.msg || errorData.error || `Request failed: ${response.statusText}`);
-      }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ 
+        code: 'unknown',
+        msg: `HTTP ${response.status}: ${response.statusText}` 
+      }));
+      throw new Error(errorData.msg || errorData.error || `Request failed: ${response.statusText}`);
+    }
 
-      return response.json();
+    return response.json();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Network error';
       throw new Error(`Failed to connect to server: ${errorMessage}. Please check if the server is running at ${baseURL}`);
@@ -65,7 +64,6 @@ class TwirpRpcImpl {
 const rpcImpl = new TwirpRpcImpl();
 
 export const AuthClient = new AuthClientJSON(rpcImpl);
-export const FeedClient = new FeedClientJSON(rpcImpl);
 export const PostsClient = new PostsClientJSON(rpcImpl);
 export const UsersClient = new UsersClientJSON(rpcImpl);
 export const SubscriptionsClient = new SubscriptionsClientJSON(rpcImpl);

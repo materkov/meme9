@@ -33,7 +33,7 @@ export function AuthProvider({
   const [isAuthenticated, setIsAuthenticated] = useState(initialAuth?.isAuthenticated ?? false);
   const [username, setUsername] = useState<string | null>(initialAuth?.username ?? null);
   const [userId, setUserId] = useState<string | null>(initialAuth?.userId ?? null);
-  
+
   // Track initial values to avoid unnecessary updates during hydration
   const initialAuthRef = useRef(initialAuth);
 
@@ -53,10 +53,10 @@ export function AuthProvider({
         if (!initial?.isAuthenticated || 
             initial?.username !== storedUsername || 
             initial?.userId !== storedUserId) {
-          setIsAuthenticated(true);
-          setUsername(storedUsername);
-          setUserId(storedUserId);
-        }
+      setIsAuthenticated(true);
+      setUsername(storedUsername);
+      setUserId(storedUserId);
+    }
       } else {
         // User not authenticated - only update if server thought they were
         if (initial?.isAuthenticated) {

@@ -9,22 +9,25 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/materkov/meme9/web7/adapters/posts"
+	"github.com/materkov/meme9/web7/adapters/subscriptions"
 	"github.com/materkov/meme9/web7/adapters/users"
 	postsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/posts"
 	postsservice "github.com/materkov/meme9/web7/services/posts"
 )
 
 type PostsService struct {
-	posts        *posts.Adapter
-	users        *users.Adapter
-	postsService *postsservice.Service
+	posts         *posts.Adapter
+	users         *users.Adapter
+	postsService  *postsservice.Service
+	subscriptions *subscriptions.Adapter
 }
 
-func NewPostsService(postsAdapter *posts.Adapter, usersAdapter *users.Adapter, postsService *postsservice.Service) *PostsService {
+func NewPostsService(postsAdapter *posts.Adapter, usersAdapter *users.Adapter, postsService *postsservice.Service, subscriptionsAdapter *subscriptions.Adapter) *PostsService {
 	return &PostsService{
-		posts:        postsAdapter,
-		users:        usersAdapter,
-		postsService: postsService,
+		posts:         postsAdapter,
+		users:         usersAdapter,
+		postsService:  postsService,
+		subscriptions: subscriptionsAdapter,
 	}
 }
 
@@ -109,5 +112,78 @@ func (s *PostsService) Get(ctx context.Context, req *postsapi.GetPostRequest) (*
 		UserId:    post.UserID,
 		UserName:  userName,
 		CreatedAt: post.CreatedAt.Format(time.RFC3339),
+	}, nil
+}
+
+// GetFeed implements the Posts GetFeed method
+func (s *PostsService) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*postsapi.FeedResponse, error) {
+	userID := GetUserIDFromContext(ctx)
+
+	feedType := req.Type
+	if feedType == "" {
+		feedType = "all"
+	}
+
+	var postsList []posts.Post
+	var err error
+
+	if feedType == "subscriptions" {
+		if userID == "" {
+			return nil, twirp.NewError(twirp.Unauthenticated, "authentication required for subscriptions feed")
+		}
+
+		followingIDs, err := s.subscriptions.GetFollowing(ctx, userID)
+		if err != nil {
+			followingIDs = []string{}
+		}
+
+		subscribedUserIDs := append(followingIDs, userID)
+		postsList, err = s.posts.GetByUserIDs(ctx, subscribedUserIDs)
+		if err != nil {
+			return nil, twirp.NewError(twirp.Internal, err.Error())
+		}
+	} else {
+		postsList, err = s.posts.GetAll(ctx)
+		if err != nil {
+			return nil, twirp.NewError(twirp.Internal, err.Error())
+		}
+	}
+
+	// Collect unique user IDs
+	userIDSet := make(map[string]bool)
+	for _, post := range postsList {
+		if post.UserID != "" {
+			userIDSet[post.UserID] = true
+		}
+	}
+
+	userIDs := make([]string, 0, len(userIDSet))
+	for id := range userIDSet {
+		userIDs = append(userIDs, id)
+	}
+
+	usersMap, err := s.users.GetByIDs(ctx, userIDs)
+	if err != nil {
+		usersMap = make(map[string]*users.User)
+	}
+
+	// Build feed posts using Post type
+	feedPosts := make([]*postsapi.Post, len(postsList))
+	for i, post := range postsList {
+		userName := ""
+		if user := usersMap[post.UserID]; user != nil {
+			userName = user.Username
+		}
+		feedPosts[i] = &postsapi.Post{
+			Id:        post.ID,
+			Text:      post.Text,
+			UserId:    post.UserID,
+			UserName:  userName,
+			CreatedAt: post.CreatedAt.Format(time.RFC3339),
+		}
+	}
+
+	return &postsapi.FeedResponse{
+		Posts: feedPosts,
 	}, nil
 }

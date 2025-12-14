@@ -53,7 +53,7 @@ func AuthHook(authService *AuthService) *twirp.ServerHooks {
 					// Return error for methods that require auth
 					return ctx, twirp.NewError(twirp.Unauthenticated, "authorization required")
 				}
-				// Some endpoints don't require auth (like GetFeed with type="all")
+				// Some endpoints don't require auth (like Posts.GetFeed with type="all")
 				// We'll let the handler decide
 				return ctx, nil
 			}

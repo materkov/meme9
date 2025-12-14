@@ -317,6 +317,94 @@ func (x *Post) GetCreatedAt() string {
 	return ""
 }
 
+type FeedRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // "all" or "subscriptions"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FeedRequest) Reset() {
+	*x = FeedRequest{}
+	mi := &file_posts_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FeedRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeedRequest) ProtoMessage() {}
+
+func (x *FeedRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_posts_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeedRequest.ProtoReflect.Descriptor instead.
+func (*FeedRequest) Descriptor() ([]byte, []int) {
+	return file_posts_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *FeedRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+type FeedResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Posts         []*Post                `protobuf:"bytes,1,rep,name=posts,proto3" json:"posts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FeedResponse) Reset() {
+	*x = FeedResponse{}
+	mi := &file_posts_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FeedResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeedResponse) ProtoMessage() {}
+
+func (x *FeedResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_posts_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeedResponse.ProtoReflect.Descriptor instead.
+func (*FeedResponse) Descriptor() ([]byte, []int) {
+	return file_posts_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *FeedResponse) GetPosts() []*Post {
+	if x != nil {
+		return x.Posts
+	}
+	return nil
+}
+
 var File_posts_proto protoreflect.FileDescriptor
 
 const file_posts_proto_rawDesc = "" +
@@ -338,12 +426,17 @@ const file_posts_proto_rawDesc = "" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\x16\n" +
 	"\x06userId\x18\x03 \x01(\tR\x06userId\x12\x1a\n" +
 	"\buserName\x18\x04 \x01(\tR\buserName\x12\x1c\n" +
-	"\tcreatedAt\x18\x05 \x01(\tR\tcreatedAt2\xcd\x01\n" +
+	"\tcreatedAt\x18\x05 \x01(\tR\tcreatedAt\"!\n" +
+	"\vFeedRequest\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\"6\n" +
+	"\fFeedResponse\x12&\n" +
+	"\x05posts\x18\x01 \x03(\v2\x10.meme.posts.PostR\x05posts2\x8b\x02\n" +
 	"\x05Posts\x12B\n" +
 	"\aPublish\x12\x1a.meme.posts.PublishRequest\x1a\x1b.meme.posts.PublishResponse\x12K\n" +
 	"\n" +
 	"GetByUsers\x12\x1d.meme.posts.GetByUsersRequest\x1a\x1e.meme.posts.GetByUsersResponse\x123\n" +
-	"\x03Get\x12\x1a.meme.posts.GetPostRequest\x1a\x10.meme.posts.PostB%Z#github.com/materkov/meme9/api/postsb\x06proto3"
+	"\x03Get\x12\x1a.meme.posts.GetPostRequest\x1a\x10.meme.posts.Post\x12<\n" +
+	"\aGetFeed\x12\x17.meme.posts.FeedRequest\x1a\x18.meme.posts.FeedResponseB%Z#github.com/materkov/meme9/api/postsb\x06proto3"
 
 var (
 	file_posts_proto_rawDescOnce sync.Once
@@ -357,7 +450,7 @@ func file_posts_proto_rawDescGZIP() []byte {
 	return file_posts_proto_rawDescData
 }
 
-var file_posts_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_posts_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_posts_proto_goTypes = []any{
 	(*PublishRequest)(nil),     // 0: meme.posts.PublishRequest
 	(*PublishResponse)(nil),    // 1: meme.posts.PublishResponse
@@ -365,20 +458,25 @@ var file_posts_proto_goTypes = []any{
 	(*GetByUsersResponse)(nil), // 3: meme.posts.GetByUsersResponse
 	(*GetPostRequest)(nil),     // 4: meme.posts.GetPostRequest
 	(*Post)(nil),               // 5: meme.posts.Post
+	(*FeedRequest)(nil),        // 6: meme.posts.FeedRequest
+	(*FeedResponse)(nil),       // 7: meme.posts.FeedResponse
 }
 var file_posts_proto_depIdxs = []int32{
 	5, // 0: meme.posts.GetByUsersResponse.posts:type_name -> meme.posts.Post
-	0, // 1: meme.posts.Posts.Publish:input_type -> meme.posts.PublishRequest
-	2, // 2: meme.posts.Posts.GetByUsers:input_type -> meme.posts.GetByUsersRequest
-	4, // 3: meme.posts.Posts.Get:input_type -> meme.posts.GetPostRequest
-	1, // 4: meme.posts.Posts.Publish:output_type -> meme.posts.PublishResponse
-	3, // 5: meme.posts.Posts.GetByUsers:output_type -> meme.posts.GetByUsersResponse
-	5, // 6: meme.posts.Posts.Get:output_type -> meme.posts.Post
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5, // 1: meme.posts.FeedResponse.posts:type_name -> meme.posts.Post
+	0, // 2: meme.posts.Posts.Publish:input_type -> meme.posts.PublishRequest
+	2, // 3: meme.posts.Posts.GetByUsers:input_type -> meme.posts.GetByUsersRequest
+	4, // 4: meme.posts.Posts.Get:input_type -> meme.posts.GetPostRequest
+	6, // 5: meme.posts.Posts.GetFeed:input_type -> meme.posts.FeedRequest
+	1, // 6: meme.posts.Posts.Publish:output_type -> meme.posts.PublishResponse
+	3, // 7: meme.posts.Posts.GetByUsers:output_type -> meme.posts.GetByUsersResponse
+	5, // 8: meme.posts.Posts.Get:output_type -> meme.posts.Post
+	7, // 9: meme.posts.Posts.GetFeed:output_type -> meme.posts.FeedResponse
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_posts_proto_init() }
@@ -392,7 +490,7 @@ func file_posts_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_posts_proto_rawDesc), len(file_posts_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

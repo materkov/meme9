@@ -81,6 +81,24 @@ export interface Post {
      */
     createdAt: string; // RFC3339 format
 }
+/**
+ * @generated from protobuf message meme.posts.FeedRequest
+ */
+export interface FeedRequest {
+    /**
+     * @generated from protobuf field: string type = 1
+     */
+    type: string; // "all" or "subscriptions"
+}
+/**
+ * @generated from protobuf message meme.posts.FeedResponse
+ */
+export interface FeedResponse {
+    /**
+     * @generated from protobuf field: repeated meme.posts.Post posts = 1
+     */
+    posts: Post[];
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class PublishRequest$Type extends MessageType<PublishRequest> {
     constructor() {
@@ -395,11 +413,106 @@ class Post$Type extends MessageType<Post> {
  * @generated MessageType for protobuf message meme.posts.Post
  */
 export const Post = new Post$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class FeedRequest$Type extends MessageType<FeedRequest> {
+    constructor() {
+        super("meme.posts.FeedRequest", [
+            { no: 1, name: "type", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<FeedRequest>): FeedRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.type = "";
+        if (value !== undefined)
+            reflectionMergePartial<FeedRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: FeedRequest): FeedRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string type */ 1:
+                    message.type = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: FeedRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string type = 1; */
+        if (message.type !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.type);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message meme.posts.FeedRequest
+ */
+export const FeedRequest = new FeedRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class FeedResponse$Type extends MessageType<FeedResponse> {
+    constructor() {
+        super("meme.posts.FeedResponse", [
+            { no: 1, name: "posts", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Post }
+        ]);
+    }
+    create(value?: PartialMessage<FeedResponse>): FeedResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.posts = [];
+        if (value !== undefined)
+            reflectionMergePartial<FeedResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: FeedResponse): FeedResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated meme.posts.Post posts */ 1:
+                    message.posts.push(Post.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: FeedResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated meme.posts.Post posts = 1; */
+        for (let i = 0; i < message.posts.length; i++)
+            Post.internalBinaryWrite(message.posts[i], writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message meme.posts.FeedResponse
+ */
+export const FeedResponse = new FeedResponse$Type();
 /**
  * @generated ServiceType for protobuf service meme.posts.Posts
  */
 export const Posts = new ServiceType("meme.posts.Posts", [
     { name: "Publish", options: {}, I: PublishRequest, O: PublishResponse },
     { name: "GetByUsers", options: {}, I: GetByUsersRequest, O: GetByUsersResponse },
-    { name: "Get", options: {}, I: GetPostRequest, O: Post }
+    { name: "Get", options: {}, I: GetPostRequest, O: Post },
+    { name: "GetFeed", options: {}, I: FeedRequest, O: FeedResponse }
 ]);

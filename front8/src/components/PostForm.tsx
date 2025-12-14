@@ -34,7 +34,7 @@ export default function PostForm() {
       setError(null);
       
       // Refresh the page to show the new post
-      router.refresh();
+        router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to publish post');
     } finally {
