@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuthUserId } from '@/lib/authHelpers';
+import { useAuth } from '@/contexts/AuthContext';
 import { PostsClient } from '@/lib/api-clients';
 import { useRouter } from 'next/navigation';
 
 export default function Composer() {
-  const viewerId = useAuthUserId();
+  const { userId: viewerId } = useAuth();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

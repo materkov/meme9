@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { SubscriptionsClient } from '@/lib/api-clients';
 import type { GetUserResponse as User } from '@/schema/users';
 import type { Post } from '@/schema/posts';
-import { useAuthUserId } from '@/lib/authHelpers';
+import { useAuth } from '@/contexts/AuthContext';
 import PostCard from './PostCard';
 
 interface UserProfileHeaderProps {
@@ -89,7 +89,7 @@ interface UserProfileProps {
 }
 
 export default function UserProfile({ user, initialPosts, initialSubscribed }: UserProfileProps) {
-  const viewerId = useAuthUserId();
+  const { userId: viewerId } = useAuth();
   const [isSubscribed, setIsSubscribed] = useState(initialSubscribed);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

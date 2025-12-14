@@ -2,12 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuthUserId, useAuthUsername, removeAuthTokenCookie } from '@/lib/authHelpers';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import AuthPopup from './AuthPopup';
 
 export default function Header() {
-  const isAuthenticated = !!useAuthUserId();
+  const { isAuthenticated } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
 
   return (
@@ -34,20 +33,14 @@ export default function Header() {
 }
 
 function Authentcated() {
-  const username = useAuthUsername();
-  const router = useRouter();
-
-  const handleLogout = () => {
-    removeAuthTokenCookie();
-    router.refresh();
-  };
+  const { username, logout } = useAuth();
 
   return (<>
     <span className="text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
       Welcome, <span className="font-semibold">{username}</span>
     </span>
     <button
-      onClick={handleLogout}
+      onClick={logout}
       className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors whitespace-nowrap"
     >
       Logout

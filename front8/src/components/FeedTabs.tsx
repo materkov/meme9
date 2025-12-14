@@ -1,13 +1,13 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuthUserId } from '@/lib/authHelpers';
+import { useAuth } from '@/contexts/AuthContext';
 import { FeedType } from '@/schema/posts';
 
 export default function FeedTabs() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isAuthenticated = !!useAuthUserId();
+  const { isAuthenticated } = useAuth();
 
   const typeParam = 'feed';
   
