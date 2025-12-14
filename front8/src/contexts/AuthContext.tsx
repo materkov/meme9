@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useLayoutEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useState, useRef, ReactNode } from 'react';
 import { getAuthToken, getAuthUsername, getAuthUserId } from '@/lib/authHelpers';
 import type { LoginResponse } from '@/schema/auth';
 import { setAuthTokenCookie, removeAuthTokenCookie } from '@/lib/authHelpers';
@@ -33,30 +33,40 @@ export function AuthProvider({
   const [isAuthenticated, setIsAuthenticated] = useState(initialAuth?.isAuthenticated ?? false);
   const [username, setUsername] = useState<string | null>(initialAuth?.username ?? null);
   const [userId, setUserId] = useState<string | null>(initialAuth?.userId ?? null);
-
+  
+  // Track initial values to avoid unnecessary updates during hydration
+  const initialAuthRef = useRef(initialAuth);
 
   // Sync with client-side storage on mount (in case it differs from server)
-  // Only update if the values actually changed to avoid unnecessary re-renders
+  // Only update if the values actually changed to avoid unnecessary re-renders and hydration issues
   useLayoutEffect(() => {
     const checkAuth = async () => {
       const token = await getAuthToken();
       const storedUsername = await getAuthUsername();
       const storedUserId = await getAuthUserId();
 
-      // Only update if values changed (e.g., user logged in on another tab)
-      if (token && storedUsername && storedUserId) {
-        setIsAuthenticated(true);
-        setUsername(storedUsername);
-        setUserId(storedUserId);
+      const initial = initialAuthRef.current;
+      const hasAuth = !!(token && storedUsername && storedUserId);
+      
+      // Only update if values differ from initial server-provided state
+      if (hasAuth) {
+        if (!initial?.isAuthenticated || 
+            initial?.username !== storedUsername || 
+            initial?.userId !== storedUserId) {
+          setIsAuthenticated(true);
+          setUsername(storedUsername);
+          setUserId(storedUserId);
+        }
       } else {
-        // User not authenticated
-        setIsAuthenticated(false);
-        setUsername(null);
-        setUserId(null);
+        // User not authenticated - only update if server thought they were
+        if (initial?.isAuthenticated) {
+          setIsAuthenticated(false);
+          setUsername(null);
+          setUserId(null);
+        }
       }
     };
     checkAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = (response: LoginResponse) => {

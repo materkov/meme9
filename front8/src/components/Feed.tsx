@@ -7,6 +7,7 @@ import type { FeedPostResponse as FeedPost } from '@/schema/feed';
 import PostForm from './PostForm';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import FormattedDate from './FormattedDate';
 
 interface FeedProps {
   initialPosts?: FeedPost[];
@@ -129,15 +130,10 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
                 {post.userId}
               </p>
             </div>
-            <time className="text-sm text-zinc-500 dark:text-zinc-400">
-              {new Date(post.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </time>
+            <FormattedDate 
+              date={post.createdAt} 
+              className="text-sm text-zinc-500 dark:text-zinc-400"
+            />
           </div>
           <p className="text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap">
             {post.text}

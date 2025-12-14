@@ -5,6 +5,7 @@ import type { FeedPostResponse as FeedPost } from '@/schema/feed';
 import type { GetPostResponse as Post } from '@/schema/posts';
 import type { GetUserResponse as User } from '@/schema/users';
 import UserLink from './UserLink';
+import FormattedDate from './FormattedDate';
 
 interface PostCardProps {
   post: FeedPost | Post;
@@ -42,15 +43,11 @@ export default function PostCard({ post, user, clickable = true, showBackLink = 
               {post.userId}
             </p>
           </div>
-          <time className="text-sm text-zinc-500 dark:text-zinc-400">
-            {new Date(post.createdAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: showBackLink ? 'long' : 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </time>
+          <FormattedDate 
+            date={post.createdAt} 
+            month={showBackLink ? 'long' : 'short'}
+            className="text-sm text-zinc-500 dark:text-zinc-400"
+          />
         </div>
         <p className={`text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap ${showBackLink ? 'text-lg leading-relaxed' : ''}`}>
           {post.text}
