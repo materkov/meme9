@@ -13,7 +13,6 @@ interface PostCardProps {
 export default function PostCard({ post, clickable = true }: PostCardProps) {
   const router = useRouter();
   
-  // Get username from Post
   const username = post.userName || 'Unknown User';
 
   const handleClick = () => {
@@ -24,25 +23,23 @@ export default function PostCard({ post, clickable = true }: PostCardProps) {
 
   return (
     <div
-      onClick={handleClick}
-      className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 shadow-sm ${clickable ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}
+      className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 shadow-sm`}
     >
       <div className="flex items-start justify-between mb-3">
         <div>
           <Link
             href={`/user/${post.userId}`}
-            onClick={(e) => e.stopPropagation()}
             className="font-semibold text-black dark:text-zinc-50 hover:underline"
           >
             {username}
           </Link>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {post.userId}
-          </p>
         </div>
         <FormattedDate date={post.createdAt}/>
       </div>
-      <p className="text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap">
+      <p 
+        className={`text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap  ${clickable ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`} 
+        onClick={handleClick}
+      >
         {post.text}
       </p>
     </div>
