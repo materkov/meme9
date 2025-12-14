@@ -80,3 +80,28 @@ export async function getAuthUserId(): Promise<string> {
   }
 }
 
+// Client-side hooks for React components
+// These read synchronously from localStorage (client-side only)
+export function useAuthToken(): string {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem(LS_AUTH_TOKEN) || '';
+}
+
+export function useAuthUsername(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(LS_AUTH_USERNAME) || null;
+}
+
+export function useAuthUserId(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(LS_AUTH_USER_ID) || null;
+}
+
+export function useIsAuthenticated(): boolean {
+  if (typeof window === 'undefined') return false;
+  const token = localStorage.getItem(LS_AUTH_TOKEN);
+  const username = localStorage.getItem(LS_AUTH_USERNAME);
+  const userId = localStorage.getItem(LS_AUTH_USER_ID);
+  return !!(token && username && userId);
+}
+

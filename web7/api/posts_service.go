@@ -95,7 +95,7 @@ func (s *PostsService) Get(ctx context.Context, req *postsapi.GetPostRequest) (*
 
 	post, err := s.posts.GetByID(ctx, req.PostId)
 	if err != nil {
-		return nil, twirp.NewError(twirp.NotFound, "post not found")
+		return nil, twirp.NewError(twirp.NotFound, "post_not_found")
 	}
 
 	userName := ""

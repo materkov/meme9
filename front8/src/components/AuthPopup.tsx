@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { AuthClient, ApiError } from '@/lib/api-clients';
-import type { LoginResponse } from '@/schema/auth';
-import { useAuth } from '@/contexts/AuthContext';
+import { setAuthTokenCookie } from '@/lib/authHelpers';
+import { useRouter } from 'next/navigation';
 
 interface AuthPopupProps {
   onClose: () => void;
@@ -15,7 +15,7 @@ export default function AuthPopup({ onClose }: AuthPopupProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const { login: authLogin } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,14 +23,15 @@ export default function AuthPopup({ onClose }: AuthPopupProps) {
     setLoading(true);
 
     try {
-      let response: LoginResponse;
+      let response;
       if (isLogin) {
         response = await AuthClient.Login({ username, password });
       } else {
         response = await AuthClient.Register({ username, password });
       }
 
-      authLogin(response);
+      setAuthTokenCookie(response.token, response.username, response.userId);
+      router.refresh();
       onClose();
     } catch (err) {
       if (err instanceof ApiError && err.err === "username_exists") {
