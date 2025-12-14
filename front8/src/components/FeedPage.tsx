@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
-import { createFeedClientWithToken } from '@/lib/api-clients';
+import { FeedClient } from '@/lib/api-clients';
 import type { FeedPostResponse as FeedPost } from '@/schema/feed';
-import { getServerAuthToken } from '@/lib/auth-server';
 import FeedPosts from '@/components/FeedPosts';
 import FeedTabs from '@/components/FeedTabs';
 import PostForm from '@/components/PostForm';
@@ -13,9 +12,6 @@ interface FeedPageProps {
 export default async function FeedPage({ searchParams }: FeedPageProps) {
   let posts: FeedPost[] = [];
   let error: string | null = null;
-  
-  // Get token from cookies
-  const token = await getServerAuthToken();
   
   // Handle searchParams as either Promise or object (Next.js 15+ compatibility)
   const resolvedSearchParams = searchParams instanceof Promise 
@@ -29,10 +25,8 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const feedType = feedParam === 'subscriptions' ? 'subscriptions' : 'all';
 
   try {
-    // Fetch feed data on server
-    // Create client with server-side token
-    const client = createFeedClientWithToken(token);
-    const response = await client.GetFeed({ type: feedType });
+    // Standard client automatically reads token from cookies on server, localStorage on client
+    const response = await FeedClient.GetFeed({ type: feedType });
     posts = response.posts || [];
   } catch (err) {
     error = err instanceof Error ? err.message : 'Failed to load feed';
