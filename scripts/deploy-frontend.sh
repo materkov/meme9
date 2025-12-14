@@ -4,4 +4,4 @@ cd ~/mypage
 
 export DOCKER_HOST=ssh://mypage-ru
 
-docker compose up -d --build static8
+docker compose up -d --build frontend

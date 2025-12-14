@@ -1,5 +1,5 @@
 const API_BASE_URL = 'http://localhost:8080';
-//const API_BASE_URL = 'https://meme.mmaks.me';
+//const API_BASE_URL = 'https://meme2.mmaks.me';
 
 // Auth token storage key
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -66,10 +66,12 @@ export async function getFeed(feedType: string = 'all', authToken?: string | nul
     ? getServerHeaders(authToken)
     : getHeaders();
   
+  const requestBody = { type: feedType };
+  
   const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/GetFeed`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ type: feedType }),
+    body: JSON.stringify(requestBody),
     // Enable caching for server-side rendering
     cache: 'no-store', // Use 'no-store' for always fresh data, or 'force-cache' for caching
   });

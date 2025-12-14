@@ -16,7 +16,8 @@ export default function FeedTabs() {
     } else {
       params.set('feed', type);
     }
-    router.push(`/?${params.toString()}`);
+    const newUrl = params.toString() ? `/?${params.toString()}` : '/';
+    router.replace(newUrl, { scroll: false });
   };
 
   return (

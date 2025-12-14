@@ -1,12 +1,12 @@
 import { Suspense } from 'react';
 import { getFeed, FeedPost } from '@/lib/api';
-import { getServerAuthToken, isServerAuthenticated } from '@/lib/auth-server';
+import { getServerAuthToken } from '@/lib/auth-server';
 import FeedPosts from '@/components/FeedPosts';
 import FeedTabs from '@/components/FeedTabs';
 import PostForm from '@/components/PostForm';
 
 interface HomeProps {
-  searchParams: { feed?: string };
+  searchParams: Promise<{ feed?: string }> | { feed?: string };
 }
 
 export default async function Home({ searchParams }: HomeProps) {
@@ -15,18 +15,27 @@ export default async function Home({ searchParams }: HomeProps) {
   
   // Get token from cookies
   const token = await getServerAuthToken();
-  const isAuthenticated = await isServerAuthenticated();
+  
+  // Handle searchParams as either Promise or object (Next.js 15+ compatibility)
+  const resolvedSearchParams = searchParams instanceof Promise 
+    ? await searchParams 
+    : searchParams;
   
   // Determine feed type from searchParams, default to 'all'
-  const feedType = (searchParams.feed === 'subscriptions' && isAuthenticated) 
-    ? 'subscriptions' 
-    : 'all';
+  // Let the backend handle authentication - if user requests subscriptions but isn't authenticated,
+  // the backend will return an error which we'll handle
+  const feedParam = resolvedSearchParams?.feed;
+  const feedType = feedParam === 'subscriptions' ? 'subscriptions' : 'all';
 
   try {
     // Fetch feed data on server
     posts = await getFeed(feedType, token);
   } catch (err) {
     error = err instanceof Error ? err.message : 'Failed to load feed';
+    // If it's an authentication error for subscriptions, show a helpful message
+    if (feedType === 'subscriptions' && error.includes('authentication')) {
+      error = 'Please login to view subscriptions feed';
+    }
   }
 
   return (

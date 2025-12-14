@@ -2,6 +2,6 @@
 
 cd ~/mypage
 
-export DOCKER_HOST=ssh://mypage
+export DOCKER_HOST=ssh://mypage-ru
 
 docker compose up -d --build web7
