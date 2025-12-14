@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { publishPost } from '@/lib/api';
+import { PostsClient } from '@/lib/api-clients';
 import { useRouter } from 'next/navigation';
 
 interface PostFormProps {
@@ -32,7 +32,8 @@ export default function PostForm({ onPostCreated }: PostFormProps) {
     setLoading(true);
 
     try {
-      await publishPost({ text: text.trim() });
+      // PostsClient uses getAuthToken() automatically from localStorage
+      await PostsClient.Publish({ text: text.trim() });
       setText('');
       setError(null);
       

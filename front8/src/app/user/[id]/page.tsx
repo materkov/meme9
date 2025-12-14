@@ -1,5 +1,9 @@
 import { notFound } from 'next/navigation';
-import { getUser, getUserPosts, getSubscriptionStatus } from '@/lib/api';
+import { UsersClient, PostsClient, SubscriptionsClient } from '@/lib/api-clients';
+import { UsersClientJSON as UsersClientJSONClass } from '@/schema/users.twirp';
+import { PostsClientJSON as PostsClientJSONClass } from '@/schema/posts.twirp';
+import { SubscriptionsClientJSON as SubscriptionsClientJSONClass } from '@/schema/subscriptions.twirp';
+import { TwirpRpcImpl } from '@/lib/twirp-rpc';
 import type { UserPostResponse as UserPost } from '@/schema/posts';
 import { getServerAuthToken } from '@/lib/auth-server';
 import UserProfile from '@/components/UserProfile';
@@ -21,15 +25,21 @@ export default async function UserPage({ params }: PageProps) {
 
   try {
     // Fetch user info
-    user = await getUser(id, token);
+    // Create clients with server-side token
+    const rpc = new TwirpRpcImpl(token);
+    const usersClient = new UsersClientJSONClass(rpc);
+    user = await usersClient.Get({ userId: id });
     
     // Fetch user posts
-    posts = await getUserPosts(id, token);
+    const postsClient = new PostsClientJSONClass(rpc);
+    const postsResponse = await postsClient.GetByUsers({ userId: id });
+    posts = postsResponse.posts || [];
     
     // Fetch subscription status if authenticated
     if (token) {
       try {
-        subscriptionStatus = await getSubscriptionStatus(id, token);
+        const subscriptionsClient = new SubscriptionsClientJSONClass(rpc);
+        subscriptionStatus = await subscriptionsClient.GetStatus({ userId: id });
       } catch (err) {
         // Subscription status is optional, continue without it
         // Silently fail - subscription status will be checked client-side

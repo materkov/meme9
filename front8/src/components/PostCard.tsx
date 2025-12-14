@@ -63,7 +63,7 @@ export default function PostCard({ post, user, clickable = true, showBackLink = 
       <div className="w-full max-w-2xl mx-auto">
         <div className="mb-6">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/feed')}
             className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
           >
             ← Back to Feed

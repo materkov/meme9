@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import PostCard from '@/components/PostCard';
-import { getPost, getUser } from '@/lib/api';
+import { PostsClient, UsersClient } from '@/lib/api-clients';
+import { PostsClientJSON as PostsClientJSONClass } from '@/schema/posts.twirp';
+import { UsersClientJSON as UsersClientJSONClass } from '@/schema/users.twirp';
+import { TwirpRpcImpl } from '@/lib/twirp-rpc';
 import { getServerAuthToken } from '@/lib/auth-server';
 
 interface PageProps {
@@ -21,11 +24,15 @@ export default async function PostPage({ params }: PageProps) {
   try {
     // Pass token to getPost for server-side requests
     // Backend will verify token when processing the request
-    post = await getPost(id, token);
+    // Create clients with server-side token
+    const rpc = new TwirpRpcImpl(token);
+    const postsClient = new PostsClientJSONClass(rpc);
+    post = await postsClient.Get({ postId: id });
     
     // Fetch user info to get username
     try {
-      user = await getUser(post.userId, token);
+      const usersClient = new UsersClientJSONClass(rpc);
+      user = await usersClient.Get({ userId: post.userId });
     } catch (err) {
       // If user fetch fails, continue without username
       // Silently fail - post will display without username

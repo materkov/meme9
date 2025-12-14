@@ -13,6 +13,13 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // Disable complexity calculation
+      "complexity": "off",
+      "max-complexity": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { subscribe, unsubscribe, getSubscriptionStatus } from '@/lib/api';
+import { SubscriptionsClient } from '@/lib/api-clients';
 import type { GetUserResponse as User } from '@/schema/users';
 import type { UserPostResponse as UserPost } from '@/schema/posts';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,16 +37,17 @@ export default function UserProfile({ user, initialPosts, initialSubscribed }: U
     setError(null);
 
     try {
+      // SubscriptionsClient uses getAuthToken() automatically from localStorage
       if (isSubscribed) {
-        const result = await unsubscribe(user.id);
+        const result = await SubscriptionsClient.Unsubscribe({ userId: user.id });
         setIsSubscribed(result.subscribed);
       } else {
-        const result = await subscribe(user.id);
+        const result = await SubscriptionsClient.Subscribe({ userId: user.id });
         setIsSubscribed(result.subscribed);
       }
       // Refresh subscription status to ensure it's up to date
       try {
-        const status = await getSubscriptionStatus(user.id);
+        const status = await SubscriptionsClient.GetStatus({ userId: user.id });
         setIsSubscribed(status.subscribed);
       } catch (statusErr) {
         // If status check fails, trust the subscribe/unsubscribe result

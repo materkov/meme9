@@ -1,5 +1,7 @@
 import { cookies } from 'next/headers';
-import { verifyToken, getUser } from './api';
+import { AuthClient, UsersClient } from './api-clients';
+import { UsersClientJSON as UsersClientJSONClass } from '@/schema/users.twirp';
+import { TwirpRpcImpl } from './twirp-rpc';
 import type { VerifyTokenResponse } from '@/schema/auth';
 import type { GetUserResponse as User } from '@/schema/users';
 
@@ -19,7 +21,7 @@ export async function getServerAuthToken(): Promise<string | null> {
  */
 export async function verifyServerToken(token: string): Promise<VerifyTokenResponse | null> {
   try {
-    const response = await verifyToken(token);
+    const response = await AuthClient.VerifyToken({ token });
     return response;
   } catch (error) {
     return null;
@@ -52,7 +54,10 @@ export async function getServerUser(): Promise<User | null> {
 
   try {
     const token = await getServerAuthToken();
-    const user = await getUser(userId, token);
+    // Create client with server-side token
+    const rpc = new TwirpRpcImpl(token);
+    const client = new UsersClientJSONClass(rpc);
+    const user = await client.get({ userId });
     return user;
   } catch (error) {
     return null;

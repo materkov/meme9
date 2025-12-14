@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getFeed } from '@/lib/api';
+import { FeedClient } from '@/lib/api-clients';
 import type { FeedPostResponse as FeedPost } from '@/schema/feed';
 import PostForm from './PostForm';
 import { useRouter } from 'next/navigation';
@@ -27,7 +27,9 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
       setError(null);
       
       try {
-        const feedPosts = await getFeed(feedType);
+        // FeedClient uses getAuthToken() automatically from localStorage
+        const response = await FeedClient.GetFeed({ type: feedType });
+        const feedPosts = response.posts || [];
         setPosts(feedPosts);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load feed');
@@ -46,7 +48,9 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
     // Also reload via API
     const loadFeed = async () => {
       try {
-        const feedPosts = await getFeed(feedType);
+        // FeedClient uses getAuthToken() automatically from localStorage
+        const response = await FeedClient.GetFeed({ type: feedType });
+        const feedPosts = response.posts || [];
         setPosts(feedPosts);
       } catch (err) {
         console.error('Failed to reload feed:', err);

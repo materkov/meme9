@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { login, register } from '@/lib/api';
+import { AuthClient } from '@/lib/api-clients';
 import type { LoginResponse } from '@/schema/auth';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -25,9 +25,9 @@ export default function Auth({ onClose }: AuthProps) {
     try {
       let response: LoginResponse;
       if (isLogin) {
-        response = await login({ username, password });
+        response = await AuthClient.Login({ username, password });
       } else {
-        response = await register({ username, password });
+        response = await AuthClient.Register({ username, password });
       }
       authLogin(response);
       if (onClose) {

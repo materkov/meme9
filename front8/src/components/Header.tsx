@@ -14,7 +14,7 @@ export default function Header() {
       <header className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold text-black dark:text-zinc-50 hover:opacity-80 transition-opacity no-underline">
+            <Link href="/feed" className="text-2xl font-bold text-black dark:text-zinc-50 hover:opacity-80 transition-opacity no-underline">
               Meme9
             </Link>
             <div className="flex items-center gap-4 min-w-[140px] justify-end" suppressHydrationWarning>
