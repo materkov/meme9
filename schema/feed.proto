@@ -15,9 +15,9 @@ message FeedRequest {
 message FeedPostResponse {
   string id = 1;
   string text = 2;
-  string user_id = 3;
+  string userId = 3;
   string username = 4;
-  string created_at = 5; // RFC3339 format
+  string createdAt = 5; // RFC3339 format
 }
 
 message FeedResponse {

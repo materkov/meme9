@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { login, register, LoginResponse } from '@/lib/api';
+import { login, register } from '@/lib/api';
+import type { LoginResponse } from '@/schema/auth';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface AuthProps {

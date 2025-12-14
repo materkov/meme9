@@ -25,7 +25,7 @@ export default async function PostPage({ params }: PageProps) {
     
     // Fetch user info to get username
     try {
-      user = await getUser(post.user_id, token);
+      user = await getUser(post.userId, token);
     } catch (err) {
       // If user fetch fails, continue without username
       // Silently fail - post will display without username

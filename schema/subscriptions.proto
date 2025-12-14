@@ -13,7 +13,7 @@ service Subscriptions {
 }
 
 message SubscribeRequest {
-  string user_id = 1;
+  string userId = 1;
 }
 
 message SubscribeResponse {
@@ -21,16 +21,16 @@ message SubscribeResponse {
 }
 
 message GetFollowingRequest {
-  string user_id = 1;
+  string userId = 1;
 }
 
 message GetFollowingResponse {
-  repeated string user_ids = 1;
+  repeated string userIds = 1;
 }
 
 message IsSubscribedRequest {
-  string subscriber_id = 1;
-  string target_user_id = 2;
+  string subscriberId = 1;
+  string targetUserId = 2;
 }
 
 message IsSubscribedResponse {

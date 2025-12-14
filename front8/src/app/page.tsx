@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
-import { getFeed, FeedPost } from '@/lib/api';
+import { getFeed } from '@/lib/api';
+import type { FeedPostResponse as FeedPost } from '@/schema/feed';
 import { getServerAuthToken } from '@/lib/auth-server';
 import FeedPosts from '@/components/FeedPosts';
 import FeedTabs from '@/components/FeedTabs';

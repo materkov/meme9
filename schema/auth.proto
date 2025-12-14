@@ -17,7 +17,7 @@ message LoginRequest {
 
 message LoginResponse {
   string token = 1;
-  string user_id = 2;
+  string userId = 2;
   string username = 3;
 }
 
@@ -31,6 +31,6 @@ message VerifyTokenRequest {
 }
 
 message VerifyTokenResponse {
-  string user_id = 1;
+  string userId = 1;
 }
 

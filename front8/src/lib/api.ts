@@ -1,3 +1,38 @@
+// Import proto-generated types
+import type {
+  FeedRequest,
+  FeedResponse,
+  FeedPostResponse,
+} from '@/schema/feed';
+import type {
+  GetPostRequest,
+  GetPostResponse,
+  GetByUsersRequest,
+  GetByUsersResponse,
+  UserPostResponse,
+  PublishRequest,
+  PublishResponse,
+} from '@/schema/posts';
+import type {
+  GetUserRequest,
+  GetUserResponse,
+} from '@/schema/users';
+import type {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  VerifyTokenRequest,
+  VerifyTokenResponse,
+} from '@/schema/auth';
+import type {
+  SubscribeRequest,
+  SubscribeResponse,
+  GetFollowingRequest,
+  GetFollowingResponse,
+  IsSubscribedRequest,
+  IsSubscribedResponse,
+} from '@/schema/subscriptions';
+
 const API_BASE_URL = 'http://localhost:8080';
 //const API_BASE_URL = 'https://meme2.mmaks.me';
 
@@ -45,35 +80,20 @@ export function getServerHeaders(token: string | null): HeadersInit {
   return headers;
 }
 
-export interface FeedPost {
-  id: string;
-  text: string;
-  user_id: string;
-  username: string;
-  created_at: string;
-}
 
-export interface FeedRequest {
-  type?: string; // "all" or "subscriptions"
-}
-
-export interface FeedResponse {
-  posts: FeedPost[];
-}
-
-export async function getFeed(feedType: string = 'all', authToken?: string | null): Promise<FeedPost[]> {
+// Feed API
+export async function getFeed(feedType: string = 'all', authToken?: string | null): Promise<FeedPostResponse[]> {
   const headers = authToken !== undefined 
     ? getServerHeaders(authToken)
     : getHeaders();
   
-  const requestBody = { type: feedType };
+  const requestBody: FeedRequest = { type: feedType };
   
   const response = await fetch(`${API_BASE_URL}/twirp/meme.feed.Feed/GetFeed`, {
     method: 'POST',
     headers,
     body: JSON.stringify(requestBody),
-    // Enable caching for server-side rendering
-    cache: 'no-store', // Use 'no-store' for always fresh data, or 'force-cache' for caching
+    cache: 'no-store',
   });
 
   if (!response.ok) {
@@ -85,33 +105,18 @@ export async function getFeed(feedType: string = 'all', authToken?: string | nul
   return data.posts || [];
 }
 
-export interface Post {
-  id: string;
-  text: string;
-  user_id: string;
-  created_at: string;
-}
-
-export interface GetPostRequest {
-  post_id: string;
-}
-
-export interface GetPostResponse {
-  id: string;
-  text: string;
-  user_id: string;
-  created_at: string;
-}
-
-export async function getPost(postId: string, authToken?: string | null): Promise<Post> {
+// Posts API
+export async function getPost(postId: string, authToken?: string | null): Promise<GetPostResponse> {
   const headers = authToken !== undefined 
     ? getServerHeaders(authToken)
     : getHeaders();
   
+  const requestBody: GetPostRequest = { postId };
+  
   const response = await fetch(`${API_BASE_URL}/twirp/meme.posts.Posts/Get`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ post_id: postId }),
+    body: JSON.stringify(requestBody),
     cache: 'no-store',
   });
 
@@ -124,29 +129,17 @@ export async function getPost(postId: string, authToken?: string | null): Promis
   return data;
 }
 
-export interface User {
-  id: string;
-  username: string;
-}
-
-export interface GetUserRequest {
-  user_id: string;
-}
-
-export interface GetUserResponse {
-  id: string;
-  username: string;
-}
-
-export async function getUser(userId: string, authToken?: string | null): Promise<User> {
+export async function getUser(userId: string, authToken?: string | null): Promise<GetUserResponse> {
   const headers = authToken !== undefined 
     ? getServerHeaders(authToken)
     : getHeaders();
   
+  const requestBody: GetUserRequest = { userId };
+  
   const response = await fetch(`${API_BASE_URL}/twirp/meme.users.Users/Get`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ user_id: userId }),
+    body: JSON.stringify(requestBody),
     cache: 'no-store',
   });
 
@@ -157,31 +150,6 @@ export async function getUser(userId: string, authToken?: string | null): Promis
 
   const data: GetUserResponse = await response.json();
   return data;
-}
-
-// Auth interfaces
-export interface LoginRequest {
-  username: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  token: string;
-  user_id: string;
-  username: string;
-}
-
-export interface RegisterRequest {
-  username: string;
-  password: string;
-}
-
-export interface VerifyTokenRequest {
-  token: string;
-}
-
-export interface VerifyTokenResponse {
-  user_id: string;
 }
 
 // Auth API functions
@@ -224,12 +192,14 @@ export async function register(request: RegisterRequest): Promise<LoginResponse>
 }
 
 export async function verifyToken(token: string): Promise<VerifyTokenResponse> {
+  const requestBody: VerifyTokenRequest = { token };
+  
   const response = await fetch(`${API_BASE_URL}/twirp/meme.auth.Auth/VerifyToken`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ token }),
+    body: JSON.stringify(requestBody),
     cache: 'no-store',
   });
 
@@ -240,15 +210,6 @@ export async function verifyToken(token: string): Promise<VerifyTokenResponse> {
 
   const data: VerifyTokenResponse = await response.json();
   return data;
-}
-
-// Publish interfaces
-export interface PublishRequest {
-  text: string;
-}
-
-export interface PublishResponse {
-  id: string;
 }
 
 // Publish API function
@@ -273,33 +234,18 @@ export async function publishPost(request: PublishRequest, authToken?: string | 
   return data;
 }
 
-// UserPosts interfaces
-export interface UserPost {
-  id: string;
-  text: string;
-  user_id: string;
-  username: string;
-  created_at: string;
-}
-
-export interface UserPostsRequest {
-  user_id: string;
-}
-
-export interface UserPostsResponse {
-  posts: UserPost[];
-}
-
 // UserPosts API function
-export async function getUserPosts(userId: string, authToken?: string | null): Promise<UserPost[]> {
+export async function getUserPosts(userId: string, authToken?: string | null): Promise<UserPostResponse[]> {
   const headers = authToken !== undefined 
     ? getServerHeaders(authToken)
     : getHeaders();
   
+  const requestBody: GetByUsersRequest = { userId };
+  
   const response = await fetch(`${API_BASE_URL}/twirp/meme.posts.Posts/GetByUsers`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ user_id: userId }),
+    body: JSON.stringify(requestBody),
     cache: 'no-store',
   });
 
@@ -308,25 +254,18 @@ export async function getUserPosts(userId: string, authToken?: string | null): P
     throw new Error(errorData.error || `Failed to fetch user posts: ${response.statusText}`);
   }
 
-  const data: UserPostsResponse = await response.json();
+  const data: GetByUsersResponse = await response.json();
   return data.posts || [];
-}
-
-// Subscribe interfaces
-export interface SubscribeRequest {
-  user_id: string;
-}
-
-export interface SubscribeResponse {
-  subscribed: boolean;
 }
 
 // Subscribe API function
 export async function subscribe(userId: string): Promise<SubscribeResponse> {
+  const requestBody: SubscribeRequest = { userId };
+  
   const response = await fetch(`${API_BASE_URL}/twirp/meme.subscriptions.Subscriptions/Subscribe`, {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({ user_id: userId }),
+    body: JSON.stringify(requestBody),
     cache: 'no-store',
   });
 
@@ -341,10 +280,12 @@ export async function subscribe(userId: string): Promise<SubscribeResponse> {
 
 // Unsubscribe API function
 export async function unsubscribe(userId: string): Promise<SubscribeResponse> {
+  const requestBody: SubscribeRequest = { userId };
+  
   const response = await fetch(`${API_BASE_URL}/twirp/meme.subscriptions.Subscriptions/Unsubscribe`, {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({ user_id: userId }),
+    body: JSON.stringify(requestBody),
     cache: 'no-store',
   });
 
@@ -363,10 +304,12 @@ export async function getSubscriptionStatus(userId: string, authToken?: string |
     ? getServerHeaders(authToken)
     : getHeaders();
   
+  const requestBody: SubscribeRequest = { userId };
+  
   const response = await fetch(`${API_BASE_URL}/twirp/meme.subscriptions.Subscriptions/GetStatus`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ user_id: userId }),
+    body: JSON.stringify(requestBody),
     cache: 'no-store',
   });
 

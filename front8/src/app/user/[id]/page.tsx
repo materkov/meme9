@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getUser, getUserPosts, getSubscriptionStatus, UserPost } from '@/lib/api';
+import { getUser, getUserPosts, getSubscriptionStatus } from '@/lib/api';
+import type { UserPostResponse as UserPost } from '@/schema/posts';
 import { getServerAuthToken } from '@/lib/auth-server';
 import UserProfile from '@/components/UserProfile';
 

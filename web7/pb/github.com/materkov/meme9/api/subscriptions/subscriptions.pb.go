@@ -23,7 +23,7 @@ const (
 
 type SubscribeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -111,7 +111,7 @@ func (x *SubscribeResponse) GetSubscribed() bool {
 
 type GetFollowingRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -155,7 +155,7 @@ func (x *GetFollowingRequest) GetUserId() string {
 
 type GetFollowingResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserIds       []string               `protobuf:"bytes,1,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []string               `protobuf:"bytes,1,rep,name=userIds,proto3" json:"userIds,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -199,8 +199,8 @@ func (x *GetFollowingResponse) GetUserIds() []string {
 
 type IsSubscribedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SubscriberId  string                 `protobuf:"bytes,1,opt,name=subscriber_id,json=subscriberId,proto3" json:"subscriber_id,omitempty"`
-	TargetUserId  string                 `protobuf:"bytes,2,opt,name=target_user_id,json=targetUserId,proto3" json:"target_user_id,omitempty"`
+	SubscriberId  string                 `protobuf:"bytes,1,opt,name=subscriberId,proto3" json:"subscriberId,omitempty"`
+	TargetUserId  string                 `protobuf:"bytes,2,opt,name=targetUserId,proto3" json:"targetUserId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -297,20 +297,20 @@ var File_subscriptions_proto protoreflect.FileDescriptor
 
 const file_subscriptions_proto_rawDesc = "" +
 	"\n" +
-	"\x13subscriptions.proto\x12\x12meme.subscriptions\"+\n" +
-	"\x10SubscribeRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"3\n" +
+	"\x13subscriptions.proto\x12\x12meme.subscriptions\"*\n" +
+	"\x10SubscribeRequest\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\"3\n" +
 	"\x11SubscribeResponse\x12\x1e\n" +
 	"\n" +
 	"subscribed\x18\x01 \x01(\bR\n" +
-	"subscribed\".\n" +
-	"\x13GetFollowingRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"1\n" +
-	"\x14GetFollowingResponse\x12\x19\n" +
-	"\buser_ids\x18\x01 \x03(\tR\auserIds\"`\n" +
-	"\x13IsSubscribedRequest\x12#\n" +
-	"\rsubscriber_id\x18\x01 \x01(\tR\fsubscriberId\x12$\n" +
-	"\x0etarget_user_id\x18\x02 \x01(\tR\ftargetUserId\"6\n" +
+	"subscribed\"-\n" +
+	"\x13GetFollowingRequest\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\"0\n" +
+	"\x14GetFollowingResponse\x12\x18\n" +
+	"\auserIds\x18\x01 \x03(\tR\auserIds\"]\n" +
+	"\x13IsSubscribedRequest\x12\"\n" +
+	"\fsubscriberId\x18\x01 \x01(\tR\fsubscriberId\x12\"\n" +
+	"\ftargetUserId\x18\x02 \x01(\tR\ftargetUserId\"6\n" +
 	"\x14IsSubscribedResponse\x12\x1e\n" +
 	"\n" +
 	"subscribed\x18\x01 \x01(\bR\n" +

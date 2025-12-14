@@ -76,7 +76,7 @@ func (x *LoginRequest) GetPassword() string {
 type LoginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=userId,proto3" json:"userId,omitempty"`
 	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -231,7 +231,7 @@ func (x *VerifyTokenRequest) GetToken() string {
 
 type VerifyTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -281,18 +281,18 @@ const file_auth_proto_rawDesc = "" +
 	"auth.proto\x12\tmeme.auth\"F\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"Z\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"Y\n" +
 	"\rLoginResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12\x16\n" +
+	"\x06userId\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\"I\n" +
 	"\x0fRegisterRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"*\n" +
 	"\x12VerifyTokenRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\".\n" +
-	"\x13VerifyTokenResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId2\xd2\x01\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"-\n" +
+	"\x13VerifyTokenResponse\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId2\xd2\x01\n" +
 	"\x04Auth\x12:\n" +
 	"\x05Login\x12\x17.meme.auth.LoginRequest\x1a\x18.meme.auth.LoginResponse\x12@\n" +
 	"\bRegister\x12\x1a.meme.auth.RegisterRequest\x1a\x18.meme.auth.LoginResponse\x12L\n" +

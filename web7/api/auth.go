@@ -14,12 +14,12 @@ const httpHeadersKey contextKey = "httpHeaders"
 func AuthHook(authService *AuthService) *twirp.ServerHooks {
 	return &twirp.ServerHooks{
 		RequestRouted: func(ctx context.Context) (context.Context, error) {
-			// Skip auth for login and register
+			// Skip auth for all Auth service methods - they handle their own validation
+			// This prevents circular dependency when VerifyToken is called from within the hook
 			serviceName, _ := twirp.ServiceName(ctx)
 			methodName, _ := twirp.MethodName(ctx)
 
-			if serviceName == "meme.auth.Auth" &&
-				(methodName == "Login" || methodName == "Register") {
+			if serviceName == "meme.auth.Auth" {
 				return ctx, nil
 			}
 

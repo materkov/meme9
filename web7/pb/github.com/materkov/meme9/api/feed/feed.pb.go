@@ -69,9 +69,9 @@ type FeedPostResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Text          string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
-	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,3,opt,name=userId,proto3" json:"userId,omitempty"`
 	Username      string                 `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
-	CreatedAt     string                 `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // RFC3339 format
+	CreatedAt     string                 `protobuf:"bytes,5,opt,name=createdAt,proto3" json:"createdAt,omitempty"` // RFC3339 format
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -192,14 +192,13 @@ const file_feed_proto_rawDesc = "" +
 	"\n" +
 	"feed.proto\x12\tmeme.feed\"!\n" +
 	"\vFeedRequest\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\"\x8a\x01\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\"\x88\x01\n" +
 	"\x10FeedPostResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04text\x18\x02 \x01(\tR\x04text\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x1a\n" +
-	"\busername\x18\x04 \x01(\tR\busername\x12\x1d\n" +
-	"\n" +
-	"created_at\x18\x05 \x01(\tR\tcreatedAt\"A\n" +
+	"\x04text\x18\x02 \x01(\tR\x04text\x12\x16\n" +
+	"\x06userId\x18\x03 \x01(\tR\x06userId\x12\x1a\n" +
+	"\busername\x18\x04 \x01(\tR\busername\x12\x1c\n" +
+	"\tcreatedAt\x18\x05 \x01(\tR\tcreatedAt\"A\n" +
 	"\fFeedResponse\x121\n" +
 	"\x05posts\x18\x01 \x03(\v2\x1b.meme.feed.FeedPostResponseR\x05posts2B\n" +
 	"\x04Feed\x12:\n" +

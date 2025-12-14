@@ -23,7 +23,7 @@ const (
 
 type GetUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -122,9 +122,9 @@ var File_users_proto protoreflect.FileDescriptor
 const file_users_proto_rawDesc = "" +
 	"\n" +
 	"\vusers.proto\x12\n" +
-	"meme.users\")\n" +
-	"\x0eGetUserRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"=\n" +
+	"meme.users\"(\n" +
+	"\x0eGetUserRequest\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\"=\n" +
 	"\x0fGetUserResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername2G\n" +

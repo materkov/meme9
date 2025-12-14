@@ -76,7 +76,9 @@ func main() {
 
 	feedHandler := feedapi.NewFeedServer(feedService, twirp.WithServerHooks(authHooks))
 	postsHandler := postsapi.NewPostsServer(postsServiceInstance, twirp.WithServerHooks(authHooks))
-	authHandler := authapi.NewAuthServer(authService, twirp.WithServerHooks(authHooks))
+	// Auth service should NOT have authHooks applied - it handles its own validation
+	// and VerifyToken is called from within the hook, which would cause infinite recursion
+	authHandler := authapi.NewAuthServer(authService)
 	usersHandler := usersapi.NewUsersServer(usersService, twirp.WithServerHooks(authHooks))
 	subscriptionsHandler := subscriptionsapi.NewSubscriptionsServer(subscriptionsService, twirp.WithServerHooks(authHooks))
 

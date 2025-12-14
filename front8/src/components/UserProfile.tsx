@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { User, UserPost, subscribe, unsubscribe, getSubscriptionStatus } from '@/lib/api';
+import { subscribe, unsubscribe, getSubscriptionStatus } from '@/lib/api';
+import type { GetUserResponse as User } from '@/schema/users';
+import type { UserPostResponse as UserPost } from '@/schema/posts';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -123,11 +125,11 @@ export default function UserProfile({ user, initialPosts, initialSubscribed }: U
                       {post.username || 'Unknown User'}
                     </p>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      {post.user_id}
+                      {post.userId}
                     </p>
                   </div>
                   <time className="text-sm text-zinc-500 dark:text-zinc-400">
-                    {new Date(post.created_at).toLocaleDateString('en-US', {
+                    {new Date(post.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric',

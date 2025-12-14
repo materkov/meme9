@@ -1,4 +1,4 @@
-import { FeedPost } from '@/lib/api';
+import type { FeedPostResponse as FeedPost } from '@/schema/feed';
 import PostCard from './PostCard';
 
 interface FeedPostsProps {

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useLayoutEffect, useState, ReactNode } from 'react';
-import { getAuthToken, LoginResponse } from '@/lib/api';
+import { getAuthToken } from '@/lib/api';
+import type { LoginResponse } from '@/schema/auth';
 import { setAuthTokenCookie, removeAuthTokenCookie } from '@/lib/auth-client';
 
 interface AuthContextType {
@@ -39,10 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (response: LoginResponse) => {
     setAuthTokenCookie(response.token);
     localStorage.setItem('auth_username', response.username);
-    localStorage.setItem('auth_user_id', response.user_id);
+    localStorage.setItem('auth_user_id', response.userId);
     setIsAuthenticated(true);
     setUsername(response.username);
-    setUserId(response.user_id);
+    setUserId(response.userId);
   };
 
   const logout = () => {

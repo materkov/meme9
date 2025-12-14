@@ -1,5 +1,7 @@
 import { cookies } from 'next/headers';
-import { verifyToken, VerifyTokenResponse, getUser, User } from './api';
+import { verifyToken, getUser } from './api';
+import type { VerifyTokenResponse } from '@/schema/auth';
+import type { GetUserResponse as User } from '@/schema/users';
 
 // Server-side auth token key (stored in cookies)
 const AUTH_TOKEN_COOKIE = 'auth_token';
@@ -35,7 +37,7 @@ export async function getServerUserId(): Promise<string | null> {
   }
 
   const verifyResponse = await verifyServerToken(token);
-  return verifyResponse?.user_id || null;
+  return verifyResponse?.userId || null;
 }
 
 /**

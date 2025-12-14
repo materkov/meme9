@@ -1,7 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { FeedPost, Post, User } from '@/lib/api';
+import type { FeedPostResponse as FeedPost } from '@/schema/feed';
+import type { GetPostResponse as Post } from '@/schema/posts';
+import type { GetUserResponse as User } from '@/schema/users';
 import UserLink from './UserLink';
 
 interface PostCardProps {
@@ -31,17 +33,17 @@ export default function PostCard({ post, user, clickable = true, showBackLink = 
         <div className="flex items-start justify-between mb-3">
           <div>
             <UserLink
-              href={`/user/${post.user_id}`}
+              href={`/user/${post.userId}`}
               className={`${showBackLink ? 'text-2xl font-semibold mb-2 block' : 'font-semibold'} text-black dark:text-zinc-50 hover:underline`}
             >
               {username}
             </UserLink>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {post.user_id}
+              {post.userId}
             </p>
           </div>
           <time className="text-sm text-zinc-500 dark:text-zinc-400">
-            {new Date(post.created_at).toLocaleDateString('en-US', {
+            {new Date(post.createdAt).toLocaleDateString('en-US', {
               year: 'numeric',
               month: showBackLink ? 'long' : 'short',
               day: 'numeric',

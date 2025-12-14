@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FeedPost, getFeed } from '@/lib/api';
+import { getFeed } from '@/lib/api';
+import type { FeedPostResponse as FeedPost } from '@/schema/feed';
 import PostForm from './PostForm';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -114,18 +115,18 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
           <div className="flex items-start justify-between mb-3">
             <div>
               <Link
-                href={`/user/${post.user_id}`}
+                href={`/user/${post.userId}`}
                 onClick={(e) => e.stopPropagation()}
                 className="font-semibold text-black dark:text-zinc-50 hover:underline"
               >
                 {post.username || 'Unknown User'}
               </Link>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {post.user_id}
+                {post.userId}
               </p>
             </div>
             <time className="text-sm text-zinc-500 dark:text-zinc-400">
-              {new Date(post.created_at).toLocaleDateString('en-US', {
+              {new Date(post.createdAt).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
