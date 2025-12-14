@@ -14,7 +14,6 @@ import (
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
-	"github.com/materkov/meme9/web7/html"
 	postsservice "github.com/materkov/meme9/web7/services/posts"
 	tokensservice "github.com/materkov/meme9/web7/services/tokens"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -62,18 +61,6 @@ func main() {
 	tokensService := tokensservice.New(tokensAdapter)
 
 	apiAdapter := api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, subscriptionsAdapter, postsService, tokensService)
-
-	// Create HTML router
-	htmlRouter := html.NewRouter(apiAdapter)
-
-	// Register HTML routes
-	http.HandleFunc("/users/{id}", htmlRouter.UserPageHandler)
-	http.HandleFunc("/posts/{id}", htmlRouter.PostPageHandler)
-	http.HandleFunc("/feed", htmlRouter.FeedPageHandler)
-	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		http.NotFound(w, r)
-	})
-	http.HandleFunc("/", htmlRouter.IndexHandler)
 
 	// Create Twirp server - api.API implements JsonAPI interface directly
 	twirpHandler := json_api.NewJsonAPIServer(apiAdapter, twirp.WithServerHooks(api.AuthHook(apiAdapter)))
