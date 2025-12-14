@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
+import { getAuthToken, getAuthUsername, getAuthUserId } from "@/lib/authHelpers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,17 +20,28 @@ export const metadata: Metadata = {
   description: "Social media platform",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Read auth state on server to prevent hydration mismatch
+  const token = await getAuthToken();
+  const username = await getAuthUsername();
+  const userId = await getAuthUserId();
+  
+  const initialAuth = {
+    isAuthenticated: !!(token && username && userId),
+    username: username || null,
+    userId: userId || null,
+  };
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
+        <AuthProvider initialAuth={initialAuth}>
           <Header />
           {children}
         </AuthProvider>

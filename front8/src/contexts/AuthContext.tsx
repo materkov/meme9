@@ -1,9 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useLayoutEffect, useState, ReactNode } from 'react';
-import { getAuthToken, getAuthUsername, getAuthUserId } from '@/lib/auth-client';
+import { getAuthToken, getAuthUsername, getAuthUserId } from '@/lib/authHelpers';
 import type { LoginResponse } from '@/schema/auth';
-import { setAuthTokenCookie, removeAuthTokenCookie } from '@/lib/auth-client';
+import { setAuthTokenCookie, removeAuthTokenCookie } from '@/lib/authHelpers';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -16,28 +16,47 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  // Always start with the same initial state on both server and client
-  // This prevents hydration mismatches
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+interface InitialAuth {
+  isAuthenticated: boolean;
+  username: string | null;
+  userId: string | null;
+}
 
-  // Use useLayoutEffect to update state synchronously before browser paint
-  // This ensures "Welcome {name}" appears immediately without visible delay
+export function AuthProvider({ 
+  children,
+  initialAuth
+}: { 
+  children: ReactNode;
+  initialAuth?: InitialAuth;
+}) {
+  // Use server-provided initial auth state to prevent hydration mismatch
+  const [isAuthenticated, setIsAuthenticated] = useState(initialAuth?.isAuthenticated ?? false);
+  const [username, setUsername] = useState<string | null>(initialAuth?.username ?? null);
+  const [userId, setUserId] = useState<string | null>(initialAuth?.userId ?? null);
+
+
+  // Sync with client-side storage on mount (in case it differs from server)
+  // Only update if the values actually changed to avoid unnecessary re-renders
   useLayoutEffect(() => {
     const checkAuth = async () => {
       const token = await getAuthToken();
-      const storedUsername = getAuthUsername();
-      const storedUserId = getAuthUserId();
+      const storedUsername = await getAuthUsername();
+      const storedUserId = await getAuthUserId();
 
+      // Only update if values changed (e.g., user logged in on another tab)
       if (token && storedUsername && storedUserId) {
         setIsAuthenticated(true);
         setUsername(storedUsername);
         setUserId(storedUserId);
+      } else {
+        // User not authenticated
+        setIsAuthenticated(false);
+        setUsername(null);
+        setUserId(null);
       }
     };
     checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = (response: LoginResponse) => {

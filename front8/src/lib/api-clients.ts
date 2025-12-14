@@ -3,7 +3,7 @@ import { FeedClientJSON } from '@/schema/feed.twirp';
 import { PostsClientJSON } from '@/schema/posts.twirp';
 import { UsersClientJSON } from '@/schema/users.twirp';
 import { SubscriptionsClientJSON } from '@/schema/subscriptions.twirp';
-import { getAuthToken } from './auth-client';
+import { getAuthToken } from './authHelpers';
 
 function getApiBaseUrl(): string {
   // Server-side
