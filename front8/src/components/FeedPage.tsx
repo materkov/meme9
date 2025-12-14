@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { PostsClient } from '@/lib/api-clients';
 import type { Post } from '@/schema/posts';
+import { FeedType } from '@/schema/posts';
 import FeedTabs from '@/components/FeedTabs';
 import PostForm from '@/components/PostForm';
 import PostCard from './PostCard';
@@ -18,11 +19,11 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     ? await searchParams 
     : searchParams;
   
-  // Determine feed type from searchParams, default to 'all'
+  // Determine feed type from searchParams, default to ALL
   // Let the backend handle authentication - if user requests subscriptions but isn't authenticated,
   // the backend will return an error which we'll handle
   const feedParam = resolvedSearchParams?.feed;
-  const feedType = feedParam === 'subscriptions' ? 'subscriptions' : 'all';
+  const feedType = feedParam === 'subscriptions' ? FeedType.SUBSCRIPTIONS : FeedType.ALL;
 
   try {
     // Standard client automatically reads token from cookies on server, localStorage on client
@@ -31,7 +32,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   } catch (err) {
     error = err instanceof Error ? err.message : 'Failed to load feed';
     // If it's an authentication error for subscriptions, show a helpful message
-    if (feedType === 'subscriptions' && error.includes('authentication')) {
+    if (feedType === FeedType.SUBSCRIPTIONS && error.includes('authentication')) {
       error = 'Please login to view subscriptions feed';
     }
   }
@@ -51,7 +52,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         <div className="flex items-center justify-center py-12">
           <p className="text-red-600 dark:text-red-400">Error: {error}</p>
         </div>
-      ) : feedType === 'subscriptions' && posts.length === 0 ? (
+      ) : feedType === FeedType.SUBSCRIPTIONS && posts.length === 0 ? (
         <div className="flex items-center justify-center py-12">
           <p className="text-zinc-600 dark:text-zinc-400">
             No posts from your subscriptions. Try following some users!

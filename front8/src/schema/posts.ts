@@ -86,9 +86,9 @@ export interface Post {
  */
 export interface FeedRequest {
     /**
-     * @generated from protobuf field: string type = 1
+     * @generated from protobuf field: meme.posts.FeedType type = 1
      */
-    type: string; // "all" or "subscriptions"
+    type: FeedType;
 }
 /**
  * @generated from protobuf message meme.posts.FeedResponse
@@ -98,6 +98,23 @@ export interface FeedResponse {
      * @generated from protobuf field: repeated meme.posts.Post posts = 1
      */
     posts: Post[];
+}
+/**
+ * @generated from protobuf enum meme.posts.FeedType
+ */
+export enum FeedType {
+    /**
+     * @generated from protobuf enum value: FEED_TYPE_UNSPECIFIED = 0;
+     */
+    UNSPECIFIED = 0,
+    /**
+     * @generated from protobuf enum value: FEED_TYPE_ALL = 1;
+     */
+    ALL = 1,
+    /**
+     * @generated from protobuf enum value: FEED_TYPE_SUBSCRIPTIONS = 2;
+     */
+    SUBSCRIPTIONS = 2
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class PublishRequest$Type extends MessageType<PublishRequest> {
@@ -417,12 +434,12 @@ export const Post = new Post$Type();
 class FeedRequest$Type extends MessageType<FeedRequest> {
     constructor() {
         super("meme.posts.FeedRequest", [
-            { no: 1, name: "type", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 1, name: "type", kind: "enum", T: () => ["meme.posts.FeedType", FeedType, "FEED_TYPE_"] }
         ]);
     }
     create(value?: PartialMessage<FeedRequest>): FeedRequest {
         const message = globalThis.Object.create((this.messagePrototype!));
-        message.type = "";
+        message.type = 0;
         if (value !== undefined)
             reflectionMergePartial<FeedRequest>(this, message, value);
         return message;
@@ -432,8 +449,8 @@ class FeedRequest$Type extends MessageType<FeedRequest> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* string type */ 1:
-                    message.type = reader.string();
+                case /* meme.posts.FeedType type */ 1:
+                    message.type = reader.int32();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -447,9 +464,9 @@ class FeedRequest$Type extends MessageType<FeedRequest> {
         return message;
     }
     internalBinaryWrite(message: FeedRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* string type = 1; */
-        if (message.type !== "")
-            writer.tag(1, WireType.LengthDelimited).string(message.type);
+        /* meme.posts.FeedType type = 1; */
+        if (message.type !== 0)
+            writer.tag(1, WireType.Varint).int32(message.type);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

@@ -2,19 +2,25 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { FeedType } from '@/schema/posts';
 
 export default function FeedTabs() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuth();
-  const currentFeedType = (searchParams.get('feed') || 'all') as 'all' | 'subscriptions';
+  
+  // Convert URL param to enum value
+  const feedParam = searchParams.get('feed');
+  const currentFeedType = feedParam === 'subscriptions' 
+    ? FeedType.SUBSCRIPTIONS 
+    : FeedType.ALL;
 
-  const setFeedType = (type: 'all' | 'subscriptions') => {
+  const setFeedType = (type: FeedType) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (type === 'all') {
+    if (type === FeedType.ALL) {
       params.delete('feed');
     } else {
-      params.set('feed', type);
+      params.set('feed', 'subscriptions');
     }
     const newUrl = params.toString() ? `/feed?${params.toString()}` : '/feed';
     router.replace(newUrl, { scroll: false });
@@ -23,9 +29,9 @@ export default function FeedTabs() {
   return (
     <div className="flex border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
       <button
-        onClick={() => setFeedType('all')}
+        onClick={() => setFeedType(FeedType.ALL)}
         className={`px-4 py-2 text-sm font-medium transition-colors ${
-          currentFeedType === 'all'
+          currentFeedType === FeedType.ALL
             ? 'bg-black dark:bg-zinc-50 text-white dark:text-black'
             : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
         }`}
@@ -33,10 +39,10 @@ export default function FeedTabs() {
         Global
       </button>
       <button
-        onClick={() => setFeedType('subscriptions')}
+        onClick={() => setFeedType(FeedType.SUBSCRIPTIONS)}
         disabled={!isAuthenticated}
         className={`px-4 py-2 text-sm font-medium transition-colors ${
-          currentFeedType === 'subscriptions'
+          currentFeedType === FeedType.SUBSCRIPTIONS
             ? 'bg-black dark:bg-zinc-50 text-white dark:text-black'
             : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
         } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}

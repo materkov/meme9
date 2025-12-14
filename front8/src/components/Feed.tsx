@@ -3,18 +3,19 @@
 import { useState, useEffect } from 'react';
 import { PostsClient } from '@/lib/api-clients';
 import type { Post } from '@/schema/posts';
+import { FeedType } from '@/schema/posts';
 import PostForm from './PostForm';
 import { useAuth } from '@/contexts/AuthContext';
 import PostCard from './PostCard';
 
 interface FeedProps {
   initialPosts?: Post[];
-  initialFeedType?: 'all' | 'subscriptions';
+  initialFeedType?: FeedType;
 }
 
-export default function Feed({ initialPosts = [], initialFeedType = 'all' }: FeedProps) {
+export default function Feed({ initialPosts = [], initialFeedType = FeedType.ALL }: FeedProps) {
   const { isAuthenticated } = useAuth();
-  const [feedType, setFeedType] = useState<'all' | 'subscriptions'>(initialFeedType);
+  const [feedType, setFeedType] = useState<FeedType>(initialFeedType);
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,9 +49,9 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
         {/* Tabs */}
         <div className="flex border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
           <button
-            onClick={() => setFeedType('all')}
+            onClick={() => setFeedType(FeedType.ALL)}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
-              feedType === 'all'
+              feedType === FeedType.ALL
                 ? 'bg-black dark:bg-zinc-50 text-white dark:text-black'
                 : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
             }`}
@@ -58,10 +59,10 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
             Global
           </button>
           <button
-            onClick={() => setFeedType('subscriptions')}
+            onClick={() => setFeedType(FeedType.SUBSCRIPTIONS)}
             disabled={!isAuthenticated}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
-              feedType === 'subscriptions'
+              feedType === FeedType.SUBSCRIPTIONS
                 ? 'bg-black dark:bg-zinc-50 text-white dark:text-black'
                 : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
             } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -85,7 +86,7 @@ export default function Feed({ initialPosts = [], initialFeedType = 'all' }: Fee
       ) : posts.length === 0 ? (
         <div className="flex items-center justify-center py-12">
           <p className="text-zinc-600 dark:text-zinc-400">
-            {feedType === 'subscriptions' 
+            {feedType === FeedType.SUBSCRIPTIONS 
               ? 'No posts from your subscriptions. Try following some users!'
               : 'No posts found'}
           </p>

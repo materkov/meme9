@@ -39,8 +39,14 @@ message Post {
   string createdAt = 5; // RFC3339 format
 }
 
+enum FeedType {
+  FEED_TYPE_UNSPECIFIED = 0;
+  FEED_TYPE_ALL = 1;
+  FEED_TYPE_SUBSCRIPTIONS = 2;
+}
+
 message FeedRequest {
-  string type = 1; // "all" or "subscriptions"
+  FeedType type = 1;
 }
 
 message FeedResponse {

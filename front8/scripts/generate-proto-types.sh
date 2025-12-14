@@ -12,7 +12,6 @@ protoc \
   --proto_path=../schema \
   --ts_out=src/schema \
   --twirp_ts_out=src/schema \
-  ../schema/feed.proto \
   ../schema/posts.proto \
   ../schema/auth.proto \
   ../schema/users.proto \

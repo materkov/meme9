@@ -120,14 +120,14 @@ func (s *PostsService) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (
 	userID := GetUserIDFromContext(ctx)
 
 	feedType := req.Type
-	if feedType == "" {
-		feedType = "all"
+	if feedType == postsapi.FeedType_FEED_TYPE_UNSPECIFIED {
+		feedType = postsapi.FeedType_FEED_TYPE_ALL
 	}
 
 	var postsList []posts.Post
 	var err error
 
-	if feedType == "subscriptions" {
+	if feedType == postsapi.FeedType_FEED_TYPE_SUBSCRIPTIONS {
 		if userID == "" {
 			return nil, twirp.NewError(twirp.Unauthenticated, "authentication required for subscriptions feed")
 		}

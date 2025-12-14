@@ -21,6 +21,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type FeedType int32
+
+const (
+	FeedType_FEED_TYPE_UNSPECIFIED   FeedType = 0
+	FeedType_FEED_TYPE_ALL           FeedType = 1
+	FeedType_FEED_TYPE_SUBSCRIPTIONS FeedType = 2
+)
+
+// Enum value maps for FeedType.
+var (
+	FeedType_name = map[int32]string{
+		0: "FEED_TYPE_UNSPECIFIED",
+		1: "FEED_TYPE_ALL",
+		2: "FEED_TYPE_SUBSCRIPTIONS",
+	}
+	FeedType_value = map[string]int32{
+		"FEED_TYPE_UNSPECIFIED":   0,
+		"FEED_TYPE_ALL":           1,
+		"FEED_TYPE_SUBSCRIPTIONS": 2,
+	}
+)
+
+func (x FeedType) Enum() *FeedType {
+	p := new(FeedType)
+	*p = x
+	return p
+}
+
+func (x FeedType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FeedType) Descriptor() protoreflect.EnumDescriptor {
+	return file_posts_proto_enumTypes[0].Descriptor()
+}
+
+func (FeedType) Type() protoreflect.EnumType {
+	return &file_posts_proto_enumTypes[0]
+}
+
+func (x FeedType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FeedType.Descriptor instead.
+func (FeedType) EnumDescriptor() ([]byte, []int) {
+	return file_posts_proto_rawDescGZIP(), []int{0}
+}
+
 type PublishRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Text          string                 `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
@@ -319,7 +368,7 @@ func (x *Post) GetCreatedAt() string {
 
 type FeedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // "all" or "subscriptions"
+	Type          FeedType               `protobuf:"varint,1,opt,name=type,proto3,enum=meme.posts.FeedType" json:"type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -354,11 +403,11 @@ func (*FeedRequest) Descriptor() ([]byte, []int) {
 	return file_posts_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *FeedRequest) GetType() string {
+func (x *FeedRequest) GetType() FeedType {
 	if x != nil {
 		return x.Type
 	}
-	return ""
+	return FeedType_FEED_TYPE_UNSPECIFIED
 }
 
 type FeedResponse struct {
@@ -426,11 +475,15 @@ const file_posts_proto_rawDesc = "" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\x16\n" +
 	"\x06userId\x18\x03 \x01(\tR\x06userId\x12\x1a\n" +
 	"\buserName\x18\x04 \x01(\tR\buserName\x12\x1c\n" +
-	"\tcreatedAt\x18\x05 \x01(\tR\tcreatedAt\"!\n" +
-	"\vFeedRequest\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\"6\n" +
+	"\tcreatedAt\x18\x05 \x01(\tR\tcreatedAt\"7\n" +
+	"\vFeedRequest\x12(\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x14.meme.posts.FeedTypeR\x04type\"6\n" +
 	"\fFeedResponse\x12&\n" +
-	"\x05posts\x18\x01 \x03(\v2\x10.meme.posts.PostR\x05posts2\x8b\x02\n" +
+	"\x05posts\x18\x01 \x03(\v2\x10.meme.posts.PostR\x05posts*U\n" +
+	"\bFeedType\x12\x19\n" +
+	"\x15FEED_TYPE_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rFEED_TYPE_ALL\x10\x01\x12\x1b\n" +
+	"\x17FEED_TYPE_SUBSCRIPTIONS\x10\x022\x8b\x02\n" +
 	"\x05Posts\x12B\n" +
 	"\aPublish\x12\x1a.meme.posts.PublishRequest\x1a\x1b.meme.posts.PublishResponse\x12K\n" +
 	"\n" +
@@ -450,33 +503,36 @@ func file_posts_proto_rawDescGZIP() []byte {
 	return file_posts_proto_rawDescData
 }
 
+var file_posts_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_posts_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_posts_proto_goTypes = []any{
-	(*PublishRequest)(nil),     // 0: meme.posts.PublishRequest
-	(*PublishResponse)(nil),    // 1: meme.posts.PublishResponse
-	(*GetByUsersRequest)(nil),  // 2: meme.posts.GetByUsersRequest
-	(*GetByUsersResponse)(nil), // 3: meme.posts.GetByUsersResponse
-	(*GetPostRequest)(nil),     // 4: meme.posts.GetPostRequest
-	(*Post)(nil),               // 5: meme.posts.Post
-	(*FeedRequest)(nil),        // 6: meme.posts.FeedRequest
-	(*FeedResponse)(nil),       // 7: meme.posts.FeedResponse
+	(FeedType)(0),              // 0: meme.posts.FeedType
+	(*PublishRequest)(nil),     // 1: meme.posts.PublishRequest
+	(*PublishResponse)(nil),    // 2: meme.posts.PublishResponse
+	(*GetByUsersRequest)(nil),  // 3: meme.posts.GetByUsersRequest
+	(*GetByUsersResponse)(nil), // 4: meme.posts.GetByUsersResponse
+	(*GetPostRequest)(nil),     // 5: meme.posts.GetPostRequest
+	(*Post)(nil),               // 6: meme.posts.Post
+	(*FeedRequest)(nil),        // 7: meme.posts.FeedRequest
+	(*FeedResponse)(nil),       // 8: meme.posts.FeedResponse
 }
 var file_posts_proto_depIdxs = []int32{
-	5, // 0: meme.posts.GetByUsersResponse.posts:type_name -> meme.posts.Post
-	5, // 1: meme.posts.FeedResponse.posts:type_name -> meme.posts.Post
-	0, // 2: meme.posts.Posts.Publish:input_type -> meme.posts.PublishRequest
-	2, // 3: meme.posts.Posts.GetByUsers:input_type -> meme.posts.GetByUsersRequest
-	4, // 4: meme.posts.Posts.Get:input_type -> meme.posts.GetPostRequest
-	6, // 5: meme.posts.Posts.GetFeed:input_type -> meme.posts.FeedRequest
-	1, // 6: meme.posts.Posts.Publish:output_type -> meme.posts.PublishResponse
-	3, // 7: meme.posts.Posts.GetByUsers:output_type -> meme.posts.GetByUsersResponse
-	5, // 8: meme.posts.Posts.Get:output_type -> meme.posts.Post
-	7, // 9: meme.posts.Posts.GetFeed:output_type -> meme.posts.FeedResponse
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	6, // 0: meme.posts.GetByUsersResponse.posts:type_name -> meme.posts.Post
+	0, // 1: meme.posts.FeedRequest.type:type_name -> meme.posts.FeedType
+	6, // 2: meme.posts.FeedResponse.posts:type_name -> meme.posts.Post
+	1, // 3: meme.posts.Posts.Publish:input_type -> meme.posts.PublishRequest
+	3, // 4: meme.posts.Posts.GetByUsers:input_type -> meme.posts.GetByUsersRequest
+	5, // 5: meme.posts.Posts.Get:input_type -> meme.posts.GetPostRequest
+	7, // 6: meme.posts.Posts.GetFeed:input_type -> meme.posts.FeedRequest
+	2, // 7: meme.posts.Posts.Publish:output_type -> meme.posts.PublishResponse
+	4, // 8: meme.posts.Posts.GetByUsers:output_type -> meme.posts.GetByUsersResponse
+	6, // 9: meme.posts.Posts.Get:output_type -> meme.posts.Post
+	8, // 10: meme.posts.Posts.GetFeed:output_type -> meme.posts.FeedResponse
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_posts_proto_init() }
@@ -489,13 +545,14 @@ func file_posts_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_posts_proto_rawDesc), len(file_posts_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_posts_proto_goTypes,
 		DependencyIndexes: file_posts_proto_depIdxs,
+		EnumInfos:         file_posts_proto_enumTypes,
 		MessageInfos:      file_posts_proto_msgTypes,
 	}.Build()
 	File_posts_proto = out.File
