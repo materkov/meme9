@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useLayoutEffect, useState, ReactNode } from 'react';
-import { getAuthToken } from '@/lib/api-clients';
+import { getAuthToken, getAuthUsername, getAuthUserId } from '@/lib/auth-client';
 import type { LoginResponse } from '@/schema/auth';
 import { setAuthTokenCookie, removeAuthTokenCookie } from '@/lib/auth-client';
 
@@ -26,21 +26,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Use useLayoutEffect to update state synchronously before browser paint
   // This ensures "Welcome {name}" appears immediately without visible delay
   useLayoutEffect(() => {
-    const token = getAuthToken();
-    const storedUsername = localStorage.getItem('auth_username');
-    const storedUserId = localStorage.getItem('auth_user_id');
+    const checkAuth = async () => {
+      const token = await getAuthToken();
+      const storedUsername = getAuthUsername();
+      const storedUserId = getAuthUserId();
 
-    if (token && storedUsername && storedUserId) {
-      setIsAuthenticated(true);
-      setUsername(storedUsername);
-      setUserId(storedUserId);
-    }
+      if (token && storedUsername && storedUserId) {
+        setIsAuthenticated(true);
+        setUsername(storedUsername);
+        setUserId(storedUserId);
+      }
+    };
+    checkAuth();
   }, []);
 
   const login = (response: LoginResponse) => {
-    setAuthTokenCookie(response.token);
-    localStorage.setItem('auth_username', response.username);
-    localStorage.setItem('auth_user_id', response.userId);
+    setAuthTokenCookie(response.token, response.username, response.userId);
     setIsAuthenticated(true);
     setUsername(response.username);
     setUserId(response.userId);
