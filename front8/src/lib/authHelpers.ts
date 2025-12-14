@@ -97,11 +97,3 @@ export function useAuthUserId(): string | null {
   return localStorage.getItem(LS_AUTH_USER_ID) || null;
 }
 
-export function useIsAuthenticated(): boolean {
-  if (typeof window === 'undefined') return false;
-  const token = localStorage.getItem(LS_AUTH_TOKEN);
-  const username = localStorage.getItem(LS_AUTH_USERNAME);
-  const userId = localStorage.getItem(LS_AUTH_USER_ID);
-  return !!(token && username && userId);
-}
-

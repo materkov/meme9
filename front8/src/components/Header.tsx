@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useIsAuthenticated, useAuthUsername, removeAuthTokenCookie } from '@/lib/authHelpers';
+import { useAuthUserId, useAuthUsername, removeAuthTokenCookie } from '@/lib/authHelpers';
 import { useRouter } from 'next/navigation';
 import AuthPopup from './AuthPopup';
 
 export default function Header() {
-  const isAuthenticated = useIsAuthenticated();
+  const isAuthenticated = !!useAuthUserId();
   const [showAuth, setShowAuth] = useState(false);
 
   return (
