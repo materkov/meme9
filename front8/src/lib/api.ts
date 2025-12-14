@@ -1,5 +1,5 @@
-//const API_BASE_URL = 'http://localhost:8080';
-const API_BASE_URL = 'https://meme.mmaks.me';
+const API_BASE_URL = 'http://localhost:8080';
+//const API_BASE_URL = 'https://meme.mmaks.me';
 
 // Auth token storage key
 const AUTH_TOKEN_KEY = 'auth_token';

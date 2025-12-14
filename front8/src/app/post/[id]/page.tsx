@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import PostComponent from '@/components/Post';
+import PostCard from '@/components/PostCard';
 import { getPost, getUser } from '@/lib/api';
 import { getServerAuthToken } from '@/lib/auth-server';
 
@@ -52,7 +52,7 @@ export default async function PostPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <main className="container mx-auto px-4 py-8">
-        <PostComponent post={post} user={user} />
+        <PostCard post={post} user={user} clickable={false} showBackLink={true} />
       </main>
     </div>
   );
