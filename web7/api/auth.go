@@ -4,21 +4,21 @@ import (
 	"context"
 	"net/http"
 
-	json_api "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/json_api"
+	authapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/auth"
 	"github.com/twitchtv/twirp"
 )
 
 const httpHeadersKey contextKey = "httpHeaders"
 
 // AuthHook creates a Twirp server hook for authentication
-func AuthHook(apiAdapter *API) *twirp.ServerHooks {
+func AuthHook(authService *AuthService) *twirp.ServerHooks {
 	return &twirp.ServerHooks{
 		RequestRouted: func(ctx context.Context) (context.Context, error) {
 			// Skip auth for login and register
 			serviceName, _ := twirp.ServiceName(ctx)
 			methodName, _ := twirp.MethodName(ctx)
 
-			if serviceName == "meme.json_api.JsonAPI" &&
+			if serviceName == "meme.auth.Auth" &&
 				(methodName == "Login" || methodName == "Register") {
 				return ctx, nil
 			}
@@ -40,10 +40,10 @@ func AuthHook(apiAdapter *API) *twirp.ServerHooks {
 
 			// Methods that require authentication
 			authRequiredMethods := map[string]bool{
-				"Publish":               true,
-				"Subscribe":             true,
-				"Unsubscribe":           true,
-				"GetSubscriptionStatus": true,
+				"Publish":     true,
+				"Subscribe":   true,
+				"Unsubscribe": true,
+				"GetStatus":   true,
 			}
 
 			requiresAuth := authRequiredMethods[methodName]
@@ -59,10 +59,10 @@ func AuthHook(apiAdapter *API) *twirp.ServerHooks {
 			}
 
 			// Use proto VerifyToken method
-			verifyReq := &json_api.VerifyTokenRequest{
+			verifyReq := &authapi.VerifyTokenRequest{
 				Token: authHeader,
 			}
-			verifyResp, err := apiAdapter.VerifyToken(ctx, verifyReq)
+			verifyResp, err := authService.VerifyToken(ctx, verifyReq)
 			if err != nil {
 				if requiresAuth {
 					// Return error for methods that require auth
@@ -104,7 +104,7 @@ func CORSMiddleware(handler http.Handler) http.Handler {
 }
 
 // AuthMiddleware wraps the Twirp handler to inject HTTP headers into context
-func AuthMiddleware(apiAdapter *API, handler http.Handler) http.Handler {
+func AuthMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if ctx == nil {

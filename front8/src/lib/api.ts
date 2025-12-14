@@ -68,7 +68,7 @@ export async function getFeed(feedType: string = 'all', authToken?: string | nul
   
   const requestBody = { type: feedType };
   
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/GetFeed`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.feed.Feed/GetFeed`, {
     method: 'POST',
     headers,
     body: JSON.stringify(requestBody),
@@ -108,7 +108,7 @@ export async function getPost(postId: string, authToken?: string | null): Promis
     ? getServerHeaders(authToken)
     : getHeaders();
   
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/GetPost`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.posts.Posts/Get`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ post_id: postId }),
@@ -143,7 +143,7 @@ export async function getUser(userId: string, authToken?: string | null): Promis
     ? getServerHeaders(authToken)
     : getHeaders();
   
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/GetUser`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.users.Users/Get`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ user_id: userId }),
@@ -186,7 +186,7 @@ export interface VerifyTokenResponse {
 
 // Auth API functions
 export async function login(request: LoginRequest): Promise<LoginResponse> {
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/Login`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.auth.Auth/Login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -205,7 +205,7 @@ export async function login(request: LoginRequest): Promise<LoginResponse> {
 }
 
 export async function register(request: RegisterRequest): Promise<LoginResponse> {
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/Register`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.auth.Auth/Register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ export async function register(request: RegisterRequest): Promise<LoginResponse>
 }
 
 export async function verifyToken(token: string): Promise<VerifyTokenResponse> {
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/VerifyToken`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.auth.Auth/VerifyToken`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -257,7 +257,7 @@ export async function publishPost(request: PublishRequest, authToken?: string | 
     ? getServerHeaders(authToken)
     : getHeaders();
   
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/Publish`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.posts.Posts/Publish`, {
     method: 'POST',
     headers,
     body: JSON.stringify(request),
@@ -296,7 +296,7 @@ export async function getUserPosts(userId: string, authToken?: string | null): P
     ? getServerHeaders(authToken)
     : getHeaders();
   
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/GetUserPosts`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.posts.Posts/GetByUsers`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ user_id: userId }),
@@ -323,7 +323,7 @@ export interface SubscribeResponse {
 
 // Subscribe API function
 export async function subscribe(userId: string): Promise<SubscribeResponse> {
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/Subscribe`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.subscriptions.Subscriptions/Subscribe`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify({ user_id: userId }),
@@ -341,7 +341,7 @@ export async function subscribe(userId: string): Promise<SubscribeResponse> {
 
 // Unsubscribe API function
 export async function unsubscribe(userId: string): Promise<SubscribeResponse> {
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/Unsubscribe`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.subscriptions.Subscriptions/Unsubscribe`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify({ user_id: userId }),
@@ -363,7 +363,7 @@ export async function getSubscriptionStatus(userId: string, authToken?: string |
     ? getServerHeaders(authToken)
     : getHeaders();
   
-  const response = await fetch(`${API_BASE_URL}/twirp/meme.json_api.JsonAPI/GetSubscriptionStatus`, {
+  const response = await fetch(`${API_BASE_URL}/twirp/meme.subscriptions.Subscriptions/GetStatus`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ user_id: userId }),

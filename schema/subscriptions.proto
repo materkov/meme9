@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package meme.subscriptions;
+option go_package = "github.com/materkov/meme9/api/subscriptions";
+
+// Subscriptions service
+service Subscriptions {
+  rpc Subscribe(SubscribeRequest) returns (SubscribeResponse);
+  rpc Unsubscribe(SubscribeRequest) returns (SubscribeResponse);
+  rpc GetStatus(SubscribeRequest) returns (SubscribeResponse);
+  rpc GetFollowing(GetFollowingRequest) returns (GetFollowingResponse);
+  rpc IsSubscribed(IsSubscribedRequest) returns (IsSubscribedResponse);
+}
+
+message SubscribeRequest {
+  string user_id = 1;
+}
+
+message SubscribeResponse {
+  bool subscribed = 1;
+}
+
+message GetFollowingRequest {
+  string user_id = 1;
+}
+
+message GetFollowingResponse {
+  repeated string user_ids = 1;
+}
+
+message IsSubscribedRequest {
+  string subscriber_id = 1;
+  string target_user_id = 2;
+}
+
+message IsSubscribedResponse {
+  bool subscribed = 1;
+}
+

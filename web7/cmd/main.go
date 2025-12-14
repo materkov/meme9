@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	json_api "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/json_api"
 	"github.com/twitchtv/twirp"
 
 	"github.com/materkov/meme9/web7/adapters/posts"
@@ -14,6 +13,11 @@ import (
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
+	authapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/auth"
+	feedapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/feed"
+	postsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/posts"
+	subscriptionsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/subscriptions"
+	usersapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/users"
 	postsservice "github.com/materkov/meme9/web7/services/posts"
 	tokensservice "github.com/materkov/meme9/web7/services/tokens"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -60,15 +64,42 @@ func main() {
 	postsService := postsservice.New(postsAdapter)
 	tokensService := tokensservice.New(tokensAdapter)
 
-	apiAdapter := api.NewAPI(postsAdapter, usersAdapter, tokensAdapter, subscriptionsAdapter, postsService, tokensService)
+	// Create separate service instances
+	feedService := api.NewFeedService(postsAdapter, usersAdapter, subscriptionsAdapter)
+	postsServiceInstance := api.NewPostsService(postsAdapter, usersAdapter, postsService)
+	authService := api.NewAuthService(usersAdapter, tokensAdapter, tokensService)
+	usersService := api.NewUsersService(usersAdapter)
+	subscriptionsService := api.NewSubscriptionsService(subscriptionsAdapter)
 
-	// Create Twirp server - api.API implements JsonAPI interface directly
-	twirpHandler := json_api.NewJsonAPIServer(apiAdapter, twirp.WithServerHooks(api.AuthHook(apiAdapter)))
+	// Create Twirp servers for each service
+	authHooks := api.AuthHook(authService)
+
+	feedHandler := feedapi.NewFeedServer(feedService, twirp.WithServerHooks(authHooks))
+	postsHandler := postsapi.NewPostsServer(postsServiceInstance, twirp.WithServerHooks(authHooks))
+	authHandler := authapi.NewAuthServer(authService, twirp.WithServerHooks(authHooks))
+	usersHandler := usersapi.NewUsersServer(usersService, twirp.WithServerHooks(authHooks))
+	subscriptionsHandler := subscriptionsapi.NewSubscriptionsServer(subscriptionsService, twirp.WithServerHooks(authHooks))
+
 	// Wrap with auth middleware to inject headers into context
-	twirpHandlerWithAuth := api.AuthMiddleware(apiAdapter, twirpHandler)
-	// Wrap with CORS middleware to allow frontend requests
-	twirpHandlerWithCORS := api.CORSMiddleware(twirpHandlerWithAuth)
-	http.Handle(twirpHandler.PathPrefix(), twirpHandlerWithCORS)
+	feedHandlerWithAuth := api.AuthMiddleware(feedHandler)
+	postsHandlerWithAuth := api.AuthMiddleware(postsHandler)
+	authHandlerWithAuth := api.AuthMiddleware(authHandler)
+	usersHandlerWithAuth := api.AuthMiddleware(usersHandler)
+	subscriptionsHandlerWithAuth := api.AuthMiddleware(subscriptionsHandler)
+
+	// Wrap with CORS middleware
+	feedHandlerWithCORS := api.CORSMiddleware(feedHandlerWithAuth)
+	postsHandlerWithCORS := api.CORSMiddleware(postsHandlerWithAuth)
+	authHandlerWithCORS := api.CORSMiddleware(authHandlerWithAuth)
+	usersHandlerWithCORS := api.CORSMiddleware(usersHandlerWithAuth)
+	subscriptionsHandlerWithCORS := api.CORSMiddleware(subscriptionsHandlerWithAuth)
+
+	// Register all handlers
+	http.Handle(feedHandler.PathPrefix(), feedHandlerWithCORS)
+	http.Handle(postsHandler.PathPrefix(), postsHandlerWithCORS)
+	http.Handle(authHandler.PathPrefix(), authHandlerWithCORS)
+	http.Handle(usersHandler.PathPrefix(), usersHandlerWithCORS)
+	http.Handle(subscriptionsHandler.PathPrefix(), subscriptionsHandlerWithCORS)
 
 	// Start HTTP server
 	addr := "127.0.0.1:8080"

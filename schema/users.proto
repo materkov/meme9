@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package meme.users;
+option go_package = "github.com/materkov/meme9/api/users";
+
+// Users service
+service Users {
+  rpc Get(GetUserRequest) returns (GetUserResponse);
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  string id = 1;
+  string username = 2;
+}
+
