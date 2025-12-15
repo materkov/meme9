@@ -13,6 +13,7 @@ import (
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
+	"github.com/materkov/meme9/web7/api/auth"
 	authapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/auth"
 	postsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/posts"
 	subscriptionsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/subscriptions"
@@ -65,7 +66,7 @@ func main() {
 
 	// Create separate service instances
 	postsServiceInstance := api.NewPostsService(postsAdapter, usersAdapter, postsService, subscriptionsAdapter)
-	authService := api.NewAuthService(usersAdapter, tokensAdapter, tokensService)
+	authService := auth.NewService(usersAdapter, tokensAdapter, tokensService)
 	usersService := api.NewUsersService(usersAdapter)
 	subscriptionsService := api.NewSubscriptionsService(subscriptionsAdapter)
 

@@ -66,7 +66,7 @@ func (a *Adapter) GetByID(ctx context.Context, userID string) (*User, error) {
 
 	user, ok := users[userID]
 	if !ok {
-			return nil, ErrNotFound
+		return nil, ErrNotFound
 	}
 
 	return user, nil
@@ -114,7 +114,7 @@ func (a *Adapter) GetByIDs(ctx context.Context, userIDs []string) (map[string]*U
 	return users, nil
 }
 
-func (a *Adapter) Create(ctx context.Context, user User) (*User, error) {
+func (a *Adapter) Create(ctx context.Context, user User) (string, error) {
 	collection := a.client.Database("meme9").Collection("users")
 
 	insertDoc := bson.M{
@@ -124,14 +124,9 @@ func (a *Adapter) Create(ctx context.Context, user User) (*User, error) {
 	}
 	result, err := collection.InsertOne(ctx, insertDoc)
 	if err != nil {
-		// Check for duplicate key error (username already exists)
-		if mongo.IsDuplicateKeyError(err) {
-			return nil, ErrUsernameExists
-		}
-		return nil, fmt.Errorf("error creating user: %w", err)
+		return "", fmt.Errorf("error creating user: %w", err)
 	}
 
 	objID := result.InsertedID.(primitive.ObjectID)
-	user.ID = objID.Hex()
-	return &user, nil
+	return objID.Hex(), nil
 }

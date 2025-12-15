@@ -28,7 +28,7 @@ func New(client *mongo.Client) *Adapter {
 	return &Adapter{client: client}
 }
 
-func (a *Adapter) Create(ctx context.Context, token Token) (*Token, error) {
+func (a *Adapter) Create(ctx context.Context, token Token) (string, error) {
 	collection := a.client.Database("meme9").Collection("tokens")
 
 	insertDoc := bson.M{
@@ -38,12 +38,11 @@ func (a *Adapter) Create(ctx context.Context, token Token) (*Token, error) {
 	}
 	result, err := collection.InsertOne(ctx, insertDoc)
 	if err != nil {
-		return nil, fmt.Errorf("error creating token: %w", err)
+		return "", fmt.Errorf("error creating token: %w", err)
 	}
 
 	objID := result.InsertedID.(primitive.ObjectID)
-	token.ID = objID.Hex()
-	return &token, nil
+	return objID.Hex(), nil
 }
 
 func (a *Adapter) GetByValue(ctx context.Context, tokenValue string) (*Token, error) {

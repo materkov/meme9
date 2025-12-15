@@ -4,6 +4,10 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/twitchtv/twirp"
 )
 
 type contextKey string
@@ -26,4 +30,12 @@ func generateToken() (string, error) {
 		return "", err
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
+}
+
+func requireApiError(t *testing.T, err error, code string) {
+	t.Helper()
+
+	twirpErr, ok := err.(twirp.Error)
+	require.True(t, ok)
+	require.Equal(t, code, twirpErr.Msg())
 }

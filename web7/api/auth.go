@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/materkov/meme9/web7/api/auth"
 	authapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/auth"
 	"github.com/twitchtv/twirp"
 )
@@ -11,7 +12,7 @@ import (
 const httpHeadersKey contextKey = "httpHeaders"
 
 // AuthHook creates a Twirp server hook for authentication
-func AuthHook(authService *AuthService) *twirp.ServerHooks {
+func AuthHook(authService *auth.Service) *twirp.ServerHooks {
 	return &twirp.ServerHooks{
 		RequestRouted: func(ctx context.Context) (context.Context, error) {
 			// Skip auth for all Auth service methods - they handle their own validation
