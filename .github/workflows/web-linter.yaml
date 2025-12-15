@@ -18,7 +18,7 @@ jobs:
         run: cd web7 && test -z $(gofmt -l . | tee /dev/stderr)
 
       - name: linter install
-        run: cd web7 && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.54.2
+        run: cd web7 && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v2.7.2
 
       - name: linter run web
         run: cd web7 && bin/golangci-lint --version && ../web7/bin/golangci-lint run

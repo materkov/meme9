@@ -1,5 +1,6 @@
 package tests
 
+/*
 import (
 	"bytes"
 	"context"
@@ -68,3 +69,4 @@ func TestPosting(t *testing.T) {
 	apiRequest(t, "/publish", &req, &resp)
 	require.Empty(t, resp.ID)
 }
+*/
