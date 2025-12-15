@@ -18,6 +18,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Meme9",
   description: "Social media platform",
+  openGraph: {
+    title: "Meme9",
+    description: "Social media platform",
+    type: "website",
+  },
 };
 
 export default async function RootLayout({
