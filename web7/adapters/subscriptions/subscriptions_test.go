@@ -25,7 +25,7 @@ func setupTestAdapter(t *testing.T) (*Adapter, func()) {
 		collection := client.Database("meme9").Collection("subscriptions")
 		err = collection.Drop(ctx)
 		require.NoError(t, err)
-		client.Disconnect(ctx)
+		_ = client.Disconnect(ctx)
 	}
 
 	return adapter, cleanup
@@ -244,7 +244,7 @@ func TestAdapter_EnsureIndexes(t *testing.T) {
 	ctx := context.Background()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://admin:password@localhost:27017/meme9?authSource=admin"))
 	require.NoError(t, err)
-	defer client.Disconnect(ctx)
+	defer func() { _ = client.Disconnect(ctx) }()
 
 	adapter := New(client)
 

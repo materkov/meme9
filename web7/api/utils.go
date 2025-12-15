@@ -2,8 +2,6 @@ package api
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/base64"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -21,15 +19,6 @@ func GetUserIDFromContext(ctx context.Context) string {
 		return ""
 	}
 	return userID
-}
-
-func generateToken() (string, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return base64.URLEncoding.EncodeToString(b), nil
 }
 
 func RequireError(t *testing.T, err error, code string) {

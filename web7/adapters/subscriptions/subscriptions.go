@@ -82,7 +82,7 @@ func (a *Adapter) GetFollowing(ctx context.Context, followerID string) ([]string
 	if err != nil {
 		return nil, fmt.Errorf("error finding subscriptions: %w", err)
 	}
-	defer cursor.Close(ctx)
+	defer func() { _ = cursor.Close(ctx) }()
 
 	followingIDs := []string{}
 	for cursor.Next(ctx) {

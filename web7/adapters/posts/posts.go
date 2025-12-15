@@ -36,7 +36,7 @@ func (a *Adapter) GetAll(ctx context.Context) ([]Post, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error finding posts: %w", err)
 	}
-	defer cursor.Close(ctx)
+	defer func() { _ = cursor.Close(ctx) }()
 
 	posts := []Post{}
 	for cursor.Next(ctx) {

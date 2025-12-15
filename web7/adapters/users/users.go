@@ -99,7 +99,7 @@ func (a *Adapter) GetByIDs(ctx context.Context, userIDs []string) (map[string]*U
 	if err != nil {
 		return nil, fmt.Errorf("error finding users: %w", err)
 	}
-	defer cursor.Close(ctx)
+	defer func() { _ = cursor.Close(ctx) }()
 
 	users := make(map[string]*User)
 	for cursor.Next(ctx) {
