@@ -1,4 +1,4 @@
-package api
+package subscriptions
 
 import (
 	"context"
@@ -6,22 +6,23 @@ import (
 	"github.com/twitchtv/twirp"
 
 	"github.com/materkov/meme9/web7/adapters/subscriptions"
+	"github.com/materkov/meme9/web7/api"
 	subscriptionsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/subscriptions"
 )
 
-type SubscriptionsService struct {
+type Service struct {
 	subscriptions *subscriptions.Adapter
 }
 
-func NewSubscriptionsService(subscriptionsAdapter *subscriptions.Adapter) *SubscriptionsService {
-	return &SubscriptionsService{
+func NewService(subscriptionsAdapter *subscriptions.Adapter) *Service {
+	return &Service{
 		subscriptions: subscriptionsAdapter,
 	}
 }
 
 // Subscribe implements the Subscriptions Subscribe method
-func (s *SubscriptionsService) Subscribe(ctx context.Context, req *subscriptionsapi.SubscribeRequest) (*subscriptionsapi.SubscribeResponse, error) {
-	followerID := GetUserIDFromContext(ctx)
+func (s *Service) Subscribe(ctx context.Context, req *subscriptionsapi.SubscribeRequest) (*subscriptionsapi.SubscribeResponse, error) {
+	followerID := api.GetUserIDFromContext(ctx)
 	if followerID == "" {
 		return nil, twirp.NewError(twirp.Unauthenticated, "unauthorized")
 	}
@@ -41,8 +42,8 @@ func (s *SubscriptionsService) Subscribe(ctx context.Context, req *subscriptions
 }
 
 // Unsubscribe implements the Subscriptions Unsubscribe method
-func (s *SubscriptionsService) Unsubscribe(ctx context.Context, req *subscriptionsapi.SubscribeRequest) (*subscriptionsapi.SubscribeResponse, error) {
-	followerID := GetUserIDFromContext(ctx)
+func (s *Service) Unsubscribe(ctx context.Context, req *subscriptionsapi.SubscribeRequest) (*subscriptionsapi.SubscribeResponse, error) {
+	followerID := api.GetUserIDFromContext(ctx)
 	if followerID == "" {
 		return nil, twirp.NewError(twirp.Unauthenticated, "unauthorized")
 	}
@@ -62,8 +63,8 @@ func (s *SubscriptionsService) Unsubscribe(ctx context.Context, req *subscriptio
 }
 
 // GetStatus implements the Subscriptions GetStatus method
-func (s *SubscriptionsService) GetStatus(ctx context.Context, req *subscriptionsapi.SubscribeRequest) (*subscriptionsapi.SubscribeResponse, error) {
-	followerID := GetUserIDFromContext(ctx)
+func (s *Service) GetStatus(ctx context.Context, req *subscriptionsapi.SubscribeRequest) (*subscriptionsapi.SubscribeResponse, error) {
+	followerID := api.GetUserIDFromContext(ctx)
 	if followerID == "" {
 		return nil, twirp.NewError(twirp.Unauthenticated, "unauthorized")
 	}
@@ -83,8 +84,8 @@ func (s *SubscriptionsService) GetStatus(ctx context.Context, req *subscriptions
 }
 
 // GetFollowing implements the Subscriptions GetFollowing method
-func (s *SubscriptionsService) GetFollowing(ctx context.Context, req *subscriptionsapi.GetFollowingRequest) (*subscriptionsapi.GetFollowingResponse, error) {
-	userID := GetUserIDFromContext(ctx)
+func (s *Service) GetFollowing(ctx context.Context, req *subscriptionsapi.GetFollowingRequest) (*subscriptionsapi.GetFollowingResponse, error) {
+	userID := api.GetUserIDFromContext(ctx)
 	if userID == "" {
 		return nil, twirp.NewError(twirp.Unauthenticated, "unauthorized")
 	}
@@ -112,7 +113,7 @@ func (s *SubscriptionsService) GetFollowing(ctx context.Context, req *subscripti
 }
 
 // IsSubscribed implements the Subscriptions IsSubscribed method
-func (s *SubscriptionsService) IsSubscribed(ctx context.Context, req *subscriptionsapi.IsSubscribedRequest) (*subscriptionsapi.IsSubscribedResponse, error) {
+func (s *Service) IsSubscribed(ctx context.Context, req *subscriptionsapi.IsSubscribedRequest) (*subscriptionsapi.IsSubscribedResponse, error) {
 	if req.SubscriberId == "" {
 		return nil, twirp.NewError(twirp.InvalidArgument, "subscriber_id is required")
 	}

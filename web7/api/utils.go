@@ -32,7 +32,7 @@ func generateToken() (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-func requireApiError(t *testing.T, err error, code string) {
+func RequireError(t *testing.T, err error, code string) {
 	t.Helper()
 
 	twirpErr, ok := err.(twirp.Error)

@@ -14,11 +14,13 @@ import (
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
 	"github.com/materkov/meme9/web7/api/auth"
+	postsserviceapi "github.com/materkov/meme9/web7/api/posts"
+	subscriptionsserviceapi "github.com/materkov/meme9/web7/api/subscriptions"
+	usersserviceapi "github.com/materkov/meme9/web7/api/users"
 	authapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/auth"
 	postsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/posts"
 	subscriptionsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/subscriptions"
 	usersapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/users"
-	postsservice "github.com/materkov/meme9/web7/services/posts"
 	tokensservice "github.com/materkov/meme9/web7/services/tokens"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -61,14 +63,13 @@ func main() {
 	}
 
 	// Initialize services
-	postsService := postsservice.New(postsAdapter)
 	tokensService := tokensservice.New(tokensAdapter)
 
 	// Create separate service instances
-	postsServiceInstance := api.NewPostsService(postsAdapter, usersAdapter, postsService, subscriptionsAdapter)
+	postsServiceInstance := postsserviceapi.NewService(postsAdapter, usersAdapter, subscriptionsAdapter)
 	authService := auth.NewService(usersAdapter, tokensAdapter, tokensService)
-	usersService := api.NewUsersService(usersAdapter)
-	subscriptionsService := api.NewSubscriptionsService(subscriptionsAdapter)
+	usersService := usersserviceapi.NewService(usersAdapter)
+	subscriptionsService := subscriptionsserviceapi.NewService(subscriptionsAdapter)
 
 	// Create Twirp servers for each service
 	authHooks := api.AuthHook(authService)

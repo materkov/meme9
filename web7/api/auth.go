@@ -124,3 +124,5 @@ func AuthMiddleware(handler http.Handler) http.Handler {
 		handler.ServeHTTP(w, r)
 	})
 }
+
+var ErrAuthRequired = twirp.NewError(twirp.Unauthenticated, "auth_required")

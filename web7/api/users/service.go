@@ -1,4 +1,4 @@
-package api
+package users
 
 import (
 	"context"
@@ -9,18 +9,18 @@ import (
 	usersapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/users"
 )
 
-type UsersService struct {
+type Service struct {
 	users *users.Adapter
 }
 
-func NewUsersService(usersAdapter *users.Adapter) *UsersService {
-	return &UsersService{
+func NewService(usersAdapter *users.Adapter) *Service {
+	return &Service{
 		users: usersAdapter,
 	}
 }
 
 // Get implements the Users Get method
-func (s *UsersService) Get(ctx context.Context, req *usersapi.GetUserRequest) (*usersapi.GetUserResponse, error) {
+func (s *Service) Get(ctx context.Context, req *usersapi.GetUserRequest) (*usersapi.GetUserResponse, error) {
 	if req.UserId == "" {
 		return nil, twirp.NewError(twirp.InvalidArgument, "user_id is required")
 	}
