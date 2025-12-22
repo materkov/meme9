@@ -12,74 +12,57 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func initService(ctrl *gomock.Controller) (*Service, *mocks.MockUsersAdapter) {
-	mockUsers := mocks.NewMockUsersAdapter(ctrl)
-	return NewService(mockUsers), mockUsers
-}
-
-func TestService_Get_Success(t *testing.T) {
+func initService(t *testing.T) (*Service, *mocks.MockUsersAdapter, func()) {
 	ctrl := gomock.NewController(t)
+	closer := func() {
+		ctrl.Finish()
+	}
 	defer ctrl.Finish()
 
-	service, mockUsers := initService(ctrl)
+	mockUsers := mocks.NewMockUsersAdapter(ctrl)
+	return NewService(mockUsers), mockUsers, closer
+}
 
-	ctx := context.Background()
-	userID := "user-123"
-	username := "testuser"
+func TestService_Get(t *testing.T) {
+	service, mockUsers, closer := initService(t)
+	defer closer()
 
-	user := &users.User{
-		ID:       userID,
-		Username: username,
-	}
+	t.Run("success", func(t *testing.T) {
+		mockUsers.EXPECT().
+			GetByID(gomock.Any(), "user-123").
+			Return(&users.User{
+				ID:       "user-123",
+				Username: "testuser",
+			}, nil).
+			Times(1)
 
-	mockUsers.EXPECT().
-		GetByID(ctx, userID).
-		Return(user, nil).
-		Times(1)
-
-	resp, err := service.Get(ctx, &usersapi.GetUserRequest{
-		UserId: userID,
+		ctx := context.WithValue(context.Background(), api.UserIDKey, "user-123")
+		resp, err := service.Get(ctx, &usersapi.GetUserRequest{
+			UserId: "user-123",
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Equal(t, "user-123", resp.Id)
+		require.Equal(t, "testuser", resp.Username)
 	})
 
-	require.NoError(t, err)
-	require.NotNil(t, resp)
-	require.Equal(t, userID, resp.Id)
-	require.Equal(t, username, resp.Username)
-}
-
-func TestService_Get_Invalid(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, _ := initService(ctrl)
-	ctx := context.Background()
-
 	t.Run("empty user id", func(t *testing.T) {
+		ctx := context.Background()
 		_, err := service.Get(ctx, &usersapi.GetUserRequest{
 			UserId: "",
 		})
 		api.RequireError(t, err, "user_not_found")
 	})
-}
 
-func TestService_Get_UserNotFound(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, mockUsers := initService(ctrl)
-	ctx := context.Background()
-	userID := "user-not-found"
-
-	mockUsers.EXPECT().
-		GetByID(ctx, userID).
-		Return(nil, users.ErrNotFound).
-		Times(1)
-
-	resp, err := service.Get(ctx, &usersapi.GetUserRequest{
-		UserId: userID,
+	t.Run("user not found", func(t *testing.T) {
+		mockUsers.EXPECT().
+			GetByID(gomock.Any(), "user-123").
+			Return(nil, users.ErrNotFound).
+			Times(1)
+		ctx := context.WithValue(context.Background(), api.UserIDKey, "user-123")
+		_, err := service.Get(ctx, &usersapi.GetUserRequest{
+			UserId: "user-123",
+		})
+		api.RequireError(t, err, "user_not_found")
 	})
-
-	require.Error(t, err)
-	require.Nil(t, resp)
-	api.RequireError(t, err, "user_not_found")
 }

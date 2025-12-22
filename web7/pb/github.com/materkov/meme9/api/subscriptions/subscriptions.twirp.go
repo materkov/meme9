@@ -38,10 +38,6 @@ type Subscriptions interface {
 	Unsubscribe(context.Context, *SubscribeRequest) (*SubscribeResponse, error)
 
 	GetStatus(context.Context, *SubscribeRequest) (*SubscribeResponse, error)
-
-	GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error)
-
-	IsSubscribed(context.Context, *IsSubscribedRequest) (*IsSubscribedResponse, error)
 }
 
 // =============================
@@ -50,7 +46,7 @@ type Subscriptions interface {
 
 type subscriptionsProtobufClient struct {
 	client      HTTPClient
-	urls        [5]string
+	urls        [3]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -78,12 +74,10 @@ func NewSubscriptionsProtobufClient(baseURL string, client HTTPClient, opts ...t
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "meme.subscriptions", "Subscriptions")
-	urls := [5]string{
+	urls := [3]string{
 		serviceURL + "Subscribe",
 		serviceURL + "Unsubscribe",
 		serviceURL + "GetStatus",
-		serviceURL + "GetFollowing",
-		serviceURL + "IsSubscribed",
 	}
 
 	return &subscriptionsProtobufClient{
@@ -232,105 +226,13 @@ func (c *subscriptionsProtobufClient) callGetStatus(ctx context.Context, in *Sub
 	return out, nil
 }
 
-func (c *subscriptionsProtobufClient) GetFollowing(ctx context.Context, in *GetFollowingRequest) (*GetFollowingResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "meme.subscriptions")
-	ctx = ctxsetters.WithServiceName(ctx, "Subscriptions")
-	ctx = ctxsetters.WithMethodName(ctx, "GetFollowing")
-	caller := c.callGetFollowing
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetFollowingRequest) (*GetFollowingResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetFollowingRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetFollowingRequest) when calling interceptor")
-					}
-					return c.callGetFollowing(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetFollowingResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetFollowingResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *subscriptionsProtobufClient) callGetFollowing(ctx context.Context, in *GetFollowingRequest) (*GetFollowingResponse, error) {
-	out := new(GetFollowingResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *subscriptionsProtobufClient) IsSubscribed(ctx context.Context, in *IsSubscribedRequest) (*IsSubscribedResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "meme.subscriptions")
-	ctx = ctxsetters.WithServiceName(ctx, "Subscriptions")
-	ctx = ctxsetters.WithMethodName(ctx, "IsSubscribed")
-	caller := c.callIsSubscribed
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *IsSubscribedRequest) (*IsSubscribedResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*IsSubscribedRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*IsSubscribedRequest) when calling interceptor")
-					}
-					return c.callIsSubscribed(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*IsSubscribedResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*IsSubscribedResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *subscriptionsProtobufClient) callIsSubscribed(ctx context.Context, in *IsSubscribedRequest) (*IsSubscribedResponse, error) {
-	out := new(IsSubscribedResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 // =========================
 // Subscriptions JSON Client
 // =========================
 
 type subscriptionsJSONClient struct {
 	client      HTTPClient
-	urls        [5]string
+	urls        [3]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -358,12 +260,10 @@ func NewSubscriptionsJSONClient(baseURL string, client HTTPClient, opts ...twirp
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "meme.subscriptions", "Subscriptions")
-	urls := [5]string{
+	urls := [3]string{
 		serviceURL + "Subscribe",
 		serviceURL + "Unsubscribe",
 		serviceURL + "GetStatus",
-		serviceURL + "GetFollowing",
-		serviceURL + "IsSubscribed",
 	}
 
 	return &subscriptionsJSONClient{
@@ -512,98 +412,6 @@ func (c *subscriptionsJSONClient) callGetStatus(ctx context.Context, in *Subscri
 	return out, nil
 }
 
-func (c *subscriptionsJSONClient) GetFollowing(ctx context.Context, in *GetFollowingRequest) (*GetFollowingResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "meme.subscriptions")
-	ctx = ctxsetters.WithServiceName(ctx, "Subscriptions")
-	ctx = ctxsetters.WithMethodName(ctx, "GetFollowing")
-	caller := c.callGetFollowing
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetFollowingRequest) (*GetFollowingResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetFollowingRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetFollowingRequest) when calling interceptor")
-					}
-					return c.callGetFollowing(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetFollowingResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetFollowingResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *subscriptionsJSONClient) callGetFollowing(ctx context.Context, in *GetFollowingRequest) (*GetFollowingResponse, error) {
-	out := new(GetFollowingResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *subscriptionsJSONClient) IsSubscribed(ctx context.Context, in *IsSubscribedRequest) (*IsSubscribedResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "meme.subscriptions")
-	ctx = ctxsetters.WithServiceName(ctx, "Subscriptions")
-	ctx = ctxsetters.WithMethodName(ctx, "IsSubscribed")
-	caller := c.callIsSubscribed
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *IsSubscribedRequest) (*IsSubscribedResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*IsSubscribedRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*IsSubscribedRequest) when calling interceptor")
-					}
-					return c.callIsSubscribed(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*IsSubscribedResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*IsSubscribedResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *subscriptionsJSONClient) callIsSubscribed(ctx context.Context, in *IsSubscribedRequest) (*IsSubscribedResponse, error) {
-	out := new(IsSubscribedResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
 // ============================
 // Subscriptions Server Handler
 // ============================
@@ -709,12 +517,6 @@ func (s *subscriptionsServer) ServeHTTP(resp http.ResponseWriter, req *http.Requ
 		return
 	case "GetStatus":
 		s.serveGetStatus(ctx, resp, req)
-		return
-	case "GetFollowing":
-		s.serveGetFollowing(ctx, resp, req)
-		return
-	case "IsSubscribed":
-		s.serveIsSubscribed(ctx, resp, req)
 		return
 	default:
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
@@ -1240,366 +1042,6 @@ func (s *subscriptionsServer) serveGetStatusProtobuf(ctx context.Context, resp h
 	}
 	if respContent == nil {
 		s.writeError(ctx, resp, twirp.InternalError("received a nil *SubscribeResponse and nil error while calling GetStatus. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *subscriptionsServer) serveGetFollowing(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveGetFollowingJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveGetFollowingProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *subscriptionsServer) serveGetFollowingJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetFollowing")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(GetFollowingRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Subscriptions.GetFollowing
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetFollowingRequest) (*GetFollowingResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetFollowingRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetFollowingRequest) when calling interceptor")
-					}
-					return s.Subscriptions.GetFollowing(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetFollowingResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetFollowingResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *GetFollowingResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetFollowingResponse and nil error while calling GetFollowing. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *subscriptionsServer) serveGetFollowingProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetFollowing")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(GetFollowingRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Subscriptions.GetFollowing
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetFollowingRequest) (*GetFollowingResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetFollowingRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetFollowingRequest) when calling interceptor")
-					}
-					return s.Subscriptions.GetFollowing(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetFollowingResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetFollowingResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *GetFollowingResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetFollowingResponse and nil error while calling GetFollowing. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *subscriptionsServer) serveIsSubscribed(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveIsSubscribedJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveIsSubscribedProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *subscriptionsServer) serveIsSubscribedJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IsSubscribed")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(IsSubscribedRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.Subscriptions.IsSubscribed
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *IsSubscribedRequest) (*IsSubscribedResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*IsSubscribedRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*IsSubscribedRequest) when calling interceptor")
-					}
-					return s.Subscriptions.IsSubscribed(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*IsSubscribedResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*IsSubscribedResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *IsSubscribedResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *IsSubscribedResponse and nil error while calling IsSubscribed. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *subscriptionsServer) serveIsSubscribedProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "IsSubscribed")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := io.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(IsSubscribedRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.Subscriptions.IsSubscribed
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *IsSubscribedRequest) (*IsSubscribedResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*IsSubscribedRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*IsSubscribedRequest) when calling interceptor")
-					}
-					return s.Subscriptions.IsSubscribed(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*IsSubscribedResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*IsSubscribedResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *IsSubscribedResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *IsSubscribedResponse and nil error while calling IsSubscribed. nil responses are not supported"))
 		return
 	}
 
@@ -2204,25 +1646,18 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 318 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x53, 0x4d, 0x4b, 0xc3, 0x40,
-	0x10, 0xa5, 0x16, 0xaa, 0x19, 0x2b, 0xe8, 0xb6, 0x48, 0xe9, 0x41, 0xca, 0xa2, 0x18, 0x94, 0x26,
-	0x62, 0x41, 0xf0, 0xea, 0xc1, 0xd2, 0x6b, 0x42, 0xa1, 0x14, 0x3c, 0x24, 0xed, 0x12, 0x83, 0x4d,
-	0x36, 0x66, 0x26, 0xfa, 0x8b, 0xfd, 0x1f, 0x52, 0xf3, 0xd1, 0x8d, 0x2e, 0xc4, 0x83, 0x1e, 0xe7,
-	0xe5, 0xcd, 0x7b, 0x2f, 0x79, 0x13, 0xe8, 0x61, 0xe6, 0xe3, 0x2a, 0x0d, 0x13, 0x0a, 0x65, 0x8c,
-	0x56, 0x92, 0x4a, 0x92, 0x8c, 0x45, 0x22, 0x12, 0x56, 0xed, 0x09, 0xbf, 0x82, 0x63, 0x37, 0x07,
-	0x7c, 0xe1, 0x88, 0xd7, 0x4c, 0x20, 0xb1, 0x53, 0xe8, 0x64, 0x28, 0xd2, 0xd9, 0x7a, 0xd0, 0x1a,
-	0xb5, 0x4c, 0xc3, 0x29, 0x26, 0x3e, 0x81, 0x13, 0x85, 0x8b, 0x89, 0x8c, 0x51, 0xb0, 0x33, 0x00,
-	0x2c, 0xc1, 0x7c, 0xe1, 0xc0, 0x51, 0x10, 0x3e, 0x86, 0xde, 0x54, 0xd0, 0xa3, 0xdc, 0x6c, 0xe4,
-	0x7b, 0x18, 0x07, 0x4d, 0x1e, 0x37, 0xd0, 0xaf, 0xd3, 0x0b, 0x9b, 0x01, 0xec, 0xe7, 0x0c, 0x1c,
-	0xb4, 0x46, 0x6d, 0xd3, 0x70, 0xca, 0x91, 0x3f, 0x41, 0x6f, 0x86, 0x55, 0xae, 0x75, 0x69, 0xc0,
-	0xa1, 0x5b, 0xa5, 0xd8, 0xd9, 0xd4, 0xb0, 0x2d, 0x87, 0xbc, 0x34, 0x10, 0x34, 0xcf, 0xa3, 0xec,
-	0xe5, 0x1c, 0x15, 0xe3, 0x77, 0xd0, 0xaf, 0xcb, 0xff, 0xee, 0xbd, 0x6f, 0x3f, 0xda, 0x70, 0xe4,
-	0xaa, 0x9f, 0x9a, 0x2d, 0xc0, 0xa8, 0x74, 0xd8, 0xb9, 0xf5, 0xb3, 0x0c, 0xeb, 0x7b, 0x13, 0xc3,
-	0x8b, 0x06, 0x56, 0x91, 0x65, 0x09, 0x87, 0xf3, 0x18, 0xff, 0x47, 0x7b, 0x01, 0xc6, 0x54, 0x90,
-	0x4b, 0x1e, 0x65, 0xf8, 0xb7, 0xca, 0x1e, 0x74, 0xd5, 0xaa, 0xd9, 0xa5, 0x6e, 0x4d, 0x73, 0x3b,
-	0x43, 0xb3, 0x99, 0xb8, 0xb3, 0x50, 0xcb, 0xd3, 0x5b, 0x68, 0xae, 0x47, 0x6f, 0xa1, 0xbb, 0x83,
-	0x87, 0xf1, 0xf2, 0x3a, 0x08, 0xe9, 0x39, 0xf3, 0xad, 0x95, 0x8c, 0xec, 0xc8, 0x23, 0x91, 0xbe,
-	0xc8, 0x37, 0x7b, 0xbb, 0x7e, 0x6f, 0x7b, 0x49, 0x68, 0xd7, 0x34, 0xfc, 0xce, 0xd7, 0xaf, 0x38,
-	0xf9, 0x0c, 0x00, 0x00, 0xff, 0xff, 0xb2, 0xed, 0x4e, 0xb7, 0xa1, 0x03, 0x00, 0x00,
+	// 206 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2e, 0x2e, 0x4d, 0x2a,
+	0x4e, 0x2e, 0xca, 0x2c, 0x28, 0xc9, 0xcc, 0xcf, 0x2b, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17,
+	0x12, 0xca, 0x4d, 0xcd, 0x4d, 0xd5, 0x43, 0x91, 0x51, 0xd2, 0xe2, 0x12, 0x08, 0x86, 0x08, 0x24,
+	0xa5, 0x06, 0xa5, 0x16, 0x96, 0xa6, 0x16, 0x97, 0x08, 0x89, 0x71, 0xb1, 0x95, 0x16, 0xa7, 0x16,
+	0x79, 0xa6, 0x48, 0x30, 0x2a, 0x30, 0x6a, 0x70, 0x06, 0x41, 0x79, 0x4a, 0xc6, 0x5c, 0x82, 0x48,
+	0x6a, 0x8b, 0x0b, 0xf2, 0xf3, 0x8a, 0x53, 0x85, 0xe4, 0xb8, 0xb8, 0x8a, 0x61, 0x82, 0x10, 0x0d,
+	0x1c, 0x41, 0x48, 0x22, 0x46, 0xf3, 0x99, 0xb8, 0x78, 0x83, 0x91, 0xad, 0x14, 0x8a, 0xe0, 0xe2,
+	0x84, 0x1b, 0x23, 0xa4, 0xa2, 0x87, 0xe9, 0x28, 0x3d, 0x74, 0x17, 0x49, 0xa9, 0x12, 0x50, 0x05,
+	0x75, 0x4b, 0x14, 0x17, 0x77, 0x68, 0x5e, 0x31, 0x6d, 0xcc, 0x8e, 0xe0, 0xe2, 0x74, 0x4f, 0x2d,
+	0x09, 0x2e, 0x49, 0x2c, 0x29, 0x2d, 0xa6, 0xaa, 0xc9, 0x4e, 0xba, 0x51, 0xda, 0xe9, 0x99, 0x25,
+	0x19, 0xa5, 0x49, 0x7a, 0xc9, 0xf9, 0xb9, 0xfa, 0xb9, 0x89, 0x25, 0xa9, 0x45, 0xd9, 0xf9, 0x65,
+	0xfa, 0x20, 0xbd, 0x96, 0xfa, 0x89, 0x05, 0x99, 0xfa, 0x28, 0x06, 0x24, 0xb1, 0x81, 0x23, 0xd3,
+	0x18, 0x10, 0x00, 0x00, 0xff, 0xff, 0xf7, 0xb6, 0x84, 0xa0, 0xe3, 0x01, 0x00, 0x00,
 }

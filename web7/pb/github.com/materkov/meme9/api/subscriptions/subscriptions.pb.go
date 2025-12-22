@@ -109,190 +109,6 @@ func (x *SubscribeResponse) GetSubscribed() bool {
 	return false
 }
 
-type GetFollowingRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetFollowingRequest) Reset() {
-	*x = GetFollowingRequest{}
-	mi := &file_subscriptions_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetFollowingRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetFollowingRequest) ProtoMessage() {}
-
-func (x *GetFollowingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_subscriptions_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetFollowingRequest.ProtoReflect.Descriptor instead.
-func (*GetFollowingRequest) Descriptor() ([]byte, []int) {
-	return file_subscriptions_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GetFollowingRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type GetFollowingResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserIds       []string               `protobuf:"bytes,1,rep,name=userIds,proto3" json:"userIds,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetFollowingResponse) Reset() {
-	*x = GetFollowingResponse{}
-	mi := &file_subscriptions_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetFollowingResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetFollowingResponse) ProtoMessage() {}
-
-func (x *GetFollowingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_subscriptions_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetFollowingResponse.ProtoReflect.Descriptor instead.
-func (*GetFollowingResponse) Descriptor() ([]byte, []int) {
-	return file_subscriptions_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *GetFollowingResponse) GetUserIds() []string {
-	if x != nil {
-		return x.UserIds
-	}
-	return nil
-}
-
-type IsSubscribedRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SubscriberId  string                 `protobuf:"bytes,1,opt,name=subscriberId,proto3" json:"subscriberId,omitempty"`
-	TargetUserId  string                 `protobuf:"bytes,2,opt,name=targetUserId,proto3" json:"targetUserId,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IsSubscribedRequest) Reset() {
-	*x = IsSubscribedRequest{}
-	mi := &file_subscriptions_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IsSubscribedRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IsSubscribedRequest) ProtoMessage() {}
-
-func (x *IsSubscribedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_subscriptions_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IsSubscribedRequest.ProtoReflect.Descriptor instead.
-func (*IsSubscribedRequest) Descriptor() ([]byte, []int) {
-	return file_subscriptions_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *IsSubscribedRequest) GetSubscriberId() string {
-	if x != nil {
-		return x.SubscriberId
-	}
-	return ""
-}
-
-func (x *IsSubscribedRequest) GetTargetUserId() string {
-	if x != nil {
-		return x.TargetUserId
-	}
-	return ""
-}
-
-type IsSubscribedResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subscribed    bool                   `protobuf:"varint,1,opt,name=subscribed,proto3" json:"subscribed,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IsSubscribedResponse) Reset() {
-	*x = IsSubscribedResponse{}
-	mi := &file_subscriptions_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IsSubscribedResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IsSubscribedResponse) ProtoMessage() {}
-
-func (x *IsSubscribedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_subscriptions_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IsSubscribedResponse.ProtoReflect.Descriptor instead.
-func (*IsSubscribedResponse) Descriptor() ([]byte, []int) {
-	return file_subscriptions_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *IsSubscribedResponse) GetSubscribed() bool {
-	if x != nil {
-		return x.Subscribed
-	}
-	return false
-}
-
 var File_subscriptions_proto protoreflect.FileDescriptor
 
 const file_subscriptions_proto_rawDesc = "" +
@@ -303,24 +119,11 @@ const file_subscriptions_proto_rawDesc = "" +
 	"\x11SubscribeResponse\x12\x1e\n" +
 	"\n" +
 	"subscribed\x18\x01 \x01(\bR\n" +
-	"subscribed\"-\n" +
-	"\x13GetFollowingRequest\x12\x16\n" +
-	"\x06userId\x18\x01 \x01(\tR\x06userId\"0\n" +
-	"\x14GetFollowingResponse\x12\x18\n" +
-	"\auserIds\x18\x01 \x03(\tR\auserIds\"]\n" +
-	"\x13IsSubscribedRequest\x12\"\n" +
-	"\fsubscriberId\x18\x01 \x01(\tR\fsubscriberId\x12\"\n" +
-	"\ftargetUserId\x18\x02 \x01(\tR\ftargetUserId\"6\n" +
-	"\x14IsSubscribedResponse\x12\x1e\n" +
-	"\n" +
-	"subscribed\x18\x01 \x01(\bR\n" +
-	"subscribed2\xe5\x03\n" +
+	"subscribed2\x9f\x02\n" +
 	"\rSubscriptions\x12X\n" +
 	"\tSubscribe\x12$.meme.subscriptions.SubscribeRequest\x1a%.meme.subscriptions.SubscribeResponse\x12Z\n" +
 	"\vUnsubscribe\x12$.meme.subscriptions.SubscribeRequest\x1a%.meme.subscriptions.SubscribeResponse\x12X\n" +
-	"\tGetStatus\x12$.meme.subscriptions.SubscribeRequest\x1a%.meme.subscriptions.SubscribeResponse\x12a\n" +
-	"\fGetFollowing\x12'.meme.subscriptions.GetFollowingRequest\x1a(.meme.subscriptions.GetFollowingResponse\x12a\n" +
-	"\fIsSubscribed\x12'.meme.subscriptions.IsSubscribedRequest\x1a(.meme.subscriptions.IsSubscribedResponseB-Z+github.com/materkov/meme9/api/subscriptionsb\x06proto3"
+	"\tGetStatus\x12$.meme.subscriptions.SubscribeRequest\x1a%.meme.subscriptions.SubscribeResponseB-Z+github.com/materkov/meme9/api/subscriptionsb\x06proto3"
 
 var (
 	file_subscriptions_proto_rawDescOnce sync.Once
@@ -334,28 +137,20 @@ func file_subscriptions_proto_rawDescGZIP() []byte {
 	return file_subscriptions_proto_rawDescData
 }
 
-var file_subscriptions_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_subscriptions_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_subscriptions_proto_goTypes = []any{
-	(*SubscribeRequest)(nil),     // 0: meme.subscriptions.SubscribeRequest
-	(*SubscribeResponse)(nil),    // 1: meme.subscriptions.SubscribeResponse
-	(*GetFollowingRequest)(nil),  // 2: meme.subscriptions.GetFollowingRequest
-	(*GetFollowingResponse)(nil), // 3: meme.subscriptions.GetFollowingResponse
-	(*IsSubscribedRequest)(nil),  // 4: meme.subscriptions.IsSubscribedRequest
-	(*IsSubscribedResponse)(nil), // 5: meme.subscriptions.IsSubscribedResponse
+	(*SubscribeRequest)(nil),  // 0: meme.subscriptions.SubscribeRequest
+	(*SubscribeResponse)(nil), // 1: meme.subscriptions.SubscribeResponse
 }
 var file_subscriptions_proto_depIdxs = []int32{
 	0, // 0: meme.subscriptions.Subscriptions.Subscribe:input_type -> meme.subscriptions.SubscribeRequest
 	0, // 1: meme.subscriptions.Subscriptions.Unsubscribe:input_type -> meme.subscriptions.SubscribeRequest
 	0, // 2: meme.subscriptions.Subscriptions.GetStatus:input_type -> meme.subscriptions.SubscribeRequest
-	2, // 3: meme.subscriptions.Subscriptions.GetFollowing:input_type -> meme.subscriptions.GetFollowingRequest
-	4, // 4: meme.subscriptions.Subscriptions.IsSubscribed:input_type -> meme.subscriptions.IsSubscribedRequest
-	1, // 5: meme.subscriptions.Subscriptions.Subscribe:output_type -> meme.subscriptions.SubscribeResponse
-	1, // 6: meme.subscriptions.Subscriptions.Unsubscribe:output_type -> meme.subscriptions.SubscribeResponse
-	1, // 7: meme.subscriptions.Subscriptions.GetStatus:output_type -> meme.subscriptions.SubscribeResponse
-	3, // 8: meme.subscriptions.Subscriptions.GetFollowing:output_type -> meme.subscriptions.GetFollowingResponse
-	5, // 9: meme.subscriptions.Subscriptions.IsSubscribed:output_type -> meme.subscriptions.IsSubscribedResponse
-	5, // [5:10] is the sub-list for method output_type
-	0, // [0:5] is the sub-list for method input_type
+	1, // 3: meme.subscriptions.Subscriptions.Subscribe:output_type -> meme.subscriptions.SubscribeResponse
+	1, // 4: meme.subscriptions.Subscriptions.Unsubscribe:output_type -> meme.subscriptions.SubscribeResponse
+	1, // 5: meme.subscriptions.Subscriptions.GetStatus:output_type -> meme.subscriptions.SubscribeResponse
+	3, // [3:6] is the sub-list for method output_type
+	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -372,7 +167,7 @@ func file_subscriptions_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_subscriptions_proto_rawDesc), len(file_subscriptions_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

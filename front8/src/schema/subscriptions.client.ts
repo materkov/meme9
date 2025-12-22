@@ -4,10 +4,6 @@
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Subscriptions } from "./subscriptions";
-import type { IsSubscribedResponse } from "./subscriptions";
-import type { IsSubscribedRequest } from "./subscriptions";
-import type { GetFollowingResponse } from "./subscriptions";
-import type { GetFollowingRequest } from "./subscriptions";
 import { stackIntercept } from "@protobuf-ts/runtime-rpc";
 import type { SubscribeResponse } from "./subscriptions";
 import type { SubscribeRequest } from "./subscriptions";
@@ -31,14 +27,6 @@ export interface ISubscriptionsClient {
      * @generated from protobuf rpc: GetStatus
      */
     getStatus(input: SubscribeRequest, options?: RpcOptions): UnaryCall<SubscribeRequest, SubscribeResponse>;
-    /**
-     * @generated from protobuf rpc: GetFollowing
-     */
-    getFollowing(input: GetFollowingRequest, options?: RpcOptions): UnaryCall<GetFollowingRequest, GetFollowingResponse>;
-    /**
-     * @generated from protobuf rpc: IsSubscribed
-     */
-    isSubscribed(input: IsSubscribedRequest, options?: RpcOptions): UnaryCall<IsSubscribedRequest, IsSubscribedResponse>;
 }
 /**
  * Subscriptions service
@@ -71,19 +59,5 @@ export class SubscriptionsClient implements ISubscriptionsClient, ServiceInfo {
     getStatus(input: SubscribeRequest, options?: RpcOptions): UnaryCall<SubscribeRequest, SubscribeResponse> {
         const method = this.methods[2], opt = this._transport.mergeOptions(options);
         return stackIntercept<SubscribeRequest, SubscribeResponse>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: GetFollowing
-     */
-    getFollowing(input: GetFollowingRequest, options?: RpcOptions): UnaryCall<GetFollowingRequest, GetFollowingResponse> {
-        const method = this.methods[3], opt = this._transport.mergeOptions(options);
-        return stackIntercept<GetFollowingRequest, GetFollowingResponse>("unary", this._transport, method, opt, input);
-    }
-    /**
-     * @generated from protobuf rpc: IsSubscribed
-     */
-    isSubscribed(input: IsSubscribedRequest, options?: RpcOptions): UnaryCall<IsSubscribedRequest, IsSubscribedResponse> {
-        const method = this.methods[4], opt = this._transport.mergeOptions(options);
-        return stackIntercept<IsSubscribedRequest, IsSubscribedResponse>("unary", this._transport, method, opt, input);
     }
 }

@@ -81,17 +81,11 @@ func main() {
 	usersHandler := usersapi.NewUsersServer(usersService, twirp.WithServerHooks(authHooks))
 	subscriptionsHandler := subscriptionsapi.NewSubscriptionsServer(subscriptionsService, twirp.WithServerHooks(authHooks))
 
-	// Wrap with auth middleware to inject headers into context
-	postsHandlerWithAuth := api.AuthMiddleware(postsHandler)
-	authHandlerWithAuth := api.AuthMiddleware(authHandler)
-	usersHandlerWithAuth := api.AuthMiddleware(usersHandler)
-	subscriptionsHandlerWithAuth := api.AuthMiddleware(subscriptionsHandler)
-
 	// Wrap with CORS middleware
-	postsHandlerWithCORS := api.CORSMiddleware(postsHandlerWithAuth)
-	authHandlerWithCORS := api.CORSMiddleware(authHandlerWithAuth)
-	usersHandlerWithCORS := api.CORSMiddleware(usersHandlerWithAuth)
-	subscriptionsHandlerWithCORS := api.CORSMiddleware(subscriptionsHandlerWithAuth)
+	postsHandlerWithCORS := api.CORSMiddleware(postsHandler)
+	authHandlerWithCORS := api.CORSMiddleware(authHandler)
+	usersHandlerWithCORS := api.CORSMiddleware(usersHandler)
+	subscriptionsHandlerWithCORS := api.CORSMiddleware(subscriptionsHandler)
 
 	// Register all handlers
 	http.Handle(postsHandler.PathPrefix(), postsHandlerWithCORS)
