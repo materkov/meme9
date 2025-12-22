@@ -199,9 +199,16 @@ func TestService_GetFeed(t *testing.T) {
 			"user-1": {ID: "user-1", Username: "user1"},
 			"user-2": {ID: "user-2", Username: "user2"},
 		}
+		// Use gomock.Any() for userIDs since map iteration order is non-deterministic
 		mockUsers.EXPECT().
-			GetByIDs(ctx, []string{"user-1", "user-2"}).
-			Return(usersMap, nil).
+			GetByIDs(ctx, gomock.Any()).
+			DoAndReturn(func(_ context.Context, userIDs []string) (map[string]*users.User, error) {
+				// Verify the slice contains the expected user IDs
+				require.Len(t, userIDs, 2)
+				require.Contains(t, userIDs, "user-1")
+				require.Contains(t, userIDs, "user-2")
+				return usersMap, nil
+			}).
 			Times(1)
 
 		resp, err := service.GetFeed(ctx, &postsapi.FeedRequest{
@@ -246,18 +253,30 @@ func TestService_GetFeed(t *testing.T) {
 			{ID: "post-1", Text: "Post 1", UserID: "user-1", CreatedAt: time.Now()},
 			{ID: "post-3", Text: "Post 3", UserID: "user-123", CreatedAt: time.Now()},
 		}
+		// Use gomock.Any() for userIDs since map iteration order is non-deterministic
 		mockPosts.EXPECT().
-			GetByUserIDs(ctx, []string{"user-1", "user-123"}).
-			Return(postsList, nil).
+			GetByUserIDs(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, userIDs []string) ([]posts.Post, error) {
+				require.Len(t, userIDs, 2)
+				require.Contains(t, userIDs, "user-1")
+				require.Contains(t, userIDs, "user-123")
+				return postsList, nil
+			}).
 			Times(1)
 
+		// Use gomock.Any() for context and userIDs since order is non-deterministic
 		mockUsers.EXPECT().
-			GetByIDs(ctx, []string{"user-1", "user-123"}).
-			Return(map[string]*users.User{}, nil).
+			GetByIDs(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, userIDs []string) (map[string]*users.User, error) {
+				require.Len(t, userIDs, 2)
+				require.Contains(t, userIDs, "user-1")
+				require.Contains(t, userIDs, "user-123")
+				return map[string]*users.User{}, nil
+			}).
 			Times(1)
 
 		mockSubscriptions.EXPECT().
-			GetFollowing(ctx, userID).
+			GetFollowing(gomock.Any(), userID).
 			Return([]string{"user-1"}, nil).
 			Times(1)
 
