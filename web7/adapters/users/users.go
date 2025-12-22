@@ -25,15 +25,16 @@ type User struct {
 }
 
 type Adapter struct {
-	client *mongo.Client
+	client       *mongo.Client
+	databaseName string
 }
 
-func New(client *mongo.Client) *Adapter {
-	return &Adapter{client: client}
+func New(client *mongo.Client, databaseName string) *Adapter {
+	return &Adapter{client: client, databaseName: databaseName}
 }
 
 func (a *Adapter) EnsureIndexes(ctx context.Context) error {
-	collection := a.client.Database("meme9").Collection("users")
+	collection := a.client.Database(a.databaseName).Collection("users")
 	indexModel := mongo.IndexModel{
 		Keys:    bson.D{{Key: "username", Value: 1}},
 		Options: options.Index().SetUnique(true),
@@ -46,7 +47,7 @@ func (a *Adapter) EnsureIndexes(ctx context.Context) error {
 }
 
 func (a *Adapter) GetByUsername(ctx context.Context, username string) (*User, error) {
-	collection := a.client.Database("meme9").Collection("users")
+	collection := a.client.Database(a.databaseName).Collection("users")
 	var user User
 	err := collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	if err != nil {
@@ -77,7 +78,7 @@ func (a *Adapter) GetByIDs(ctx context.Context, userIDs []string) (map[string]*U
 		return make(map[string]*User), nil
 	}
 
-	collection := a.client.Database("meme9").Collection("users")
+	collection := a.client.Database(a.databaseName).Collection("users")
 
 	// Convert string IDs to ObjectIDs
 	objectIDs := make([]primitive.ObjectID, 0, len(userIDs))
@@ -115,7 +116,7 @@ func (a *Adapter) GetByIDs(ctx context.Context, userIDs []string) (map[string]*U
 }
 
 func (a *Adapter) Create(ctx context.Context, user User) (string, error) {
-	collection := a.client.Database("meme9").Collection("users")
+	collection := a.client.Database(a.databaseName).Collection("users")
 
 	insertDoc := bson.M{
 		"username":      user.Username,

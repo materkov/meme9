@@ -21,15 +21,16 @@ type Token struct {
 }
 
 type Adapter struct {
-	client *mongo.Client
+	client       *mongo.Client
+	databaseName string
 }
 
-func New(client *mongo.Client) *Adapter {
-	return &Adapter{client: client}
+func New(client *mongo.Client, databaseName string) *Adapter {
+	return &Adapter{client: client, databaseName: databaseName}
 }
 
 func (a *Adapter) Create(ctx context.Context, token Token) (string, error) {
-	collection := a.client.Database("meme9").Collection("tokens")
+	collection := a.client.Database(a.databaseName).Collection("tokens")
 
 	insertDoc := bson.M{
 		"token":      token.Token,
@@ -46,7 +47,7 @@ func (a *Adapter) Create(ctx context.Context, token Token) (string, error) {
 }
 
 func (a *Adapter) GetByValue(ctx context.Context, tokenValue string) (*Token, error) {
-	collection := a.client.Database("meme9").Collection("tokens")
+	collection := a.client.Database(a.databaseName).Collection("tokens")
 	var token Token
 	err := collection.FindOne(ctx, bson.M{"token": tokenValue}).Decode(&token)
 	if err != nil {

@@ -14,7 +14,7 @@ func setupTestAdapter(t *testing.T) (*Adapter, func()) {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://admin:password@localhost:27017/meme9?authSource=admin"))
 	require.NoError(t, err)
 
-	adapter := New(client)
+	adapter := New(client, "meme9_test")
 
 	// Ensure indexes
 	err = adapter.EnsureIndexes(ctx)
@@ -22,7 +22,7 @@ func setupTestAdapter(t *testing.T) (*Adapter, func()) {
 
 	// Cleanup function
 	cleanup := func() {
-		collection := client.Database("meme9").Collection("subscriptions")
+		collection := client.Database("meme9_test").Collection("subscriptions")
 		err = collection.Drop(ctx)
 		require.NoError(t, err)
 		_ = client.Disconnect(ctx)
@@ -246,7 +246,7 @@ func TestAdapter_EnsureIndexes(t *testing.T) {
 	require.NoError(t, err)
 	defer func() { _ = client.Disconnect(ctx) }()
 
-	adapter := New(client)
+	adapter := New(client, "meme9_test")
 
 	// First call should succeed
 	err = adapter.EnsureIndexes(ctx)

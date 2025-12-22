@@ -33,10 +33,10 @@ func initAPI() {
 	}
 
 	// Initialize adapters
-	postsAdapter := posts.New(client)
-	usersAdapter := users.New(client)
-	tokensAdapter := tokens.New(client)
-	subscriptionsAdapter := subscriptions.New(client)
+	postsAdapter := posts.New(client, "meme9_test")
+	usersAdapter := users.New(client, "meme9_test")
+	tokensAdapter := tokens.New(client, "meme9_test")
+	subscriptionsAdapter := subscriptions.New(client, "meme9_test")
 
 	// Initialize services
 	postsService := postsservice.New(postsAdapter)

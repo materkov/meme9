@@ -18,15 +18,16 @@ type Subscription struct {
 }
 
 type Adapter struct {
-	client *mongo.Client
+	client       *mongo.Client
+	databaseName string
 }
 
-func New(client *mongo.Client) *Adapter {
-	return &Adapter{client: client}
+func New(client *mongo.Client, databaseName string) *Adapter {
+	return &Adapter{client: client, databaseName: databaseName}
 }
 
 func (a *Adapter) EnsureIndexes(ctx context.Context) error {
-	collection := a.client.Database("meme9").Collection("subscriptions")
+	collection := a.client.Database(a.databaseName).Collection("subscriptions")
 	indexModel := mongo.IndexModel{
 		Keys:    bson.D{{Key: "follower_id", Value: 1}, {Key: "following_id", Value: 1}},
 		Options: options.Index().SetUnique(true),
@@ -39,7 +40,7 @@ func (a *Adapter) EnsureIndexes(ctx context.Context) error {
 }
 
 func (a *Adapter) Subscribe(ctx context.Context, followerID, followingID string) error {
-	collection := a.client.Database("meme9").Collection("subscriptions")
+	collection := a.client.Database(a.databaseName).Collection("subscriptions")
 
 	// Don't allow self-subscription
 	if followerID == followingID {
@@ -63,7 +64,7 @@ func (a *Adapter) Subscribe(ctx context.Context, followerID, followingID string)
 }
 
 func (a *Adapter) Unsubscribe(ctx context.Context, followerID, followingID string) error {
-	collection := a.client.Database("meme9").Collection("subscriptions")
+	collection := a.client.Database(a.databaseName).Collection("subscriptions")
 
 	_, err := collection.DeleteOne(ctx, bson.M{
 		"follower_id":  followerID,
@@ -76,7 +77,7 @@ func (a *Adapter) Unsubscribe(ctx context.Context, followerID, followingID strin
 }
 
 func (a *Adapter) GetFollowing(ctx context.Context, followerID string) ([]string, error) {
-	collection := a.client.Database("meme9").Collection("subscriptions")
+	collection := a.client.Database(a.databaseName).Collection("subscriptions")
 
 	cursor, err := collection.Find(ctx, bson.M{"follower_id": followerID})
 	if err != nil {
@@ -98,7 +99,7 @@ func (a *Adapter) GetFollowing(ctx context.Context, followerID string) ([]string
 }
 
 func (a *Adapter) IsSubscribed(ctx context.Context, followerID, followingID string) (bool, error) {
-	collection := a.client.Database("meme9").Collection("subscriptions")
+	collection := a.client.Database(a.databaseName).Collection("subscriptions")
 
 	count, err := collection.CountDocuments(ctx, bson.M{
 		"follower_id":  followerID,

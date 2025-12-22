@@ -47,10 +47,11 @@ func main() {
 	log.Println("Successfully connected to MongoDB")
 
 	// Initialize adapters
-	postsAdapter := posts.New(client)
-	usersAdapter := users.New(client)
-	tokensAdapter := tokens.New(client)
-	subscriptionsAdapter := subscriptions.New(client)
+	databaseName := "meme9"
+	postsAdapter := posts.New(client, databaseName)
+	usersAdapter := users.New(client, databaseName)
+	tokensAdapter := tokens.New(client, databaseName)
+	subscriptionsAdapter := subscriptions.New(client, databaseName)
 
 	// Ensure indexes
 	err = usersAdapter.EnsureIndexes(ctx)

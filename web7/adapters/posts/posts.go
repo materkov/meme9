@@ -20,15 +20,16 @@ type Post struct {
 }
 
 type Adapter struct {
-	client *mongo.Client
+	client       *mongo.Client
+	databaseName string
 }
 
-func New(client *mongo.Client) *Adapter {
-	return &Adapter{client: client}
+func New(client *mongo.Client, databaseName string) *Adapter {
+	return &Adapter{client: client, databaseName: databaseName}
 }
 
 func (a *Adapter) GetAll(ctx context.Context) ([]Post, error) {
-	collection := a.client.Database("meme9").Collection("posts")
+	collection := a.client.Database(a.databaseName).Collection("posts")
 
 	// Sort by _id in descending order (newest first, ObjectID contains timestamp)
 	opts := options.Find().SetSort(bson.D{bson.E{Key: "_id", Value: -1}})
@@ -51,7 +52,7 @@ func (a *Adapter) GetAll(ctx context.Context) ([]Post, error) {
 }
 
 func (a *Adapter) GetByUserID(ctx context.Context, userID string) ([]Post, error) {
-	collection := a.client.Database("meme9").Collection("posts")
+	collection := a.client.Database(a.databaseName).Collection("posts")
 
 	// Sort by _id in descending order (newest first, ObjectID contains timestamp)
 	opts := options.Find().SetSort(bson.D{bson.E{Key: "_id", Value: -1}})
@@ -78,7 +79,7 @@ func (a *Adapter) GetByUserIDs(ctx context.Context, userIDs []string) ([]Post, e
 		return []Post{}, nil
 	}
 
-	collection := a.client.Database("meme9").Collection("posts")
+	collection := a.client.Database(a.databaseName).Collection("posts")
 
 	// Sort by _id in descending order (newest first, ObjectID contains timestamp)
 	opts := options.Find().SetSort(bson.D{bson.E{Key: "_id", Value: -1}})
@@ -108,7 +109,7 @@ func (a *Adapter) GetByID(ctx context.Context, postID string) (*Post, error) {
 		return nil, ErrNotFound
 	}
 
-	collection := a.client.Database("meme9").Collection("posts")
+	collection := a.client.Database(a.databaseName).Collection("posts")
 	var post Post
 	err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&post)
 	if errors.Is(err, mongo.ErrNoDocuments) {
@@ -120,7 +121,7 @@ func (a *Adapter) GetByID(ctx context.Context, postID string) (*Post, error) {
 }
 
 func (a *Adapter) Add(ctx context.Context, post Post) (*Post, error) {
-	collection := a.client.Database("meme9").Collection("posts")
+	collection := a.client.Database(a.databaseName).Collection("posts")
 
 	// Insert without _id field to let MongoDB auto-generate it
 	insertDoc := bson.M{
