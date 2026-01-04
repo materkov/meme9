@@ -111,8 +111,8 @@ func TestAdapter_GetLikesCounts_SinglePost(t *testing.T) {
 	// Get counts
 	counts, err := adapter.GetLikesCounts(ctx, []string{postID, "post-2"})
 	require.NoError(t, err)
-	require.Equal(t, 2, counts[postID])
-	require.Equal(t, 0, counts["post-2"])
+	require.Equal(t, int32(2), counts[postID])
+	require.Equal(t, int32(0), counts["post-2"])
 }
 
 func TestAdapter_GetLikedByUser_SinglePost_Liked(t *testing.T) {
