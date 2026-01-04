@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -156,4 +157,58 @@ func (a *Adapter) GetLikedByUser(ctx context.Context, userID string, postIDs []s
 	}
 
 	return result, nil
+}
+
+func (a *Adapter) GetLikers(ctx context.Context, postID, pageToken string, count int) ([]string, string, error) {
+	collection := a.client.Database(a.databaseName).Collection("likes")
+
+	filter := bson.M{"post_id": postID}
+
+	if pageToken != "" {
+		objID, err := primitive.ObjectIDFromHex(pageToken)
+		if err == nil {
+			filter["_id"] = bson.M{"$gt": objID}
+		}
+	}
+
+	opts := options.Find().
+		SetSort(bson.D{{Key: "_id", Value: 1}}).
+		SetLimit(int64(count) + 1)
+
+	cursor, err := collection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, "", fmt.Errorf("error finding likers: %w", err)
+	}
+	defer func() { _ = cursor.Close(ctx) }()
+
+	// Use a struct that can properly decode ObjectID
+	type LikeWithObjectID struct {
+		ID     primitive.ObjectID `bson:"_id"`
+		UserID string             `bson:"user_id"`
+	}
+
+	var likes []LikeWithObjectID
+	for cursor.Next(ctx) {
+		var like LikeWithObjectID
+		if err := cursor.Decode(&like); err != nil {
+			return nil, "", fmt.Errorf("error decoding like: %w", err)
+		}
+		likes = append(likes, like)
+	}
+
+	nextPageToken := ""
+	hasMore := len(likes) > count
+	if hasMore {
+		likes = likes[:count]
+
+		lastLike := likes[len(likes)-1]
+		nextPageToken = lastLike.ID.Hex()
+	}
+
+	userIDs := make([]string, 0, len(likes))
+	for _, like := range likes {
+		userIDs = append(userIDs, like.UserID)
+	}
+
+	return userIDs, nextPageToken, nil
 }

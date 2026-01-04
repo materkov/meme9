@@ -7,6 +7,7 @@ option go_package = "github.com/materkov/meme9/api/likes";
 service Likes {
   rpc Like(LikeRequest) returns (LikeResponse);
   rpc Unlike(LikeRequest) returns (LikeResponse);
+  rpc GetLikers(GetLikersRequest) returns (GetLikersResponse);
 }
 
 message LikeRequest {
@@ -17,3 +18,17 @@ message LikeResponse {
   bool liked = 1;
 }
 
+message GetLikersRequest {
+  string postId = 1;
+  string pageToken = 2;
+  int32 count = 3;
+}
+
+message GetLikersResponse {
+  message Liker {
+    string userId = 1;
+    string username = 2;
+  }
+  repeated Liker likers = 1;
+  string pageToken = 2;
+}

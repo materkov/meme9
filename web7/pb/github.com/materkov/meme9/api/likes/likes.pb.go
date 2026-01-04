@@ -109,6 +109,170 @@ func (x *LikeResponse) GetLiked() bool {
 	return false
 }
 
+type GetLikersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PostId        string                 `protobuf:"bytes,1,opt,name=postId,proto3" json:"postId,omitempty"`
+	PageToken     string                 `protobuf:"bytes,2,opt,name=pageToken,proto3" json:"pageToken,omitempty"`
+	Count         int32                  `protobuf:"varint,3,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLikersRequest) Reset() {
+	*x = GetLikersRequest{}
+	mi := &file_likes_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLikersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLikersRequest) ProtoMessage() {}
+
+func (x *GetLikersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_likes_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLikersRequest.ProtoReflect.Descriptor instead.
+func (*GetLikersRequest) Descriptor() ([]byte, []int) {
+	return file_likes_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GetLikersRequest) GetPostId() string {
+	if x != nil {
+		return x.PostId
+	}
+	return ""
+}
+
+func (x *GetLikersRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *GetLikersRequest) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+type GetLikersResponse struct {
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Likers        []*GetLikersResponse_Liker `protobuf:"bytes,1,rep,name=likers,proto3" json:"likers,omitempty"`
+	PageToken     string                     `protobuf:"bytes,2,opt,name=pageToken,proto3" json:"pageToken,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLikersResponse) Reset() {
+	*x = GetLikersResponse{}
+	mi := &file_likes_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLikersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLikersResponse) ProtoMessage() {}
+
+func (x *GetLikersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_likes_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLikersResponse.ProtoReflect.Descriptor instead.
+func (*GetLikersResponse) Descriptor() ([]byte, []int) {
+	return file_likes_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetLikersResponse) GetLikers() []*GetLikersResponse_Liker {
+	if x != nil {
+		return x.Likers
+	}
+	return nil
+}
+
+func (x *GetLikersResponse) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+type GetLikersResponse_Liker struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLikersResponse_Liker) Reset() {
+	*x = GetLikersResponse_Liker{}
+	mi := &file_likes_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLikersResponse_Liker) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLikersResponse_Liker) ProtoMessage() {}
+
+func (x *GetLikersResponse_Liker) ProtoReflect() protoreflect.Message {
+	mi := &file_likes_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLikersResponse_Liker.ProtoReflect.Descriptor instead.
+func (*GetLikersResponse_Liker) Descriptor() ([]byte, []int) {
+	return file_likes_proto_rawDescGZIP(), []int{3, 0}
+}
+
+func (x *GetLikersResponse_Liker) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetLikersResponse_Liker) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
 var File_likes_proto protoreflect.FileDescriptor
 
 const file_likes_proto_rawDesc = "" +
@@ -118,10 +282,21 @@ const file_likes_proto_rawDesc = "" +
 	"\vLikeRequest\x12\x16\n" +
 	"\x06postId\x18\x01 \x01(\tR\x06postId\"$\n" +
 	"\fLikeResponse\x12\x14\n" +
-	"\x05liked\x18\x01 \x01(\bR\x05liked2\x7f\n" +
+	"\x05liked\x18\x01 \x01(\bR\x05liked\"^\n" +
+	"\x10GetLikersRequest\x12\x16\n" +
+	"\x06postId\x18\x01 \x01(\tR\x06postId\x12\x1c\n" +
+	"\tpageToken\x18\x02 \x01(\tR\tpageToken\x12\x14\n" +
+	"\x05count\x18\x03 \x01(\x05R\x05count\"\xab\x01\n" +
+	"\x11GetLikersResponse\x12;\n" +
+	"\x06likers\x18\x01 \x03(\v2#.meme.likes.GetLikersResponse.LikerR\x06likers\x12\x1c\n" +
+	"\tpageToken\x18\x02 \x01(\tR\tpageToken\x1a;\n" +
+	"\x05Liker\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername2\xc9\x01\n" +
 	"\x05Likes\x129\n" +
 	"\x04Like\x12\x17.meme.likes.LikeRequest\x1a\x18.meme.likes.LikeResponse\x12;\n" +
-	"\x06Unlike\x12\x17.meme.likes.LikeRequest\x1a\x18.meme.likes.LikeResponseB%Z#github.com/materkov/meme9/api/likesb\x06proto3"
+	"\x06Unlike\x12\x17.meme.likes.LikeRequest\x1a\x18.meme.likes.LikeResponse\x12H\n" +
+	"\tGetLikers\x12\x1c.meme.likes.GetLikersRequest\x1a\x1d.meme.likes.GetLikersResponseB%Z#github.com/materkov/meme9/api/likesb\x06proto3"
 
 var (
 	file_likes_proto_rawDescOnce sync.Once
@@ -135,21 +310,27 @@ func file_likes_proto_rawDescGZIP() []byte {
 	return file_likes_proto_rawDescData
 }
 
-var file_likes_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_likes_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_likes_proto_goTypes = []any{
-	(*LikeRequest)(nil),  // 0: meme.likes.LikeRequest
-	(*LikeResponse)(nil), // 1: meme.likes.LikeResponse
+	(*LikeRequest)(nil),             // 0: meme.likes.LikeRequest
+	(*LikeResponse)(nil),            // 1: meme.likes.LikeResponse
+	(*GetLikersRequest)(nil),        // 2: meme.likes.GetLikersRequest
+	(*GetLikersResponse)(nil),       // 3: meme.likes.GetLikersResponse
+	(*GetLikersResponse_Liker)(nil), // 4: meme.likes.GetLikersResponse.Liker
 }
 var file_likes_proto_depIdxs = []int32{
-	0, // 0: meme.likes.Likes.Like:input_type -> meme.likes.LikeRequest
-	0, // 1: meme.likes.Likes.Unlike:input_type -> meme.likes.LikeRequest
-	1, // 2: meme.likes.Likes.Like:output_type -> meme.likes.LikeResponse
-	1, // 3: meme.likes.Likes.Unlike:output_type -> meme.likes.LikeResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4, // 0: meme.likes.GetLikersResponse.likers:type_name -> meme.likes.GetLikersResponse.Liker
+	0, // 1: meme.likes.Likes.Like:input_type -> meme.likes.LikeRequest
+	0, // 2: meme.likes.Likes.Unlike:input_type -> meme.likes.LikeRequest
+	2, // 3: meme.likes.Likes.GetLikers:input_type -> meme.likes.GetLikersRequest
+	1, // 4: meme.likes.Likes.Like:output_type -> meme.likes.LikeResponse
+	1, // 5: meme.likes.Likes.Unlike:output_type -> meme.likes.LikeResponse
+	3, // 6: meme.likes.Likes.GetLikers:output_type -> meme.likes.GetLikersResponse
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_likes_proto_init() }
@@ -163,7 +344,7 @@ func file_likes_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_likes_proto_rawDesc), len(file_likes_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

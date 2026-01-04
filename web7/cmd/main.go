@@ -73,7 +73,7 @@ func main() {
 	tokensService := tokensservice.New(tokensAdapter)
 
 	// Create separate service instances
-	likesService := likesserviceapi.NewService(likesAdapter)
+	likesService := likesserviceapi.NewService(likesAdapter, usersAdapter)
 	postsServiceInstance := postsserviceapi.NewService(postsAdapter, usersAdapter, subscriptionsAdapter, likesAdapter)
 	authService := auth.NewService(usersAdapter, tokensAdapter, tokensService)
 	usersService := usersserviceapi.NewService(usersAdapter)

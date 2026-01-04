@@ -2,6 +2,7 @@ package likes
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -131,4 +132,150 @@ func TestAdapter_GetLikedByUser_SinglePost_Liked(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, liked["post-1"])
 	require.False(t, liked["post-2"])
+}
+
+func TestAdapter_GetLikers_Empty(t *testing.T) {
+	adapter, cleanup := setupTestAdapter(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	postID := "post-1"
+
+	// Get likers for post with no likes
+	userIDs, pageToken, err := adapter.GetLikers(ctx, postID, "", 10)
+	require.NoError(t, err)
+	require.Empty(t, userIDs)
+	require.Empty(t, pageToken)
+}
+
+func TestAdapter_GetLikers_SingleLiker(t *testing.T) {
+	adapter, cleanup := setupTestAdapter(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	postID := "post-1"
+	userID := "user-1"
+
+	// Like post
+	err := adapter.Like(ctx, postID, userID)
+	require.NoError(t, err)
+
+	// Get likers
+	userIDs, pageToken, err := adapter.GetLikers(ctx, postID, "", 10)
+	require.NoError(t, err)
+	require.Equal(t, []string{userID}, userIDs)
+	require.Empty(t, pageToken) // No more results
+}
+
+func TestAdapter_GetLikers_MultipleLikers(t *testing.T) {
+	adapter, cleanup := setupTestAdapter(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	postID := "post-1"
+	userID1 := "user-1"
+	userID2 := "user-2"
+	userID3 := "user-3"
+
+	// Like post with multiple users
+	err := adapter.Like(ctx, postID, userID1)
+	require.NoError(t, err)
+	err = adapter.Like(ctx, postID, userID2)
+	require.NoError(t, err)
+	err = adapter.Like(ctx, postID, userID3)
+	require.NoError(t, err)
+
+	// Get all likers
+	userIDs, pageToken, err := adapter.GetLikers(ctx, postID, "", 10)
+	require.NoError(t, err)
+	require.Len(t, userIDs, 3)
+	require.Contains(t, userIDs, userID1)
+	require.Contains(t, userIDs, userID2)
+	require.Contains(t, userIDs, userID3)
+	require.Empty(t, pageToken) // No more results
+}
+
+func TestAdapter_GetLikers_WithPagination_MoreResults(t *testing.T) {
+	adapter, cleanup := setupTestAdapter(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	postID := "post-1"
+
+	// Create 5 likes
+	for i := 1; i <= 5; i++ {
+		err := adapter.Like(ctx, postID, fmt.Sprintf("user-%d", i))
+		require.NoError(t, err)
+	}
+
+	// Get first page with count 2
+	userIDs, pageToken, err := adapter.GetLikers(ctx, postID, "", 2)
+	require.NoError(t, err)
+	require.Len(t, userIDs, 2)
+	require.NotEmpty(t, pageToken) // More results available
+
+	// Get second page using pageToken
+	userIDs2, pageToken2, err := adapter.GetLikers(ctx, postID, pageToken, 2)
+	require.NoError(t, err)
+	require.Len(t, userIDs2, 2)
+	require.NotEmpty(t, pageToken2) // More results available
+
+	// Get third page
+	userIDs3, pageToken3, err := adapter.GetLikers(ctx, postID, pageToken2, 2)
+	require.NoError(t, err)
+	require.Len(t, userIDs3, 1)
+	require.Empty(t, pageToken3) // No more results
+
+	// Verify all user IDs are unique across pages
+	allUserIDs := append(append(userIDs, userIDs2...), userIDs3...)
+	require.Len(t, allUserIDs, 5)
+}
+
+func TestAdapter_GetLikers_WithPagination_ExactCount(t *testing.T) {
+	adapter, cleanup := setupTestAdapter(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	postID := "post-1"
+
+	// Create exactly 3 likes
+	for i := 1; i <= 3; i++ {
+		err := adapter.Like(ctx, postID, fmt.Sprintf("user-%d", i))
+		require.NoError(t, err)
+	}
+
+	// Get with count 3 (exact match)
+	userIDs, pageToken, err := adapter.GetLikers(ctx, postID, "", 3)
+	require.NoError(t, err)
+	require.Len(t, userIDs, 3)
+	require.Empty(t, pageToken) // No more results
+}
+
+func TestAdapter_GetLikers_IsolatedByPost(t *testing.T) {
+	adapter, cleanup := setupTestAdapter(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	postID1 := "post-1"
+	postID2 := "post-2"
+	userID1 := "user-1"
+	userID2 := "user-2"
+
+	// Like different posts
+	err := adapter.Like(ctx, postID1, userID1)
+	require.NoError(t, err)
+	err = adapter.Like(ctx, postID2, userID2)
+	require.NoError(t, err)
+
+	// Get likers for post-1 should only return user-1
+	userIDs, pageToken, err := adapter.GetLikers(ctx, postID1, "", 10)
+	require.NoError(t, err)
+	require.Equal(t, []string{userID1}, userIDs)
+	require.Empty(t, pageToken)
+
+	// Get likers for post-2 should only return user-2
+	userIDs2, pageToken2, err := adapter.GetLikers(ctx, postID2, "", 10)
+	require.NoError(t, err)
+	require.Equal(t, []string{userID2}, userIDs2)
+	require.Empty(t, pageToken2)
 }

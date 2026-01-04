@@ -29,6 +29,49 @@ export interface LikeResponse {
      */
     liked: boolean;
 }
+/**
+ * @generated from protobuf message meme.likes.GetLikersRequest
+ */
+export interface GetLikersRequest {
+    /**
+     * @generated from protobuf field: string postId = 1
+     */
+    postId: string;
+    /**
+     * @generated from protobuf field: string pageToken = 2
+     */
+    pageToken: string;
+    /**
+     * @generated from protobuf field: int32 count = 3
+     */
+    count: number;
+}
+/**
+ * @generated from protobuf message meme.likes.GetLikersResponse
+ */
+export interface GetLikersResponse {
+    /**
+     * @generated from protobuf field: repeated meme.likes.GetLikersResponse.Liker likers = 1
+     */
+    likers: GetLikersResponse_Liker[];
+    /**
+     * @generated from protobuf field: string pageToken = 2
+     */
+    pageToken: string;
+}
+/**
+ * @generated from protobuf message meme.likes.GetLikersResponse.Liker
+ */
+export interface GetLikersResponse_Liker {
+    /**
+     * @generated from protobuf field: string userId = 1
+     */
+    userId: string;
+    /**
+     * @generated from protobuf field: string username = 2
+     */
+    username: string;
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class LikeRequest$Type extends MessageType<LikeRequest> {
     constructor() {
@@ -123,10 +166,184 @@ class LikeResponse$Type extends MessageType<LikeResponse> {
  * @generated MessageType for protobuf message meme.likes.LikeResponse
  */
 export const LikeResponse = new LikeResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetLikersRequest$Type extends MessageType<GetLikersRequest> {
+    constructor() {
+        super("meme.likes.GetLikersRequest", [
+            { no: 1, name: "postId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "pageToken", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "count", kind: "scalar", T: 5 /*ScalarType.INT32*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GetLikersRequest>): GetLikersRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.postId = "";
+        message.pageToken = "";
+        message.count = 0;
+        if (value !== undefined)
+            reflectionMergePartial<GetLikersRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetLikersRequest): GetLikersRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string postId */ 1:
+                    message.postId = reader.string();
+                    break;
+                case /* string pageToken */ 2:
+                    message.pageToken = reader.string();
+                    break;
+                case /* int32 count */ 3:
+                    message.count = reader.int32();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetLikersRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string postId = 1; */
+        if (message.postId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.postId);
+        /* string pageToken = 2; */
+        if (message.pageToken !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.pageToken);
+        /* int32 count = 3; */
+        if (message.count !== 0)
+            writer.tag(3, WireType.Varint).int32(message.count);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message meme.likes.GetLikersRequest
+ */
+export const GetLikersRequest = new GetLikersRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetLikersResponse$Type extends MessageType<GetLikersResponse> {
+    constructor() {
+        super("meme.likes.GetLikersResponse", [
+            { no: 1, name: "likers", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => GetLikersResponse_Liker },
+            { no: 2, name: "pageToken", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GetLikersResponse>): GetLikersResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.likers = [];
+        message.pageToken = "";
+        if (value !== undefined)
+            reflectionMergePartial<GetLikersResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetLikersResponse): GetLikersResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated meme.likes.GetLikersResponse.Liker likers */ 1:
+                    message.likers.push(GetLikersResponse_Liker.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                case /* string pageToken */ 2:
+                    message.pageToken = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetLikersResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated meme.likes.GetLikersResponse.Liker likers = 1; */
+        for (let i = 0; i < message.likers.length; i++)
+            GetLikersResponse_Liker.internalBinaryWrite(message.likers[i], writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* string pageToken = 2; */
+        if (message.pageToken !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.pageToken);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message meme.likes.GetLikersResponse
+ */
+export const GetLikersResponse = new GetLikersResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetLikersResponse_Liker$Type extends MessageType<GetLikersResponse_Liker> {
+    constructor() {
+        super("meme.likes.GetLikersResponse.Liker", [
+            { no: 1, name: "userId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GetLikersResponse_Liker>): GetLikersResponse_Liker {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.userId = "";
+        message.username = "";
+        if (value !== undefined)
+            reflectionMergePartial<GetLikersResponse_Liker>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetLikersResponse_Liker): GetLikersResponse_Liker {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string userId */ 1:
+                    message.userId = reader.string();
+                    break;
+                case /* string username */ 2:
+                    message.username = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetLikersResponse_Liker, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string userId = 1; */
+        if (message.userId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.userId);
+        /* string username = 2; */
+        if (message.username !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.username);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message meme.likes.GetLikersResponse.Liker
+ */
+export const GetLikersResponse_Liker = new GetLikersResponse_Liker$Type();
 /**
  * @generated ServiceType for protobuf service meme.likes.Likes
  */
 export const Likes = new ServiceType("meme.likes.Likes", [
     { name: "Like", options: {}, I: LikeRequest, O: LikeResponse },
-    { name: "Unlike", options: {}, I: LikeRequest, O: LikeResponse }
+    { name: "Unlike", options: {}, I: LikeRequest, O: LikeResponse },
+    { name: "GetLikers", options: {}, I: GetLikersRequest, O: GetLikersResponse }
 ]);
