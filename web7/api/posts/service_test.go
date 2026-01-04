@@ -15,6 +15,24 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
+type mockLikesAdapter struct{}
+
+func (m *mockLikesAdapter) GetLikesCounts(ctx context.Context, postIDs []string) (map[string]int32, error) {
+	result := make(map[string]int32)
+	for _, postID := range postIDs {
+		result[postID] = 0
+	}
+	return result, nil
+}
+
+func (m *mockLikesAdapter) GetLikedByUser(ctx context.Context, userID string, postIDs []string) (map[string]bool, error) {
+	result := make(map[string]bool)
+	for _, postID := range postIDs {
+		result[postID] = false
+	}
+	return result, nil
+}
+
 func initService(t *testing.T) (*Service, *mocks.MockPostsAdapter, *mocks.MockUsersAdapter, *mocks.MockSubscriptionsAdapter, func()) {
 	ctrl := gomock.NewController(t)
 	closer := func() {
@@ -24,8 +42,9 @@ func initService(t *testing.T) (*Service, *mocks.MockPostsAdapter, *mocks.MockUs
 	mockPosts := mocks.NewMockPostsAdapter(ctrl)
 	mockUsers := mocks.NewMockUsersAdapter(ctrl)
 	mockSubscriptions := mocks.NewMockSubscriptionsAdapter(ctrl)
+	mockLikes := &mockLikesAdapter{}
 
-	return NewService(mockPosts, mockUsers, mockSubscriptions), mockPosts, mockUsers, mockSubscriptions, closer
+	return NewService(mockPosts, mockUsers, mockSubscriptions, mockLikes), mockPosts, mockUsers, mockSubscriptions, closer
 }
 
 func TestService_Publish(t *testing.T) {

@@ -26,6 +26,7 @@ protoc -I "$SCHEMA_DIR" --go_out=pb --twirp_out=pb "$SCHEMA_DIR/posts.proto"
 protoc -I "$SCHEMA_DIR" --go_out=pb --twirp_out=pb "$SCHEMA_DIR/auth.proto"
 protoc -I "$SCHEMA_DIR" --go_out=pb --twirp_out=pb "$SCHEMA_DIR/users.proto"
 protoc -I "$SCHEMA_DIR" --go_out=pb --twirp_out=pb "$SCHEMA_DIR/subscriptions.proto"
+protoc -I "$SCHEMA_DIR" --go_out=pb --twirp_out=pb "$SCHEMA_DIR/likes.proto"
 
 # Generate json_api.proto if it exists
 if [ -f "$SCHEMA_DIR/json_api.proto" ]; then
@@ -52,7 +53,8 @@ protoc \
   "$SCHEMA_DIR/posts.proto" \
   "$SCHEMA_DIR/auth.proto" \
   "$SCHEMA_DIR/users.proto" \
-  "$SCHEMA_DIR/subscriptions.proto"
+  "$SCHEMA_DIR/subscriptions.proto" \
+  "$SCHEMA_DIR/likes.proto"
 
 echo "TypeScript code generated successfully"
 echo ""

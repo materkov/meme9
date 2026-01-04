@@ -37,6 +37,8 @@ message Post {
   string userId = 3;
   string userName = 4;
   string createdAt = 5; // RFC3339 format
+  int32 likesCount = 6;
+  bool isLiked = 7; // Whether the current user has liked this post
 }
 
 enum FeedType {

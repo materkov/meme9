@@ -3,36 +3,12 @@ package api
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/materkov/meme9/web7/api/auth"
 	authapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/auth"
 	"github.com/twitchtv/twirp"
 )
-
-func AuthHook(authService *auth.Service) *twirp.ServerHooks {
-	return &twirp.ServerHooks{
-		RequestRouted: func(ctx context.Context) (context.Context, error) {
-			header, ok := twirp.HTTPRequestHeaders(ctx)
-			authHeader := ""
-			if ok && header != nil {
-				authHeader = header.Get("Authorization")
-			}
-
-			if authHeader != "" {
-				verifyReq := &authapi.VerifyTokenRequest{
-					Token: authHeader,
-				}
-				verifyResp, err := authService.VerifyToken(ctx, verifyReq)
-				if err == nil {
-					userID := verifyResp.UserId
-					ctx = context.WithValue(ctx, UserIDKey, userID)
-				}
-			}
-
-			return ctx, nil
-		},
-	}
-}
 
 func CORSMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +22,28 @@ func CORSMiddleware(handler http.Handler) http.Handler {
 		}
 
 		handler.ServeHTTP(w, r)
+	})
+}
+
+func AuthMiddleware(authService *auth.Service, handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		authHeader := r.Header.Get("Authorization")
+		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
+		authHeader = strings.TrimSpace(authHeader)
+
+		if authHeader != "" {
+			verifyReq := &authapi.VerifyTokenRequest{
+				Token: authHeader,
+			}
+			verifyResp, err := authService.VerifyToken(ctx, verifyReq)
+			if err == nil {
+				ctx = context.WithValue(r.Context(), UserIDKey, verifyResp.UserId)
+			}
+		}
+
+		handler.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

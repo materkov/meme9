@@ -34,17 +34,24 @@ type SubscriptionsAdapter interface {
 	GetFollowing(ctx context.Context, userID string) ([]string, error)
 }
 
+type LikesAdapter interface {
+	GetLikesCounts(ctx context.Context, postIDs []string) (map[string]int32, error)
+	GetLikedByUser(ctx context.Context, userID string, postIDs []string) (map[string]bool, error)
+}
+
 type Service struct {
 	posts         PostsAdapter
 	users         UsersAdapter
 	subscriptions SubscriptionsAdapter
+	likes         LikesAdapter
 }
 
-func NewService(postsAdapter PostsAdapter, usersAdapter UsersAdapter, subscriptions SubscriptionsAdapter) *Service {
+func NewService(postsAdapter PostsAdapter, usersAdapter UsersAdapter, subscriptions SubscriptionsAdapter, likesAdapter LikesAdapter) *Service {
 	return &Service{
 		posts:         postsAdapter,
 		users:         usersAdapter,
 		subscriptions: subscriptions,
+		likes:         likesAdapter,
 	}
 }
 
@@ -106,8 +113,27 @@ func (s *Service) GetByUsers(ctx context.Context, req *postsapi.GetByUsersReques
 	username := <-usernameChan
 
 	userPosts := make([]*postsapi.Post, len(postsList))
+	postIDs := make([]string, len(postsList))
 	for i, post := range postsList {
-		userPosts[i] = makeProtoPost(&post, username)
+		postIDs[i] = post.ID
+	}
+
+	userID := api.GetUserIDFromContext(ctx)
+	likesCounts := make(map[string]int32)
+	likedByUser := make(map[string]bool)
+	counts, err := s.likes.GetLikesCounts(ctx, postIDs)
+	if err == nil {
+		likesCounts = counts
+	}
+	if userID != "" {
+		liked, err := s.likes.GetLikedByUser(ctx, userID, postIDs)
+		if err == nil {
+			likedByUser = liked
+		}
+	}
+
+	for i, post := range postsList {
+		userPosts[i] = makeProtoPost(&post, username, likesCounts[post.ID], likedByUser[post.ID])
 	}
 
 	return &postsapi.GetByUsersResponse{
@@ -135,7 +161,21 @@ func (s *Service) Get(ctx context.Context, req *postsapi.GetPostRequest) (*posts
 		userName = user.Username
 	}
 
-	return makeProtoPost(post, userName), nil
+	userID := api.GetUserIDFromContext(ctx)
+	var likesCount int32
+	var isLiked bool
+	count, err := s.likes.GetLikesCounts(ctx, []string{post.ID})
+	if err == nil {
+		likesCount = count[post.ID]
+	}
+	if userID != "" {
+		liked, err := s.likes.GetLikedByUser(ctx, userID, []string{post.ID})
+		if err == nil {
+			isLiked = liked[post.ID]
+		}
+	}
+
+	return makeProtoPost(post, userName, likesCount, isLiked), nil
 }
 
 func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*postsapi.FeedResponse, error) {
@@ -189,6 +229,24 @@ func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*post
 		usersMap = make(map[string]*users.User)
 	}
 
+	postIDs := make([]string, len(postsList))
+	for i, post := range postsList {
+		postIDs[i] = post.ID
+	}
+
+	likesCounts := make(map[string]int32)
+	likedByUser := make(map[string]bool)
+	counts, err := s.likes.GetLikesCounts(ctx, postIDs)
+	if err == nil {
+		likesCounts = counts
+	}
+	if userID != "" {
+		liked, err := s.likes.GetLikedByUser(ctx, userID, postIDs)
+		if err == nil {
+			likedByUser = liked
+		}
+	}
+
 	feedPosts := make([]*postsapi.Post, len(postsList))
 	for i, post := range postsList {
 		userName := ""
@@ -196,7 +254,7 @@ func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*post
 			userName = user.Username
 		}
 
-		feedPosts[i] = makeProtoPost(&post, userName)
+		feedPosts[i] = makeProtoPost(&post, userName, likesCounts[post.ID], likedByUser[post.ID])
 	}
 
 	return &postsapi.FeedResponse{
@@ -204,12 +262,14 @@ func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*post
 	}, nil
 }
 
-func makeProtoPost(post *posts.Post, userName string) *postsapi.Post {
+func makeProtoPost(post *posts.Post, userName string, likesCount int32, isLiked bool) *postsapi.Post {
 	return &postsapi.Post{
-		Id:        post.ID,
-		Text:      post.Text,
-		UserId:    post.UserID,
-		UserName:  userName,
-		CreatedAt: post.CreatedAt.Format(time.RFC3339),
+		Id:         post.ID,
+		Text:       post.Text,
+		UserId:     post.UserID,
+		UserName:   userName,
+		CreatedAt:  post.CreatedAt.Format(time.RFC3339),
+		LikesCount: likesCount,
+		IsLiked:    isLiked,
 	}
 }

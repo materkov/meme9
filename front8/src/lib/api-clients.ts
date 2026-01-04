@@ -2,6 +2,7 @@ import { AuthClientJSON } from '@/schema/auth.twirp';
 import { PostsClientJSON } from '@/schema/posts.twirp';
 import { UsersClientJSON } from '@/schema/users.twirp';
 import { SubscriptionsClientJSON } from '@/schema/subscriptions.twirp';
+import { LikesClientJSON } from '@/schema/likes.twirp';
 import { getAuthToken } from './authHelpers';
 
 function getApiBaseUrl(): string {
@@ -70,6 +71,7 @@ export const AuthClient = new AuthClientJSON(rpcImpl);
 export const PostsClient = new PostsClientJSON(rpcImpl);
 export const UsersClient = new UsersClientJSON(rpcImpl);
 export const SubscriptionsClient = new SubscriptionsClientJSON(rpcImpl);
+export const LikesClient = new LikesClientJSON(rpcImpl);
 
 export class ApiError extends Error {
   err: string;

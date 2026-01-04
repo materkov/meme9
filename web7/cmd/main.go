@@ -6,18 +6,19 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/twitchtv/twirp"
-
+	"github.com/materkov/meme9/web7/adapters/likes"
 	"github.com/materkov/meme9/web7/adapters/posts"
 	"github.com/materkov/meme9/web7/adapters/subscriptions"
 	"github.com/materkov/meme9/web7/adapters/tokens"
 	"github.com/materkov/meme9/web7/adapters/users"
 	"github.com/materkov/meme9/web7/api"
 	"github.com/materkov/meme9/web7/api/auth"
+	likesserviceapi "github.com/materkov/meme9/web7/api/likes"
 	postsserviceapi "github.com/materkov/meme9/web7/api/posts"
 	subscriptionsserviceapi "github.com/materkov/meme9/web7/api/subscriptions"
 	usersserviceapi "github.com/materkov/meme9/web7/api/users"
 	authapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/auth"
+	likesapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/likes"
 	postsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/posts"
 	subscriptionsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/subscriptions"
 	usersapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/users"
@@ -52,6 +53,7 @@ func main() {
 	usersAdapter := users.New(client, databaseName)
 	tokensAdapter := tokens.New(client, databaseName)
 	subscriptionsAdapter := subscriptions.New(client, databaseName)
+	likesAdapter := likes.New(client, databaseName)
 
 	// Ensure indexes
 	err = usersAdapter.EnsureIndexes(ctx)
@@ -62,37 +64,44 @@ func main() {
 	if err != nil {
 		log.Printf("Warning: Failed to ensure subscription indexes: %v", err)
 	}
+	err = likesAdapter.EnsureIndexes(ctx)
+	if err != nil {
+		log.Printf("Warning: Failed to ensure likes indexes: %v", err)
+	}
 
 	// Initialize services
 	tokensService := tokensservice.New(tokensAdapter)
 
 	// Create separate service instances
-	postsServiceInstance := postsserviceapi.NewService(postsAdapter, usersAdapter, subscriptionsAdapter)
+	likesService := likesserviceapi.NewService(likesAdapter)
+	postsServiceInstance := postsserviceapi.NewService(postsAdapter, usersAdapter, subscriptionsAdapter, likesAdapter)
 	authService := auth.NewService(usersAdapter, tokensAdapter, tokensService)
 	usersService := usersserviceapi.NewService(usersAdapter)
 	subscriptionsService := subscriptionsserviceapi.NewService(subscriptionsAdapter)
 
 	// Create Twirp servers for each service
-	authHooks := api.AuthHook(authService)
 
-	postsHandler := postsapi.NewPostsServer(postsServiceInstance, twirp.WithServerHooks(authHooks))
+	postsHandler := postsapi.NewPostsServer(postsServiceInstance)
 	// Auth service should NOT have authHooks applied - it handles its own validation
 	// and VerifyToken is called from within the hook, which would cause infinite recursion
 	authHandler := authapi.NewAuthServer(authService)
-	usersHandler := usersapi.NewUsersServer(usersService, twirp.WithServerHooks(authHooks))
-	subscriptionsHandler := subscriptionsapi.NewSubscriptionsServer(subscriptionsService, twirp.WithServerHooks(authHooks))
+	usersHandler := usersapi.NewUsersServer(usersService)
+	subscriptionsHandler := subscriptionsapi.NewSubscriptionsServer(subscriptionsService)
+	likesHandler := likesapi.NewLikesServer(likesService)
 
 	// Wrap with CORS middleware
-	postsHandlerWithCORS := api.CORSMiddleware(postsHandler)
-	authHandlerWithCORS := api.CORSMiddleware(authHandler)
-	usersHandlerWithCORS := api.CORSMiddleware(usersHandler)
-	subscriptionsHandlerWithCORS := api.CORSMiddleware(subscriptionsHandler)
+	postsHandlerWithCORS := api.AuthMiddleware(authService, api.CORSMiddleware(postsHandler))
+	authHandlerWithCORS := api.AuthMiddleware(authService, api.CORSMiddleware(authHandler))
+	usersHandlerWithCORS := api.AuthMiddleware(authService, api.CORSMiddleware(usersHandler))
+	subscriptionsHandlerWithCORS := api.AuthMiddleware(authService, api.CORSMiddleware(subscriptionsHandler))
+	likesHandlerWithCORS := api.AuthMiddleware(authService, api.CORSMiddleware(likesHandler))
 
 	// Register all handlers
 	http.Handle(postsHandler.PathPrefix(), postsHandlerWithCORS)
 	http.Handle(authHandler.PathPrefix(), authHandlerWithCORS)
 	http.Handle(usersHandler.PathPrefix(), usersHandlerWithCORS)
 	http.Handle(subscriptionsHandler.PathPrefix(), subscriptionsHandlerWithCORS)
+	http.Handle(likesHandler.PathPrefix(), likesHandlerWithCORS)
 
 	// Start HTTP server
 	addr := "127.0.0.1:8080"

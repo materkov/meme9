@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package meme.likes;
+option go_package = "github.com/materkov/meme9/api/likes";
+
+// Likes service
+service Likes {
+  rpc Like(LikeRequest) returns (LikeResponse);
+  rpc Unlike(LikeRequest) returns (LikeResponse);
+}
+
+message LikeRequest {
+  string postId = 1;
+}
+
+message LikeResponse {
+  bool liked = 1;
+}
+

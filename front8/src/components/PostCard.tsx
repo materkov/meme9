@@ -1,23 +1,64 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Post } from '@/schema/posts';
 import FormattedDate from './FormattedDate';
+import { useAuth } from '@/contexts/AuthContext';
+import { LikesClient } from '@/lib/api-clients';
+import { ApiError } from '@/lib/api-clients';
 
 interface PostCardProps {
   post: Post;
   clickable?: boolean;
+  onLikeChange?: (postId: string, liked: boolean, count: number) => void;
 }
 
-export default function PostCard({ post, clickable = true }: PostCardProps) {
+export default function PostCard({ post, clickable = true, onLikeChange }: PostCardProps) {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
+  const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
+  const [isLiking, setIsLiking] = useState(false);
   
   const username = post.userName || 'Unknown User';
 
   const handleClick = () => {
     if (clickable) {
       router.push(`/post/${post.id}`);
+    }
+  };
+
+  const handleLikeClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!isAuthenticated || isLiking) {
+      return;
+    }
+
+    setIsLiking(true);
+    try {
+      if (isLiked) {
+        await LikesClient.Unlike({ postId: post.id });
+        const newCount = Math.max(0, likesCount - 1);
+        setLikesCount(newCount);
+        setIsLiked(false);
+        onLikeChange?.(post.id, false, newCount);
+      } else {
+        await LikesClient.Like({ postId: post.id });
+        setLikesCount(likesCount + 1);
+        setIsLiked(true);
+        onLikeChange?.(post.id, true, likesCount + 1);
+      }
+    } catch (error) {
+      if (error instanceof ApiError && error.err === 'auth_required') {
+        // User needs to log in
+        return;
+      }
+      console.error('Failed to toggle like:', error);
+    } finally {
+      setIsLiking(false);
     }
   };
 
@@ -42,6 +83,33 @@ export default function PostCard({ post, clickable = true }: PostCardProps) {
       >
         {post.text}
       </p>
+      <div className="mt-4 flex items-center gap-2">
+        <button
+          onClick={handleLikeClick}
+          disabled={!isAuthenticated || isLiking}
+          className={`flex items-center gap-1 px-3 py-1 rounded-full transition-colors ${
+            isLiked
+              ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+              : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+          } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+        >
+          <svg
+            className="w-5 h-5"
+            fill={isLiked ? 'currentColor' : 'none'}
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+            />
+          </svg>
+          <span className="text-sm font-medium">{likesCount}</span>
+        </button>
+      </div>
     </div>
   );
 }

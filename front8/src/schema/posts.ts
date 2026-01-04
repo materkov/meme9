@@ -80,6 +80,14 @@ export interface Post {
      * @generated from protobuf field: string createdAt = 5
      */
     createdAt: string; // RFC3339 format
+    /**
+     * @generated from protobuf field: int32 likesCount = 6
+     */
+    likesCount: number;
+    /**
+     * @generated from protobuf field: bool isLiked = 7
+     */
+    isLiked: boolean; // Whether the current user has liked this post
 }
 /**
  * @generated from protobuf message meme.posts.FeedRequest
@@ -359,7 +367,9 @@ class Post$Type extends MessageType<Post> {
             { no: 2, name: "text", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "userId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 4, name: "userName", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 5, name: "createdAt", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 5, name: "createdAt", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 6, name: "likesCount", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 7, name: "isLiked", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<Post>): Post {
@@ -369,6 +379,8 @@ class Post$Type extends MessageType<Post> {
         message.userId = "";
         message.userName = "";
         message.createdAt = "";
+        message.likesCount = 0;
+        message.isLiked = false;
         if (value !== undefined)
             reflectionMergePartial<Post>(this, message, value);
         return message;
@@ -392,6 +404,12 @@ class Post$Type extends MessageType<Post> {
                     break;
                 case /* string createdAt */ 5:
                     message.createdAt = reader.string();
+                    break;
+                case /* int32 likesCount */ 6:
+                    message.likesCount = reader.int32();
+                    break;
+                case /* bool isLiked */ 7:
+                    message.isLiked = reader.bool();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -420,6 +438,12 @@ class Post$Type extends MessageType<Post> {
         /* string createdAt = 5; */
         if (message.createdAt !== "")
             writer.tag(5, WireType.LengthDelimited).string(message.createdAt);
+        /* int32 likesCount = 6; */
+        if (message.likesCount !== 0)
+            writer.tag(6, WireType.Varint).int32(message.likesCount);
+        /* bool isLiked = 7; */
+        if (message.isLiked !== false)
+            writer.tag(7, WireType.Varint).bool(message.isLiked);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
