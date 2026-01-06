@@ -40,7 +40,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-black dark:text-zinc-50">Feed</h1>
         <Suspense fallback={<div className="w-[140px]" />}>
-          <FeedTabs />
+          <FeedTabs searchParams={searchParams} />
         </Suspense>
       </div>
       

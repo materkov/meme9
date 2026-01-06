@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { AuthClient, ApiError } from '@/lib/api-clients';
 import type { LoginResponse } from '@/schema/auth';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,6 +11,8 @@ interface AuthPopupProps {
 }
 
 export default function AuthPopup({ onClose }: AuthPopupProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -32,6 +35,9 @@ export default function AuthPopup({ onClose }: AuthPopupProps) {
 
       authLogin(response);
       onClose();
+      // Refresh to trigger server-side re-render with new auth state
+      // Cookies are set synchronously, so they'll be included in the refresh request
+      router.refresh();
     } catch (err) {
       if (err instanceof ApiError && err.err === "username_exists") {
         setError('This username is already taken, please choose another one');
