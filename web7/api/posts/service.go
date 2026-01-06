@@ -19,7 +19,6 @@ import (
 
 type PostsAdapter interface {
 	Add(ctx context.Context, post posts.Post) (*posts.Post, error)
-	GetByUserID(ctx context.Context, userID string) ([]posts.Post, error)
 	GetByID(ctx context.Context, postID string) (*posts.Post, error)
 	GetAll(ctx context.Context) ([]posts.Post, error)
 	GetByUserIDs(ctx context.Context, userIDs []string) ([]posts.Post, error)
@@ -90,7 +89,7 @@ func (s *Service) GetByUsers(ctx context.Context, req *postsapi.GetByUsersReques
 
 	postsListChan := make(chan []posts.Post)
 	go func() {
-		postsList, err := s.posts.GetByUserID(ctx, req.UserId)
+		postsList, err := s.posts.GetByUserIDs(ctx, []string{req.UserId})
 		if err != nil {
 			log.Printf("failed to get posts: %s", err)
 			postsListChan <- []posts.Post{}
@@ -152,6 +151,8 @@ func (s *Service) Get(ctx context.Context, req *postsapi.GetPostRequest) (*posts
 		return nil, twirp.NewError(twirp.NotFound, "post_not_found")
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to get post: %w", err)
+	} else if post.Deleted {
+		return nil, twirp.NewError(twirp.NotFound, "post_not_found")
 	}
 
 	userName := ""

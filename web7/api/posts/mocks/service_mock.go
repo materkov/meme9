@@ -87,21 +87,6 @@ func (mr *MockPostsAdapterMockRecorder) GetByID(ctx, postID any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockPostsAdapter)(nil).GetByID), ctx, postID)
 }
 
-// GetByUserID mocks base method.
-func (m *MockPostsAdapter) GetByUserID(ctx context.Context, userID string) ([]posts.Post, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByUserID", ctx, userID)
-	ret0, _ := ret[0].([]posts.Post)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetByUserID indicates an expected call of GetByUserID.
-func (mr *MockPostsAdapterMockRecorder) GetByUserID(ctx, userID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserID", reflect.TypeOf((*MockPostsAdapter)(nil).GetByUserID), ctx, userID)
-}
-
 // GetByUserIDs mocks base method.
 func (m *MockPostsAdapter) GetByUserIDs(ctx context.Context, userIDs []string) ([]posts.Post, error) {
 	m.ctrl.T.Helper()

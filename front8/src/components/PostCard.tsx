@@ -6,28 +6,32 @@ import Link from 'next/link';
 import type { Post } from '@/schema/posts';
 import FormattedDate from './FormattedDate';
 import { useAuth } from '@/contexts/AuthContext';
-import { LikesClient } from '@/lib/api-clients';
+import { LikesClient, PostsClient } from '@/lib/api-clients';
 import { ApiError } from '@/lib/api-clients';
 import LikersPopup from './LikersPopup';
+import PostMenuPopup from './PostMenuPopup';
 
 interface PostCardProps {
   post: Post;
   clickable?: boolean;
   onLikeChange?: (postId: string, liked: boolean, count: number) => void;
+  onDelete?: () => void;
 }
 
-export default function PostCard({ post, clickable = true, onLikeChange }: PostCardProps) {
+export default function PostCard({ post, clickable = true, onLikeChange, onDelete }: PostCardProps) {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userId } = useAuth();
   const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
   const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
   const [isLiking, setIsLiking] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showLikersPopup, setShowLikersPopup] = useState(false);
   const likeButtonRef = useRef<HTMLButtonElement>(null);
   const popupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
   
   const username = post.userName || 'Unknown User';
+  const isOwner = userId === post.userId;
 
   const handleClick = () => {
     if (clickable) {
@@ -101,6 +105,24 @@ export default function PostCard({ post, clickable = true, onLikeChange }: PostC
     setShowLikersPopup(false);
   };
 
+  const handleDelete = async () => {
+    if (!isAuthenticated || isDeleting) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await PostsClient.Delete({ postId: post.id });
+      onDelete?.();      
+    } catch (error) {
+      if (error instanceof ApiError && error.err === 'auth_required') {
+        return;
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="relative">
       <div
@@ -115,7 +137,12 @@ export default function PostCard({ post, clickable = true, onLikeChange }: PostC
               {username}
             </Link>
           </div>
-          <FormattedDate date={post.createdAt}/>
+          <div className="flex items-center gap-3">
+            <FormattedDate date={post.createdAt}/>
+            {isOwner && (
+              <PostMenuPopup onDelete={handleDelete} isDeleting={isDeleting} />
+            )}
+          </div>
         </div>
         <p 
           className={`text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap  ${clickable ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`} 

@@ -104,7 +104,7 @@ func TestService_GetByUsers(t *testing.T) {
 			{ID: "post-2", Text: "Post 2", UserID: userID, CreatedAt: time.Now()},
 		}
 		mockPosts.EXPECT().
-			GetByUserID(ctx, userID).
+			GetByUserIDs(ctx, []string{userID}).
 			Return(postsList, nil).
 			Times(1)
 
@@ -194,6 +194,29 @@ func TestService_Get(t *testing.T) {
 
 		_, err := service.Get(ctx, &postsapi.GetPostRequest{
 			PostId: "post-not-found",
+		})
+		api.RequireError(t, err, "post_not_found")
+	})
+
+	t.Run("post deleted", func(t *testing.T) {
+		ctx := context.Background()
+		postID := "post-123"
+		userID := "user-123"
+
+		deletedPost := &posts.Post{
+			ID:        postID,
+			Text:      "Test post",
+			UserID:    userID,
+			CreatedAt: time.Now(),
+			Deleted:   true,
+		}
+		mockPosts.EXPECT().
+			GetByID(ctx, postID).
+			Return(deletedPost, nil).
+			Times(1)
+
+		_, err := service.Get(ctx, &postsapi.GetPostRequest{
+			PostId: postID,
 		})
 		api.RequireError(t, err, "post_not_found")
 	})
