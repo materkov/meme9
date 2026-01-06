@@ -108,6 +108,20 @@ export interface FeedResponse {
     posts: Post[];
 }
 /**
+ * @generated from protobuf message meme.posts.DeleteRequest
+ */
+export interface DeleteRequest {
+    /**
+     * @generated from protobuf field: string postId = 1
+     */
+    postId: string;
+}
+/**
+ * @generated from protobuf message meme.posts.DeleteResponse
+ */
+export interface DeleteResponse {
+}
+/**
  * @generated from protobuf enum meme.posts.FeedType
  */
 export enum FeedType {
@@ -548,6 +562,91 @@ class FeedResponse$Type extends MessageType<FeedResponse> {
  * @generated MessageType for protobuf message meme.posts.FeedResponse
  */
 export const FeedResponse = new FeedResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class DeleteRequest$Type extends MessageType<DeleteRequest> {
+    constructor() {
+        super("meme.posts.DeleteRequest", [
+            { no: 1, name: "postId", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<DeleteRequest>): DeleteRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.postId = "";
+        if (value !== undefined)
+            reflectionMergePartial<DeleteRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: DeleteRequest): DeleteRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string postId */ 1:
+                    message.postId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: DeleteRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string postId = 1; */
+        if (message.postId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.postId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message meme.posts.DeleteRequest
+ */
+export const DeleteRequest = new DeleteRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class DeleteResponse$Type extends MessageType<DeleteResponse> {
+    constructor() {
+        super("meme.posts.DeleteResponse", []);
+    }
+    create(value?: PartialMessage<DeleteResponse>): DeleteResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<DeleteResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: DeleteResponse): DeleteResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: DeleteResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message meme.posts.DeleteResponse
+ */
+export const DeleteResponse = new DeleteResponse$Type();
 /**
  * @generated ServiceType for protobuf service meme.posts.Posts
  */
@@ -555,5 +654,6 @@ export const Posts = new ServiceType("meme.posts.Posts", [
     { name: "Publish", options: {}, I: PublishRequest, O: PublishResponse },
     { name: "GetByUsers", options: {}, I: GetByUsersRequest, O: GetByUsersResponse },
     { name: "Get", options: {}, I: GetPostRequest, O: Post },
-    { name: "GetFeed", options: {}, I: FeedRequest, O: FeedResponse }
+    { name: "GetFeed", options: {}, I: FeedRequest, O: FeedResponse },
+    { name: "Delete", options: {}, I: DeleteRequest, O: DeleteResponse }
 ]);

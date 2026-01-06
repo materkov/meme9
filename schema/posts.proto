@@ -9,6 +9,8 @@ service Posts {
   rpc GetByUsers(GetByUsersRequest) returns (GetByUsersResponse);
   rpc Get(GetPostRequest) returns (Post);
   rpc GetFeed(FeedRequest) returns (FeedResponse);
+
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
 }
 
 message PublishRequest {
@@ -55,3 +57,9 @@ message FeedResponse {
   repeated Post posts = 1;
 }
 
+message DeleteRequest {
+  string postId = 1;
+}
+
+message DeleteResponse {
+}

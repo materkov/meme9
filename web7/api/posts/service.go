@@ -23,6 +23,7 @@ type PostsAdapter interface {
 	GetByID(ctx context.Context, postID string) (*posts.Post, error)
 	GetAll(ctx context.Context) ([]posts.Post, error)
 	GetByUserIDs(ctx context.Context, userIDs []string) ([]posts.Post, error)
+	MarkAsDeleted(ctx context.Context, postID string) error
 }
 
 type UsersAdapter interface {
@@ -260,6 +261,34 @@ func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*post
 	return &postsapi.FeedResponse{
 		Posts: feedPosts,
 	}, nil
+}
+
+func (s *Service) Delete(ctx context.Context, req *postsapi.DeleteRequest) (*postsapi.DeleteResponse, error) {
+	userID := api.GetUserIDFromContext(ctx)
+	if userID == "" {
+		return nil, api.ErrAuthRequired
+	}
+	if req.PostId == "" {
+		return nil, twirp.NewError(twirp.InvalidArgument, "post_id_required")
+	}
+
+	post, err := s.posts.GetByID(ctx, req.PostId)
+	if errors.Is(err, posts.ErrNotFound) {
+		return nil, twirp.NewError(twirp.NotFound, "post_not_found")
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get post: %w", err)
+	}
+
+	if post.UserID != userID {
+		return nil, twirp.NewError(twirp.PermissionDenied, "not_post_owner")
+	}
+
+	err = s.posts.MarkAsDeleted(ctx, req.PostId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete post: %w", err)
+	}
+
+	return &postsapi.DeleteResponse{}, nil
 }
 
 func makeProtoPost(post *posts.Post, userName string, likesCount int32, isLiked bool) *postsapi.Post {

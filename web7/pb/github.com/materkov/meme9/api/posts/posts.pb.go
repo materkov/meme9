@@ -470,6 +470,86 @@ func (x *FeedResponse) GetPosts() []*Post {
 	return nil
 }
 
+type DeleteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PostId        string                 `protobuf:"bytes,1,opt,name=postId,proto3" json:"postId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteRequest) Reset() {
+	*x = DeleteRequest{}
+	mi := &file_posts_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteRequest) ProtoMessage() {}
+
+func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_posts_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
+func (*DeleteRequest) Descriptor() ([]byte, []int) {
+	return file_posts_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DeleteRequest) GetPostId() string {
+	if x != nil {
+		return x.PostId
+	}
+	return ""
+}
+
+type DeleteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteResponse) Reset() {
+	*x = DeleteResponse{}
+	mi := &file_posts_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteResponse) ProtoMessage() {}
+
+func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_posts_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
+func (*DeleteResponse) Descriptor() ([]byte, []int) {
+	return file_posts_proto_rawDescGZIP(), []int{9}
+}
+
 var File_posts_proto protoreflect.FileDescriptor
 
 const file_posts_proto_rawDesc = "" +
@@ -499,17 +579,21 @@ const file_posts_proto_rawDesc = "" +
 	"\vFeedRequest\x12(\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x14.meme.posts.FeedTypeR\x04type\"6\n" +
 	"\fFeedResponse\x12&\n" +
-	"\x05posts\x18\x01 \x03(\v2\x10.meme.posts.PostR\x05posts*U\n" +
+	"\x05posts\x18\x01 \x03(\v2\x10.meme.posts.PostR\x05posts\"'\n" +
+	"\rDeleteRequest\x12\x16\n" +
+	"\x06postId\x18\x01 \x01(\tR\x06postId\"\x10\n" +
+	"\x0eDeleteResponse*U\n" +
 	"\bFeedType\x12\x19\n" +
 	"\x15FEED_TYPE_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rFEED_TYPE_ALL\x10\x01\x12\x1b\n" +
-	"\x17FEED_TYPE_SUBSCRIPTIONS\x10\x022\x8b\x02\n" +
+	"\x17FEED_TYPE_SUBSCRIPTIONS\x10\x022\xcc\x02\n" +
 	"\x05Posts\x12B\n" +
 	"\aPublish\x12\x1a.meme.posts.PublishRequest\x1a\x1b.meme.posts.PublishResponse\x12K\n" +
 	"\n" +
 	"GetByUsers\x12\x1d.meme.posts.GetByUsersRequest\x1a\x1e.meme.posts.GetByUsersResponse\x123\n" +
 	"\x03Get\x12\x1a.meme.posts.GetPostRequest\x1a\x10.meme.posts.Post\x12<\n" +
-	"\aGetFeed\x12\x17.meme.posts.FeedRequest\x1a\x18.meme.posts.FeedResponseB%Z#github.com/materkov/meme9/api/postsb\x06proto3"
+	"\aGetFeed\x12\x17.meme.posts.FeedRequest\x1a\x18.meme.posts.FeedResponse\x12?\n" +
+	"\x06Delete\x12\x19.meme.posts.DeleteRequest\x1a\x1a.meme.posts.DeleteResponseB%Z#github.com/materkov/meme9/api/postsb\x06proto3"
 
 var (
 	file_posts_proto_rawDescOnce sync.Once
@@ -524,7 +608,7 @@ func file_posts_proto_rawDescGZIP() []byte {
 }
 
 var file_posts_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_posts_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_posts_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_posts_proto_goTypes = []any{
 	(FeedType)(0),              // 0: meme.posts.FeedType
 	(*PublishRequest)(nil),     // 1: meme.posts.PublishRequest
@@ -535,24 +619,28 @@ var file_posts_proto_goTypes = []any{
 	(*Post)(nil),               // 6: meme.posts.Post
 	(*FeedRequest)(nil),        // 7: meme.posts.FeedRequest
 	(*FeedResponse)(nil),       // 8: meme.posts.FeedResponse
+	(*DeleteRequest)(nil),      // 9: meme.posts.DeleteRequest
+	(*DeleteResponse)(nil),     // 10: meme.posts.DeleteResponse
 }
 var file_posts_proto_depIdxs = []int32{
-	6, // 0: meme.posts.GetByUsersResponse.posts:type_name -> meme.posts.Post
-	0, // 1: meme.posts.FeedRequest.type:type_name -> meme.posts.FeedType
-	6, // 2: meme.posts.FeedResponse.posts:type_name -> meme.posts.Post
-	1, // 3: meme.posts.Posts.Publish:input_type -> meme.posts.PublishRequest
-	3, // 4: meme.posts.Posts.GetByUsers:input_type -> meme.posts.GetByUsersRequest
-	5, // 5: meme.posts.Posts.Get:input_type -> meme.posts.GetPostRequest
-	7, // 6: meme.posts.Posts.GetFeed:input_type -> meme.posts.FeedRequest
-	2, // 7: meme.posts.Posts.Publish:output_type -> meme.posts.PublishResponse
-	4, // 8: meme.posts.Posts.GetByUsers:output_type -> meme.posts.GetByUsersResponse
-	6, // 9: meme.posts.Posts.Get:output_type -> meme.posts.Post
-	8, // 10: meme.posts.Posts.GetFeed:output_type -> meme.posts.FeedResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	6,  // 0: meme.posts.GetByUsersResponse.posts:type_name -> meme.posts.Post
+	0,  // 1: meme.posts.FeedRequest.type:type_name -> meme.posts.FeedType
+	6,  // 2: meme.posts.FeedResponse.posts:type_name -> meme.posts.Post
+	1,  // 3: meme.posts.Posts.Publish:input_type -> meme.posts.PublishRequest
+	3,  // 4: meme.posts.Posts.GetByUsers:input_type -> meme.posts.GetByUsersRequest
+	5,  // 5: meme.posts.Posts.Get:input_type -> meme.posts.GetPostRequest
+	7,  // 6: meme.posts.Posts.GetFeed:input_type -> meme.posts.FeedRequest
+	9,  // 7: meme.posts.Posts.Delete:input_type -> meme.posts.DeleteRequest
+	2,  // 8: meme.posts.Posts.Publish:output_type -> meme.posts.PublishResponse
+	4,  // 9: meme.posts.Posts.GetByUsers:output_type -> meme.posts.GetByUsersResponse
+	6,  // 10: meme.posts.Posts.Get:output_type -> meme.posts.Post
+	8,  // 11: meme.posts.Posts.GetFeed:output_type -> meme.posts.FeedResponse
+	10, // 12: meme.posts.Posts.Delete:output_type -> meme.posts.DeleteResponse
+	8,  // [8:13] is the sub-list for method output_type
+	3,  // [3:8] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_posts_proto_init() }
@@ -566,7 +654,7 @@ func file_posts_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_posts_proto_rawDesc), len(file_posts_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -117,6 +117,20 @@ func (mr *MockPostsAdapterMockRecorder) GetByUserIDs(ctx, userIDs any) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserIDs", reflect.TypeOf((*MockPostsAdapter)(nil).GetByUserIDs), ctx, userIDs)
 }
 
+// MarkAsDeleted mocks base method.
+func (m *MockPostsAdapter) MarkAsDeleted(ctx context.Context, postID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MarkAsDeleted", ctx, postID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MarkAsDeleted indicates an expected call of MarkAsDeleted.
+func (mr *MockPostsAdapterMockRecorder) MarkAsDeleted(ctx, postID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkAsDeleted", reflect.TypeOf((*MockPostsAdapter)(nil).MarkAsDeleted), ctx, postID)
+}
+
 // MockUsersAdapter is a mock of UsersAdapter interface.
 type MockUsersAdapter struct {
 	ctrl     *gomock.Controller
@@ -208,4 +222,58 @@ func (m *MockSubscriptionsAdapter) GetFollowing(ctx context.Context, userID stri
 func (mr *MockSubscriptionsAdapterMockRecorder) GetFollowing(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFollowing", reflect.TypeOf((*MockSubscriptionsAdapter)(nil).GetFollowing), ctx, userID)
+}
+
+// MockLikesAdapter is a mock of LikesAdapter interface.
+type MockLikesAdapter struct {
+	ctrl     *gomock.Controller
+	recorder *MockLikesAdapterMockRecorder
+	isgomock struct{}
+}
+
+// MockLikesAdapterMockRecorder is the mock recorder for MockLikesAdapter.
+type MockLikesAdapterMockRecorder struct {
+	mock *MockLikesAdapter
+}
+
+// NewMockLikesAdapter creates a new mock instance.
+func NewMockLikesAdapter(ctrl *gomock.Controller) *MockLikesAdapter {
+	mock := &MockLikesAdapter{ctrl: ctrl}
+	mock.recorder = &MockLikesAdapterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockLikesAdapter) EXPECT() *MockLikesAdapterMockRecorder {
+	return m.recorder
+}
+
+// GetLikedByUser mocks base method.
+func (m *MockLikesAdapter) GetLikedByUser(ctx context.Context, userID string, postIDs []string) (map[string]bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLikedByUser", ctx, userID, postIDs)
+	ret0, _ := ret[0].(map[string]bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLikedByUser indicates an expected call of GetLikedByUser.
+func (mr *MockLikesAdapterMockRecorder) GetLikedByUser(ctx, userID, postIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikedByUser", reflect.TypeOf((*MockLikesAdapter)(nil).GetLikedByUser), ctx, userID, postIDs)
+}
+
+// GetLikesCounts mocks base method.
+func (m *MockLikesAdapter) GetLikesCounts(ctx context.Context, postIDs []string) (map[string]int32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLikesCounts", ctx, postIDs)
+	ret0, _ := ret[0].(map[string]int32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLikesCounts indicates an expected call of GetLikesCounts.
+func (mr *MockLikesAdapterMockRecorder) GetLikesCounts(ctx, postIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikesCounts", reflect.TypeOf((*MockLikesAdapter)(nil).GetLikesCounts), ctx, postIDs)
 }

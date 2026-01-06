@@ -314,3 +314,86 @@ func TestService_GetFeed(t *testing.T) {
 		api.RequireError(t, err, "auth_required")
 	})
 }
+
+func TestService_Delete(t *testing.T) {
+	service, mockPosts, _, _, closer := initService(t)
+	defer closer()
+
+	t.Run("success", func(t *testing.T) {
+		ctx := context.WithValue(context.Background(), api.UserIDKey, "user-123")
+		postID := "post-123"
+
+		post := &posts.Post{
+			ID:        postID,
+			Text:      "Test post",
+			UserID:    "user-123",
+			CreatedAt: time.Now(),
+		}
+		mockPosts.EXPECT().
+			GetByID(ctx, postID).
+			Return(post, nil).
+			Times(1)
+
+		mockPosts.EXPECT().
+			MarkAsDeleted(ctx, postID).
+			Return(nil).
+			Times(1)
+
+		resp, err := service.Delete(ctx, &postsapi.DeleteRequest{
+			PostId: postID,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+	})
+
+	t.Run("no auth", func(t *testing.T) {
+		_, err := service.Delete(context.Background(), &postsapi.DeleteRequest{
+			PostId: "post-123",
+		})
+		api.RequireError(t, err, "auth_required")
+	})
+
+	t.Run("empty post id", func(t *testing.T) {
+		ctx := context.WithValue(context.Background(), api.UserIDKey, "user-123")
+		_, err := service.Delete(ctx, &postsapi.DeleteRequest{
+			PostId: "",
+		})
+		api.RequireError(t, err, "post_id_required")
+	})
+
+	t.Run("post not found", func(t *testing.T) {
+		ctx := context.WithValue(context.Background(), api.UserIDKey, "user-123")
+		postID := "post-not-found"
+
+		mockPosts.EXPECT().
+			GetByID(ctx, postID).
+			Return(nil, posts.ErrNotFound).
+			Times(1)
+
+		_, err := service.Delete(ctx, &postsapi.DeleteRequest{
+			PostId: postID,
+		})
+		api.RequireError(t, err, "post_not_found")
+	})
+
+	t.Run("not post owner", func(t *testing.T) {
+		ctx := context.WithValue(context.Background(), api.UserIDKey, "user-123")
+		postID := "post-123"
+
+		post := &posts.Post{
+			ID:        postID,
+			Text:      "Test post",
+			UserID:    "user-456", // Different user
+			CreatedAt: time.Now(),
+		}
+		mockPosts.EXPECT().
+			GetByID(ctx, postID).
+			Return(post, nil).
+			Times(1)
+
+		_, err := service.Delete(ctx, &postsapi.DeleteRequest{
+			PostId: postID,
+		})
+		api.RequireError(t, err, "not_post_owner")
+	})
+}

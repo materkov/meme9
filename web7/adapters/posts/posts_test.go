@@ -230,3 +230,41 @@ func TestAdapter_GetAll_Empty(t *testing.T) {
 	require.NoError(t, err)
 	require.Empty(t, posts)
 }
+
+func TestAdapter_MarkAsDeleted(t *testing.T) {
+	adapter, cleanup := setupTestAdapter(t)
+	defer cleanup()
+
+	ctx := context.Background()
+
+	t.Run("success", func(t *testing.T) {
+		post := Post{
+			Text:      "Test post",
+			UserID:    "user-123",
+			CreatedAt: time.Now(),
+		}
+		created, err := adapter.Add(ctx, post)
+		require.NoError(t, err)
+
+		// Mark as deleted
+		err = adapter.MarkAsDeleted(ctx, created.ID)
+		require.NoError(t, err)
+
+		// Verify the post is marked as deleted
+		retrieved, err := adapter.GetByID(ctx, created.ID)
+		require.NoError(t, err)
+		require.True(t, retrieved.Deleted)
+	})
+
+	t.Run("invalid post id", func(t *testing.T) {
+		invalidID := "invalid-id"
+		err := adapter.MarkAsDeleted(ctx, invalidID)
+		require.NoError(t, err)
+	})
+
+	t.Run("non-existent post", func(t *testing.T) {
+		nonExistentID := "507f1f77bcf86cd799439011"
+		err := adapter.MarkAsDeleted(ctx, nonExistentID)
+		require.NoError(t, err)
+	})
+}

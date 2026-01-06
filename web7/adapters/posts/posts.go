@@ -17,6 +17,7 @@ type Post struct {
 	Text      string    `bson:"text"`
 	UserID    string    `bson:"user_id"`
 	CreatedAt time.Time `bson:"created_at"`
+	Deleted   bool      `bson:"deleted,omitempty"`
 }
 
 type Adapter struct {
@@ -137,4 +138,22 @@ func (a *Adapter) Add(ctx context.Context, post Post) (*Post, error) {
 	objID := result.InsertedID.(primitive.ObjectID)
 	post.ID = objID.Hex()
 	return &post, nil
+}
+
+func (a *Adapter) MarkAsDeleted(ctx context.Context, postID string) error {
+	objID, err := primitive.ObjectIDFromHex(postID)
+	if err != nil {
+		return nil
+	}
+
+	collection := a.client.Database(a.databaseName).Collection("posts")
+	_, err = collection.UpdateOne(
+		ctx,
+		bson.M{"_id": objID},
+		bson.M{"$set": bson.M{"deleted": true}},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to mark post as deleted: %w", err)
+	}
+	return nil
 }

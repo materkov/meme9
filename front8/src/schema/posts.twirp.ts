@@ -17,6 +17,8 @@ import {
   Post,
   FeedRequest,
   FeedResponse,
+  DeleteRequest,
+  DeleteResponse,
 } from "./posts";
 
 //==================================//
@@ -37,6 +39,7 @@ export interface PostsClient {
   GetByUsers(request: GetByUsersRequest): Promise<GetByUsersResponse>;
   Get(request: GetPostRequest): Promise<Post>;
   GetFeed(request: FeedRequest): Promise<FeedResponse>;
+  Delete(request: DeleteRequest): Promise<DeleteResponse>;
 }
 
 export class PostsClientJSON implements PostsClient {
@@ -47,6 +50,7 @@ export class PostsClientJSON implements PostsClient {
     this.GetByUsers.bind(this);
     this.Get.bind(this);
     this.GetFeed.bind(this);
+    this.Delete.bind(this);
   }
   Publish(request: PublishRequest): Promise<PublishResponse> {
     const data = PublishRequest.toJson(request, {
@@ -111,6 +115,22 @@ export class PostsClientJSON implements PostsClient {
       FeedResponse.fromJson(data as any, { ignoreUnknownFields: true })
     );
   }
+
+  Delete(request: DeleteRequest): Promise<DeleteResponse> {
+    const data = DeleteRequest.toJson(request, {
+      useProtoFieldName: true,
+      emitDefaultValues: false,
+    });
+    const promise = this.rpc.request(
+      "meme.posts.Posts",
+      "Delete",
+      "application/json",
+      data as object
+    );
+    return promise.then((data) =>
+      DeleteResponse.fromJson(data as any, { ignoreUnknownFields: true })
+    );
+  }
 }
 
 export class PostsClientProtobuf implements PostsClient {
@@ -121,6 +141,7 @@ export class PostsClientProtobuf implements PostsClient {
     this.GetByUsers.bind(this);
     this.Get.bind(this);
     this.GetFeed.bind(this);
+    this.Delete.bind(this);
   }
   Publish(request: PublishRequest): Promise<PublishResponse> {
     const data = PublishRequest.toBinary(request);
@@ -169,6 +190,19 @@ export class PostsClientProtobuf implements PostsClient {
     );
     return promise.then((data) => FeedResponse.fromBinary(data as Uint8Array));
   }
+
+  Delete(request: DeleteRequest): Promise<DeleteResponse> {
+    const data = DeleteRequest.toBinary(request);
+    const promise = this.rpc.request(
+      "meme.posts.Posts",
+      "Delete",
+      "application/protobuf",
+      data
+    );
+    return promise.then((data) =>
+      DeleteResponse.fromBinary(data as Uint8Array)
+    );
+  }
 }
 
 //==================================//
@@ -180,6 +214,7 @@ export interface PostsTwirp<T extends TwirpContext = TwirpContext> {
   GetByUsers(ctx: T, request: GetByUsersRequest): Promise<GetByUsersResponse>;
   Get(ctx: T, request: GetPostRequest): Promise<Post>;
   GetFeed(ctx: T, request: FeedRequest): Promise<FeedResponse>;
+  Delete(ctx: T, request: DeleteRequest): Promise<DeleteResponse>;
 }
 
 export enum PostsMethod {
@@ -187,6 +222,7 @@ export enum PostsMethod {
   GetByUsers = "GetByUsers",
   Get = "Get",
   GetFeed = "GetFeed",
+  Delete = "Delete",
 }
 
 export const PostsMethodList = [
@@ -194,6 +230,7 @@ export const PostsMethodList = [
   PostsMethod.GetByUsers,
   PostsMethod.Get,
   PostsMethod.GetFeed,
+  PostsMethod.Delete,
 ];
 
 export function createPostsServer<T extends TwirpContext = TwirpContext>(
@@ -256,6 +293,17 @@ function matchPostsRoute<T extends TwirpContext = TwirpContext>(
         ctx = { ...ctx, methodName: "GetFeed" };
         await events.onMatch(ctx);
         return handlePostsGetFeedRequest(ctx, service, data, interceptors);
+      };
+    case "Delete":
+      return async (
+        ctx: T,
+        service: PostsTwirp,
+        data: Buffer,
+        interceptors?: Interceptor<T, DeleteRequest, DeleteResponse>[]
+      ) => {
+        ctx = { ...ctx, methodName: "Delete" };
+        await events.onMatch(ctx);
+        return handlePostsDeleteRequest(ctx, service, data, interceptors);
       };
     default:
       events.onNotFound();
@@ -326,6 +374,23 @@ function handlePostsGetFeedRequest<T extends TwirpContext = TwirpContext>(
       return handlePostsGetFeedJSON<T>(ctx, service, data, interceptors);
     case TwirpContentType.Protobuf:
       return handlePostsGetFeedProtobuf<T>(ctx, service, data, interceptors);
+    default:
+      const msg = "unexpected Content-Type";
+      throw new TwirpError(TwirpErrorCode.BadRoute, msg);
+  }
+}
+
+function handlePostsDeleteRequest<T extends TwirpContext = TwirpContext>(
+  ctx: T,
+  service: PostsTwirp,
+  data: Buffer,
+  interceptors?: Interceptor<T, DeleteRequest, DeleteResponse>[]
+): Promise<string | Uint8Array> {
+  switch (ctx.contentType) {
+    case TwirpContentType.JSON:
+      return handlePostsDeleteJSON<T>(ctx, service, data, interceptors);
+    case TwirpContentType.Protobuf:
+      return handlePostsDeleteProtobuf<T>(ctx, service, data, interceptors);
     default:
       const msg = "unexpected Content-Type";
       throw new TwirpError(TwirpErrorCode.BadRoute, msg);
@@ -490,6 +555,46 @@ async function handlePostsGetFeedJSON<T extends TwirpContext = TwirpContext>(
     }) as string
   );
 }
+
+async function handlePostsDeleteJSON<T extends TwirpContext = TwirpContext>(
+  ctx: T,
+  service: PostsTwirp,
+  data: Buffer,
+  interceptors?: Interceptor<T, DeleteRequest, DeleteResponse>[]
+) {
+  let request: DeleteRequest;
+  let response: DeleteResponse;
+
+  try {
+    const body = JSON.parse(data.toString() || "{}");
+    request = DeleteRequest.fromJson(body, { ignoreUnknownFields: true });
+  } catch (e) {
+    if (e instanceof Error) {
+      const msg = "the json request could not be decoded";
+      throw new TwirpError(TwirpErrorCode.Malformed, msg).withCause(e, true);
+    }
+  }
+
+  if (interceptors && interceptors.length > 0) {
+    const interceptor = chainInterceptors(...interceptors) as Interceptor<
+      T,
+      DeleteRequest,
+      DeleteResponse
+    >;
+    response = await interceptor(ctx, request!, (ctx, inputReq) => {
+      return service.Delete(ctx, inputReq);
+    });
+  } else {
+    response = await service.Delete(ctx, request!);
+  }
+
+  return JSON.stringify(
+    DeleteResponse.toJson(response, {
+      useProtoFieldName: true,
+      emitDefaultValues: false,
+    }) as string
+  );
+}
 async function handlePostsPublishProtobuf<
   T extends TwirpContext = TwirpContext
 >(
@@ -630,4 +735,38 @@ async function handlePostsGetFeedProtobuf<
   }
 
   return Buffer.from(FeedResponse.toBinary(response));
+}
+
+async function handlePostsDeleteProtobuf<T extends TwirpContext = TwirpContext>(
+  ctx: T,
+  service: PostsTwirp,
+  data: Buffer,
+  interceptors?: Interceptor<T, DeleteRequest, DeleteResponse>[]
+) {
+  let request: DeleteRequest;
+  let response: DeleteResponse;
+
+  try {
+    request = DeleteRequest.fromBinary(data);
+  } catch (e) {
+    if (e instanceof Error) {
+      const msg = "the protobuf request could not be decoded";
+      throw new TwirpError(TwirpErrorCode.Malformed, msg).withCause(e, true);
+    }
+  }
+
+  if (interceptors && interceptors.length > 0) {
+    const interceptor = chainInterceptors(...interceptors) as Interceptor<
+      T,
+      DeleteRequest,
+      DeleteResponse
+    >;
+    response = await interceptor(ctx, request!, (ctx, inputReq) => {
+      return service.Delete(ctx, inputReq);
+    });
+  } else {
+    response = await service.Delete(ctx, request!);
+  }
+
+  return Buffer.from(DeleteResponse.toBinary(response));
 }
