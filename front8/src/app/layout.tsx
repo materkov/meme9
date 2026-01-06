@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SnackbarProvider } from "@/contexts/SnackbarContext";
 import Header from "@/components/Header";
 import { getAuthToken, getAuthUsername, getAuthUserId } from "@/lib/authHelpers";
 
@@ -47,8 +48,10 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider initialAuth={initialAuth}>
-          <Header />
-          {children}
+          <SnackbarProvider>
+            <Header />
+            {children}
+          </SnackbarProvider>
         </AuthProvider>
       </body>
     </html>

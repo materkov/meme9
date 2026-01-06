@@ -6,6 +6,7 @@ import Link from 'next/link';
 import type { Post } from '@/schema/posts';
 import FormattedDate from './FormattedDate';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSnackbar } from '@/contexts/SnackbarContext';
 import { LikesClient, PostsClient } from '@/lib/api-clients';
 import { ApiError } from '@/lib/api-clients';
 import LikersPopup from './LikersPopup';
@@ -21,6 +22,7 @@ interface PostCardProps {
 export default function PostCard({ post, clickable = true, onLikeChange, onDelete }: PostCardProps) {
   const router = useRouter();
   const { isAuthenticated, userId } = useAuth();
+  const { showSnackbar } = useSnackbar();
   const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
   const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
   const [isLiking, setIsLiking] = useState(false);
@@ -113,7 +115,19 @@ export default function PostCard({ post, clickable = true, onLikeChange, onDelet
     setIsDeleting(true);
     try {
       await PostsClient.Delete({ postId: post.id });
-      onDelete?.();      
+      
+      // Show success snackbar
+      showSnackbar('Post deleted successfully');
+      
+      // If we're on a post detail page, redirect to feed after deletion
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/post/')) {
+        router.push('/feed');
+      } else {
+        // Refresh the page to get updated posts from server (maintains SSR)
+        router.refresh();
+      }
+      
+      onDelete?.();
     } catch (error) {
       if (error instanceof ApiError && error.err === 'auth_required') {
         return;
