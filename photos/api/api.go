@@ -14,36 +14,49 @@ import (
 type Processor interface {
 	Process(ctx context.Context, file []byte) ([]byte, error)
 }
-
 type Uploader interface {
 	Upload(ctx context.Context, file []byte) (url string, err error)
 }
+type Auth interface {
+	Auth(ctx context.Context, header string) (string, error)
+}
 
-type API struct {
+type Service struct {
 	processor Processor
 	uploader  Uploader
+	auth      Auth
 }
 
-func New(processor Processor, uploader Uploader) *API {
-	return &API{processor: processor, uploader: uploader}
+func New(processor Processor, uploader Uploader, auth Auth) *Service {
+	return &Service{
+		processor: processor,
+		uploader:  uploader,
+		auth:      auth,
+	}
 }
 
-func (a *API) Start() error {
-	mux := a.Routes()
+func (s *Service) Start() error {
+	mux := s.Routes()
 
 	fmt.Println("Server is running on http://localhost:8081")
 	return http.ListenAndServe("127.0.0.1:8081", mux)
 }
 
-func (a *API) Routes() http.Handler {
+func (s *Service) Routes() http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/twirp/meme.photos.Photos/upload", a.HandleUpload)
+	mux.HandleFunc("/twirp/meme.photos.Photos/upload", s.HandleUpload)
 
 	return withCORS(mux)
 }
 
-func (a *API) HandleUpload(w http.ResponseWriter, r *http.Request) {
+func (s *Service) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	_, err := s.auth.Auth(ctx, r.Header.Get("Authorization"))
+	if err != nil {
+		http.Error(w, "auth_required", http.StatusUnauthorized)
+		return
+	}
 
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -51,9 +64,9 @@ func (a *API) HandleUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error", http.StatusInternalServerError)
 		return
 	}
-	r.Body.Close()
+	_ = r.Body.Close()
 
-	resizedImg, err := a.processor.Process(ctx, bodyBytes)
+	resizedImg, err := s.processor.Process(ctx, bodyBytes)
 	if errors.Is(err, processor.ErrInvalidImage) {
 		http.Error(w, "Invalid image", http.StatusBadRequest)
 		return
@@ -63,7 +76,7 @@ func (a *API) HandleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url, err := a.uploader.Upload(ctx, resizedImg)
+	url, err := s.uploader.Upload(ctx, resizedImg)
 	if err != nil {
 		log.Printf("error uploading image: %v", err)
 		http.Error(w, "error", http.StatusInternalServerError)
@@ -75,8 +88,8 @@ func (a *API) HandleUpload(w http.ResponseWriter, r *http.Request) {
 
 func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)

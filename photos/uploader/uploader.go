@@ -42,8 +42,6 @@ func New(accessKeyID, secretAccessKey string) (*Uploader, error) {
 }
 
 func (u *Uploader) Upload(ctx context.Context, file []byte) (string, error) {
-	// Public bucket host example:
-	// https://874a91e6-f73e-438f-b7a4-0aa63b0959f9.selstorage.ru/<object_key>
 	publicBucketHost := "https://874a91e6-f73e-438f-b7a4-0aa63b0959f9.selstorage.ru"
 	bucket := "meme-files"
 

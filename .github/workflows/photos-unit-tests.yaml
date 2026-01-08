@@ -1,0 +1,27 @@
+name: photos-unit-tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.2"
+          cache: true
+          cache-dependency-path: photos/go.sum
+
+      - name: Run unit tests (exclude integration-tagged tests)
+        working-directory: photos
+        run: |
+          go test -v ./...

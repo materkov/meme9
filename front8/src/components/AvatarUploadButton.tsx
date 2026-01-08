@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { UsersClient } from "@/lib/api-clients";
 import { SetAvatarRequest } from "@/schema/users";
+import { getAuthToken } from "@/lib/authHelpers";
 
 interface AvatarUploadButtonProps {
   userId: string;
@@ -42,7 +43,7 @@ export default function AvatarUploadButton({
     setError(null);
 
     try {
-      // Step 1: Upload file directly to photos service
+      const token = await getAuthToken();
       const uploadResponse = await fetch(
         "https://meme2.mmaks.me/twirp/meme.photos.Photos/upload",
         {
@@ -50,6 +51,7 @@ export default function AvatarUploadButton({
           body: file,
           headers: {
             "Content-Type": file.type || "application/octet-stream",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -63,13 +65,8 @@ export default function AvatarUploadButton({
         );
       }
 
-      // Step 2: Read resulting public URL from response body (plain text)
-      const publicUrl = (await uploadResponse.text()).trim();
-      if (!publicUrl) {
-        throw new Error("Upload succeeded but returned empty URL");
-      }
+      const publicUrl = await uploadResponse.text();
 
-      // Step 3: Update user's avatar URL in the database
       const setAvatarRequest = SetAvatarRequest.create({
         userId: userId,
         avatarUrl: publicUrl,
@@ -83,7 +80,6 @@ export default function AvatarUploadButton({
       setError(err instanceof Error ? err.message : "Failed to upload avatar");
     } finally {
       setUploading(false);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
