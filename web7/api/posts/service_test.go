@@ -109,8 +109,9 @@ func TestService_GetByUsers(t *testing.T) {
 			Times(1)
 
 		user := &users.User{
-			ID:       userID,
-			Username: username,
+			ID:        userID,
+			Username:  username,
+			AvatarURL: "https://example.com/avatar.jpg",
 		}
 		mockUsers.EXPECT().
 			GetByID(ctx, userID).
@@ -126,6 +127,8 @@ func TestService_GetByUsers(t *testing.T) {
 		require.Equal(t, "post-2", resp.Posts[1].Id)
 		require.Equal(t, username, resp.Posts[0].UserName)
 		require.Equal(t, username, resp.Posts[1].UserName)
+		require.Equal(t, "https://example.com/avatar.jpg", resp.Posts[0].UserAvatar)
+		require.Equal(t, "https://example.com/avatar.jpg", resp.Posts[1].UserAvatar)
 	})
 
 	t.Run("empty user id", func(t *testing.T) {
@@ -159,8 +162,9 @@ func TestService_Get(t *testing.T) {
 			Times(1)
 
 		user := &users.User{
-			ID:       userID,
-			Username: username,
+			ID:        userID,
+			Username:  username,
+			AvatarURL: "https://example.com/avatar.jpg",
 		}
 		mockUsers.EXPECT().
 			GetByID(ctx, userID).
@@ -174,6 +178,7 @@ func TestService_Get(t *testing.T) {
 		require.Equal(t, postID, resp.Id)
 		require.Equal(t, userID, resp.UserId)
 		require.Equal(t, username, resp.UserName)
+		require.Equal(t, "https://example.com/avatar.jpg", resp.UserAvatar)
 		require.Equal(t, "Test post", resp.Text)
 	})
 
@@ -238,8 +243,8 @@ func TestService_GetFeed(t *testing.T) {
 			Times(1)
 
 		usersMap := map[string]*users.User{
-			"user-1": {ID: "user-1", Username: "user1"},
-			"user-2": {ID: "user-2", Username: "user2"},
+			"user-1": {ID: "user-1", Username: "user1", AvatarURL: "https://example.com/u1.jpg"},
+			"user-2": {ID: "user-2", Username: "user2", AvatarURL: "https://example.com/u2.jpg"},
 		}
 		// Use gomock.Any() for userIDs since map iteration order is non-deterministic
 		mockUsers.EXPECT().
@@ -262,6 +267,8 @@ func TestService_GetFeed(t *testing.T) {
 		require.Equal(t, "post-2", resp.Posts[1].Id)
 		require.Equal(t, "user1", resp.Posts[0].UserName)
 		require.Equal(t, "user2", resp.Posts[1].UserName)
+		require.Equal(t, "https://example.com/u1.jpg", resp.Posts[0].UserAvatar)
+		require.Equal(t, "https://example.com/u2.jpg", resp.Posts[1].UserAvatar)
 	})
 
 	t.Run("unspecified defaults to all", func(t *testing.T) {

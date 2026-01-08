@@ -71,6 +71,10 @@ export interface GetLikersResponse_Liker {
      * @generated from protobuf field: string username = 2
      */
     username: string;
+    /**
+     * @generated from protobuf field: string userAvatar = 3
+     */
+    userAvatar: string;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class LikeRequest$Type extends MessageType<LikeRequest> {
@@ -289,13 +293,15 @@ class GetLikersResponse_Liker$Type extends MessageType<GetLikersResponse_Liker> 
     constructor() {
         super("meme.likes.GetLikersResponse.Liker", [
             { no: 1, name: "userId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 2, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "userAvatar", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<GetLikersResponse_Liker>): GetLikersResponse_Liker {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.userId = "";
         message.username = "";
+        message.userAvatar = "";
         if (value !== undefined)
             reflectionMergePartial<GetLikersResponse_Liker>(this, message, value);
         return message;
@@ -310,6 +316,9 @@ class GetLikersResponse_Liker$Type extends MessageType<GetLikersResponse_Liker> 
                     break;
                 case /* string username */ 2:
                     message.username = reader.string();
+                    break;
+                case /* string userAvatar */ 3:
+                    message.userAvatar = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -329,6 +338,9 @@ class GetLikersResponse_Liker$Type extends MessageType<GetLikersResponse_Liker> 
         /* string username = 2; */
         if (message.username !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.username);
+        /* string userAvatar = 3; */
+        if (message.userAvatar !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.userAvatar);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

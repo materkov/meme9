@@ -101,13 +101,16 @@ func (s *Service) GetLikers(ctx context.Context, req *likesapi.GetLikersRequest)
 	likers := make([]*likesapi.GetLikersResponse_Liker, 0, len(userIDs))
 	for _, userID := range userIDs {
 		username := ""
+		userAvatar := ""
 		if user := usersMap[userID]; user != nil {
 			username = user.Username
+			userAvatar = user.AvatarURL
 		}
 
 		likers = append(likers, &likesapi.GetLikersResponse_Liker{
-			UserId:   userID,
-			Username: username,
+			UserId:     userID,
+			Username:   username,
+			UserAvatar: userAvatar,
 		})
 	}
 

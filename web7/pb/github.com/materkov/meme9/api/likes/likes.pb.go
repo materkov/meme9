@@ -225,6 +225,7 @@ type GetLikersResponse_Liker struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	UserAvatar    string                 `protobuf:"bytes,3,opt,name=userAvatar,proto3" json:"userAvatar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -273,6 +274,13 @@ func (x *GetLikersResponse_Liker) GetUsername() string {
 	return ""
 }
 
+func (x *GetLikersResponse_Liker) GetUserAvatar() string {
+	if x != nil {
+		return x.UserAvatar
+	}
+	return ""
+}
+
 var File_likes_proto protoreflect.FileDescriptor
 
 const file_likes_proto_rawDesc = "" +
@@ -286,13 +294,16 @@ const file_likes_proto_rawDesc = "" +
 	"\x10GetLikersRequest\x12\x16\n" +
 	"\x06postId\x18\x01 \x01(\tR\x06postId\x12\x1c\n" +
 	"\tpageToken\x18\x02 \x01(\tR\tpageToken\x12\x14\n" +
-	"\x05count\x18\x03 \x01(\x05R\x05count\"\xab\x01\n" +
+	"\x05count\x18\x03 \x01(\x05R\x05count\"\xcb\x01\n" +
 	"\x11GetLikersResponse\x12;\n" +
 	"\x06likers\x18\x01 \x03(\v2#.meme.likes.GetLikersResponse.LikerR\x06likers\x12\x1c\n" +
-	"\tpageToken\x18\x02 \x01(\tR\tpageToken\x1a;\n" +
+	"\tpageToken\x18\x02 \x01(\tR\tpageToken\x1a[\n" +
 	"\x05Liker\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername2\xc9\x01\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x1e\n" +
+	"\n" +
+	"userAvatar\x18\x03 \x01(\tR\n" +
+	"userAvatar2\xc9\x01\n" +
 	"\x05Likes\x129\n" +
 	"\x04Like\x12\x17.meme.likes.LikeRequest\x1a\x18.meme.likes.LikeResponse\x12;\n" +
 	"\x06Unlike\x12\x17.meme.likes.LikeRequest\x1a\x18.meme.likes.LikeResponse\x12H\n" +

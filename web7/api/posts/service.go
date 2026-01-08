@@ -98,19 +98,26 @@ func (s *Service) GetByUsers(ctx context.Context, req *postsapi.GetByUsersReques
 		}
 	}()
 
-	usernameChan := make(chan string)
+	userChan := make(chan *users.User)
 	go func() {
 		user, err := s.users.GetByID(ctx, req.UserId)
 		if err == nil && user != nil {
-			usernameChan <- user.Username
+			userChan <- user
 		} else {
 			log.Printf("failed to get user: %s", err)
-			usernameChan <- ""
+			userChan <- nil
 		}
 	}()
 
 	postsList := <-postsListChan
-	username := <-usernameChan
+	user := <-userChan
+
+	username := ""
+	userAvatar := ""
+	if user != nil {
+		username = user.Username
+		userAvatar = user.AvatarURL
+	}
 
 	userPosts := make([]*postsapi.Post, len(postsList))
 	postIDs := make([]string, len(postsList))
@@ -133,7 +140,7 @@ func (s *Service) GetByUsers(ctx context.Context, req *postsapi.GetByUsersReques
 	}
 
 	for i, post := range postsList {
-		userPosts[i] = makeProtoPost(&post, username, likesCounts[post.ID], likedByUser[post.ID])
+		userPosts[i] = makeProtoPost(&post, username, userAvatar, likesCounts[post.ID], likedByUser[post.ID])
 	}
 
 	return &postsapi.GetByUsersResponse{
@@ -177,7 +184,11 @@ func (s *Service) Get(ctx context.Context, req *postsapi.GetPostRequest) (*posts
 		}
 	}
 
-	return makeProtoPost(post, userName, likesCount, isLiked), nil
+	userAvatar := ""
+	if user != nil {
+		userAvatar = user.AvatarURL
+	}
+	return makeProtoPost(post, userName, userAvatar, likesCount, isLiked), nil
 }
 
 func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*postsapi.FeedResponse, error) {
@@ -252,11 +263,13 @@ func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*post
 	feedPosts := make([]*postsapi.Post, len(postsList))
 	for i, post := range postsList {
 		userName := ""
+		userAvatar := ""
 		if user := usersMap[post.UserID]; user != nil {
 			userName = user.Username
+			userAvatar = user.AvatarURL
 		}
 
-		feedPosts[i] = makeProtoPost(&post, userName, likesCounts[post.ID], likedByUser[post.ID])
+		feedPosts[i] = makeProtoPost(&post, userName, userAvatar, likesCounts[post.ID], likedByUser[post.ID])
 	}
 
 	return &postsapi.FeedResponse{
@@ -292,12 +305,13 @@ func (s *Service) Delete(ctx context.Context, req *postsapi.DeleteRequest) (*pos
 	return &postsapi.DeleteResponse{}, nil
 }
 
-func makeProtoPost(post *posts.Post, userName string, likesCount int32, isLiked bool) *postsapi.Post {
+func makeProtoPost(post *posts.Post, userName string, userAvatar string, likesCount int32, isLiked bool) *postsapi.Post {
 	return &postsapi.Post{
 		Id:         post.ID,
 		Text:       post.Text,
 		UserId:     post.UserID,
 		UserName:   userName,
+		UserAvatar: userAvatar,
 		CreatedAt:  post.CreatedAt.Format(time.RFC3339),
 		LikesCount: likesCount,
 		IsLiked:    isLiked,

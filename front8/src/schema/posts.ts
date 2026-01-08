@@ -77,6 +77,10 @@ export interface Post {
      */
     userName: string;
     /**
+     * @generated from protobuf field: string userAvatar = 8
+     */
+    userAvatar: string;
+    /**
      * @generated from protobuf field: string createdAt = 5
      */
     createdAt: string; // RFC3339 format
@@ -381,6 +385,7 @@ class Post$Type extends MessageType<Post> {
             { no: 2, name: "text", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "userId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 4, name: "userName", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 8, name: "userAvatar", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 5, name: "createdAt", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 6, name: "likesCount", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 7, name: "isLiked", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
@@ -392,6 +397,7 @@ class Post$Type extends MessageType<Post> {
         message.text = "";
         message.userId = "";
         message.userName = "";
+        message.userAvatar = "";
         message.createdAt = "";
         message.likesCount = 0;
         message.isLiked = false;
@@ -415,6 +421,9 @@ class Post$Type extends MessageType<Post> {
                     break;
                 case /* string userName */ 4:
                     message.userName = reader.string();
+                    break;
+                case /* string userAvatar */ 8:
+                    message.userAvatar = reader.string();
                     break;
                 case /* string createdAt */ 5:
                     message.createdAt = reader.string();
@@ -458,6 +467,9 @@ class Post$Type extends MessageType<Post> {
         /* bool isLiked = 7; */
         if (message.isLiked !== false)
             writer.tag(7, WireType.Varint).bool(message.isLiked);
+        /* string userAvatar = 8; */
+        if (message.userAvatar !== "")
+            writer.tag(8, WireType.LengthDelimited).string(message.userAvatar);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

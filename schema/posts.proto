@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package meme.posts;
+
 option go_package = "github.com/materkov/meme9/api/posts";
 
 // Posts service
@@ -36,8 +37,11 @@ message GetPostRequest {
 message Post {
   string id = 1;
   string text = 2;
+
   string userId = 3;
   string userName = 4;
+  string userAvatar = 8;
+
   string createdAt = 5; // RFC3339 format
   int32 likesCount = 6;
   bool isLiked = 7; // Whether the current user has liked this post
@@ -61,5 +65,4 @@ message DeleteRequest {
   string postId = 1;
 }
 
-message DeleteResponse {
-}
+message DeleteResponse {}

@@ -296,6 +296,7 @@ type Post struct {
 	Text          string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
 	UserId        string                 `protobuf:"bytes,3,opt,name=userId,proto3" json:"userId,omitempty"`
 	UserName      string                 `protobuf:"bytes,4,opt,name=userName,proto3" json:"userName,omitempty"`
+	UserAvatar    string                 `protobuf:"bytes,8,opt,name=userAvatar,proto3" json:"userAvatar,omitempty"`
 	CreatedAt     string                 `protobuf:"bytes,5,opt,name=createdAt,proto3" json:"createdAt,omitempty"` // RFC3339 format
 	LikesCount    int32                  `protobuf:"varint,6,opt,name=likesCount,proto3" json:"likesCount,omitempty"`
 	IsLiked       bool                   `protobuf:"varint,7,opt,name=isLiked,proto3" json:"isLiked,omitempty"` // Whether the current user has liked this post
@@ -357,6 +358,13 @@ func (x *Post) GetUserId() string {
 func (x *Post) GetUserName() string {
 	if x != nil {
 		return x.UserName
+	}
+	return ""
+}
+
+func (x *Post) GetUserAvatar() string {
+	if x != nil {
+		return x.UserAvatar
 	}
 	return ""
 }
@@ -565,12 +573,15 @@ const file_posts_proto_rawDesc = "" +
 	"\x12GetByUsersResponse\x12&\n" +
 	"\x05posts\x18\x01 \x03(\v2\x10.meme.posts.PostR\x05posts\"(\n" +
 	"\x0eGetPostRequest\x12\x16\n" +
-	"\x06postId\x18\x01 \x01(\tR\x06postId\"\xb6\x01\n" +
+	"\x06postId\x18\x01 \x01(\tR\x06postId\"\xd6\x01\n" +
 	"\x04Post\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\x16\n" +
 	"\x06userId\x18\x03 \x01(\tR\x06userId\x12\x1a\n" +
-	"\buserName\x18\x04 \x01(\tR\buserName\x12\x1c\n" +
+	"\buserName\x18\x04 \x01(\tR\buserName\x12\x1e\n" +
+	"\n" +
+	"userAvatar\x18\b \x01(\tR\n" +
+	"userAvatar\x12\x1c\n" +
 	"\tcreatedAt\x18\x05 \x01(\tR\tcreatedAt\x12\x1e\n" +
 	"\n" +
 	"likesCount\x18\x06 \x01(\x05R\n" +

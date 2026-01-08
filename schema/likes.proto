@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package meme.likes;
+
 option go_package = "github.com/materkov/meme9/api/likes";
 
 // Likes service
@@ -28,6 +29,7 @@ message GetLikersResponse {
   message Liker {
     string userId = 1;
     string username = 2;
+    string userAvatar = 3;
   }
   repeated Liker likers = 1;
   string pageToken = 2;

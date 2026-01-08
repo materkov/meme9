@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { LikesClient } from '@/lib/api-clients';
-import type { GetLikersResponse_Liker } from '@/schema/likes';
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { LikesClient } from "@/lib/api-clients";
+import type { GetLikersResponse_Liker } from "@/schema/likes";
 
 interface LikersPopupProps {
   postId: string;
@@ -28,7 +28,7 @@ export default function LikersPopup({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
-  const [pageToken, setPageToken] = useState('');
+  const [pageToken, setPageToken] = useState("");
   const popupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function LikersPopup({
     } else {
       // Reset state when popup is hidden
       setLikers([]);
-      setPageToken('');
+      setPageToken("");
       setHasMore(false);
       setError(null);
     }
@@ -48,28 +48,31 @@ export default function LikersPopup({
     if (!isVisible) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         onClose();
       }
     };
 
     // Use a small delay to allow mouse to move to popup
     const timeoutId = setTimeout(() => {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }, 100);
 
-    document.addEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
 
     return () => {
       clearTimeout(timeoutId);
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [isVisible, onClose]);
 
@@ -82,21 +85,21 @@ export default function LikersPopup({
     try {
       const data = await LikesClient.GetLikers({
         postId,
-        pageToken: loadMore ? pageToken : '',
+        pageToken: loadMore ? pageToken : "",
         count: 20,
       });
-      
+
       if (loadMore) {
         setLikers((prev) => [...prev, ...data.likers]);
       } else {
         setLikers(data.likers);
       }
 
-      setPageToken(data.pageToken || '');
+      setPageToken(data.pageToken || "");
       setHasMore(!!data.pageToken);
     } catch (err) {
-      console.error('Failed to fetch likers:', err);
-      setError('Failed to load likers');
+      console.error("Failed to fetch likers:", err);
+      setError("Failed to load likers");
     } finally {
       setLoading(false);
     }
@@ -126,7 +129,7 @@ export default function LikersPopup({
     >
       <div className="p-3 border-b border-zinc-200 dark:border-zinc-800">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-          {likesCount === 1 ? '1 like' : `${likesCount} likes`}
+          {likesCount === 1 ? "1 like" : `${likesCount} likes`}
         </h3>
       </div>
 
@@ -153,13 +156,21 @@ export default function LikersPopup({
                 onClick={onClose}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                    <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                      {liker.username?.[0]?.toUpperCase() || '?'}
-                    </span>
+                  <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex items-center justify-center">
+                    {liker.userAvatar ? (
+                      <img
+                        src={liker.userAvatar}
+                        alt={`${liker.username || "User"} avatar`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                        {liker.username?.[0]?.toUpperCase() || "?"}
+                      </span>
+                    )}
                   </div>
                   <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    {liker.username || 'Unknown User'}
+                    {liker.username || "Unknown User"}
                   </span>
                 </div>
               </Link>
@@ -174,7 +185,7 @@ export default function LikersPopup({
               disabled={loading}
               className="w-full px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Loading...' : 'Load more'}
+              {loading ? "Loading..." : "Load more"}
             </button>
           </div>
         )}
@@ -182,4 +193,3 @@ export default function LikersPopup({
     </div>
   );
 }
-
