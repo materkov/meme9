@@ -14,11 +14,13 @@ import (
 	"github.com/materkov/meme9/web7/api"
 	"github.com/materkov/meme9/web7/api/auth"
 	likesserviceapi "github.com/materkov/meme9/web7/api/likes"
+	photos "github.com/materkov/meme9/web7/api/photos"
 	postsserviceapi "github.com/materkov/meme9/web7/api/posts"
 	subscriptionsserviceapi "github.com/materkov/meme9/web7/api/subscriptions"
 	usersserviceapi "github.com/materkov/meme9/web7/api/users"
 	authapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/auth"
 	likesapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/likes"
+	photosapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/photos"
 	postsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/posts"
 	subscriptionsapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/subscriptions"
 	usersapi "github.com/materkov/meme9/web7/pb/github.com/materkov/meme9/api/users"
@@ -88,6 +90,12 @@ func main() {
 	usersHandler := usersapi.NewUsersServer(usersService)
 	subscriptionsHandler := subscriptionsapi.NewSubscriptionsServer(subscriptionsService)
 	likesHandler := likesapi.NewLikesServer(likesService)
+
+	// Photos
+	photosService := photos.New()
+	photosHandler := photosapi.NewPhotosServer(photosService)
+	photosHandlerWithCORS := api.AuthMiddleware(authService, api.CORSMiddleware(photosHandler))
+	http.Handle(photosHandler.PathPrefix(), photosHandlerWithCORS)
 
 	// Wrap with CORS middleware
 	postsHandlerWithCORS := api.AuthMiddleware(authService, api.CORSMiddleware(postsHandler))

@@ -4,6 +4,8 @@
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Users } from "./users";
+import type { SetAvatarResponse } from "./users";
+import type { SetAvatarRequest } from "./users";
 import { stackIntercept } from "@protobuf-ts/runtime-rpc";
 import type { GetUserResponse } from "./users";
 import type { GetUserRequest } from "./users";
@@ -19,6 +21,10 @@ export interface IUsersClient {
      * @generated from protobuf rpc: Get
      */
     get(input: GetUserRequest, options?: RpcOptions): UnaryCall<GetUserRequest, GetUserResponse>;
+    /**
+     * @generated from protobuf rpc: SetAvatar
+     */
+    setAvatar(input: SetAvatarRequest, options?: RpcOptions): UnaryCall<SetAvatarRequest, SetAvatarResponse>;
 }
 /**
  * Users service
@@ -37,5 +43,12 @@ export class UsersClient implements IUsersClient, ServiceInfo {
     get(input: GetUserRequest, options?: RpcOptions): UnaryCall<GetUserRequest, GetUserResponse> {
         const method = this.methods[0], opt = this._transport.mergeOptions(options);
         return stackIntercept<GetUserRequest, GetUserResponse>("unary", this._transport, method, opt, input);
+    }
+    /**
+     * @generated from protobuf rpc: SetAvatar
+     */
+    setAvatar(input: SetAvatarRequest, options?: RpcOptions): UnaryCall<SetAvatarRequest, SetAvatarResponse> {
+        const method = this.methods[1], opt = this._transport.mergeOptions(options);
+        return stackIntercept<SetAvatarRequest, SetAvatarResponse>("unary", this._transport, method, opt, input);
     }
 }

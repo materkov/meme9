@@ -1,21 +1,22 @@
-import { AuthClientJSON } from '@/schema/auth.twirp';
-import { PostsClientJSON } from '@/schema/posts.twirp';
-import { UsersClientJSON } from '@/schema/users.twirp';
-import { SubscriptionsClientJSON } from '@/schema/subscriptions.twirp';
-import { LikesClientJSON } from '@/schema/likes.twirp';
-import { getAuthToken } from './authHelpers';
+import { AuthClientJSON } from "@/schema/auth.twirp";
+import { PostsClientJSON } from "@/schema/posts.twirp";
+import { UsersClientJSON } from "@/schema/users.twirp";
+import { SubscriptionsClientJSON } from "@/schema/subscriptions.twirp";
+import { LikesClientJSON } from "@/schema/likes.twirp";
+
+import { getAuthToken } from "./authHelpers";
 
 function getApiBaseUrl(): string {
   // Server-side
-  if (typeof window === 'undefined') {
-    return 'http://localhost:8080';
+  if (typeof window === "undefined") {
+    return "http://localhost:8080";
   }
 
   // Client-side
   if (window.location.hostname == "localhost") {
-    return 'http://localhost:8080';
+    return "http://localhost:8080";
   } else {
-    return 'https://meme2.mmaks.me';
+    return "https://meme2.mmaks.me";
   }
 }
 
@@ -28,22 +29,22 @@ class TwirpRpcImpl {
   ): Promise<any> {
     const baseURL = getApiBaseUrl();
     const url = `${baseURL}/twirp/${service}/${method}`;
-    
+
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      "Content-Type": "application/json",
+      Accept: "application/json",
     };
 
     const token = await getAuthToken();
     if (token) {
-      headers['Authorization'] = token;
+      headers["Authorization"] = token;
     }
 
     let response: Response;
     let responseBody: any = null;
     try {
       response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers,
         body: JSON.stringify(data),
       });
@@ -54,7 +55,7 @@ class TwirpRpcImpl {
     try {
       responseBody = await response.json();
     } catch (error) {
-      throw new Error('Response is not json');
+      throw new Error("Response is not json");
     }
 
     if (!response.ok) {
@@ -78,7 +79,7 @@ export class ApiError extends Error {
 
   constructor(err: string) {
     super(err);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.err = err;
   }
 }

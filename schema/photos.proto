@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package meme.photos;
+option go_package = "github.com/materkov/meme9/api/photos";
+
+service Photos {
+    rpc GenerateUploadUrl(GenerateUploadUrlRequest) returns (GenerateUploadUrlResponse);
+}
+
+message GenerateUploadUrlRequest {
+    string fileName = 1;
+}
+
+message GenerateUploadUrlResponse {
+    string uploadUrl = 1;
+}

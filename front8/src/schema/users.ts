@@ -32,6 +32,28 @@ export interface GetUserResponse {
      * @generated from protobuf field: string username = 2
      */
     username: string;
+    /**
+     * @generated from protobuf field: string avatarUrl = 3
+     */
+    avatarUrl: string;
+}
+/**
+ * @generated from protobuf message meme.users.SetAvatarRequest
+ */
+export interface SetAvatarRequest {
+    /**
+     * @generated from protobuf field: string userId = 1
+     */
+    userId: string;
+    /**
+     * @generated from protobuf field: string avatarUrl = 2
+     */
+    avatarUrl: string;
+}
+/**
+ * @generated from protobuf message meme.users.SetAvatarResponse
+ */
+export interface SetAvatarResponse {
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class GetUserRequest$Type extends MessageType<GetUserRequest> {
@@ -85,13 +107,15 @@ class GetUserResponse$Type extends MessageType<GetUserResponse> {
     constructor() {
         super("meme.users.GetUserResponse", [
             { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 2, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "avatarUrl", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<GetUserResponse>): GetUserResponse {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.id = "";
         message.username = "";
+        message.avatarUrl = "";
         if (value !== undefined)
             reflectionMergePartial<GetUserResponse>(this, message, value);
         return message;
@@ -106,6 +130,9 @@ class GetUserResponse$Type extends MessageType<GetUserResponse> {
                     break;
                 case /* string username */ 2:
                     message.username = reader.string();
+                    break;
+                case /* string avatarUrl */ 3:
+                    message.avatarUrl = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -125,6 +152,9 @@ class GetUserResponse$Type extends MessageType<GetUserResponse> {
         /* string username = 2; */
         if (message.username !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.username);
+        /* string avatarUrl = 3; */
+        if (message.avatarUrl !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.avatarUrl);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -135,9 +165,103 @@ class GetUserResponse$Type extends MessageType<GetUserResponse> {
  * @generated MessageType for protobuf message meme.users.GetUserResponse
  */
 export const GetUserResponse = new GetUserResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class SetAvatarRequest$Type extends MessageType<SetAvatarRequest> {
+    constructor() {
+        super("meme.users.SetAvatarRequest", [
+            { no: 1, name: "userId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "avatarUrl", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<SetAvatarRequest>): SetAvatarRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.userId = "";
+        message.avatarUrl = "";
+        if (value !== undefined)
+            reflectionMergePartial<SetAvatarRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: SetAvatarRequest): SetAvatarRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string userId */ 1:
+                    message.userId = reader.string();
+                    break;
+                case /* string avatarUrl */ 2:
+                    message.avatarUrl = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: SetAvatarRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string userId = 1; */
+        if (message.userId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.userId);
+        /* string avatarUrl = 2; */
+        if (message.avatarUrl !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.avatarUrl);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message meme.users.SetAvatarRequest
+ */
+export const SetAvatarRequest = new SetAvatarRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class SetAvatarResponse$Type extends MessageType<SetAvatarResponse> {
+    constructor() {
+        super("meme.users.SetAvatarResponse", []);
+    }
+    create(value?: PartialMessage<SetAvatarResponse>): SetAvatarResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<SetAvatarResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: SetAvatarResponse): SetAvatarResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: SetAvatarResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message meme.users.SetAvatarResponse
+ */
+export const SetAvatarResponse = new SetAvatarResponse$Type();
 /**
  * @generated ServiceType for protobuf service meme.users.Users
  */
 export const Users = new ServiceType("meme.users.Users", [
-    { name: "Get", options: {}, I: GetUserRequest, O: GetUserResponse }
+    { name: "Get", options: {}, I: GetUserRequest, O: GetUserResponse },
+    { name: "SetAvatar", options: {}, I: SetAvatarRequest, O: SetAvatarResponse }
 ]);

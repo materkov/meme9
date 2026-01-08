@@ -69,6 +69,7 @@ type GetUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	AvatarUrl     string                 `protobuf:"bytes,3,opt,name=avatarUrl,proto3" json:"avatarUrl,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -117,6 +118,101 @@ func (x *GetUserResponse) GetUsername() string {
 	return ""
 }
 
+func (x *GetUserResponse) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
+	}
+	return ""
+}
+
+type SetAvatarRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
+	AvatarUrl     string                 `protobuf:"bytes,2,opt,name=avatarUrl,proto3" json:"avatarUrl,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetAvatarRequest) Reset() {
+	*x = SetAvatarRequest{}
+	mi := &file_users_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetAvatarRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetAvatarRequest) ProtoMessage() {}
+
+func (x *SetAvatarRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_users_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetAvatarRequest.ProtoReflect.Descriptor instead.
+func (*SetAvatarRequest) Descriptor() ([]byte, []int) {
+	return file_users_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SetAvatarRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *SetAvatarRequest) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
+	}
+	return ""
+}
+
+type SetAvatarResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetAvatarResponse) Reset() {
+	*x = SetAvatarResponse{}
+	mi := &file_users_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetAvatarResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetAvatarResponse) ProtoMessage() {}
+
+func (x *SetAvatarResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_users_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetAvatarResponse.ProtoReflect.Descriptor instead.
+func (*SetAvatarResponse) Descriptor() ([]byte, []int) {
+	return file_users_proto_rawDescGZIP(), []int{3}
+}
+
 var File_users_proto protoreflect.FileDescriptor
 
 const file_users_proto_rawDesc = "" +
@@ -124,12 +220,18 @@ const file_users_proto_rawDesc = "" +
 	"\vusers.proto\x12\n" +
 	"meme.users\"(\n" +
 	"\x0eGetUserRequest\x12\x16\n" +
-	"\x06userId\x18\x01 \x01(\tR\x06userId\"=\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\"[\n" +
 	"\x0fGetUserResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername2G\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x1c\n" +
+	"\tavatarUrl\x18\x03 \x01(\tR\tavatarUrl\"H\n" +
+	"\x10SetAvatarRequest\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\x12\x1c\n" +
+	"\tavatarUrl\x18\x02 \x01(\tR\tavatarUrl\"\x13\n" +
+	"\x11SetAvatarResponse2\x91\x01\n" +
 	"\x05Users\x12>\n" +
-	"\x03Get\x12\x1a.meme.users.GetUserRequest\x1a\x1b.meme.users.GetUserResponseB%Z#github.com/materkov/meme9/api/usersb\x06proto3"
+	"\x03Get\x12\x1a.meme.users.GetUserRequest\x1a\x1b.meme.users.GetUserResponse\x12H\n" +
+	"\tSetAvatar\x12\x1c.meme.users.SetAvatarRequest\x1a\x1d.meme.users.SetAvatarResponseB%Z#github.com/materkov/meme9/api/usersb\x06proto3"
 
 var (
 	file_users_proto_rawDescOnce sync.Once
@@ -143,16 +245,20 @@ func file_users_proto_rawDescGZIP() []byte {
 	return file_users_proto_rawDescData
 }
 
-var file_users_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_users_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_users_proto_goTypes = []any{
-	(*GetUserRequest)(nil),  // 0: meme.users.GetUserRequest
-	(*GetUserResponse)(nil), // 1: meme.users.GetUserResponse
+	(*GetUserRequest)(nil),    // 0: meme.users.GetUserRequest
+	(*GetUserResponse)(nil),   // 1: meme.users.GetUserResponse
+	(*SetAvatarRequest)(nil),  // 2: meme.users.SetAvatarRequest
+	(*SetAvatarResponse)(nil), // 3: meme.users.SetAvatarResponse
 }
 var file_users_proto_depIdxs = []int32{
 	0, // 0: meme.users.Users.Get:input_type -> meme.users.GetUserRequest
-	1, // 1: meme.users.Users.Get:output_type -> meme.users.GetUserResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: meme.users.Users.SetAvatar:input_type -> meme.users.SetAvatarRequest
+	1, // 2: meme.users.Users.Get:output_type -> meme.users.GetUserResponse
+	3, // 3: meme.users.Users.SetAvatar:output_type -> meme.users.SetAvatarResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -169,7 +275,7 @@ func file_users_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_users_proto_rawDesc), len(file_users_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -6,6 +6,7 @@ option go_package = "github.com/materkov/meme9/api/users";
 // Users service
 service Users {
   rpc Get(GetUserRequest) returns (GetUserResponse);
+  rpc SetAvatar(SetAvatarRequest) returns (SetAvatarResponse);
 }
 
 message GetUserRequest {
@@ -15,5 +16,13 @@ message GetUserRequest {
 message GetUserResponse {
   string id = 1;
   string username = 2;
+  string avatarUrl = 3;
 }
 
+message SetAvatarRequest {
+  string userId = 1;
+  string avatarUrl = 2;
+}
+
+message SetAvatarResponse {
+}

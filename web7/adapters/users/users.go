@@ -21,6 +21,7 @@ type User struct {
 	ID           string    `bson:"_id"`
 	Username     string    `bson:"username"`
 	PasswordHash string    `bson:"password_hash"`
+	AvatarURL    string    `bson:"avatar_url,omitempty"`
 	CreatedAt    time.Time `bson:"created_at"`
 }
 
@@ -130,4 +131,30 @@ func (a *Adapter) Create(ctx context.Context, user User) (string, error) {
 
 	objID := result.InsertedID.(primitive.ObjectID)
 	return objID.Hex(), nil
+}
+
+func (a *Adapter) UpdateAvatar(ctx context.Context, userID, avatarURL string) error {
+	collection := a.client.Database(a.databaseName).Collection("users")
+
+	objID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return fmt.Errorf("invalid user ID: %w", err)
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"avatar_url": avatarURL,
+		},
+	}
+
+	result, err := collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
+	if err != nil {
+		return fmt.Errorf("error updating avatar: %w", err)
+	}
+
+	if result.MatchedCount == 0 {
+		return ErrNotFound
+	}
+
+	return nil
 }
