@@ -6,15 +6,25 @@ import { LikesClientJSON } from "@/schema/likes.twirp";
 
 import { getAuthToken } from "./authHelpers";
 
-function getApiBaseUrl(): string {
+function getApiBaseUrl(service: string): string {
+  const ports: Record<string, number> = {
+    "meme.auth.Auth": 8081,
+    "meme.users.Users": 8082,
+    "meme.subscriptions.Subscriptions": 8083,
+    "meme.likes.Likes": 8084,
+    "meme.posts.Posts": 8085,
+  };
+  const port = ports[service] || 8080;
+
   // Server-side
   if (typeof window === "undefined") {
-    return "http://localhost:8080";
+    return `http://localhost:${port}`;
   }
 
   // Client-side
+  return "";
   if (window.location.hostname == "localhost") {
-    return "http://localhost:8080";
+    return `http://localhost:${port}`;
   } else {
     return "https://meme2.mmaks.me";
   }
@@ -27,7 +37,7 @@ class TwirpRpcImpl {
     contentType: string,
     data: any
   ): Promise<any> {
-    const baseURL = getApiBaseUrl();
+    const baseURL = getApiBaseUrl(service);
     const url = `${baseURL}/twirp/${service}/${method}`;
 
     const headers: Record<string, string> = {

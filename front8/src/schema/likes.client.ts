@@ -4,6 +4,8 @@
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Likes } from "./likes";
+import type { CheckLikeResponse } from "./likes";
+import type { CheckLikeRequest } from "./likes";
 import type { GetLikersResponse } from "./likes";
 import type { GetLikersRequest } from "./likes";
 import { stackIntercept } from "@protobuf-ts/runtime-rpc";
@@ -29,6 +31,10 @@ export interface ILikesClient {
      * @generated from protobuf rpc: GetLikers
      */
     getLikers(input: GetLikersRequest, options?: RpcOptions): UnaryCall<GetLikersRequest, GetLikersResponse>;
+    /**
+     * @generated from protobuf rpc: CheckLike
+     */
+    checkLike(input: CheckLikeRequest, options?: RpcOptions): UnaryCall<CheckLikeRequest, CheckLikeResponse>;
 }
 /**
  * Likes service
@@ -61,5 +67,12 @@ export class LikesClient implements ILikesClient, ServiceInfo {
     getLikers(input: GetLikersRequest, options?: RpcOptions): UnaryCall<GetLikersRequest, GetLikersResponse> {
         const method = this.methods[2], opt = this._transport.mergeOptions(options);
         return stackIntercept<GetLikersRequest, GetLikersResponse>("unary", this._transport, method, opt, input);
+    }
+    /**
+     * @generated from protobuf rpc: CheckLike
+     */
+    checkLike(input: CheckLikeRequest, options?: RpcOptions): UnaryCall<CheckLikeRequest, CheckLikeResponse> {
+        const method = this.methods[3], opt = this._transport.mergeOptions(options);
+        return stackIntercept<CheckLikeRequest, CheckLikeResponse>("unary", this._transport, method, opt, input);
     }
 }

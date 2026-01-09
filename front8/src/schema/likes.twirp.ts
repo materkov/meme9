@@ -13,6 +13,8 @@ import {
   LikeResponse,
   GetLikersRequest,
   GetLikersResponse,
+  CheckLikeRequest,
+  CheckLikeResponse,
 } from "./likes";
 
 //==================================//
@@ -32,6 +34,7 @@ export interface LikesClient {
   Like(request: LikeRequest): Promise<LikeResponse>;
   Unlike(request: LikeRequest): Promise<LikeResponse>;
   GetLikers(request: GetLikersRequest): Promise<GetLikersResponse>;
+  CheckLike(request: CheckLikeRequest): Promise<CheckLikeResponse>;
 }
 
 export class LikesClientJSON implements LikesClient {
@@ -41,6 +44,7 @@ export class LikesClientJSON implements LikesClient {
     this.Like.bind(this);
     this.Unlike.bind(this);
     this.GetLikers.bind(this);
+    this.CheckLike.bind(this);
   }
   Like(request: LikeRequest): Promise<LikeResponse> {
     const data = LikeRequest.toJson(request, {
@@ -89,6 +93,22 @@ export class LikesClientJSON implements LikesClient {
       GetLikersResponse.fromJson(data as any, { ignoreUnknownFields: true })
     );
   }
+
+  CheckLike(request: CheckLikeRequest): Promise<CheckLikeResponse> {
+    const data = CheckLikeRequest.toJson(request, {
+      useProtoFieldName: true,
+      emitDefaultValues: false,
+    });
+    const promise = this.rpc.request(
+      "meme.likes.Likes",
+      "CheckLike",
+      "application/json",
+      data as object
+    );
+    return promise.then((data) =>
+      CheckLikeResponse.fromJson(data as any, { ignoreUnknownFields: true })
+    );
+  }
 }
 
 export class LikesClientProtobuf implements LikesClient {
@@ -98,6 +118,7 @@ export class LikesClientProtobuf implements LikesClient {
     this.Like.bind(this);
     this.Unlike.bind(this);
     this.GetLikers.bind(this);
+    this.CheckLike.bind(this);
   }
   Like(request: LikeRequest): Promise<LikeResponse> {
     const data = LikeRequest.toBinary(request);
@@ -133,6 +154,19 @@ export class LikesClientProtobuf implements LikesClient {
       GetLikersResponse.fromBinary(data as Uint8Array)
     );
   }
+
+  CheckLike(request: CheckLikeRequest): Promise<CheckLikeResponse> {
+    const data = CheckLikeRequest.toBinary(request);
+    const promise = this.rpc.request(
+      "meme.likes.Likes",
+      "CheckLike",
+      "application/protobuf",
+      data
+    );
+    return promise.then((data) =>
+      CheckLikeResponse.fromBinary(data as Uint8Array)
+    );
+  }
 }
 
 //==================================//
@@ -143,18 +177,21 @@ export interface LikesTwirp<T extends TwirpContext = TwirpContext> {
   Like(ctx: T, request: LikeRequest): Promise<LikeResponse>;
   Unlike(ctx: T, request: LikeRequest): Promise<LikeResponse>;
   GetLikers(ctx: T, request: GetLikersRequest): Promise<GetLikersResponse>;
+  CheckLike(ctx: T, request: CheckLikeRequest): Promise<CheckLikeResponse>;
 }
 
 export enum LikesMethod {
   Like = "Like",
   Unlike = "Unlike",
   GetLikers = "GetLikers",
+  CheckLike = "CheckLike",
 }
 
 export const LikesMethodList = [
   LikesMethod.Like,
   LikesMethod.Unlike,
   LikesMethod.GetLikers,
+  LikesMethod.CheckLike,
 ];
 
 export function createLikesServer<T extends TwirpContext = TwirpContext>(
@@ -206,6 +243,17 @@ function matchLikesRoute<T extends TwirpContext = TwirpContext>(
         ctx = { ...ctx, methodName: "GetLikers" };
         await events.onMatch(ctx);
         return handleLikesGetLikersRequest(ctx, service, data, interceptors);
+      };
+    case "CheckLike":
+      return async (
+        ctx: T,
+        service: LikesTwirp,
+        data: Buffer,
+        interceptors?: Interceptor<T, CheckLikeRequest, CheckLikeResponse>[]
+      ) => {
+        ctx = { ...ctx, methodName: "CheckLike" };
+        await events.onMatch(ctx);
+        return handleLikesCheckLikeRequest(ctx, service, data, interceptors);
       };
     default:
       events.onNotFound();
@@ -259,6 +307,23 @@ function handleLikesGetLikersRequest<T extends TwirpContext = TwirpContext>(
       return handleLikesGetLikersJSON<T>(ctx, service, data, interceptors);
     case TwirpContentType.Protobuf:
       return handleLikesGetLikersProtobuf<T>(ctx, service, data, interceptors);
+    default:
+      const msg = "unexpected Content-Type";
+      throw new TwirpError(TwirpErrorCode.BadRoute, msg);
+  }
+}
+
+function handleLikesCheckLikeRequest<T extends TwirpContext = TwirpContext>(
+  ctx: T,
+  service: LikesTwirp,
+  data: Buffer,
+  interceptors?: Interceptor<T, CheckLikeRequest, CheckLikeResponse>[]
+): Promise<string | Uint8Array> {
+  switch (ctx.contentType) {
+    case TwirpContentType.JSON:
+      return handleLikesCheckLikeJSON<T>(ctx, service, data, interceptors);
+    case TwirpContentType.Protobuf:
+      return handleLikesCheckLikeProtobuf<T>(ctx, service, data, interceptors);
     default:
       const msg = "unexpected Content-Type";
       throw new TwirpError(TwirpErrorCode.BadRoute, msg);
@@ -383,6 +448,46 @@ async function handleLikesGetLikersJSON<T extends TwirpContext = TwirpContext>(
     }) as string
   );
 }
+
+async function handleLikesCheckLikeJSON<T extends TwirpContext = TwirpContext>(
+  ctx: T,
+  service: LikesTwirp,
+  data: Buffer,
+  interceptors?: Interceptor<T, CheckLikeRequest, CheckLikeResponse>[]
+) {
+  let request: CheckLikeRequest;
+  let response: CheckLikeResponse;
+
+  try {
+    const body = JSON.parse(data.toString() || "{}");
+    request = CheckLikeRequest.fromJson(body, { ignoreUnknownFields: true });
+  } catch (e) {
+    if (e instanceof Error) {
+      const msg = "the json request could not be decoded";
+      throw new TwirpError(TwirpErrorCode.Malformed, msg).withCause(e, true);
+    }
+  }
+
+  if (interceptors && interceptors.length > 0) {
+    const interceptor = chainInterceptors(...interceptors) as Interceptor<
+      T,
+      CheckLikeRequest,
+      CheckLikeResponse
+    >;
+    response = await interceptor(ctx, request!, (ctx, inputReq) => {
+      return service.CheckLike(ctx, inputReq);
+    });
+  } else {
+    response = await service.CheckLike(ctx, request!);
+  }
+
+  return JSON.stringify(
+    CheckLikeResponse.toJson(response, {
+      useProtoFieldName: true,
+      emitDefaultValues: false,
+    }) as string
+  );
+}
 async function handleLikesLikeProtobuf<T extends TwirpContext = TwirpContext>(
   ctx: T,
   service: LikesTwirp,
@@ -485,4 +590,40 @@ async function handleLikesGetLikersProtobuf<
   }
 
   return Buffer.from(GetLikersResponse.toBinary(response));
+}
+
+async function handleLikesCheckLikeProtobuf<
+  T extends TwirpContext = TwirpContext
+>(
+  ctx: T,
+  service: LikesTwirp,
+  data: Buffer,
+  interceptors?: Interceptor<T, CheckLikeRequest, CheckLikeResponse>[]
+) {
+  let request: CheckLikeRequest;
+  let response: CheckLikeResponse;
+
+  try {
+    request = CheckLikeRequest.fromBinary(data);
+  } catch (e) {
+    if (e instanceof Error) {
+      const msg = "the protobuf request could not be decoded";
+      throw new TwirpError(TwirpErrorCode.Malformed, msg).withCause(e, true);
+    }
+  }
+
+  if (interceptors && interceptors.length > 0) {
+    const interceptor = chainInterceptors(...interceptors) as Interceptor<
+      T,
+      CheckLikeRequest,
+      CheckLikeResponse
+    >;
+    response = await interceptor(ctx, request!, (ctx, inputReq) => {
+      return service.CheckLike(ctx, inputReq);
+    });
+  } else {
+    response = await service.CheckLike(ctx, request!);
+  }
+
+  return Buffer.from(CheckLikeResponse.toBinary(response));
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Unified script to generate protobuf code for both Go (web7) and TypeScript (front8)
+# Unified script to generate protobuf code for both Go (api) and TypeScript (front8)
 set -e
 
 # Get the directory where this script is located
@@ -8,18 +8,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 SCHEMA_DIR="$SCRIPT_DIR"
-WEB7_DIR="$PROJECT_ROOT/web7"
+API_DIR="$PROJECT_ROOT/api"
 FRONT8_DIR="$PROJECT_ROOT/front8"
 
 echo "Generating protobuf code..."
 echo "Schema directory: $SCHEMA_DIR"
-echo "Go output: $WEB7_DIR/pb"
+echo "Go output: $API_DIR/pb"
 echo "TypeScript output: $FRONT8_DIR/src/schema"
 
-# Generate Go protobuf code for web7
+# Generate Go protobuf code for api module
 echo ""
-echo "=== Generating Go code for web7 ==="
-cd "$WEB7_DIR"
+echo "=== Generating Go code for api module ==="
+cd "$API_DIR"
 
 # Generate all service proto files (generate separately to avoid go_package conflicts)
 protoc -I "$SCHEMA_DIR" --go_out=pb --twirp_out=pb "$SCHEMA_DIR/posts.proto"

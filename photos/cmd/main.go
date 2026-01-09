@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -11,6 +12,7 @@ import (
 	authpb "github.com/materkov/meme9/photos/internal/authclient/pb/github.com/materkov/meme9/api/auth"
 	"github.com/materkov/meme9/photos/processor"
 	"github.com/materkov/meme9/photos/uploader"
+	photosapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/photos"
 )
 
 func main() {
@@ -26,14 +28,41 @@ func main() {
 		panic(err)
 	}
 
+	authServiceURL := os.Getenv("AUTH_SERVICE")
+	if authServiceURL == "" {
+		authServiceURL = "http://localhost:8081"
+	}
+
 	authClient := authpb.NewAuthProtobufClient(
-		os.Getenv("AUTH_SERVICE"),
+		authServiceURL,
 		&http.Client{
 			Timeout: 10 * time.Second,
 		},
 	)
 	authService := auth.New(authClient)
 
-	srv := api.New(proc, up, authService)
-	_ = srv.Start()
+	// Create API service for upload endpoint
+	apiService := api.New(proc, up, authService)
+
+	// Create Twirp service
+	photosService := api.NewPhotos()
+	photosHandler := photosapi.NewPhotosServer(photosService)
+	photosHandlerWithCORS := api.CORSMiddleware(photosHandler)
+
+	// Setup routes
+	mux := http.NewServeMux()
+	// Upload endpoint (handles file uploads)
+	mux.Handle("/twirp/meme.photos.Photos/upload", apiService.Routes())
+	// Twirp service endpoints
+	mux.Handle(photosHandler.PathPrefix(), photosHandlerWithCORS)
+
+	addr := os.Getenv("ADDR")
+	if addr == "" {
+		addr = "127.0.0.1:8086"
+	}
+
+	log.Printf("Starting photos service HTTP server at http://%s", addr)
+	if err := http.ListenAndServe(addr, mux); err != nil {
+		log.Fatalf("Error starting HTTP server: %s", err)
+	}
 }

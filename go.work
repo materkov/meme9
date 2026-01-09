@@ -1,0 +1,11 @@
+go 1.24.2
+
+use (
+	./api
+	./auth-service
+	./likes-service
+	./photos
+	./posts-service
+	./subscriptions-service
+	./users-service
+)

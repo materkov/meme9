@@ -7,6 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.32.6
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.95.0
 	github.com/joho/godotenv v1.5.1
+	github.com/materkov/meme9/api v0.0.0-20260108223855-e3a4be80c9f6
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	golang.org/x/image v0.34.0
 	google.golang.org/protobuf v1.36.11
@@ -14,7 +15,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
@@ -38,3 +38,4 @@ require (
 	github.com/aws/smithy-go v1.24.0 // indirect
 	github.com/stretchr/testify v1.11.1
 )
+replace github.com/materkov/meme9/api => ../api

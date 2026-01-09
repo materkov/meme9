@@ -9,6 +9,7 @@ service Likes {
   rpc Like(LikeRequest) returns (LikeResponse);
   rpc Unlike(LikeRequest) returns (LikeResponse);
   rpc GetLikers(GetLikersRequest) returns (GetLikersResponse);
+  rpc CheckLike(CheckLikeRequest) returns (CheckLikeResponse);
 }
 
 message LikeRequest {
@@ -33,4 +34,14 @@ message GetLikersResponse {
   }
   repeated Liker likers = 1;
   string pageToken = 2;
+}
+
+message CheckLikeRequest {
+  string userId = 1;
+  repeated string postIds = 2;
+}
+
+message CheckLikeResponse {
+  repeated bool liked = 1;
+  repeated int32 likesCount = 2;
 }
