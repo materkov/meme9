@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	likesapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/likes"
 	"github.com/materkov/meme9/likes-service/adapters/likes"
 	"github.com/materkov/meme9/likes-service/api"
-	likesserviceapi "github.com/materkov/meme9/likes-service/api/likes"
-	likesapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/likes"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -45,7 +44,7 @@ func main() {
 	}
 
 	// Initialize services
-	likesService := likesserviceapi.NewService(likesAdapter)
+	likesService := api.NewService(likesAdapter)
 
 	// Create Twirp server
 	likesHandler := likesapi.NewLikesServer(likesService)
@@ -64,4 +63,3 @@ func main() {
 		log.Fatalf("Error starting HTTP server: %s", err)
 	}
 }
-

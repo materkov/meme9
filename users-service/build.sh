@@ -1,18 +1,11 @@
 #!/usr/bin/env bash
 
-#cd ~/mypage
-
-#export DOCKER_HOST=ssh://mypage-ru
+# Build
 cd ..
-docker build --platform=linux/amd64 -t 7385cbca-brainy-vulpecula.registry.twcstorage.ru/users-service/users-service:latest users-service
+docker build --platform=linux/amd64 -f users-service/Dockerfile -t 7385cbca-brainy-vulpecula.registry.twcstorage.ru/users-service/users-service:latest .
 docker push --platform=linux/amd64 7385cbca-brainy-vulpecula.registry.twcstorage.ru/users-service/users-service:latest
 
-#docker tag users-service:latest 
-
-#docker compose build users-service
-
+# Start image
 cd ~/mypage
-
 export DOCKER_HOST=ssh://mypage-ru
-
 docker compose up -d --build users-service

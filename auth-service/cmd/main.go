@@ -6,12 +6,11 @@ import (
 	"net/http"
 	"os"
 
+	authapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/auth"
 	"github.com/materkov/meme9/auth-service/adapters/tokens"
 	"github.com/materkov/meme9/auth-service/adapters/users"
 	"github.com/materkov/meme9/auth-service/api"
-	"github.com/materkov/meme9/auth-service/api/auth"
 	tokensservice "github.com/materkov/meme9/auth-service/services/tokens"
-	authapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/auth"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -49,11 +48,11 @@ func main() {
 
 	// Initialize services
 	tokensService := tokensservice.New(tokensAdapter)
-	authService := auth.NewService(usersAdapter, tokensAdapter, tokensService)
+	authService := api.NewService(usersAdapter, tokensAdapter, tokensService)
 
 	// Create Twirp server
 	authHandler := authapi.NewAuthServer(authService)
-	authHandlerWithCORS := api.CORSMiddleware(authHandler)
+	authHandlerWithCORS := api.AuthMiddleware(authService, api.CORSMiddleware(authHandler))
 
 	// Register handler
 	http.Handle(authHandler.PathPrefix(), authHandlerWithCORS)

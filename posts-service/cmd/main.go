@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	postsapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/posts"
 	"github.com/materkov/meme9/posts-service/adapters/posts"
 	"github.com/materkov/meme9/posts-service/api"
-	postsserviceapi "github.com/materkov/meme9/posts-service/api/posts"
-	postsapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/posts"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -39,7 +38,7 @@ func main() {
 	postsAdapter := posts.New(client, databaseName)
 
 	// Initialize services
-	postsService := postsserviceapi.NewService(postsAdapter)
+	postsService := api.NewService(postsAdapter)
 
 	// Create Twirp server
 	postsHandler := postsapi.NewPostsServer(postsService)
@@ -58,4 +57,3 @@ func main() {
 		log.Fatalf("Error starting HTTP server: %s", err)
 	}
 }
-

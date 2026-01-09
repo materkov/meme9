@@ -1,4 +1,4 @@
-package users
+package api
 
 import (
 	"context"
@@ -6,9 +6,8 @@ import (
 
 	"github.com/twitchtv/twirp"
 
-	"github.com/materkov/meme9/users-service/adapters/users"
-	"github.com/materkov/meme9/users-service/api"
 	usersapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/users"
+	"github.com/materkov/meme9/users-service/adapters/users"
 )
 
 type UsersAdapter interface {
@@ -45,9 +44,9 @@ func (s *Service) Get(ctx context.Context, req *usersapi.GetUserRequest) (*users
 
 func (s *Service) SetAvatar(ctx context.Context, req *usersapi.SetAvatarRequest) (*usersapi.SetAvatarResponse, error) {
 	// Check authentication
-	authenticatedUserID := api.GetUserIDFromContext(ctx)
+	authenticatedUserID := GetUserIDFromContext(ctx)
 	if authenticatedUserID == "" {
-		return nil, api.ErrAuthRequired
+		return nil, ErrAuthRequired
 	}
 
 	// Validate request
@@ -76,4 +75,3 @@ func (s *Service) SetAvatar(ctx context.Context, req *usersapi.SetAvatarRequest)
 
 	return &usersapi.SetAvatarResponse{}, nil
 }
-

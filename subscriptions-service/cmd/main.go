@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	subscriptionsapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/subscriptions"
 	"github.com/materkov/meme9/subscriptions-service/adapters/subscriptions"
 	"github.com/materkov/meme9/subscriptions-service/api"
-	subscriptionsserviceapi "github.com/materkov/meme9/subscriptions-service/api/subscriptions"
-	subscriptionsapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/subscriptions"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -45,7 +44,7 @@ func main() {
 	}
 
 	// Initialize services
-	subscriptionsService := subscriptionsserviceapi.NewService(subscriptionsAdapter)
+	subscriptionsService := api.NewService(subscriptionsAdapter)
 
 	// Create Twirp server
 	subscriptionsHandler := subscriptionsapi.NewSubscriptionsServer(subscriptionsService)
@@ -64,4 +63,3 @@ func main() {
 		log.Fatalf("Error starting HTTP server: %s", err)
 	}
 }
-

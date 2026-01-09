@@ -1,11 +1,10 @@
-package subscriptions
+package api
 
 import (
 	"context"
 
 	"github.com/twitchtv/twirp"
 
-	"github.com/materkov/meme9/subscriptions-service/api"
 	subscriptionsapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/subscriptions"
 )
 
@@ -25,7 +24,7 @@ func NewService(subscriptionsAdapter SubscriptionsAdapter) *Service {
 }
 
 func (s *Service) Subscribe(ctx context.Context, req *subscriptionsapi.SubscribeRequest) (*subscriptionsapi.SubscribeResponse, error) {
-	viewerID := api.GetUserIDFromContext(ctx)
+	viewerID := GetUserIDFromContext(ctx)
 	if viewerID == "" {
 		return nil, twirp.NewError(twirp.Unauthenticated, "unauthorized")
 	}
@@ -47,7 +46,7 @@ func (s *Service) Subscribe(ctx context.Context, req *subscriptionsapi.Subscribe
 }
 
 func (s *Service) Unsubscribe(ctx context.Context, req *subscriptionsapi.SubscribeRequest) (*subscriptionsapi.SubscribeResponse, error) {
-	viewerID := api.GetUserIDFromContext(ctx)
+	viewerID := GetUserIDFromContext(ctx)
 	if viewerID == "" {
 		return nil, twirp.NewError(twirp.Unauthenticated, "unauthorized")
 	}
@@ -66,7 +65,7 @@ func (s *Service) Unsubscribe(ctx context.Context, req *subscriptionsapi.Subscri
 }
 
 func (s *Service) GetStatus(ctx context.Context, req *subscriptionsapi.SubscribeRequest) (*subscriptionsapi.SubscribeResponse, error) {
-	viewerID := api.GetUserIDFromContext(ctx)
+	viewerID := GetUserIDFromContext(ctx)
 	if viewerID == "" {
 		return nil, twirp.NewError(twirp.Unauthenticated, "unauthorized")
 	}

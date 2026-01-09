@@ -10,8 +10,10 @@ COPY users-service/go.mod users-service/go.sum ./
 RUN go mod download && go mod tidy
 
 # Copy service code
-COPY ./users-service /build/users-service
-RUN go build -o /app users-service/cmd/main.go
+COPY users-service .
+# Update go.sum to include all dependencies from actual imports
+RUN go mod tidy
+RUN go build -o /app ./cmd
 
 FROM alpine:3.22
 RUN apk add --no-cache ca-certificates

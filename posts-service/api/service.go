@@ -1,4 +1,4 @@
-package posts
+package api
 
 import (
 	"context"
@@ -16,7 +16,6 @@ import (
 	subscriptionsapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/subscriptions"
 	usersapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/users"
 	"github.com/materkov/meme9/posts-service/adapters/posts"
-	"github.com/materkov/meme9/posts-service/api"
 )
 
 type PostsAdapter interface {
@@ -62,9 +61,9 @@ func (s *Service) getLikesServiceClient() likesapi.Likes {
 }
 
 func (s *Service) Publish(ctx context.Context, req *postsapi.PublishRequest) (*postsapi.PublishResponse, error) {
-	userID := api.GetUserIDFromContext(ctx)
+	userID := GetUserIDFromContext(ctx)
 	if userID == "" {
-		return nil, api.ErrAuthRequired
+		return nil, ErrAuthRequired
 	}
 
 	if req.Text == "" {
@@ -122,7 +121,7 @@ func (s *Service) GetByUsers(ctx context.Context, req *postsapi.GetByUsersReques
 	if len(postIDs) > 0 {
 		likesClient := s.getLikesServiceClient()
 		// Get current user ID if authenticated
-		currentUserID := api.GetUserIDFromContext(ctx)
+		currentUserID := GetUserIDFromContext(ctx)
 
 		checkLikeReq := &likesapi.CheckLikeRequest{
 			UserId:  currentUserID,
@@ -186,7 +185,7 @@ func (s *Service) Get(ctx context.Context, req *postsapi.GetPostRequest) (*posts
 	var isLiked bool
 
 	// Get likes count and liked status using CheckLike
-	currentUserID := api.GetUserIDFromContext(ctx)
+	currentUserID := GetUserIDFromContext(ctx)
 
 	likesClient := s.getLikesServiceClient()
 	checkLikeReq := &likesapi.CheckLikeRequest{
@@ -210,7 +209,7 @@ func (s *Service) Get(ctx context.Context, req *postsapi.GetPostRequest) (*posts
 }
 
 func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*postsapi.FeedResponse, error) {
-	userID := api.GetUserIDFromContext(ctx)
+	userID := GetUserIDFromContext(ctx)
 
 	feedType := req.Type
 	if feedType == postsapi.FeedType_FEED_TYPE_UNSPECIFIED {
@@ -222,7 +221,7 @@ func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*post
 
 	if feedType == postsapi.FeedType_FEED_TYPE_SUBSCRIPTIONS {
 		if userID == "" {
-			return nil, api.ErrAuthRequired
+			return nil, ErrAuthRequired
 		}
 
 		// Get following IDs from subscriptions service
@@ -314,9 +313,9 @@ func (s *Service) GetFeed(ctx context.Context, req *postsapi.FeedRequest) (*post
 }
 
 func (s *Service) Delete(ctx context.Context, req *postsapi.DeleteRequest) (*postsapi.DeleteResponse, error) {
-	userID := api.GetUserIDFromContext(ctx)
+	userID := GetUserIDFromContext(ctx)
 	if userID == "" {
-		return nil, api.ErrAuthRequired
+		return nil, ErrAuthRequired
 	}
 	if req.PostId == "" {
 		return nil, twirp.NewError(twirp.InvalidArgument, "post_id_required")

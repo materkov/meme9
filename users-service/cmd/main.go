@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	usersapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/users"
 	"github.com/materkov/meme9/users-service/adapters/users"
 	"github.com/materkov/meme9/users-service/api"
-	usersserviceapi "github.com/materkov/meme9/users-service/api/users"
-	usersapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/users"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -45,7 +44,7 @@ func main() {
 	}
 
 	// Initialize services
-	usersService := usersserviceapi.NewService(usersAdapter)
+	usersService := api.NewService(usersAdapter)
 
 	// Create Twirp server
 	usersHandler := usersapi.NewUsersServer(usersService)
@@ -64,4 +63,3 @@ func main() {
 		log.Fatalf("Error starting HTTP server: %s", err)
 	}
 }
-

@@ -11,6 +11,8 @@ RUN go mod download && go mod tidy
 
 # Copy service code
 COPY posts-service .
+# Update go.sum to include all dependencies from actual imports
+RUN go mod tidy
 RUN go build -o /app ./cmd
 
 FROM alpine:3.22

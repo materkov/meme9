@@ -1,4 +1,4 @@
-package likes
+package api
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 
 	likesapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/likes"
 	usersapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/users"
-	"github.com/materkov/meme9/likes-service/api"
 )
 
 type LikesAdapter interface {
@@ -34,9 +33,9 @@ func NewService(likesAdapter LikesAdapter) *Service {
 }
 
 func (s *Service) Like(ctx context.Context, req *likesapi.LikeRequest) (*likesapi.LikeResponse, error) {
-	userID := api.GetUserIDFromContext(ctx)
+	userID := GetUserIDFromContext(ctx)
 	if userID == "" {
-		return nil, api.ErrAuthRequired
+		return nil, ErrAuthRequired
 	}
 	if req.PostId == "" {
 		return nil, twirp.NewError(twirp.InvalidArgument, "post_id_required")
@@ -53,9 +52,9 @@ func (s *Service) Like(ctx context.Context, req *likesapi.LikeRequest) (*likesap
 }
 
 func (s *Service) Unlike(ctx context.Context, req *likesapi.LikeRequest) (*likesapi.LikeResponse, error) {
-	userID := api.GetUserIDFromContext(ctx)
+	userID := GetUserIDFromContext(ctx)
 	if userID == "" {
-		return nil, api.ErrAuthRequired
+		return nil, ErrAuthRequired
 	}
 	if req.PostId == "" {
 		return nil, twirp.NewError(twirp.InvalidArgument, "post_id_required")

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/materkov/meme9/auth-service/api/auth"
 	authapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/auth"
 	"github.com/twitchtv/twirp"
 )
@@ -38,7 +37,7 @@ func CORSMiddleware(handler http.Handler) http.Handler {
 	})
 }
 
-func AuthMiddleware(authService *auth.Service, handler http.Handler) http.Handler {
+func AuthMiddleware(authService *Service, handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -61,4 +60,3 @@ func AuthMiddleware(authService *auth.Service, handler http.Handler) http.Handle
 }
 
 var ErrAuthRequired = twirp.NewError(twirp.Unauthenticated, "auth_required")
-

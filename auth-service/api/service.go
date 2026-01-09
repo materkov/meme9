@@ -1,4 +1,4 @@
-package auth
+package api
 
 import (
 	"context"
@@ -12,9 +12,9 @@ import (
 	"github.com/twitchtv/twirp"
 	"golang.org/x/crypto/bcrypt"
 
+	authapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/auth"
 	"github.com/materkov/meme9/auth-service/adapters/tokens"
 	"github.com/materkov/meme9/auth-service/adapters/users"
-	authapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/auth"
 	tokensservice "github.com/materkov/meme9/auth-service/services/tokens"
 )
 
@@ -164,4 +164,3 @@ func generateToken() (string, error) {
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
 }
-
