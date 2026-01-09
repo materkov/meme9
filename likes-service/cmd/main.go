@@ -7,8 +7,8 @@ import (
 	"os"
 
 	likesapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/likes"
-	"github.com/materkov/meme9/likes-service/adapters/likes"
 	"github.com/materkov/meme9/likes-service/api"
+	likesmongo "github.com/materkov/meme9/likes-service/mongo"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -35,7 +35,7 @@ func main() {
 
 	// Initialize adapters
 	databaseName := "meme9"
-	likesAdapter := likes.New(client, databaseName)
+	likesAdapter := likesmongo.New(client, databaseName)
 
 	// Ensure indexes
 	err = likesAdapter.EnsureIndexes(ctx)
@@ -48,10 +48,10 @@ func main() {
 
 	// Create Twirp server
 	likesHandler := likesapi.NewLikesServer(likesService)
-	likesHandlerWithCORS := api.AuthMiddleware(api.CORSMiddleware(likesHandler))
+	likesHandlerWithAuth := api.AuthMiddleware(likesHandler)
 
 	// Register handler
-	http.Handle(likesHandler.PathPrefix(), likesHandlerWithCORS)
+	http.Handle(likesHandler.PathPrefix(), likesHandlerWithAuth)
 
 	// Start HTTP server
 	addr := os.Getenv("ADDR")

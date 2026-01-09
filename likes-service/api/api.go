@@ -13,7 +13,7 @@ import (
 	usersapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/users"
 )
 
-type LikesAdapter interface {
+type MongoAdapter interface {
 	Like(ctx context.Context, postID, userID string) error
 	Unlike(ctx context.Context, postID, userID string) error
 	IsLiked(ctx context.Context, postID, userID string) (bool, error)
@@ -23,17 +23,17 @@ type LikesAdapter interface {
 }
 
 type Service struct {
-	likes LikesAdapter
+	likes MongoAdapter
 }
 
-func NewService(likesAdapter LikesAdapter) *Service {
+func NewService(likesAdapter MongoAdapter) *Service {
 	return &Service{
 		likes: likesAdapter,
 	}
 }
 
 func (s *Service) Like(ctx context.Context, req *likesapi.LikeRequest) (*likesapi.LikeResponse, error) {
-	userID := GetUserIDFromContext(ctx)
+	userID := getUserIDFromContext(ctx)
 	if userID == "" {
 		return nil, ErrAuthRequired
 	}
@@ -52,7 +52,7 @@ func (s *Service) Like(ctx context.Context, req *likesapi.LikeRequest) (*likesap
 }
 
 func (s *Service) Unlike(ctx context.Context, req *likesapi.LikeRequest) (*likesapi.LikeResponse, error) {
-	userID := GetUserIDFromContext(ctx)
+	userID := getUserIDFromContext(ctx)
 	if userID == "" {
 		return nil, ErrAuthRequired
 	}

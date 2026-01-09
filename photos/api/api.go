@@ -46,22 +46,7 @@ func (s *Service) Routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/twirp/meme.photos.Photos/upload", s.HandleUpload)
 
-	return withCORS(mux)
-}
-
-func CORSMiddleware(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		handler.ServeHTTP(w, r)
-	})
+	return mux
 }
 
 func (s *Service) HandleUpload(w http.ResponseWriter, r *http.Request) {
@@ -99,18 +84,4 @@ func (s *Service) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, _ = w.Write([]byte(url))
-}
-
-func withCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }

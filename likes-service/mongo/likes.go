@@ -1,4 +1,4 @@
-package likes
+package mongo
 
 import (
 	"context"
@@ -212,4 +212,3 @@ func (a *Adapter) GetLikers(ctx context.Context, postID, pageToken string, count
 
 	return userIDs, nextPageToken, nil
 }
-

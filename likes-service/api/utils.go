@@ -3,10 +3,8 @@ package api
 import (
 	"context"
 	"net/http"
-	"os"
 	"strings"
 
-	authapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/auth"
 	"github.com/twitchtv/twirp"
 )
 
@@ -14,8 +12,7 @@ type contextKey string
 
 const UserIDKey contextKey = "userID"
 
-// GetUserIDFromContext extracts user ID from context
-func GetUserIDFromContext(ctx context.Context) string {
+func getUserIDFromContext(ctx context.Context) string {
 	userID, ok := ctx.Value(UserIDKey).(string)
 	if !ok {
 		return ""
@@ -23,44 +20,16 @@ func GetUserIDFromContext(ctx context.Context) string {
 	return userID
 }
 
-func CORSMiddleware(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		handler.ServeHTTP(w, r)
-	})
-}
-
 func AuthMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		authHeader := r.Header.Get("Authorization")
-		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
-		authHeader = strings.TrimSpace(authHeader)
+		// Get user ID from x-user-id header (set by frontend proxy after token verification)
+		userID := r.Header.Get("x-user-id")
+		userID = strings.TrimSpace(userID)
 
-		if authHeader != "" {
-			// Call auth service to verify token
-			authServiceURL := os.Getenv("AUTH_SERVICE_URL")
-			if authServiceURL == "" {
-				authServiceURL = "http://localhost:8081"
-			}
-
-			client := authapi.NewAuthProtobufClient(authServiceURL, &http.Client{})
-			verifyReq := &authapi.VerifyTokenRequest{
-				Token: authHeader,
-			}
-			verifyResp, err := client.VerifyToken(ctx, verifyReq)
-			if err == nil {
-				ctx = context.WithValue(r.Context(), UserIDKey, verifyResp.UserId)
-			}
+		if userID != "" {
+			ctx = context.WithValue(r.Context(), UserIDKey, userID)
 		}
 
 		handler.ServeHTTP(w, r.WithContext(ctx))
@@ -68,4 +37,3 @@ func AuthMiddleware(handler http.Handler) http.Handler {
 }
 
 var ErrAuthRequired = twirp.NewError(twirp.Unauthenticated, "auth_required")
-

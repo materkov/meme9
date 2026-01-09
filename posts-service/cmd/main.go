@@ -42,10 +42,10 @@ func main() {
 
 	// Create Twirp server
 	postsHandler := postsapi.NewPostsServer(postsService)
-	postsHandlerWithCORS := api.AuthMiddleware(api.CORSMiddleware(postsHandler))
+	postsHandlerWithAuth := api.AuthMiddleware(postsHandler)
 
 	// Register handler
-	http.Handle(postsHandler.PathPrefix(), postsHandlerWithCORS)
+	http.Handle(postsHandler.PathPrefix(), postsHandlerWithAuth)
 
 	// Start HTTP server
 	addr := os.Getenv("ADDR")

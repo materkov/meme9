@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	photosapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/photos"
 	"github.com/materkov/meme9/photos/api"
 	"github.com/materkov/meme9/photos/auth"
 	authpb "github.com/materkov/meme9/photos/internal/authclient/pb/github.com/materkov/meme9/api/auth"
 	"github.com/materkov/meme9/photos/processor"
 	"github.com/materkov/meme9/photos/uploader"
-	photosapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/photos"
 )
 
 func main() {
@@ -47,14 +47,13 @@ func main() {
 	// Create Twirp service
 	photosService := api.NewPhotos()
 	photosHandler := photosapi.NewPhotosServer(photosService)
-	photosHandlerWithCORS := api.CORSMiddleware(photosHandler)
 
 	// Setup routes
 	mux := http.NewServeMux()
 	// Upload endpoint (handles file uploads)
 	mux.Handle("/twirp/meme.photos.Photos/upload", apiService.Routes())
 	// Twirp service endpoints
-	mux.Handle(photosHandler.PathPrefix(), photosHandlerWithCORS)
+	mux.Handle(photosHandler.PathPrefix(), photosHandler)
 
 	addr := os.Getenv("ADDR")
 	if addr == "" {

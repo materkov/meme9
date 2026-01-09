@@ -47,7 +47,7 @@ class TwirpRpcImpl {
 
     const token = await getAuthToken();
     if (token) {
-      headers["Authorization"] = token;
+      headers["Authorization"] = 'Bearer ' + token;
     }
 
     let response: Response;

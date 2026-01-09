@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { AuthClient } from '@/lib/api-clients';
 
 // Service name to port mapping
 const SERVICE_PORTS: Record<string, number> = {
@@ -26,7 +27,6 @@ export async function POST(
     const { path } = await params;
     const fullPath = path.join('/');
     
-    // Parse service and method from path: "meme.auth.Auth/Login"
     const [service, method] = fullPath.split('/');
     
     if (!service || !method) {
@@ -38,41 +38,44 @@ export async function POST(
 
     // Get the backend URL for this service
     const backendUrl = getBackendUrl(service);
-    const targetUrl = `${backendUrl}/twirp/${fullPath}`;
+    const targetUrl = `${backendUrl}/twirp/${fullPath}`;    
 
-    // Get request body as ArrayBuffer to handle both text and binary data
-    const body = await request.arrayBuffer();
+    let userId = "";
+
+    let authHeader = request.headers.get('authorization') || '';
+    let authToken = authHeader.substring(7); // remove "Bearer " prefix
     
-    // Get headers (forward Authorization and Content-Type)
-    const contentType = request.headers.get('content-type') || 'application/json';
-    const headers: HeadersInit = {
-      'Content-Type': contentType,
-    };
-    
-    const authHeader = request.headers.get('authorization');
-    if (authHeader) {
-      headers['Authorization'] = authHeader;
+    if (authToken) {
+      try {
+        const verifyResponse = await AuthClient.VerifyToken({ token: authToken });
+        userId = verifyResponse.userId;
+      } catch (error) {
+        console.error('Token verification error:', error);
+      }
     }
 
-    // Forward the request to the backend service
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      'x-user-id': userId,
+      'authorization': authHeader,
+    };
+    console.log('headers', headers);
+
+    const body = await request.arrayBuffer();
+
     const response = await fetch(targetUrl, {
       method: 'POST',
       headers,
       body,
     });
 
-    // Get response body as ArrayBuffer to handle both text and binary data
     const responseBody = await response.arrayBuffer();
-    const responseContentType = response.headers.get('content-type') || 'application/json';
     
-    // Forward the response with the same status code and CORS headers
+    // Forward the response with the same status code, always as JSON
     return new NextResponse(responseBody, {
       status: response.status,
       headers: {
-        'Content-Type': responseContentType,
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Content-Type': 'application/json',
       },
     });
   } catch (error) {
@@ -83,16 +86,3 @@ export async function POST(
     );
   }
 }
-
-// Handle OPTIONS for CORS preflight
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
-}
-

@@ -48,10 +48,10 @@ func main() {
 
 	// Create Twirp server
 	usersHandler := usersapi.NewUsersServer(usersService)
-	usersHandlerWithCORS := api.AuthMiddleware(api.CORSMiddleware(usersHandler))
+	usersHandlerWithAuth := api.AuthMiddleware(usersHandler)
 
 	// Register handler
-	http.Handle(usersHandler.PathPrefix(), usersHandlerWithCORS)
+	http.Handle(usersHandler.PathPrefix(), usersHandlerWithAuth)
 
 	// Start HTTP server
 	addr := os.Getenv("ADDR")

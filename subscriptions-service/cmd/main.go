@@ -48,10 +48,10 @@ func main() {
 
 	// Create Twirp server
 	subscriptionsHandler := subscriptionsapi.NewSubscriptionsServer(subscriptionsService)
-	subscriptionsHandlerWithCORS := api.AuthMiddleware(api.CORSMiddleware(subscriptionsHandler))
+	subscriptionsHandlerWithAuth := api.AuthMiddleware(subscriptionsHandler)
 
 	// Register handler
-	http.Handle(subscriptionsHandler.PathPrefix(), subscriptionsHandlerWithCORS)
+	http.Handle(subscriptionsHandler.PathPrefix(), subscriptionsHandlerWithAuth)
 
 	// Start HTTP server
 	addr := os.Getenv("ADDR")
