@@ -220,18 +220,21 @@ func TestGetLikesCounts(t *testing.T) {
 }
 
 func TestGetLikedByUser(t *testing.T) {
-	adapter, cleanup := setupTestDB(t)
-	defer cleanup()
-
 	ctx := context.Background()
 
 	t.Run("empty postIDs returns empty map", func(t *testing.T) {
+		adapter, cleanup := setupTestDB(t)
+		defer cleanup()
+
 		result, err := adapter.GetLikedByUser(ctx, "user1", []string{})
 		require.NoError(t, err)
 		assert.Empty(t, result, "Expected empty map")
 	})
 
 	t.Run("returns false for posts not liked by user", func(t *testing.T) {
+		adapter, cleanup := setupTestDB(t)
+		defer cleanup()
+
 		result, err := adapter.GetLikedByUser(ctx, "user1", []string{"post1", "post2"})
 		require.NoError(t, err)
 		assert.False(t, result["post1"], "Expected post1 to be false")
@@ -239,6 +242,9 @@ func TestGetLikedByUser(t *testing.T) {
 	})
 
 	t.Run("returns true for posts liked by user", func(t *testing.T) {
+		adapter, cleanup := setupTestDB(t)
+		defer cleanup()
+
 		adapter.Like(ctx, "post1", "user1")
 		adapter.Like(ctx, "post2", "user1")
 		// post3 not liked by user1
@@ -253,6 +259,9 @@ func TestGetLikedByUser(t *testing.T) {
 
 	t.Run("only returns likes for specified user", func(t *testing.T) {
 		// user1 likes post1 and post2
+		adapter, cleanup := setupTestDB(t)
+		defer cleanup()
+
 		adapter.Like(ctx, "post1", "user1")
 		adapter.Like(ctx, "post2", "user1")
 		// user2 likes post2 and post3
