@@ -1,5 +1,7 @@
 package api
 
+//go:generate mockgen -destination=mocks/mock_mongo_adapter.go -package=mocks github.com/materkov/meme9/likes-service/api MongoAdapter
+
 import (
 	"context"
 	"fmt"
