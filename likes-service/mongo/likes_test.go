@@ -191,31 +191,31 @@ func TestGetLikesCounts(t *testing.T) {
 
 	t.Run("returns correct counts for single post", func(t *testing.T) {
 		// Add multiple likes
-		adapter.Like(ctx, "post1", "user1")
-		adapter.Like(ctx, "post1", "user2")
-		adapter.Like(ctx, "post1", "user3")
+		adapter.Like(ctx, "post_single_1", "user1")
+		adapter.Like(ctx, "post_single_1", "user2")
+		adapter.Like(ctx, "post_single_1", "user3")
 
-		counts, err := adapter.GetLikesCounts(ctx, []string{"post1"})
+		counts, err := adapter.GetLikesCounts(ctx, []string{"post_single_1"})
 		require.NoError(t, err)
-		assert.Equal(t, int32(3), counts["post1"], "Expected 3 likes")
+		assert.Equal(t, int32(3), counts["post_single_1"], "Expected 3 likes")
 	})
 
 	t.Run("returns correct counts for multiple posts", func(t *testing.T) {
 		// Setup likes for multiple posts
-		adapter.Like(ctx, "post1", "user1")
-		adapter.Like(ctx, "post1", "user2")
-		adapter.Like(ctx, "post2", "user1")
-		adapter.Like(ctx, "post3", "user1")
-		adapter.Like(ctx, "post3", "user2")
-		adapter.Like(ctx, "post3", "user3")
+		adapter.Like(ctx, "post_multi_1", "user1")
+		adapter.Like(ctx, "post_multi_1", "user2")
+		adapter.Like(ctx, "post_multi_2", "user1")
+		adapter.Like(ctx, "post_multi_3", "user1")
+		adapter.Like(ctx, "post_multi_3", "user2")
+		adapter.Like(ctx, "post_multi_3", "user3")
 
-		counts, err := adapter.GetLikesCounts(ctx, []string{"post1", "post2", "post3", "post4"})
+		counts, err := adapter.GetLikesCounts(ctx, []string{"post_multi_1", "post_multi_2", "post_multi_3", "post_multi_4"})
 		require.NoError(t, err)
 
-		assert.Equal(t, int32(2), counts["post1"], "Expected 2 likes for post1")
-		assert.Equal(t, int32(1), counts["post2"], "Expected 1 like for post2")
-		assert.Equal(t, int32(3), counts["post3"], "Expected 3 likes for post3")
-		assert.Equal(t, int32(0), counts["post4"], "Expected 0 likes for post4")
+		assert.Equal(t, int32(2), counts["post_multi_1"], "Expected 2 likes for post_multi_1")
+		assert.Equal(t, int32(1), counts["post_multi_2"], "Expected 1 like for post_multi_2")
+		assert.Equal(t, int32(3), counts["post_multi_3"], "Expected 3 likes for post_multi_3")
+		assert.Equal(t, int32(0), counts["post_multi_4"], "Expected 0 likes for post_multi_4")
 	})
 }
 
