@@ -13,7 +13,6 @@ import (
 
 	likesapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/likes"
 	postsapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/posts"
-	subscriptionsapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/subscriptions"
 	usersapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/users"
 	"github.com/materkov/meme9/posts-service/adapters/posts"
 )
@@ -42,14 +41,6 @@ func (s *Service) getUsersServiceClient() usersapi.Users {
 		usersServiceURL = "http://localhost:8082"
 	}
 	return usersapi.NewUsersProtobufClient(usersServiceURL, &http.Client{})
-}
-
-func (s *Service) getSubscriptionsServiceClient() subscriptionsapi.Subscriptions {
-	subscriptionsServiceURL := os.Getenv("SUBSCRIPTIONS_SERVICE_URL")
-	if subscriptionsServiceURL == "" {
-		subscriptionsServiceURL = "http://localhost:8083"
-	}
-	return subscriptionsapi.NewSubscriptionsProtobufClient(subscriptionsServiceURL, &http.Client{})
 }
 
 func (s *Service) getLikesServiceClient() likesapi.Likes {
