@@ -58,4 +58,3 @@ func (a *Adapter) GetByValue(ctx context.Context, tokenValue string) (*Token, er
 	}
 	return &token, nil
 }
-

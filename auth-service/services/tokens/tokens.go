@@ -38,4 +38,3 @@ func (s *Service) VerifyToken(ctx context.Context, authHeader string) (string, e
 
 	return token.UserID, nil
 }
-

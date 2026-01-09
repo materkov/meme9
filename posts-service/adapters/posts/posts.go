@@ -143,4 +143,3 @@ func (a *Adapter) MarkAsDeleted(ctx context.Context, postID string) error {
 	}
 	return nil
 }
-

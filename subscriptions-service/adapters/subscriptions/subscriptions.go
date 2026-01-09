@@ -111,4 +111,3 @@ func (a *Adapter) IsSubscribed(ctx context.Context, followerID, followingID stri
 
 	return count > 0, nil
 }
-
