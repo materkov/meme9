@@ -1,4 +1,4 @@
-name: users-unit-tests
+name: users-service-unit
 
 on:
   push:

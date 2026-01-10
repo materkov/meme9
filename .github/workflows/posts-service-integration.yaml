@@ -1,4 +1,4 @@
-name: subscriptions-integration-tests
+name: posts-service-integration
 
 on:
   push:
@@ -33,9 +33,9 @@ jobs:
         with:
           go-version: "1.24.2"
           cache: true
-          cache-dependency-path: subscriptions-service/go.sum
+          cache-dependency-path: posts-service/go.sum
 
       - name: Run integration tests
-        working-directory: subscriptions-service
+        working-directory: posts-service
         run: |
-          go test -v -tags=integration -timeout 5m ./adapters/subscriptions/...
+          go test -v -tags=integration -timeout 5m ./adapters/posts/...

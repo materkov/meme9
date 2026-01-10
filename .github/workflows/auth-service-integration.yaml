@@ -1,4 +1,4 @@
-name: users-integration-tests
+name: auth-service-integration
 
 on:
   push:
@@ -33,9 +33,9 @@ jobs:
         with:
           go-version: "1.24.2"
           cache: true
-          cache-dependency-path: users-service/go.sum
+          cache-dependency-path: auth-service/go.sum
 
       - name: Run integration tests
-        working-directory: users-service
+        working-directory: auth-service
         run: |
-          go test -v -tags=integration -timeout 5m ./adapters/users/...
+          go test -v -tags=integration -timeout 5m ./adapters/mongo/...

@@ -1,4 +1,4 @@
-name: photos-integration-tests
+name: photos-service-integration
 
 on:
   push:

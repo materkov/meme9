@@ -1,4 +1,4 @@
-name: likes-integration-tests
+name: likes-service-integration
 
 on:
   push:

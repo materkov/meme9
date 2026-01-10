@@ -1,4 +1,4 @@
-name: likes-unit-tests
+name: subscriptions-service-unit
 
 on:
   push:
@@ -19,9 +19,9 @@ jobs:
         with:
           go-version: "1.24.2"
           cache: true
-          cache-dependency-path: likes-service/go.sum
+          cache-dependency-path: subscriptions-service/go.sum
 
       - name: Run unit tests
-        working-directory: likes-service
+        working-directory: subscriptions-service
         run: |
-          go test -v ./...
+          go test -v ./api/...

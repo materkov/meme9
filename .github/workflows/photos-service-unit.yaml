@@ -1,4 +1,4 @@
-name: auth-unit-tests
+name: photos-service-unit
 
 on:
   push:
@@ -19,9 +19,9 @@ jobs:
         with:
           go-version: "1.24.2"
           cache: true
-          cache-dependency-path: auth-service/go.sum
+          cache-dependency-path: photos-service/go.sum
 
-      - name: Run unit tests
-        working-directory: auth-service
+      - name: Run unit tests (exclude integration-tagged tests)
+        working-directory: photos-service
         run: |
-          go test -v ./api/...
+          go test -v ./...

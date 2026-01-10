@@ -1,4 +1,4 @@
-name: posts-unit-tests
+name: posts-service-unit
 
 on:
   push:
