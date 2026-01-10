@@ -1,4 +1,4 @@
-package users
+package mongo
 
 import (
 	"context"
@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	ErrNotFound       = errors.New("user not found")
+	ErrUserNotFound   = errors.New("user not found")
 	ErrUsernameExists = errors.New("username already exists")
+	ErrTokenNotFound  = errors.New("token not found")
 )
 
 type User struct {
@@ -25,56 +26,63 @@ type User struct {
 	CreatedAt    time.Time `bson:"created_at"`
 }
 
-type Adapter struct {
+type Token struct {
+	ID        string    `bson:"_id"`
+	Token     string    `bson:"token"`
+	UserID    string    `bson:"user_id"`
+	CreatedAt time.Time `bson:"created_at"`
+}
+
+type MongoAdapter struct {
 	client       *mongo.Client
 	databaseName string
 }
 
-func New(client *mongo.Client, databaseName string) *Adapter {
-	return &Adapter{client: client, databaseName: databaseName}
+func New(client *mongo.Client, databaseName string) *MongoAdapter {
+	return &MongoAdapter{client: client, databaseName: databaseName}
 }
 
-func (a *Adapter) EnsureIndexes(ctx context.Context) error {
-	collection := a.client.Database(a.databaseName).Collection("users")
+func (a *MongoAdapter) EnsureIndexes(ctx context.Context) error {
+	usersCollection := a.client.Database(a.databaseName).Collection("users")
 	indexModel := mongo.IndexModel{
 		Keys:    bson.D{{Key: "username", Value: 1}},
 		Options: options.Index().SetUnique(true),
 	}
-	_, err := collection.Indexes().CreateOne(ctx, indexModel)
+	_, err := usersCollection.Indexes().CreateOne(ctx, indexModel)
 	if err != nil {
 		return fmt.Errorf("failed to create username index: %w", err)
 	}
 	return nil
 }
 
-func (a *Adapter) GetByUsername(ctx context.Context, username string) (*User, error) {
+func (a *MongoAdapter) GetUserByUsername(ctx context.Context, username string) (*User, error) {
 	collection := a.client.Database(a.databaseName).Collection("users")
 	var user User
 	err := collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, ErrNotFound
+			return nil, ErrUserNotFound
 		}
 		return nil, fmt.Errorf("error finding user: %w", err)
 	}
 	return &user, nil
 }
 
-func (a *Adapter) GetByID(ctx context.Context, userID string) (*User, error) {
-	users, err := a.GetByIDs(ctx, []string{userID})
+func (a *MongoAdapter) GetUserByID(ctx context.Context, userID string) (*User, error) {
+	users, err := a.GetUsersByIDs(ctx, []string{userID})
 	if err != nil {
 		return nil, err
 	}
 
 	user, ok := users[userID]
 	if !ok {
-		return nil, ErrNotFound
+		return nil, ErrUserNotFound
 	}
 
 	return user, nil
 }
 
-func (a *Adapter) GetByIDs(ctx context.Context, userIDs []string) (map[string]*User, error) {
+func (a *MongoAdapter) GetUsersByIDs(ctx context.Context, userIDs []string) (map[string]*User, error) {
 	if len(userIDs) == 0 {
 		return make(map[string]*User), nil
 	}
@@ -116,7 +124,7 @@ func (a *Adapter) GetByIDs(ctx context.Context, userIDs []string) (map[string]*U
 	return users, nil
 }
 
-func (a *Adapter) Create(ctx context.Context, user User) (string, error) {
+func (a *MongoAdapter) CreateUser(ctx context.Context, user User) (string, error) {
 	collection := a.client.Database(a.databaseName).Collection("users")
 
 	insertDoc := bson.M{
@@ -133,12 +141,12 @@ func (a *Adapter) Create(ctx context.Context, user User) (string, error) {
 	return objID.Hex(), nil
 }
 
-func (a *Adapter) UpdateAvatar(ctx context.Context, userID, avatarURL string) error {
+func (a *MongoAdapter) UpdateUserAvatar(ctx context.Context, userID, avatarURL string) error {
 	collection := a.client.Database(a.databaseName).Collection("users")
 
 	objID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return fmt.Errorf("invalid user ID: %w", err)
+		return ErrUserNotFound
 	}
 
 	update := bson.M{
@@ -153,8 +161,38 @@ func (a *Adapter) UpdateAvatar(ctx context.Context, userID, avatarURL string) er
 	}
 
 	if result.MatchedCount == 0 {
-		return ErrNotFound
+		return ErrUserNotFound
 	}
 
 	return nil
+}
+
+func (a *MongoAdapter) CreateToken(ctx context.Context, token Token) (string, error) {
+	collection := a.client.Database(a.databaseName).Collection("tokens")
+
+	insertDoc := bson.M{
+		"token":      token.Token,
+		"user_id":    token.UserID,
+		"created_at": token.CreatedAt,
+	}
+	result, err := collection.InsertOne(ctx, insertDoc)
+	if err != nil {
+		return "", fmt.Errorf("error creating token: %w", err)
+	}
+
+	objID := result.InsertedID.(primitive.ObjectID)
+	return objID.Hex(), nil
+}
+
+func (a *MongoAdapter) GetTokenByValue(ctx context.Context, tokenValue string) (*Token, error) {
+	collection := a.client.Database(a.databaseName).Collection("tokens")
+	var token Token
+	err := collection.FindOne(ctx, bson.M{"token": tokenValue}).Decode(&token)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrTokenNotFound
+		}
+		return nil, fmt.Errorf("error finding token: %w", err)
+	}
+	return &token, nil
 }

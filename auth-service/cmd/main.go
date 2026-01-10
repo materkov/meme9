@@ -7,10 +7,8 @@ import (
 	"os"
 
 	authapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/auth"
-	"github.com/materkov/meme9/auth-service/adapters/tokens"
-	"github.com/materkov/meme9/auth-service/adapters/users"
+	mongoadapter "github.com/materkov/meme9/auth-service/adapters/mongo"
 	"github.com/materkov/meme9/auth-service/api"
-	tokensservice "github.com/materkov/meme9/auth-service/services/tokens"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -35,27 +33,24 @@ func main() {
 
 	log.Println("Successfully connected to MongoDB")
 
-	// Initialize adapters
+	// Initialize adapter
 	databaseName := "meme9"
-	usersAdapter := users.New(client, databaseName)
-	tokensAdapter := tokens.New(client, databaseName)
+	mongoAdapter := mongoadapter.New(client, databaseName)
 
 	// Ensure indexes
-	err = usersAdapter.EnsureIndexes(ctx)
+	err = mongoAdapter.EnsureIndexes(ctx)
 	if err != nil {
 		log.Printf("Warning: Failed to ensure user indexes: %v", err)
 	}
 
-	// Initialize services
-	tokensService := tokensservice.New(tokensAdapter)
-	authService := api.NewService(usersAdapter, tokensAdapter, tokensService)
+	// Initialize service
+	authService := api.NewService(mongoAdapter)
 
 	// Create Twirp server
 	authHandler := authapi.NewAuthServer(authService)
-	authHandlerWithAuth := api.AuthMiddleware(authService, authHandler)
 
 	// Register handler
-	http.Handle(authHandler.PathPrefix(), authHandlerWithAuth)
+	http.Handle(authHandler.PathPrefix(), authHandler)
 
 	// Start HTTP server
 	addr := os.Getenv("ADDR")
