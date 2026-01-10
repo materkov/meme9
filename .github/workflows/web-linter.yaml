@@ -20,6 +20,10 @@ jobs:
       - name: linter install
         run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v2.8.0
 
+      - name: check linter version
+        run: |
+          bin/golangci-lint --version
+
       - name: linter run api
         run: |
           bin/golangci-lint --version
