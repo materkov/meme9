@@ -1,5 +1,7 @@
 package api
 
+//go:generate mockgen -destination=mocks/mock_subscriptions_adapter.go -package=mocks github.com/materkov/meme9/subscriptions-service/api SubscriptionsAdapter
+
 import (
 	"context"
 

@@ -1,5 +1,7 @@
 package api
 
+//go:generate mockgen -destination=mocks/mock_users_adapter.go -package=mocks github.com/materkov/meme9/users-service/api UsersAdapter
+
 import (
 	"context"
 	"fmt"

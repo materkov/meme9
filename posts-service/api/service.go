@@ -1,5 +1,7 @@
 package api
 
+//go:generate mockgen -destination=mocks/mock_posts_adapter.go -package=mocks github.com/materkov/meme9/posts-service/api PostsAdapter
+
 import (
 	"context"
 	"errors"

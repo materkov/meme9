@@ -1,5 +1,8 @@
 package api
 
+//go:generate mockgen -destination=mocks/mock_processor.go -package=mocks github.com/materkov/meme9/photos-service/api Processor
+//go:generate mockgen -destination=mocks/mock_uploader.go -package=mocks github.com/materkov/meme9/photos-service/api Uploader
+
 import (
 	"context"
 	"errors"
