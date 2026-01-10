@@ -19,9 +19,9 @@ jobs:
         with:
           go-version: "1.24.2"
           cache: true
-          cache-dependency-path: photos/go.sum
+          cache-dependency-path: photos-service/go.sum
 
       - name: Run unit tests (exclude integration-tagged tests)
-        working-directory: photos
+        working-directory: photos-service
         run: |
           go test -v ./...

@@ -4,15 +4,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/joho/godotenv"
 	photosapi "github.com/materkov/meme9/api/pb/github.com/materkov/meme9/api/photos"
-	"github.com/materkov/meme9/photos/api"
-	"github.com/materkov/meme9/photos/auth"
-	authpb "github.com/materkov/meme9/photos/internal/authclient/pb/github.com/materkov/meme9/api/auth"
-	"github.com/materkov/meme9/photos/processor"
-	"github.com/materkov/meme9/photos/uploader"
+	"github.com/materkov/meme9/photos-service/api"
+	"github.com/materkov/meme9/photos-service/processor"
+	"github.com/materkov/meme9/photos-service/uploader"
 )
 
 func main() {
@@ -28,21 +25,8 @@ func main() {
 		panic(err)
 	}
 
-	authServiceURL := os.Getenv("AUTH_SERVICE")
-	if authServiceURL == "" {
-		authServiceURL = "http://localhost:8081"
-	}
-
-	authClient := authpb.NewAuthProtobufClient(
-		authServiceURL,
-		&http.Client{
-			Timeout: 10 * time.Second,
-		},
-	)
-	authService := auth.New(authClient)
-
 	// Create API service for upload endpoint
-	apiService := api.New(proc, up, authService)
+	apiService := api.New(proc, up)
 
 	// Create Twirp service
 	photosService := api.NewPhotos()
@@ -50,8 +34,9 @@ func main() {
 
 	// Setup routes
 	mux := http.NewServeMux()
-	// Upload endpoint (handles file uploads)
-	mux.Handle("/twirp/meme.photos.Photos/upload", apiService.Routes())
+	// Upload endpoint (handles file uploads) - with auth middleware
+	uploadHandler := api.AuthMiddleware(apiService.Routes())
+	mux.Handle("/twirp/meme.photos.Photos/upload", uploadHandler)
 	// Twirp service endpoints
 	mux.Handle(photosHandler.PathPrefix(), photosHandler)
 

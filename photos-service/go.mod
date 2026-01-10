@@ -1,4 +1,4 @@
-module github.com/materkov/meme9/photos
+module github.com/materkov/meme9/photos-service
 
 go 1.24.2
 
@@ -38,4 +38,5 @@ require (
 	github.com/aws/smithy-go v1.24.0 // indirect
 	github.com/stretchr/testify v1.11.1
 )
+
 replace github.com/materkov/meme9/api => ../api

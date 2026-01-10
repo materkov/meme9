@@ -36,6 +36,8 @@ export async function POST(
       );
     }
 
+    console.log('sadad');
+
     // Get the backend URL for this service
     const backendUrl = getBackendUrl(service);
     const targetUrl = `${backendUrl}/twirp/${fullPath}`;    
@@ -57,7 +59,7 @@ export async function POST(
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       'x-user-id': userId,
-      'authorization': authHeader,
+      //'authorization': authHeader,
     };
     console.log('headers', headers);
 

@@ -50,6 +50,16 @@ class TwirpRpcImpl {
       headers["Authorization"] = 'Bearer ' + token;
     }
 
+    const isServerSide = typeof window === "undefined";
+    if (token && service != "meme.auth.Auth" && isServerSide) {
+      try {
+        const resp = await AuthClient.VerifyToken({ token: token });
+        headers["x-user-id"] = resp.userId;
+      } catch (error) {
+        console.error('Token verification error:', error);
+      }
+    }
+
     let response: Response;
     let responseBody: any = null;
     try {

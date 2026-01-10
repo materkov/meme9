@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	"github.com/twitchtv/twirp"
 )
@@ -22,16 +21,7 @@ func getUserIDFromContext(ctx context.Context) string {
 
 func AuthMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-
-		// Get user ID from x-user-id header (set by frontend proxy after token verification)
-		userID := r.Header.Get("x-user-id")
-		userID = strings.TrimSpace(userID)
-
-		if userID != "" {
-			ctx = context.WithValue(r.Context(), UserIDKey, userID)
-		}
-
+		ctx := context.WithValue(r.Context(), UserIDKey, r.Header.Get("x-user-id"))
 		handler.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

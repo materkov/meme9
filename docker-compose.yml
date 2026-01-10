@@ -115,7 +115,7 @@ services:
 
   photos-service:
     build:
-      context: ./photos
+      context: ./photos-service
       dockerfile: Dockerfile
     container_name: meme9-photos-service
     restart: unless-stopped
@@ -123,11 +123,8 @@ services:
       - "8086:8086"
     environment:
       ADDR: "0.0.0.0:8086"
-      AUTH_SERVICE: http://auth-service:8081
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_KEY: ${AWS_SECRET_KEY}
-    depends_on:
-      - auth-service
 
 volumes:
   mongodb_data:

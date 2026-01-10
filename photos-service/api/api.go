@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/materkov/meme9/photos/processor"
+	"github.com/materkov/meme9/photos-service/processor"
 )
 
 type Processor interface {
@@ -17,21 +17,16 @@ type Processor interface {
 type Uploader interface {
 	Upload(ctx context.Context, file []byte) (url string, err error)
 }
-type Auth interface {
-	Auth(ctx context.Context, header string) (string, error)
-}
 
 type Service struct {
 	processor Processor
 	uploader  Uploader
-	auth      Auth
 }
 
-func New(processor Processor, uploader Uploader, auth Auth) *Service {
+func New(processor Processor, uploader Uploader) *Service {
 	return &Service{
 		processor: processor,
 		uploader:  uploader,
-		auth:      auth,
 	}
 }
 
@@ -52,8 +47,8 @@ func (s *Service) Routes() http.Handler {
 func (s *Service) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	_, err := s.auth.Auth(ctx, r.Header.Get("Authorization"))
-	if err != nil {
+	userID := GetUserIDFromContext(ctx)
+	if userID == "" {
 		http.Error(w, "auth_required", http.StatusUnauthorized)
 		return
 	}

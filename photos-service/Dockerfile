@@ -5,12 +5,12 @@ WORKDIR /build
 # Copy api module first (needed for replace directive)
 COPY api /api
 # Copy service go.mod and go.sum
-COPY photos/go.mod photos/go.sum ./
+COPY photos-service/go.mod photos-service/go.sum ./
 # Download dependencies and update go.sum to include api's dependencies
 RUN go mod download && go mod tidy
 
 # Copy service code
-COPY photos .
+COPY photos-service .
 # Update go.sum to include all dependencies from actual imports
 RUN go mod tidy
 RUN go build -o /app ./cmd

@@ -37,9 +37,9 @@ jobs:
         run: |
           cd likes-service && ../bin/golangci-lint run ./...
 
-      - name: linter run photos
+      - name: linter run photos-service
         run: |
-          cd photos && ../bin/golangci-lint run ./...
+          cd photos-service && ../bin/golangci-lint run ./...
 
       - name: linter run posts-service
         run: |

@@ -4,7 +4,7 @@ use (
 	./api
 	./auth-service
 	./likes-service
-	./photos
+	./photos-service
 	./posts-service
 	./subscriptions-service
 	./users-service
