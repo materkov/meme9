@@ -8,4 +8,4 @@ docker push --platform=linux/amd64 7385cbca-brainy-vulpecula.registry.twcstorage
 # Start image
 cd ~/mypage
 export DOCKER_HOST=ssh://mypage-ru
-docker compose up -d --build users-service
+docker compose up -d --pull always users-service

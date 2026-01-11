@@ -9,6 +9,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/materkov/meme9/api v0.0.0-20260108223855-e3a4be80c9f6
 	github.com/twitchtv/twirp v8.1.3+incompatible
+	go.uber.org/mock v0.6.0
 	golang.org/x/image v0.34.0
 	google.golang.org/protobuf v1.36.11
 )
@@ -16,10 +17,6 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	go.uber.org/mock v0.6.0 // indirect
-	golang.org/x/mod v0.27.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

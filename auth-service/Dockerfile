@@ -13,10 +13,10 @@ RUN go mod download && go mod tidy
 COPY auth-service .
 # Update go.sum to include all dependencies from actual imports
 RUN go mod tidy
-RUN go build -o /app ./cmd
+RUN go build -o /auth-service ./cmd
 
 FROM alpine:3.22
 RUN apk add --no-cache ca-certificates
-COPY --from=0 /app /app
-CMD ["/app"]
+COPY --from=0 /auth-service /auth-service
+CMD ["/auth-service"]
 

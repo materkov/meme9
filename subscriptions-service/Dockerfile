@@ -13,10 +13,10 @@ RUN go mod download && go mod tidy
 COPY subscriptions-service .
 # Update go.sum to include all dependencies from actual imports
 RUN go mod tidy
-RUN go build -o /app ./cmd
+RUN go build -o /subscriptions-service ./cmd
 
 FROM alpine:3.22
 RUN apk add --no-cache ca-certificates
-COPY --from=0 /app /app
-CMD ["/app"]
+COPY --from=0 /subscriptions-service /subscriptions-service
+CMD ["/subscriptions-service"]
 

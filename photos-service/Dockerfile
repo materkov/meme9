@@ -13,10 +13,9 @@ RUN go mod download && go mod tidy
 COPY photos-service .
 # Update go.sum to include all dependencies from actual imports
 RUN go mod tidy
-RUN go build -o /app ./cmd
+RUN go build -o /photos-service ./cmd
 
 FROM alpine:3.22
 RUN apk add --no-cache ca-certificates
-COPY --from=0 /app /app
-CMD ["/app"]
-
+COPY --from=0 /photos-service /photos-service
+CMD ["/photos-service"]
