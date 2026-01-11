@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PostsClient } from '@/lib/api-clients';
 import { useRouter } from 'next/navigation';
+import styles from './Composer.module.css';
 
 export default function Composer() {
   const { userId: viewerId } = useAuth();
@@ -36,10 +37,10 @@ export default function Composer() {
   };
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 shadow-sm mb-6">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className={styles.container}>
+      <form onSubmit={handleSubmit} className={styles.form}>
         <div>
-          <label htmlFor="post-text" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          <label htmlFor="post-text" className={styles.label}>
             What's on your mind?
           </label>
           <textarea
@@ -48,25 +49,25 @@ export default function Composer() {
             onChange={(e) => setText(e.target.value)}
             placeholder="Share your thoughts..."
             rows={4}
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-zinc-50 resize-none"
+            className={styles.textarea}
             disabled={loading}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+          <p className={styles.charCount}>
             {text.length} characters
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <div className={styles.error}>
+            <p className={styles.errorText}>{error}</p>
           </div>
         )}
 
-        <div className="flex justify-end">
+        <div className={styles.buttonContainer}>
           <button
             type="submit"
             disabled={loading || !text.trim()}
-            className="px-6 py-2 bg-black dark:bg-zinc-50 text-white dark:text-black rounded-lg font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className={styles.submitButton}
           >
             {loading ? 'Publishing...' : 'Publish'}
           </button>

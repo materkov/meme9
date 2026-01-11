@@ -15,13 +15,11 @@
   },
   "devDependencies": {
     "@protobuf-ts/plugin": "^2.11.1",
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
-    "tailwindcss": "^4",
     "twirp-ts": "^2.5.0",
     "typescript": "^5"
   }

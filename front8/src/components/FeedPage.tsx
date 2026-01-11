@@ -6,6 +6,7 @@ import { getAuthToken } from '@/lib/authHelpers';
 import FeedTabs from '@/components/FeedTabs';
 import Composer from '@/components/Composer';
 import PostCard from './PostCard';
+import styles from './FeedPage.module.css';
 
 interface FeedPageProps {
   searchParams: Promise<{ feed?: string }>;
@@ -36,10 +37,10 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-black dark:text-zinc-50">Feed</h1>
-        <Suspense fallback={<div className="w-[140px]" />}>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Feed</h1>
+        <Suspense fallback={<div style={{ width: '140px' }} />}>
           <FeedTabs searchParams={searchParams} />
         </Suspense>
       </div>
@@ -47,18 +48,18 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
       <Composer />
 
       {error ? (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-red-600 dark:text-red-400">Error: {error}</p>
+        <div className={styles.error}>
+          <p className={styles.errorText}>Error: {error}</p>
         </div>
       ) : feedType === FeedType.SUBSCRIPTIONS && posts.length === 0 ? (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-zinc-600 dark:text-zinc-400">
+        <div className={styles.empty}>
+          <p className={styles.emptyText}>
             No posts from your subscriptions. Try following some users!
           </p>
         </div>
       ) : posts.length === 0 ? (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-zinc-600 dark:text-zinc-400">No posts found</p>
+        <div className={styles.empty}>
+          <p className={styles.emptyText}>No posts found</p>
         </div>
       ) : (
         <>

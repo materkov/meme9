@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import styles from './Snackbar.module.css';
 
 interface SnackbarProps {
   message: string;
@@ -35,13 +36,13 @@ export default function Snackbar({ message, isVisible, onClose, duration = 3000 
 
   return (
     <div
-      className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+      className={`${styles.container} ${
+        isVisible ? styles.containerVisible : styles.containerHidden
       }`}
     >
-      <div className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] max-w-[500px]">
+      <div className={styles.snackbar}>
         <svg
-          className="w-5 h-5 flex-shrink-0"
+          className={styles.icon}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -54,14 +55,14 @@ export default function Snackbar({ message, isVisible, onClose, duration = 3000 
             d="M5 13l4 4L19 7"
           />
         </svg>
-        <p className="text-sm font-medium flex-1">{message}</p>
+        <p className={styles.message}>{message}</p>
         <button
           onClick={onClose}
-          className="text-current opacity-70 hover:opacity-100 transition-opacity"
+          className={styles.closeButton}
           aria-label="Close"
         >
           <svg
-            className="w-5 h-5"
+            className={styles.closeIcon}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

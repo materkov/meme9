@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { LikesClient } from "@/lib/api-clients";
 import type { GetLikersResponse_Liker } from "@/schema/likes";
+import styles from "./LikersPopup.module.css";
 
 interface LikersPopupProps {
   postId: string;
@@ -119,7 +120,7 @@ export default function LikersPopup({
     <div
       ref={popupRef}
       data-likers-popup
-      className="fixed z-50 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg min-w-[250px] max-w-[350px] max-h-[400px] overflow-hidden flex flex-col"
+      className={styles.popup}
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
@@ -127,49 +128,49 @@ export default function LikersPopup({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div className="p-3 border-b border-zinc-200 dark:border-zinc-800">
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+      <div className={styles.header}>
+        <h3 className={styles.title}>
           {likesCount === 1 ? "1 like" : `${likesCount} likes`}
         </h3>
       </div>
 
-      <div className="overflow-y-auto flex-1">
+      <div className={styles.content}>
         {loading && likers.length === 0 ? (
-          <div className="p-4 text-center text-sm text-zinc-600 dark:text-zinc-400">
+          <div className={styles.loading}>
             Loading...
           </div>
         ) : error ? (
-          <div className="p-4 text-center text-sm text-red-600 dark:text-red-400">
+          <div className={styles.error}>
             {error}
           </div>
         ) : likers.length === 0 ? (
-          <div className="p-4 text-center text-sm text-zinc-600 dark:text-zinc-400">
+          <div className={styles.empty}>
             No likers found
           </div>
         ) : (
-          <div className="py-2">
+          <div className={styles.likersList}>
             {likers.map((liker) => (
               <Link
                 key={liker.userId}
                 href={`/user/${liker.userId}`}
-                className="block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                className={styles.likerLink}
                 onClick={onClose}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex items-center justify-center">
+                <div className={styles.likerInfo}>
+                  <div className={styles.likerAvatar}>
                     {liker.userAvatar ? (
                       <img
                         src={liker.userAvatar}
                         alt={`${liker.username || "User"} avatar`}
-                        className="w-full h-full object-cover"
+                        className={styles.likerAvatarImage}
                       />
                     ) : (
-                      <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                      <span className={styles.likerAvatarInitial}>
                         {liker.username?.[0]?.toUpperCase() || "?"}
                       </span>
                     )}
                   </div>
-                  <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                  <span className={styles.likerName}>
                     {liker.username || "Unknown User"}
                   </span>
                 </div>
@@ -179,11 +180,11 @@ export default function LikersPopup({
         )}
 
         {hasMore && (
-          <div className="p-2 border-t border-zinc-200 dark:border-zinc-800">
+          <div className={styles.loadMoreContainer}>
             <button
               onClick={loadMore}
               disabled={loading}
-              className="w-full px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={styles.loadMoreButton}
             >
               {loading ? "Loading..." : "Load more"}
             </button>

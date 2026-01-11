@@ -1,0 +1,12 @@
+.tabs {
+  display: flex;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tabs {
+    border-color: #27272a;
+  }
+}

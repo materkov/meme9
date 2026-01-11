@@ -1,0 +1,111 @@
+.header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .header {
+    background-color: #18181b;
+    border-bottom-color: #27272a;
+  }
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.logo:hover {
+  opacity: 0.8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .logo {
+    color: #fafafa;
+  }
+}
+
+.authContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 140px;
+  justify-content: flex-end;
+}
+
+.welcomeText {
+  color: #3f3f46;
+  white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .welcomeText {
+    color: #d4d4d8;
+  }
+}
+
+.username {
+  font-weight: 600;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+}
+
+.logoutButton {
+  background-color: #f4f4f5;
+  color: #3f3f46;
+}
+
+.logoutButton:hover {
+  background-color: #e4e4e7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .logoutButton {
+    background-color: #27272a;
+    color: #d4d4d8;
+  }
+
+  .logoutButton:hover {
+    background-color: #3f3f46;
+  }
+}
+
+.loginButton {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.loginButton:hover {
+  background-color: #27272a;
+}
+
+@media (prefers-color-scheme: dark) {
+  .loginButton {
+    background-color: #fafafa;
+    color: #000000;
+  }
+
+  .loginButton:hover {
+    background-color: #e4e4e7;
+  }
+}

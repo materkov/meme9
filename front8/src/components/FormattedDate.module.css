@@ -1,0 +1,10 @@
+.date {
+  font-size: 0.875rem;
+  color: #71717a;
+}
+
+@media (prefers-color-scheme: dark) {
+  .date {
+    color: #a1a1aa;
+  }
+}

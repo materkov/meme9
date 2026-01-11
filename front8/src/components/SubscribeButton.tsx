@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SubscriptionsClient } from '@/lib/api-clients';
 import { useAuth } from '@/contexts/AuthContext';
+import styles from './SubscribeButton.module.css';
 
 interface SubscribeButtonProps {
   userId: string;
@@ -49,18 +50,18 @@ export default function SubscribeButton({ userId, initialSubscribed }: Subscribe
   };
 
   return (
-    <div className="flex flex-col items-end">
+    <div className={styles.container}>
       <button
         type="button"
         onClick={handleSubscribe}
         disabled={loading}
-        className="px-6 py-2 rounded-lg font-medium transition-all duration-300 bg-black dark:bg-zinc-50 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        className={styles.button}
       >
         {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
       </button>
       {error && (
-        <div className="mt-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-2">
-          <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
+        <div className={styles.error}>
+          <p className={styles.errorText}>{error}</p>
         </div>
       )}
     </div>

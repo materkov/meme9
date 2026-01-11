@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import type { Post } from '@/schema/posts';
+import styles from './PostCardClickable.module.css';
 
 interface PostCardClickableProps {
   post: Post;
@@ -25,7 +26,7 @@ export default function PostCardClickable({ post, clickable, children }: PostCar
   return (
     <div 
       onClick={handleClick}
-      className="hover:shadow-md transition-shadow cursor-pointer"
+      className={styles.clickable}
     >
       {children}
     </div>

@@ -1,10 +1,10 @@
+import styles from './FormattedDate.module.css';
+
 interface FormattedDateProps {
   date: string;
 }
 
 export default function FormattedDate({ date }: FormattedDateProps) {
-  const className = "text-sm text-zinc-500 dark:text-zinc-400";
-
   const dateObj = new Date(date);
   const formattedDate = dateObj.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -15,7 +15,7 @@ export default function FormattedDate({ date }: FormattedDateProps) {
   });
 
   return (
-    <time className={className}>
+    <time className={styles.date}>
       {formattedDate}
     </time>
   );

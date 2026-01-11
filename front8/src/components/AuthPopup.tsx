@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { AuthClient, ApiError } from '@/lib/api-clients';
 import type { LoginResponse } from '@/schema/auth';
 import { useAuth } from '@/contexts/AuthContext';
+import styles from './AuthPopup.module.css';
 
 interface AuthPopupProps {
   onClose: () => void;
@@ -52,18 +53,18 @@ export default function AuthPopup({ onClose }: AuthPopupProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl max-w-md w-full p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-black dark:text-zinc-50">
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>
             Authorization
           </h2>
           <button
             onClick={onClose}
-            className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+            className={styles.closeButton}
           >
             <svg
-              className="w-6 h-6"
+              className={styles.closeIcon}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -78,17 +79,13 @@ export default function AuthPopup({ onClose }: AuthPopupProps) {
           </button>
         </div>
 
-        <div className="flex mb-6 border-b border-zinc-200 dark:border-zinc-700">
+        <div className={styles.tabs}>
           <button
             onClick={() => {
               setIsLogin(true);
               setError(null);
             }}
-            className={`flex-1 py-2 px-4 text-center font-medium transition-colors ${
-              isLogin
-                ? 'text-black dark:text-zinc-50 border-b-2 border-black dark:border-zinc-50'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
-            }`}
+            className={`${styles.tab} ${isLogin ? styles.tabActive : ''}`}
           >
             Login
           </button>
@@ -98,27 +95,23 @@ export default function AuthPopup({ onClose }: AuthPopupProps) {
               setIsLogin(false);
               setError(null);
             }}
-            className={`flex-1 py-2 px-4 text-center font-medium transition-colors ${
-              !isLogin
-                ? 'text-black dark:text-zinc-50 border-b-2 border-black dark:border-zinc-50'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
-            }`}
+            className={`${styles.tab} ${!isLogin ? styles.tabActive : ''}`}
           >
             Register
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className={styles.form}>
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div className={styles.error}>
+              <p className={styles.errorText}>{error}</p>
             </div>
           )}
 
-          <div>
+          <div className={styles.field}>
             <label
               htmlFor="username"
-              className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              className={styles.label}
             >
               Username
             </label>
@@ -128,15 +121,15 @@ export default function AuthPopup({ onClose }: AuthPopupProps) {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-zinc-50"
+              className={styles.input}
               placeholder="Enter your username"
             />
           </div>
 
-          <div>
+          <div className={styles.field}>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              className={styles.label}
             >
               Password
             </label>
@@ -146,7 +139,7 @@ export default function AuthPopup({ onClose }: AuthPopupProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-zinc-50"
+              className={styles.input}
               placeholder="Enter your password"
             />
           </div>
@@ -154,7 +147,7 @@ export default function AuthPopup({ onClose }: AuthPopupProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black dark:bg-zinc-50 text-white dark:text-black py-2 px-4 rounded-lg font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className={styles.submitButton}
           >
             {loading ? 'Loading...' : isLogin ? 'Login' : 'Register'}
           </button>

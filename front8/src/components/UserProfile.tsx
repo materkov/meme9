@@ -4,6 +4,7 @@ import { getAuthUserId } from '@/lib/authHelpers';
 import PostCard from './PostCard';
 import SubscribeButton from './SubscribeButton';
 import AvatarUploadButton from './AvatarUploadButton';
+import styles from './UserProfile.module.css';
 
 interface UserProfileProps {
   user: User;
@@ -17,25 +18,25 @@ export default async function UserProfile({ user, initialPosts, initialSubscribe
   const isOwnProfile = viewerId && viewerId === user.id;
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-4">
+    <div className={styles.container}>
+      <div className={styles.profileCard}>
+        <div className={styles.profileHeader}>
+          <div className={styles.profileInfo}>
             {user.avatarUrl ? (
               <img
                 src={user.avatarUrl}
                 alt={`${user.username}'s avatar`}
-                className="w-16 h-16 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700"
+                className={styles.avatar}
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center border-2 border-zinc-200 dark:border-zinc-700">
-                <span className="text-2xl font-bold text-zinc-500 dark:text-zinc-400">
+              <div className={styles.avatarPlaceholder}>
+                <span className={styles.avatarInitial}>
                   {user.username.charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
             <div>
-              <h1 className="text-3xl font-bold text-black dark:text-zinc-50">
+              <h1 className={styles.username}>
                 {user.username}
               </h1>
             </div>
@@ -49,17 +50,17 @@ export default async function UserProfile({ user, initialPosts, initialSubscribe
         </div>
       </div>
 
-      <div>
-        <h2 className="text-2xl font-bold text-black dark:text-zinc-50 mb-4">
+      <div className={styles.postsSection}>
+        <h2 className={styles.postsTitle}>
           Posts
         </h2>
 
         {initialPosts.length === 0 ? (
-          <div className="flex items-center justify-center py-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg">
-            <p className="text-zinc-600 dark:text-zinc-400">No posts yet</p>
+          <div className={styles.emptyPosts}>
+            <p className={styles.emptyPostsText}>No posts yet</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className={styles.postsList}>
             {initialPosts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}

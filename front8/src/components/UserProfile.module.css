@@ -1,0 +1,143 @@
+.container {
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.profileCard {
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .profileCard {
+    background-color: #18181b;
+    border-color: #27272a;
+  }
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.profileInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e4e4e7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .avatar {
+    border-color: #3f3f46;
+  }
+}
+
+.avatarPlaceholder {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background-color: #e4e4e7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #e4e4e7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .avatarPlaceholder {
+    background-color: #27272a;
+    border-color: #3f3f46;
+  }
+}
+
+.avatarInitial {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #71717a;
+}
+
+@media (prefers-color-scheme: dark) {
+  .avatarInitial {
+    color: #a1a1aa;
+  }
+}
+
+.username {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+  .username {
+    color: #fafafa;
+  }
+}
+
+.postsSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.postsTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .postsTitle {
+    color: #fafafa;
+  }
+}
+
+.emptyPosts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .emptyPosts {
+    background-color: #18181b;
+    border-color: #27272a;
+  }
+}
+
+.emptyPostsText {
+  color: #52525b;
+}
+
+@media (prefers-color-scheme: dark) {
+  .emptyPostsText {
+    color: #a1a1aa;
+  }
+}
+
+.postsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

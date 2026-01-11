@@ -1,0 +1,61 @@
+.container {
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+  .title {
+    color: #fafafa;
+  }
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.errorText {
+  color: #dc2626;
+}
+
+@media (prefers-color-scheme: dark) {
+  .errorText {
+    color: #f87171;
+  }
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.emptyText {
+  color: #52525b;
+}
+
+@media (prefers-color-scheme: dark) {
+  .emptyText {
+    color: #a1a1aa;
+  }
+}

@@ -1,0 +1,33 @@
+.page {
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    background-color: #000000;
+  }
+}
+
+.main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.errorText {
+  color: #dc2626;
+}
+
+@media (prefers-color-scheme: dark) {
+  .errorText {
+    color: #f87171;
+  }
+}

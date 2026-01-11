@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { FeedType } from '@/schema/posts';
+import styles from './FeedTabButton.module.css';
 
 interface FeedTabButtonProps {
   type: FeedType;
@@ -35,15 +36,11 @@ export default function FeedTabButton({
     href = newParams ? `/feed?${newParams}` : '/feed';
   }
 
-  const classes = 'px-4 py-2 text-sm font-medium transition-colors';
-  const activeClasses = 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800';
-  const inactiveClasses = 'bg-black dark:bg-zinc-50 text-white dark:text-black';
-
   if (disabled) {
     return (
       <button
         disabled
-        className={`${classes} ${isActive ? inactiveClasses : activeClasses} opacity-50 cursor-not-allowed`}
+        className={`${styles.button} ${isActive ? styles.buttonInactive : styles.buttonActive}`}
         title={disabledTitle}
       >
         {label}
@@ -54,7 +51,7 @@ export default function FeedTabButton({
   return (
     <Link
       href={href}
-      className={`${classes} ${isActive ? inactiveClasses : activeClasses} block text-center`}
+      className={`${styles.button} ${styles.link} ${isActive ? styles.buttonInactive : styles.buttonActive}`}
     >
       {label}
     </Link>

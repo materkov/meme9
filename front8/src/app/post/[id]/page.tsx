@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import PostCard from '@/components/PostCard';
 import { PostsClient } from '@/lib/api-clients';
+import styles from './page.module.css';
 
 interface PageProps {
   params: Promise<{
@@ -56,10 +57,10 @@ export default async function PostPage({ params }: PageProps) {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-black">
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center py-12">
-            <p className="text-red-600 dark:text-red-400">Error: {error || 'Post not found'}</p>
+      <div className={styles.page}>
+        <main className={styles.main}>
+          <div className={styles.error}>
+            <p className={styles.errorText}>Error: {error || 'Post not found'}</p>
           </div>
         </main>
       </div>
@@ -67,8 +68,8 @@ export default async function PostPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
-      <main className="container mx-auto px-4 py-8">
+    <div className={styles.page}>
+      <main className={styles.main}>
         <PostCard post={post} clickable={false} />
       </main>
     </div>

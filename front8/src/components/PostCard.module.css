@@ -1,0 +1,108 @@
+.card {
+  position: relative;
+}
+
+.cardInner {
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .cardInner {
+    background-color: #18181b;
+    border-color: #27272a;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #e4e4e7;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .avatar {
+    background-color: #3f3f46;
+  }
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitial {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #52525b;
+}
+
+@media (prefers-color-scheme: dark) {
+  .avatarInitial {
+    color: #a1a1aa;
+  }
+}
+
+.username {
+  font-weight: 600;
+  color: #000000;
+  text-decoration: none;
+}
+
+.username:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-color-scheme: dark) {
+  .username {
+    color: #fafafa;
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.text {
+  color: #27272a;
+  white-space: pre-wrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .text {
+    color: #e4e4e7;
+  }
+}
+
+.clickable {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.clickable:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}

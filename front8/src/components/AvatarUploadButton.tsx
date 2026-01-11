@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { UsersClient } from "@/lib/api-clients";
 import { SetAvatarRequest } from "@/schema/users";
 import { getAuthToken } from "@/lib/authHelpers";
+import styles from "./AvatarUploadButton.module.css";
 
 interface AvatarUploadButtonProps {
   userId: string;
@@ -91,25 +92,25 @@ export default function AvatarUploadButton({
   };
 
   return (
-    <div className="flex flex-col items-end">
+    <div className={styles.container}>
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         onChange={handleFileSelect}
-        className="hidden"
+        className={styles.hiddenInput}
         disabled={uploading}
       />
       <button
         type="button"
         onClick={handleButtonClick}
         disabled={uploading}
-        className="px-4 py-2 rounded-lg font-medium transition-all duration-300 bg-black dark:bg-zinc-50 text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        className={styles.button}
       >
         {uploading ? "Uploading..." : "Upload Avatar"}
       </button>
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400 mt-2">{error}</p>
+        <p className={styles.error}>{error}</p>
       )}
     </div>
   );

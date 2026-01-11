@@ -1,6 +1,7 @@
 import { FeedType } from '@/schema/posts';
 import { getAuthToken } from '@/lib/authHelpers';
 import FeedTabButton from './FeedTabButton';
+import styles from './FeedTabs.module.css';
 
 interface FeedTabsProps {
   searchParams: Promise<{ feed?: string }>;
@@ -18,7 +19,7 @@ export default async function FeedTabs({ searchParams }: FeedTabsProps) {
   const isAuthenticated = !!token;
 
   return (
-    <div className="flex border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+    <div className={styles.tabs}>
       <FeedTabButton
         type={FeedType.ALL}
         label="Global"

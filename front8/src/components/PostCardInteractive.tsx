@@ -9,6 +9,7 @@ import { LikesClient, PostsClient } from '@/lib/api-clients';
 import { ApiError } from '@/lib/api-clients';
 import LikersPopup from './LikersPopup';
 import PostMenuPopup from './PostMenuPopup';
+import styles from './PostCardInteractive.module.css';
 
 interface PostCardInteractiveProps {
   post: Post;
@@ -164,21 +165,19 @@ export default function PostCardInteractive({
   if (showLikeButton) {
     return (
       <>
-        <div className="mt-4 flex items-center gap-2">
+        <div className={styles.likeButtonContainer}>
           <button
             ref={likeButtonRef}
             onClick={handleLikeClick}
             onMouseEnter={handleLikeButtonHover}
             onMouseLeave={handleLikeButtonLeave}
             disabled={!isAuthenticated || isLiking}
-            className={`flex items-center gap-1 px-3 py-1 rounded-full transition-colors ${
-              isLiked
-                ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
-                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-            } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            className={`${styles.likeButton} ${
+              isLiked ? styles.likeButtonLiked : styles.likeButtonNotLiked
+            }`}
           >
             <svg
-              className="w-5 h-5"
+              className={styles.likeIcon}
               fill={isLiked ? 'currentColor' : 'none'}
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -191,7 +190,7 @@ export default function PostCardInteractive({
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
-            <span className="text-sm font-medium">{likesCount}</span>
+            <span className={styles.likeCount}>{likesCount}</span>
           </button>
         </div>
         

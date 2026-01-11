@@ -1,4 +1,5 @@
 import FeedPage from '@/components/FeedPage';
+import styles from './page.module.css';
 
 interface FeedProps {
   searchParams: Promise<{ feed?: string }>;
@@ -6,8 +7,8 @@ interface FeedProps {
 
 export default async function Feed({ searchParams }: FeedProps) {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
-      <main className="container mx-auto px-4 py-8">
+    <div className={styles.page}>
+      <main className={styles.main}>
         <FeedPage searchParams={searchParams} />
       </main>
     </div>
