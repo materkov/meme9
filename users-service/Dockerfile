@@ -6,13 +6,11 @@ WORKDIR /build
 COPY api /api
 # Copy service go.mod and go.sum
 COPY users-service/go.mod users-service/go.sum ./
-# Download dependencies and update go.sum to include api's dependencies
-RUN go mod download && go mod tidy
+# Download dependencies
+RUN go mod download
 
 # Copy service code
 COPY users-service .
-# Update go.sum to include all dependencies from actual imports
-RUN go mod tidy
 RUN go build -o /users-service ./cmd
 
 FROM alpine:3.22
