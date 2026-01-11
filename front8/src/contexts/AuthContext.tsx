@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useLayoutEffect, useState, useRef, ReactNode } from 'react';
+import { createContext, useContext, useLayoutEffect, useState, useRef, ReactNode } from 'react';
 import { getAuthToken, getAuthUsername, getAuthUserId } from '@/lib/authHelpers';
 import type { LoginResponse } from '@/schema/auth';
 import { setAuthTokenCookie, removeAuthTokenCookie } from '@/lib/authHelpers';

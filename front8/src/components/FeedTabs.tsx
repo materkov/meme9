@@ -30,7 +30,7 @@ export default async function FeedTabs({ searchParams }: FeedTabsProps) {
         label="Subscriptions"
         isActive={currentFeedType === FeedType.SUBSCRIPTIONS}
         disabled={!isAuthenticated}
-        disabledTitle={!isAuthenticated ? 'Login to view subscriptions' : undefined}
+        {...(!isAuthenticated && { disabledTitle: 'Login to view subscriptions' })}
       />
     </div>
   );

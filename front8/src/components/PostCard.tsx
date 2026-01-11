@@ -47,7 +47,10 @@ export default function PostCard({
           </div>
           <div className={styles.meta}>
             <FormattedDate date={post.createdAt} />
-            <PostCardInteractive post={post} onDelete={onDelete} />
+            <PostCardInteractive 
+              post={post} 
+              {...(onDelete && { onDelete })}
+            />
           </div>
         </div>
         <PostCardClickable post={post} clickable={clickable}>
@@ -58,7 +61,7 @@ export default function PostCard({
         <PostCardInteractive
           post={post}
           showLikeButton
-          onLikeChange={onLikeChange}
+          {...(onLikeChange && { onLikeChange })}
         />
       </div>
     </div>

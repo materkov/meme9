@@ -36,16 +36,16 @@ export async function POST(
       );
     }
 
-    console.log('sadad');
-
     // Get the backend URL for this service
     const backendUrl = getBackendUrl(service);
     const targetUrl = `${backendUrl}/twirp/${fullPath}`;    
 
     let userId = "";
 
-    let authHeader = request.headers.get('authorization') || '';
-    let authToken = authHeader.substring(7); // remove "Bearer " prefix
+    const authHeader = request.headers.get('authorization') || '';
+    const authToken = authHeader.startsWith('Bearer ') 
+      ? authHeader.substring(7) 
+      : '';
     
     if (authToken) {
       try {
@@ -59,9 +59,7 @@ export async function POST(
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       'x-user-id': userId,
-      //'authorization': authHeader,
     };
-    console.log('headers', headers);
 
     const body = await request.arrayBuffer();
 

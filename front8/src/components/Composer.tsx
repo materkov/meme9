@@ -26,7 +26,6 @@ export default function Composer() {
     try {
       await PostsClient.Publish({ text: text.trim() });
       setText('');
-      setError(null);
       
       router.refresh();
     } catch (err) {

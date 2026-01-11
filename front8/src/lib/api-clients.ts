@@ -21,20 +21,15 @@ function getApiBaseUrl(service: string): string {
     return `http://localhost:${port}`;
   }
 
-  // Client-side
+  // Client-side - use Next.js API route proxy
   return "";
-  if (window.location.hostname == "localhost") {
-    return `http://localhost:${port}`;
-  } else {
-    return "https://meme2.mmaks.me";
-  }
 }
 
 class TwirpRpcImpl {
   async request(
     service: string,
     method: string,
-    contentType: string,
+    _contentType: string,
     data: any
   ): Promise<any> {
     const baseURL = getApiBaseUrl(service);

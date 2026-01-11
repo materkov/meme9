@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { FeedType } from '@/schema/posts';
 import styles from './FeedTabButton.module.css';
 
@@ -20,7 +20,6 @@ export default function FeedTabButton({
   disabled = false,
   disabledTitle 
 }: FeedTabButtonProps) {
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   
   const typeParam = 'feed';
