@@ -8,7 +8,7 @@ This document describes the dependencies between services in the meme9 project.
 graph TD
     subgraph External[External Services]
         MongoDB[MongoDB]
-        S3[AWS S3]
+        S3[S3-compatible storage]
     end
     
     subgraph Shared[Shared Modules]
@@ -34,7 +34,7 @@ graph TD
     front8 -->|HTTP/Twirp| subscriptions
     front8 -->|HTTP/Twirp| likes
     front8 -->|HTTP/Twirp| posts
-    front8 -->|HTTP/Twirp| photos
+    front8 -->|HTTP upload| photos
     
     %% Service dependencies
     posts -->|HTTP/Twirp| users
@@ -72,7 +72,7 @@ graph TD
 ```
 
 **Legend:**
-- Solid arrows (→) = HTTP/Twirp calls
+- Solid arrows (→) = HTTP calls (Twirp or custom)
 - Dotted arrows (-.->) = Context/indirect dependencies or imports
 
 ## Overview
@@ -81,7 +81,7 @@ The meme9 project consists of:
 - **Frontend**: Next.js application (front8)
 - **Backend Services**: 6 microservices written in Go
 - **Shared**: Protobuf API definitions
-- **External**: MongoDB and AWS S3
+- **External**: MongoDB and S3-compatible object storage
 
 ## Service Dependencies
 
@@ -125,7 +125,7 @@ auth-service
 | | subscriptions-service | HTTP/Twirp | Follow/unfollow users |
 | | likes-service | HTTP/Twirp | Like/unlike posts, get likers |
 | | posts-service | HTTP/Twirp | Create posts, get feed, get posts |
-| | photos-service | HTTP/Twirp | Upload avatars |
+| | photos-service | HTTP upload | Upload avatars |
 | **posts-service** | users-service | HTTP/Twirp | Get user info (username, avatar) for posts |
 | | likes-service | HTTP/Twirp | Get likes count and liked status for posts |
 | **likes-service** | users-service | HTTP/Twirp | Get user info (username, avatar) for likers list |
@@ -143,7 +143,7 @@ auth-service
 | subscriptions-service | MongoDB | Store subscription relationships |
 | likes-service | MongoDB | Store likes data |
 | posts-service | MongoDB | Store posts |
-| photos-service | AWS S3 | Store uploaded images |
+| photos-service | S3-compatible storage (Selectel) | Store uploaded images |
 
 ## Shared Dependencies
 
@@ -161,7 +161,7 @@ All services depend on the shared **api** module which contains:
 | subscriptions-service | 8083 | HTTP/Twirp |
 | likes-service | 8084 | HTTP/Twirp |
 | posts-service | 8085 | HTTP/Twirp |
-| photos-service | 8081 | HTTP (custom endpoint) |
+| photos-service | 8086 | HTTP (upload endpoint + Twirp service) |
 
 ## Dependency Flow
 
@@ -197,16 +197,17 @@ front8 → likes-service → users-service (get user details for each liker)
 
 **Upload Avatar:**
 ```
-front8 → photos-service → (processes and uploads to S3)
-                      → users-service (updates avatar URL)
+front8 → photos-service (upload endpoint) → (processes and uploads to S3-compatible storage)
+front8 → users-service (SetAvatar with returned URL)
 ```
 
 ## Notes
 
-- All services use **Twirp** (RPC framework) for inter-service communication except `photos-service` which uses a custom HTTP endpoint
+- All services use **Twirp** (RPC framework) for inter-service communication
+- `photos-service` also exposes a custom HTTP upload endpoint; its Twirp `GenerateUploadUrl` is disabled
 - Authentication is handled via Bearer tokens passed in the `Authorization` header
 - Server-side requests from `front8` verify tokens with `auth-service` and set `x-user-id` header
 - All backend services (posts, likes, users, subscriptions, photos) **do not directly call auth-service** - they trust the `x-user-id` header set by the frontend
 - Most services use MongoDB for persistence
-- `photos-service` uses AWS S3 for image storage
+- `photos-service` uses S3-compatible object storage (Selectel) for image storage
 - The `api` module is shared across all services and contains the contract definitions
